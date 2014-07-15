@@ -1,7 +1,7 @@
 otis
 ====
 
-An <b>O</b>pen<b>T</b>SDB V<b>is</b>ualiser.
+An [<b>O</b>pen<b>T</b>SDB](http://opentsdb.net) V<b>is</b>ualiser.
 
 A brief list of intended features:
 * Javascript client-side rendered graphs
