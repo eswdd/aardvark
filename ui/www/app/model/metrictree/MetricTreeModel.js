@@ -1,5 +1,5 @@
 
-Ext.define('Otis.store.metrictree.MetricTreeModel', {
+Ext.define('Otis.model.metrictree.MetricTreeModel', {
     extend: 'Ext.data.TreeModel',
     alias: 'model.metrictree'
 

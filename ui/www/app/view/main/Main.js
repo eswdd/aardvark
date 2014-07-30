@@ -19,28 +19,29 @@ Ext.define('Otis.view.main.Main', {
         type: 'border'
     },
 
-    items: [{
-        region: 'north',
-        xtype: 'panel',
-        title: 'Otis - OpenTSDB Visualiser',
-        titleAlign: 'center',
-        collapsible: true
-    },{
-        xtype: 'graphcontrol',
-        region: 'west',
-        width: 220,
-        collapsible: true
-    },{
-        region: 'center',
-        xtype: 'panel'
-    },{
-        xtype: 'panel',
-        region: 'east',
-        html: '<ul><li>Metric tree etc</li></ul>',
-        width: 250,
-        tbar: [{
-            text: 'Button',
-            handler: 'onClickButton'
-        }]
-    }]
+    items: [
+        {
+            region: 'north',
+            xtype: 'panel',
+            title: 'Otis - OpenTSDB Visualiser',
+            titleAlign: 'center',
+            collapsible: true
+        },
+        {
+            xtype: 'graphcontrol',
+            region: 'west',
+            width: 220,
+            collapsible: true
+        },
+        {
+            region: 'center',
+            xtype: 'panel'
+        },
+        {
+            xtype: 'metriccontrol',
+            region: 'east',
+            width: 220,
+            collapsible: true
+        }
+    ]
 });

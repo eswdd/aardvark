@@ -5,39 +5,67 @@
  *
  * TODO - Replace this content of this view to suite the needs of your application.
  */
-Ext.define('Otis.view.graphcontrol.GraphControlController', {
+Ext.define('Otis.view.metriccontrol.MetricControlController', {
     extend: 'Ext.app.ViewController',
-    alias: 'controller.graphcontrol',
+    alias: 'controller.metriccontrol',
 
-    onChangeUseRelativeTime: function(cb, checked) {
-        if (checked) {
-            this.lookupReference('relativeInterval').enable();
-            this.lookupReference('fromDate').disable();
-            this.lookupReference('fromTime').disable();
-        } else {
-            autoRefresh = false;
-            this.lookupReference('relativeInterval').disable();
-            this.lookupReference('fromDate').enable();
-            this.lookupReference('fromTime').enable();
-        }
+    init: function(app) {
+//        alert('a');
+
+        var treeContainer = this.lookupReference("metrictreeContainer");
+        var tree2 = Ext.create('Ext.tree.Panel', {
+            title: 'Simple tree',
+            root: {
+                text: 'Root',
+                expanded: true,
+                useArrows: true,
+                children: [
+                    {
+                        text: 'child 1',
+                        leaf: true
+                    },
+                    {
+                        text: 'child 2',
+                        leaf: true
+                    }
+                ]
+            }
+        });
+        treeContainer.add(tree2);
+
+        var tree = this.lookupReference("metrictree");
+        var rootNode = tree.getRootNode();
+        rootNode.appendChild(
+            {
+                text: 'Child 1',
+                leaf: true
+            });
+        rootNode.appendChild(
+            {
+                text: 'Child 2',
+                leaf: true
+            });
+        rootNode.expand();
+//        alert('b');
+
+//        tree.sync();
+//        alert('c');
     },
 
-    onChangeToNow: function(cb, checked) {
-        if (checked) {
-//            autoRefresh = true;
-            this.lookupReference('toDate').disable();
-            this.lookupReference('toTime').disable();
-        } else {
-            autoRefresh = false;
-            this.lookupReference('toDate').enable();
-            this.lookupReference('toTime').enable();
-        }
-    },
-
-    onClickUpdate: function () {
-
+    onClickDebugTree: function() {
+        var tree = this.lookupReference("metrictree");
+        alert(tree);
+        var rootNode = tree.getRootNode();
+        alert(rootNode);
+        alert(rootNode.text);
+        rootNode.expand();
+        rootNode.appendChild(
+            {
+                text: 'Child 3',
+                leaf: true
+            });
+//        rootNode.expand();
     }
-
 
 
 

@@ -10,7 +10,9 @@ Ext.define('Otis.Application', {
 
     views: [
         'graphcontrol.GraphControl',
-        'graphcontrol.GraphControlController'
+        'graphcontrol.GraphControlController',
+        'metriccontrol.MetricControl',
+        'metriccontrol.MetricControlController'
         // TODO: add views & view controllers here
     ],
 
@@ -20,6 +22,7 @@ Ext.define('Otis.Application', {
     ],
 
     stores: [
+        'metrictree.MetricTreeStore'
         // TODO: add stores here
     ],
 

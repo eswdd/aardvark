@@ -1,10 +1,10 @@
 /**
  * This class is the view model for the Main view of the application.
  */
-Ext.define('Otis.view.graphcontrol.GraphControlModel', {
+Ext.define('Otis.view.metriccontrol.MetricControlModel', {
     extend: 'Ext.app.ViewModel',
 
-    alias: 'viewmodel.graphcontrol',
+    alias: 'viewmodel.metriccontrol',
 
     data: {
 
