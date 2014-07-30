@@ -1,0 +1,27 @@
+api needs to be able to answer:
+
+- what tagk/tagv pairs are valid for this metric
+- what metrics have this tagk/tagv
+
+
+consider:
+
+tsdb-tag-mappings:
+rowkey: <metricuid>
+cf: tagkv
+col: <tagkuid><tagvuid>
+val: <starttime><endtime>
+
+keep a cache of these, if we get a miss, then do an atomic create to create the entry (rowkey/col) with starttime=endtime
+                       if we get a hit, then do an update, leaving starttime as is and setting endtime
+
+this should easily solve q1
+
+todo: what about q2?
+
+can we just do the other way round?
+
+rowkey: <tagkuid><tagvuid>
+cf: metric
+col: <metricname>
+val: <starttime><endtime>
