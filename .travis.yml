@@ -1,11 +1,11 @@
-language: java
-jdk:
-  - oraclejdk7
+language: node_js
+node_js:
+  - "0.10"
+  - "0.11"
+  - iojs
 notifications:
   email:
     on_success: always
     on_failure: always
 before_install:
    - "gem install --version 0.8.9 faraday"
-install: "echo 'No install command here!'"
-script: "mvn install -B"

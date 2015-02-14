@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html ng-app="myApp" ng-controller="TreeCtrl">
+
+<head>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="bower_components/angular/angular.js"></script>
+    <script type="text/javascript" src="bower_components/angular-tree-control/angular-tree-control.js"></script>
+    <!-- link for CSS when using the tree as an attribute -->
+    <link rel="stylesheet" type="text/css" href="bower_components/angular-tree-control/css/tree-control-attribute.css">
+    <!-- App JS -->
+    <script type="text/javascript">
+        angular
+            .module('myApp', ['treeControl'])
+
+            .controller('TreeCtrl', ['$scope', '$http', function($scope, $http) {
+
+                $scope.showTreeFilter = false;
+                $scope.allParentNodes = [];
+                $scope.showFilterInput = false;
+
+                $scope.nodeSelected = function (node,selected) {
+                    var valid = selected && node.isMetric;
+                    $scope.addButtonEnabled = valid;
+                    $scope.selectedMetric = valid ? node.id : '';
+
+                };
+
+                $scope.showHideFilterInput = function() {
+                    if ($scope.showFilterInput) {
+                        $scope.clearFilterInput();
+                    }
+                    $scope.showFilterInput = !$scope.showFilterInput;
+                }
+
+                $scope.clearFilterInput = function() {
+                    $scope.filter = '';
+                }
+
+
+                $scope.collapseAll = function() {
+                    $scope.expandedNodes = [];
+                };
+
+                $scope.expandAll = function() {
+                    $scope.expandedNodes = $scope.allParentNodes;
+                };
+
+                $scope.nodeColor = function(node) {
+                    return node.isMetric ? "green" : "red";
+                };
+
+                $scope.treeOptions = {
+                    nodeChildren: "children",
+                    dirSelectable: true,
+                    injectClasses: {
+                        ul: "a1",
+                        li: "a2",
+                        liSelected: "a7",
+                        iExpanded: "a3",
+                        iCollapsed: "a4",
+                        iLeaf: "a5",
+                        label: "a6",
+                        labelSelected: "a8"
+                    }
+                };
+
+                $http.get('suggest.json').success(function(json) {
+                //$http.get('http://localhost:4242/api/suggest?type=metrics&max=1000000').success(function(json) {
+                    // right we need to build our tree, we have an array of name, we need to split by "."
+
+                    var roots = [];
+                    var nodes = {};
+                    var allNodes = [];
+                    var parentNodes = [];
+
+                    for (var i = 0; i < json.length; i++) {
+                        var path = json[i].split(".");
+                        var parent = roots;
+                        var id = "";
+                        for (var j = 0; j < path.length; j++) {
+                            if (j > 0) {
+                                id += ".";
+                            }
+                            id += path[j];
+                            var node = nodes[id];
+                            if (!node) {
+                                node = {id: id, name:path[j], isMetric:false, children: []};
+                                if (parent == roots) {
+                                    parent.push(node);
+                                }
+                                else {
+                                    parent.children.push(node);
+                                }
+                                nodes[id] = node;
+                                allNodes.push(node);
+                            }
+                            parent = node;
+                        }
+                        parent.isMetric = true;
+                    }
+
+                    $scope.dataForTheTree = roots;
+                    for (var k=0; k<allNodes.length; k++) {
+                        if (allNodes[k].children.length > 0) {
+                            parentNodes.push(allNodes[k]);
+                        }
+                    }
+                    $scope.allParentNodes = parentNodes;
+                });
+
+                $scope.tagValues["host"] = ["host1","host2","host3"];
+                $scope.tagValues["user"] = ["jon","dave","joe","simon","fred","dave"];
+                $scope.tagValues["method"] = ["put","post","get","head","options","delete"];
+            }]);
+    </script>
+</head>
+
+<body>
+
+<div style="width: 400px">
+    <input type="button" value="+" ng-click="expandAll()">
+    <input type="button" value="-" ng-click="collapseAll()">
+    <input type="button" value="F" ng-click="showHideFilterInput()">
+    <input type="text" ng-model="filter" ng-show="showFilterInput">
+    <input type="button" value="C" ng-click="clearFilterInput()" ng-show="showFilterInput">
+
+    <div style="overflow: auto; height: 100px; border-color: black; border-width: 1px; border-style: solid">
+        <div treecontrol
+             class="tree-light"
+             tree-model="dataForTheTree"
+             options="treeOptions"
+             on-selection="nodeSelected(node,selected)"
+             selected-node="node1"
+             filter-expression="filter"
+             expanded-nodes="expandedNodes"
+                >
+            <span style="color: {{nodeColor(node)}}">{{node.name}}</span>
+        </div>
+    </div>
+
+    <input type="text" ng-model="selectedMetric" disabled="true">
+
+    <div>
+        Rate? <input type="checkbox">
+        <br/>
+        Downsample?
+        <input type="checkbox" ng-model="downsample">
+        <select ng-model="downsampleBy" ng-disabled="!downsample">
+            <option selected="true">avg</option>
+            <option>sum</option>
+            <option>min</option>
+            <option>max</option>
+            <option>...</option>
+        </select>
+        <input type="text" ng-disabled="!downsample" ng-model="downsampleTo">
+
+        <table>
+            <tr>
+                <td>host</td>
+                <td><input type="text" ng-model="tag.host"/></td>
+            </tr>
+            <tr>
+                <td>user</td>
+                <td><input type="text" ng-model="tag.user"/></td>
+            </tr>
+            <tr>
+                <td>method</td>
+                <td><input type="text" ng-model="tag.method"/></td>
+            </tr>
+        </table>
+
+        <input type="button" value="Add" ng-disabled="!addButtonEnabled">
+    </div>
+
+</div>
+
+
+
+</body>
+</html>

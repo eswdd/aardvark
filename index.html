@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html ng-app="myApp" ng-controller="TreeCtrl">
+
+<head>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="bower_components/angular/angular.js"></script>
+    <script type="text/javascript" src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <script type="text/javascript" src="bower_components/angular-ui-layout/ui-layout.js"></script>
+    <script type="text/javascript" src="bower_components/angular-tree-control/angular-tree-control.js"></script>
+    <!-- link for CSS when using the tree as an attribute -->
+    <link rel="stylesheet" type="text/css" href="bower_components/angular-ui-layout/ui-layout.css">
+    <link rel="stylesheet" type="text/css" href="bower_components/bootstrap-css-only/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="bower_components/bootstrap-css-only/css/bootstrap-theme.css">
+    <link rel="stylesheet" type="text/css" href="bower_components/angular-tree-control/css/tree-control-attribute.css">
+    <!-- App JS -->
+    <script type="text/javascript">
+        angular
+            .module('myApp', ['treeControl','ui.bootstrap','ui.layout'])
+
+            .controller('TreeCtrl', ['$scope', function($scope) {
+                $scope.treeOptions = {
+                    nodeChildren: "children",
+                    dirSelectable: false,
+                    injectClasses: {
+                        ul: "a1",
+                        li: "a2",
+                        liSelected: "a7",
+                        iExpanded: "a3",
+                        iCollapsed: "a4",
+                        iLeaf: "a5",
+                        label: "a6",
+                        labelSelected: "a8"
+                    }
+                };
+                $scope.dataForTheTree =
+                    [
+                        { "name" : "Joe", "age" : "21", "children" : [
+                            { "name" : "Smith", "age" : "42", "children" : [] },
+                            { "name" : "Gary", "age" : "21", "children" : [
+                                { "name" : "Jenifer", "age" : "23", "children" : [
+                                    { "name" : "Dani", "age" : "32", "children" : [] },
+                                    { "name" : "Max", "age" : "34", "children" : [] }
+                                ]}
+                            ]}
+                        ]},
+                        { "name" : "Albert", "age" : "33", "children" : [] },
+                        { "name" : "Ron", "age" : "29", "children" : [] }
+                    ];
+
+            }]);
+
+
+
+    </script>
+    <style>
+        layout-mock *:not(.ui-splitbar){
+            width: 300px;
+            height: 300px;
+        }
+
+
+        .layout-mock .center-back{
+            background-color: lightcyan;
+        }
+        .layout-mock .north-back{
+            background-color: lightgreen;
+        }
+        .layout-mock .south-back{
+            background-color: lightblue;
+        }
+        .layout-mock .east-back{
+            background-color: lightcoral;
+        }
+        .layout-mock .west-back{
+            background-color: lightgray;
+        }
+    </style>
+</head>
+
+<body>
+
+
+
+<div ui-layout class="layout-mock">
+    <header class="north-back"><div>Otis - An OpenTSDB Visualiser</div></header>
+    <ui-layout options="{ flow : 'column' }">
+        <sidebar class="east-back">East</sidebar>
+        <div class="center-back">Center</div>
+        <sidebar class="west-back">
+            <input type="text" ng-model="name">
+
+            <div treecontrol
+                 class="tree-light"
+                 tree-model="dataForTheTree"
+                 options="treeOptions"
+                 on-selection="showSelected(node)"
+                 selected-node="node1"
+                 filter-expression="name"
+                    >
+                employee: {{node.name}} age {{node.age}}
+            </div>
+        </sidebar>
+    </ui-layout>
+    <footer class="south-back">South</footer>
+</div>
+
+
+
+</body>
+</html>
