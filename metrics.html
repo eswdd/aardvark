@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html ng-app="myApp" ng-controller="MetricsCtrl">
+
+<head>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="bower_components/angular/angular.js"></script>
+    <script type="text/javascript" src="bower_components/angular-tree-control/angular-tree-control.js"></script>
+    <!-- link for CSS when using the tree as an attribute -->
+    <link rel="stylesheet" type="text/css" href="bower_components/angular-tree-control/css/tree-control-attribute.css">
+    <!-- App JS -->
+    <script type="text/javascript">
+        angular
+            .module('myApp', ['treeControl'])
+
+            .controller('MetricsCtrl', ['$scope', '$http', function($scope, $http) {
+
+
+                $http.get('suggest.json').success(function(json) {
+                //$http.get('http://localhost:4242/api/suggest?type=metrics&max=1000000').success(function(json) {
+                    // right we need to build our tree, we have an array of name, we need to split by "."
+                    $scope.metrics = json;
+                });
+
+                $scope.tagValues = {};
+                $scope.tagValues["host"] = ["host1","host2","host3"];
+                $scope.tagValues["user"] = ["jon","dave","joe","simon","fred","dave"];
+                $scope.tagValues["method"] = ["put","post","get","head","options","delete"];
+            }]);
+    </script>
+</head>
+
+<body>
+
+<div style="width: 400px">
+    Metric: <select ng-model="selectedMetric">
+        <option></option>
+        <option ng-repeat="metric in metrics">
+            {{metric}}
+        </option>
+    </select>
+
+    <input type="text" ng-model="selectedMetric" disabled="true">
+
+    <div>
+        Rate? <input type="checkbox">
+        <br/>
+        Downsample?
+        <input type="checkbox" ng-model="downsample">
+        <select ng-model="downsampleBy" ng-disabled="!downsample">
+            <option selected="true">avg</option>
+            <option>sum</option>
+            <option>min</option>
+            <option>max</option>
+            <option>...</option>
+        </select>
+        <input type="text" ng-disabled="!downsample" ng-model="downsampleTo">
+
+        <table>
+            <tr>
+                <td>host</td>
+                <td><input type="text" ng-model="tag.host"/></td>
+            </tr>
+            <tr>
+                <td>user</td>
+                <td><input type="text" ng-model="tag.user"/></td>
+            </tr>
+            <tr>
+                <td>method</td>
+                <td><input type="text" ng-model="tag.method"/></td>
+            </tr>
+        </table>
+
+        <input type="button" value="Add">
+    </div>
+
+</div>
+
+
+
+</body>
+</html>

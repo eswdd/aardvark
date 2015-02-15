@@ -2,6 +2,7 @@
 <html ng-app="myApp" ng-controller="TreeCtrl">
 
 <head>
+    <title>Otis - Metric Tree PoC</title>
     <meta charset="utf-8">
     <script type="text/javascript" src="bower_components/angular/angular.js"></script>
     <script type="text/javascript" src="bower_components/angular-tree-control/angular-tree-control.js"></script>
@@ -45,8 +46,8 @@
                     $scope.expandedNodes = $scope.allParentNodes;
                 };
 
-                $scope.nodeColor = function(node) {
-                    return node.isMetric ? "green" : "red";
+                $scope.nodeDecoration = function(node) {
+                    return node.isMetric ? "underline" : "none";
                 };
 
                 $scope.treeOptions = {
@@ -107,10 +108,6 @@
                     }
                     $scope.allParentNodes = parentNodes;
                 });
-
-                $scope.tagValues["host"] = ["host1","host2","host3"];
-                $scope.tagValues["user"] = ["jon","dave","joe","simon","fred","dave"];
-                $scope.tagValues["method"] = ["put","post","get","head","options","delete"];
             }]);
     </script>
 </head>
@@ -134,40 +131,15 @@
              filter-expression="filter"
              expanded-nodes="expandedNodes"
                 >
-            <span style="color: {{nodeColor(node)}}">{{node.name}}</span>
+            <span style="text-decoration: {{nodeDecoration(node)}}">{{node.name}}</span>
         </div>
     </div>
 
     <input type="text" ng-model="selectedMetric" disabled="true">
 
-    <div>
-        Rate? <input type="checkbox">
-        <br/>
-        Downsample?
-        <input type="checkbox" ng-model="downsample">
-        <select ng-model="downsampleBy" ng-disabled="!downsample">
-            <option selected="true">avg</option>
-            <option>sum</option>
-            <option>min</option>
-            <option>max</option>
-            <option>...</option>
-        </select>
-        <input type="text" ng-disabled="!downsample" ng-model="downsampleTo">
-
-        <table>
-            <tr>
-                <td>host</td>
-                <td><input type="text" ng-model="tag.host"/></td>
-            </tr>
-            <tr>
-                <td>user</td>
-                <td><input type="text" ng-model="tag.user"/></td>
-            </tr>
-            <tr>
-                <td>method</td>
-                <td><input type="text" ng-model="tag.method"/></td>
-            </tr>
-        </table>
+        <div>
+        Metric controls go here.
+        </div>
 
         <input type="button" value="Add" ng-disabled="!addButtonEnabled">
     </div>
