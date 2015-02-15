@@ -16,6 +16,18 @@ A brief list of intended features:
 * View/add/edit annotations
 * Metadata viewer
 
+Getting started
+---------------
+```
+   $ git clone https://github.com/eswdd/otis.git
+   $ cd otis
+   $ npm install
+   $ npm start
+```
+Point browser at [http://localhost:8000/](http://localhost:8000/).
+
+Copyright
+---------
 ```
    Copyright 2014 Simon Matic Langford
 
