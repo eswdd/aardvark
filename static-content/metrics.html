@@ -148,26 +148,10 @@
         <input type="text" ng-disabled="!downsample" ng-model="downsampleTo">
 
         <table>
-            <!--tr ng   repeat="tagName in tagNames">
-                <td>{{tagName}}</td>
-                <td><div tag-selection tagk="{{tagName}}"/></td>
-            </tr-->
             <tr ng-repeat="tagk in tagNames">
                 <td>{{tagk}}</td>
-                <td><div tag-selection tagk="tagk"/></td>
+                <td><div tag-selection /></td>
             </tr>
-            <!--tr>
-                <th>host</th>
-                <td><div mass-autocomplete><input type="text" ng-model="tag.host" mass-autocomplete-item="tag_options_fn" dynamic-options="host" /> RE? <input type="checkbox" ng-checked="re.host"/> {{tagValuesMatchCount("host")}}</div></td>
-            </tr>
-            <tr>
-                <th>user</th>
-                <td><div mass-autocomplete><input type="text" ng-model="tag.user" mass-autocomplete-item="tag_options_fn" dynamic-options="user" /> RE? <input type="checkbox" ng-checked="re.user"/> {{tagValuesMatchCount("user")}}</div></td>
-            </tr>
-            <tr>
-                <th>method</th>
-                <td><div mass-autocomplete><input type="text" ng-model="tag.method" mass-autocomplete-item="tag_options_fn" dynamic-options="method" /> RE? <input type="checkbox" ng-checked="re.method"/> {{tagValuesMatchCount("method")}}</div></td>
-            </tr-->
         </table>
 
         <input type="button" value="Add">
