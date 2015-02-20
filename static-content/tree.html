@@ -65,7 +65,7 @@
                     }
                 };
 
-                $http.get('suggest.json').success(function(json) {
+                $http.get('/api/suggest').success(function(json) {
                 //$http.get('http://localhost:4242/api/suggest?type=metrics&max=1000000').success(function(json) {
                     // right we need to build our tree, we have an array of name, we need to split by "."
 

@@ -18,6 +18,8 @@
     "angular-bootstrap": "https://github.com/angular-ui/bootstrap-bower.git#~0.12.0",
     "bootstrap-css-only": "~3.3.2",
     "angular-ui-utils": "~0.2.1",
-    "angular-ui-layout": "~1.0.5"
+    "angular-ui-layout": "~1.0.5",
+    "angular-mass-autocomplete": "~0.2.2",
+    "angular-sanitize": "~1.2.0"
   }
 }
