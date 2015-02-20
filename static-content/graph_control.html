@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html ng-app="myApp" ng-controller="GraphCtrl">
+
+<head>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="../bower_components/angular/angular.js"></script>
+    <script type="text/javascript" src="../bower_components/angular-sanitize/angular-sanitize.js"></script>
+    <script type="text/javascript" src="angular-mass-autocomplete/massautocomplete.js"></script>
+    <link rel="stylesheet" type="text/css" href="angular-mass-autocomplete/massautocomplete.theme.css">
+    <!-- App JS -->
+    <script type="text/javascript">
+        angular
+            .module('myApp', ['ngSanitize','MassAutoComplete'])
+            .controller('GraphCtrl', ['$scope', '$sce', '$http', function($scope, $sce, $http) {
+            }]);
+    </script>
+</head>
+
+<body>
+
+<p><a href="index.html">&lt;&lt; Back</a></p>
+
+<div style="width: 400px">
+
+</div>
+
+
+
+</body>
+</html>
