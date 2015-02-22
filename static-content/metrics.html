@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <script type="text/javascript" src="../bower_components/angular/angular.js"></script>
     <script type="text/javascript" src="../bower_components/angular-sanitize/angular-sanitize.js"></script>
-    <script type="text/javascript" src="angular-mass-autocomplete/massautocomplete.js"></script>
+    <script type="text/javascript" src="../bower_components/angular-mass-autocomplete/massautocomplete.js"></script>
     <link rel="stylesheet" type="text/css" href="angular-mass-autocomplete/massautocomplete.theme.css">
     <!-- App JS -->
     <script type="text/javascript">
@@ -13,7 +13,7 @@
             .module('myApp', ['ngSanitize','MassAutoComplete'])
             .directive('tagSelection', function() {
                 return {
-                    template: '<div mass-autocomplete><input type="text" ng-model="tag[tagk]" mass-autocomplete-item="tag_options_fn" dynamic-options="{{tagk}}"/> RE? <input type="checkbox" ng-checked="re[tagk]"/> {{tagValuesMatchCount(tagk)}}</div>'
+                    template: '<div mass-autocomplete><input type="text" ng-model="tag[tagk]" mass-autocomplete-item="tagOptions[tagk]" /> RE? <input type="checkbox" ng-checked="re[tagk]"/> {{tagValuesMatchCount(tagk)}}</div>'
                 }
             })
             .controller('MetricsCtrl', ['$scope', '$sce', '$http', function($scope, $sce, $http) {
