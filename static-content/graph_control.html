@@ -16,16 +16,38 @@
                 $scope.graphTypes = ["gnuplot","dygraph"];
                 $scope.graphs = [
                     {
+                        "number": 1,
                         "title": "Graph 1",
                         "type": "gnuplot"
                     }
                 ];
+                    $scope.showEdit={};
+                    $scope.isOpen={};
                 $scope.addGraph = function() {
+                    var num = $scope.nextGraphNumber++;
                     $scope.graphs.push({
-                        "title": "Graph "+($scope.nextGraphNumber++),
+                        "number": num,
+                        "title": "Graph "+num,
                         "type": null
-                    })
-                }
+                    });
+                    $scope.showEdit[num] = true;
+
+                    $scope.firstOpen = false;
+                    $scope.isOpen[num] = true;
+                };
+                    $scope.deleteGraph = function(num) {
+                        var index = -1;
+                        for (var i=0; i<$scope.graphs.length; i++) {
+                            if ($scope.graphs[i].number == num) {
+                                index = i;
+                                break;
+                            }
+                        }
+                        if (index == -1) {
+                            return;
+                        }
+                        $scope.graphs.splice(index, 1);
+                    }
                 $scope.firstOpen = true;
             }]);
     </script>
@@ -44,9 +66,31 @@
         <accordion-group heading="Global" is-open="firstOpen">
             <button ng-click="addGraph()" value="Add graph">Add graph</button>
         </accordion-group>
-        <accordion-group heading="{{graph.title}}" ng-repeat="graph in graphs">
+        <accordion-group heading="{{graph.number}}: {{graph.title}}" is-open="isOpen[graph.number]" ng-repeat="graph in graphs">
 
-            {{graph.type}} <button>Delete</button>
+            <div ng-show="showEdit[graph.number]">
+            <input type="text" ng-model="graph.title" />
+
+                <select ng-model="graph.type">
+                    <option ng-repeat="type in graphTypes">{{type}}</option>
+                </select>
+            </div>
+            <div>
+            <button ng-click="showEdit[graph.number] = !showEdit[graph.number]">Edit</button> <button ng-click="deleteGraph(graph.number)">Delete</button>
+            </div>
+
+            <div ng-show="graph.type == 'gnuplot'">
+                gnuplot controls<br/>
+                <input type="checkbox" ng-model="graph.gnuplot.showLegend"/> Show legend
+            </div>
+            <div ng-show="graph.type == 'dygraph'">
+                dygraph controls<br/>
+                <input type="checkbox" ng-model="graph.dygraph.highlightLines"/> Highlight lines
+            </div>
+            <div ng-show="graph.type == 'cubism'">
+                cubism controls
+            </div>
+
         </accordion-group>
     </accordion>
 
