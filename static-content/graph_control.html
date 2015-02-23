@@ -4,16 +4,34 @@
 <head>
     <meta charset="utf-8">
     <script type="text/javascript" src="../bower_components/angular/angular.js"></script>
-    <script type="text/javascript" src="../bower_components/angular-sanitize/angular-sanitize.js"></script>
-    <script type="text/javascript" src="angular-mass-autocomplete/massautocomplete.js"></script>
-    <link rel="stylesheet" type="text/css" href="angular-mass-autocomplete/massautocomplete.theme.css">
+    <script type="text/javascript" src="../bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../bower_components/bootstrap-css-only/css/bootstrap.css"/>
     <!-- App JS -->
     <script type="text/javascript">
         angular
-            .module('myApp', ['ngSanitize','MassAutoComplete'])
-            .controller('GraphCtrl', ['$scope', '$sce', '$http', function($scope, $sce, $http) {
+            .module('myApp', ['ui.bootstrap'])
+            .controller('GraphCtrl', ['$scope', function($scope) {
+                $scope.nextGraphNumber = 2;
+                $scope.graphTypes = ["gnuplot","dygraph"];
+                $scope.graphs = [
+                    {
+                        "title": "Graph 1",
+                        "type": "gnuplot"
+                    }
+                ];
+                $scope.addGraph = function() {
+                    $scope.graphs.push({
+                        "title": "Graph "+($scope.nextGraphNumber++),
+                        "type": null
+                    })
+                }
+                $scope.firstOpen = true;
             }]);
     </script>
+    <style type="text/css">
+        .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+    </style>
 </head>
 
 <body>
@@ -21,6 +39,16 @@
 <p><a href="index.html">&lt;&lt; Back</a></p>
 
 <div style="width: 400px">
+
+    <accordion close-others="true">
+        <accordion-group heading="Global" is-open="firstOpen">
+            <button ng-click="addGraph()" value="Add graph">Add graph</button>
+        </accordion-group>
+        <accordion-group heading="{{graph.title}}" ng-repeat="graph in graphs">
+
+            {{graph.type}} <button>Delete</button>
+        </accordion-group>
+    </accordion>
 
 </div>
 
