@@ -17,9 +17,10 @@
   },
   "scripts": {
     "postinstall": "bower install",
-
     "prestart": "npm install",
     "start": "node otis.js"
-
+  },
+  "dependencies": {
+    "express": "^4.12.0"
   }
 }

@@ -23,92 +23,49 @@ for (var i=0; i<args.length; i++) {
 
 console.log("Config: "+JSON.stringify(config));
 
-function staticContent(filename, callback) {
-    fs.readFile("static-content/"+filename, 'utf8', function(err,data) {
-        if (err) {
-            callback(null);
-        }
-        else {
-            callback(data);
-        }
-    });
-}
-function bowerContent(filename, callback) {
-    var file = config.sourceBuild ? "bower_components/" + filename : null; // todo: what else here?
-    fs.readFile(file, 'utf8', function(err,data) {
-        if (err) {
-            callback(null);
-        }
-        else {
-            callback(data);
-        }
-    });
-}
+var express = require('express');
 
-var server = http.createServer(function(req,res) {
-    var uri = req.url;
-    var qs = "";
-    if (uri.indexOf("?") >= 0) {
-        qs = uri.substring(uri.indexOf("?")+1);
-        uri = uri.substring(0, uri.indexOf("?"));
-    }
-    var handled = false;
-    if (uri.indexOf("/api/") == 0) {
-        if (uri.indexOf("/api/suggest") == 0) {
-            handled = true;
-            res.writeHead(200);
-            res.end(JSON.stringify([
-                "cpu.percent",
-                "cpu.queue",
-                "ifstat.bytes",
-                "dave",
-                "fred",
-                "dave.fred"
-            ]));
-        }
-        if (uri.indexOf("/api/tags") == 0) {
-            handled = true;
-            res.writeHead(200);
-            var tagValues = {};
-            tagValues["host"] = ["host1","host2","host3"];
-            tagValues["user"] = ["jon","dave","joe","simon","fred"];
-            tagValues["method"] = ["put","post","get","head","options","delete"];
-            res.end(JSON.stringify(tagValues));
-        }
-        if (uri.indexOf("/api/config") == 0) {
-            handled = true;
-            res.writeHead(200);
-            res.end(JSON.stringify(config));
-        }
-    }
-    if (!handled) {
-        if (uri=="/") {
-            uri = "/index.html";
-        }
-        var contentFunction = function(data) {
-            if (data == null) {
-                res.writeHead(404);
-                res.end("File not found: "+uri);
-            }
-            else {
-                res.writeHead(200);
-                res.end(data);
-            }
-        };
-        console.log(uri);
-        if (uri.indexOf("/bower_components/")==0) {
-            bowerContent(uri.substring(18), contentFunction);
-        }
-        else {
-            staticContent(uri.substring(1), contentFunction);
-        }
-    }
+var app = express();
+var router = express.Router();
+
+// todo: need to sort this out
+if (config.sourceBuild) {
+    app.use(express.static('.'));
+}
+app.use(express.static('./static-content'));
+
+// fake tsdb
+var tsdb = require('./faketsdb');
+app.use('/api',tsdb);
+
+// otis backend
+var otis = express.Router();
+
+// middleware specific to this router
+otis.use(function timeLog(req, res, next) {
+//    console.log('Time: ', Date.now());
+    next();
+})
+// define the about route
+otis.get('/tags', function(req, res) {
+    var tagValues = {};
+    tagValues["host"] = ["host1","host2","host3"];
+    tagValues["user"] = ["jon","dave","joe","simon","fred"];
+    tagValues["method"] = ["put","post","get","head","options","delete"];
+    res.json(tagValues);
+});
+otis.get('/config', function(req, res) {
+    res.json(config);
 });
 
-staticContent("index.html", function(data) {
-    if (data != null) {
-        server.listen(8000);
-    }
-})
+app.use('/otis',otis);
+
+
+var server = app.listen(8000, function() {
+    var host = server.address().address
+    var port = server.address().port
+
+    console.log('Otis running at http://%s:%s', host, port)
+});
 
 
