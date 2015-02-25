@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html ng-app="x" ng-controller="GraphCtrl">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width">
+
+    <title>Graph Rendering</title>
+
+
+    <link rel="stylesheet" href="../bower_components/bootstrap-css-only/css/bootstrap.css">
+    <link rel="stylesheet" href="../bower_components/bootstrap-css-only/css/bootstrap-theme.css">
+
+    <link rel="stylesheet" href="../bower_components/angular-ui-layout/ui-layout.css">
+    <style>
+        .back{
+            background-color : #eee;
+            text-align: center;
+
+        }
+        .top {
+            height: 80px;
+        }
+
+        .glyphicon-chevron-left,
+        .glyphicon-chevron-right,
+        .glyphicon-chevron-up,
+        .glyphicon-chevron-down{
+            color: #aaa;
+        }
+    </style>
+    <script type="application/javascript" src="../bower_components/angular/angular.js"></script>
+    <script type="application/javascript" src="../bower_components/angular-ui-layout/ui-layout.js"></script>
+    <script>
+        angular.module('x', ['ui.layout'])
+                .directive('graphImage', function() {
+                    return {
+                        restrict: 'A',
+                        link: function ( scope, elem, attrs ) {
+                            //replace test with whatever myFunction() does
+                            var id = attrs["graphId"];
+                            var src = scope.tsdbSrc(id);
+                            if (src == null) {
+                                src = "http://placehold.it/350x150/ffffff/000000&text=FAIL";
+                            }
+                            elem.attr('src', src);
+                        }
+                    };
+                })
+                .controller('GraphCtrl', ['$scope', function($scope) {
+
+                    $scope.graphIds = ["abc","def"];
+                    $scope.graphs = [
+                        {
+                            id: "abc",
+                            title: "Graph 1"
+                        },
+                        {
+                            id: "def",
+                            title: "Graph 2"
+                        }
+                    ];
+                    $scope.urls = {
+                        "abc":"http://placehold.it/350x150/ff0000/000000&text=abc",
+                        "def":"http://placehold.it/350x150/ff0000/000000&text=def"
+                    };
+
+                    $scope.changeSrc = function() {
+                        for (var idx in $scope.graphIds) {
+                            var id = $scope.graphIds[idx];
+                            $scope.urls[id] = "http://placehold.it/350x150/ff0000/000000&text="+id+":+"+Math.random();
+                        }
+                    }
+
+                    $scope.tsdbSrc = function(graphId) {
+                        return $scope.urls[graphId];
+                    }
+                }]);
+    </script>
+</head>
+
+<body>
+
+<p><a href="index.html">&lt;&lt; Back</a></p>
+
+<button ng-click="changeSrc()">Change urls</button>
+
+<p ng-repeat="graph in graphs">
+    <img ng-src="{{urls[graph.id]}}"/>
+</p>
+
+
+</body>
+
+</html>
