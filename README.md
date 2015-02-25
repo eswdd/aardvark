@@ -1,35 +1,12 @@
 otis
 ====
 
-An [<b>O</b>pen<b>T</b>SDB](http://opentsdb.net) V<b>is</b>ualiser.
-
-A brief list of intended features:
-* Javascript client-side rendered graphs
-* Auto-downsampling of series to prevent browser 'lock-up'
-* Auto scaling
-* Stacked graphs
-* Baselining - compare a time series to an earlier version of itself
-* Filter UI by tag key/value and or time range
-* Deep linking
-* Popout to Gnuplot image
-* Tree based metric selection
-* View/add/edit annotations
-* Metadata viewer
-
-Getting started
----------------
-```
-   $ git clone https://github.com/eswdd/otis.git
-   $ cd otis
-   $ npm install
-   $ npm start
-```
-Point browser at [http://localhost:8000/](http://localhost:8000/).
+Sources for Github Pages site at: [http://eswdd.github.io/otis]
 
 Copyright
 ---------
 ```
-   Copyright 2014 Simon Matic Langford
+   Copyright 2015 Simon Matic Langford
 
    Licensed under the GNU General Public License, Version 3.0 (the "License");
    you may not use this file except in compliance with the License.

@@ -1,6 +1,1 @@
-target/
-*.iml
 .idea
-node_modules
-bower_components
-*.log
