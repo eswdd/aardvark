@@ -1,0 +1,20 @@
+.top-panel {
+    background-color: #eee;
+    text-align: center;
+}
+.graph-control-panel {
+    background-color: #eee;
+}
+.graph-panel {
+    background-color: #eee;
+}
+.metric-control-panel {
+    background-color: #eee;
+}
+
+.glyphicon-chevron-left,
+.glyphicon-chevron-right,
+.glyphicon-chevron-up,
+.glyphicon-chevron-down{
+    color: #aaa;
+}
