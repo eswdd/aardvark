@@ -1,7 +1,7 @@
 otis
 ====
 
-Sources for Github Pages site at: [http://eswdd.github.io/otis]
+Sources for Github Pages site at: http://eswdd.github.io/otis
 
 Copyright
 ---------
