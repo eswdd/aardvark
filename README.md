@@ -18,13 +18,16 @@ A brief list of intended features:
 
 Getting started
 ---------------
+
+* Install node
+* Run some commands:
 ```
    $ git clone https://github.com/eswdd/otis.git
    $ cd otis
    $ npm install
    $ npm start
 ```
-Point browser at [http://localhost:8000/](http://localhost:8000/).
+* Point browser at [http://localhost:8000/](http://localhost:8000/).
 
 Copyright
 ---------
