@@ -6,13 +6,18 @@
     <meta name="viewport" content="width=device-width">
 
     <title>Otis - An OpenTSDB Visualiser</title>
-    <!-- Angular JS -->
+    <!-- Angular JS - keep order in here same as deps in otis.js -->
     <script type="application/javascript" src="../../bower_components/angular/angular.js"></script>
     <script type="application/javascript" src="../../bower_components/angular-ui-layout/ui-layout.js"></script>
-    <!-- Angular CSS -->
-    <link rel="stylesheet" href="../../bower_components/bootstrap-css-only/css/bootstrap.css">
-    <link rel="stylesheet" href="../../bower_components/bootstrap-css-only/css/bootstrap-theme.css">
-    <link rel="stylesheet" href="../../bower_components/angular-ui-layout/ui-layout.css">
+    <script type="application/javascript" src="../../bower_components/angular-tree-control/angular-tree-control.js"></script>
+    <script type="application/javascript" src="../../bower_components/angular-sanitize/angular-sanitize.js"></script>
+    <script type="application/javascript" src="../../bower_components/angular-mass-autocomplete/massautocomplete.js"></script>
+    <!-- Angular CSS - keep order in here same as deps in otis.js -->
+    <link rel="stylesheet" type="text/css" href="../../bower_components/bootstrap-css-only/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../../bower_components/bootstrap-css-only/css/bootstrap-theme.css">
+    <link rel="stylesheet" type="text/css" href="../../bower_components/angular-ui-layout/ui-layout.css">
+    <link rel="stylesheet" type="text/css" href="../../bower_components/angular-tree-control/css/tree-control-attribute.css">
+    <link rel="stylesheet" type="text/css" href="../../bower_components/angular-mass-autocomplete/massautocomplete.theme.css">
     <!-- App JS -->
     <script type="text/javascript" src="otis.js"></script>
     <!-- App CSS -->
@@ -30,7 +35,52 @@
         <div ui-layout="{flow : 'column'}" >
             <div ui-layout-container class="graph-control-panel" size="150px" ng-controller="GraphControlCtrl">Graph Control</div>
             <div ui-layout-container class="graph-panel" ng-controller="GraphCtrl">Graphs</div>
-            <div ui-layout-container class="metric-control-panel" size="150px" ng-controller="MetricControlCtrl">Metric Control</div>
+            <div ui-layout-container class="metric-control-panel" size="250px" ng-controller="MetricControlCtrl">
+                <input type="button" value="+" ng-click="expandAll()">
+                <input type="button" value="-" ng-click="collapseAll()">
+                <input type="button" value="F" ng-click="showHideFilterInput()">
+                <input type="text" ng-model="filter" ng-show="showFilterInput">
+                <input type="button" value="C" ng-click="clearFilterInput()" ng-show="showFilterInput">
+
+                <div style="overflow: auto; height: 100px; border-color: black; border-width: 1px; border-style: solid">
+                    <div treecontrol
+                         class="tree-light"
+                         tree-model="dataForTheTree"
+                         options="treeOptions"
+                         on-selection="nodeSelected(node,selected)"
+                         selected-node="node1"
+                         filter-expression="filter"
+                         expanded-nodes="expandedNodes"
+                            >
+                        <span style="text-decoration: {{nodeDecoration(node)}}">{{node.name}}</span>
+                    </div>
+                </div>
+
+                <input type="text" ng-model="selectedMetric" disabled="disabled">
+
+                <div>
+                    Rate? <input type="checkbox" ng-model="rate">
+                    <br/>
+                    Downsample? <input type="checkbox" ng-model="downsample">
+                    <select ng-model="downsampleBy" ng-disabled="!downsample">
+                        <option selected="true">avg</option>
+                        <option>sum</option>
+                        <option>min</option>
+                        <option>max</option>
+                        <option>...</option>
+                    </select>
+                    <input type="text" ng-disabled="!downsample" ng-model="downsampleTo">
+
+                    <table>
+                        <tr ng-repeat="tagk in tagNames">
+                            <td>{{tagk}}</td>
+                            <td><div tag-selection /></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <input type="button" value="Add" ng-disabled="!addButtonEnabled" ng-click="addMetric()">
+            </div>
         </div>
     </div>
 </div>
