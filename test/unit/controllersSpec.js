@@ -14,19 +14,19 @@ describe('Otis controllers', function () {
     beforeEach(module('Otis'));
 
     describe('OtisCtrl', function () {
-        var rootScope, scope, ctrl, $httpBackend, browser, location, controller;
+        var rootScope, scope, ctrl, $httpBackend, browser, location, controllerCreator;
 
         beforeEach(inject(function ($rootScope, _$httpBackend_, $browser, $location, $controller) {
             $httpBackend = _$httpBackend_;
             $httpBackend.expectGET('/otis/config').respond({key: "value"});
             browser = $browser;
             location = $location;
-            controller = $controller;
+            controllerCreator = $controller;
 
             // hmm
             rootScope = $rootScope;
             scope = $rootScope.$new();
-            ctrl = $controller('OtisCtrl', {$scope: rootScope});
+            ctrl = $controller('OtisCtrl', {$scope: scope, $rootScope: rootScope});
         }));
 
 
@@ -87,7 +87,7 @@ describe('Otis controllers', function () {
             // recreate the controller now we've changed the hash
             location.hash(encodeURI('{"metrics":[{"id":"1","name": "fred"}]}'));
 //            browser.poll();
-            ctrl = controller('OtisCtrl', {$scope: rootScope});
+            ctrl = controllerCreator('OtisCtrl', {$scope: scope, $rootScope: rootScope});
 
             expect(rootScope.model).toEqualData(
                 { metrics : [ { id : '1', name : 'fred' } ] }
@@ -95,6 +95,30 @@ describe('Otis controllers', function () {
         });
 
 
+    });
+
+    describe('GraphControlCtrl', function() {
+
+    });
+
+    describe('GraphCtrl', function() {
+
+    });
+
+    describe('MetricControlCtrl', function() {
+        var rootScope, scope, ctrl, $httpBackend, controllerCreator;
+
+        beforeEach(inject(function ($rootScope, _$httpBackend_, $browser, $location, $controller) {
+            $httpBackend = _$httpBackend_;
+            $httpBackend.expectGET('/otis/config').respond({key: "value"});
+            browser = $browser;
+            controllerCreator = $controller;
+
+            // hmm
+            rootScope = $rootScope;
+            scope = $rootScope.$new();
+            ctrl = $controller('MetricControlCtrl', {$scope: scope, $rootScope: rootScope});
+        }));
     });
 
     /*
