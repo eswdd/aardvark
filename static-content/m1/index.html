@@ -34,7 +34,14 @@
     <div ui-layout-container>
         <div ui-layout="{flow : 'column'}" >
             <div ui-layout-container class="graph-control-panel" size="150px" ng-controller="GraphControlCtrl">Graph Control</div>
-            <div ui-layout-container class="graph-panel" ng-controller="GraphCtrl">Graphs</div>
+            <div ui-layout-container class="graph-panel" ng-controller="GraphCtrl">
+                Graphs
+                <ul>
+                    <li ng-repeat="metric in model.metrics">
+                        {{metric.id}}: {{metric.name}}
+                    </li>
+                </ul>
+            </div>
             <div ui-layout-container class="metric-control-panel" size="250px" ng-controller="MetricControlCtrl">
                 <input type="button" value="+" ng-click="expandAll()">
                 <input type="button" value="-" ng-click="collapseAll()">

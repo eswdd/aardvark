@@ -16,6 +16,10 @@ angular
 
         var hash = $location.hash();
         if (hash != null && hash!="") {
+            while (hash.indexOf("#") == 0) {
+                hash = hash.substring(1);
+            }
+            hash = decodeURI(hash);
             $rootScope.model = JSON.parse(hash);
         }
 
