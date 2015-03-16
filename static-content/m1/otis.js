@@ -123,8 +123,12 @@ angular
             var valid = selected && node.isMetric;
             $scope.addButtonEnabled = valid;
             $scope.selectedMetric = valid ? node.id : '';
-            $scope.metricSelected();
-
+            if (valid) {
+                $scope.metricSelected();
+            }
+            else {
+                $scope.metricDeselected();
+            }
         };
 
         $scope.showHideFilterInput = function() {
@@ -183,7 +187,7 @@ angular
         // todo: this needs to not do any work if it's already running a request
         // todo: this needs to have some failure handling
         $scope.updateTree = function() {
-            $http.get('/api/suggest').success(function(json) {
+            $http.get('/api/suggest?type=metrics&max=1000000').success(function(json) {
                 //$http.get('http://localhost:4242/api/suggest?type=metrics&max=1000000').success(function(json) {
                 // right we need to build our tree, we have an array of name, we need to split by "."
 
@@ -226,121 +230,105 @@ angular
                 }
                 $scope.allParentNodes = parentNodes;
             });
+        };
 
-            $scope.metricSelected = function() {
-                $http.get("/otis/tags?metric="+$scope.selectedMetric.trim()).success(function (json) {
-                    var tagNames = [];
+        $scope.metricSelected = function() {
+            $http.get("/otis/tags?metric="+$scope.selectedMetric.trim()).success(function (json) {
+                var tagNames = [];
 
-                    for (var key in json) {
-                        if (json.hasOwnProperty(key)) {
-                            tagNames.push(key);
-                        }
+                for (var key in json) {
+                    if (json.hasOwnProperty(key)) {
+                        tagNames.push(key);
                     }
+                }
 
-                    // setup tagk options prior to making them available
-                    for (var i=0; i<tagNames.length; i++) {
-                        // nasty inner function to get around closure issues
-                        var fn = function(localKey) {
-                            $scope.tagOptions[localKey] = {
-                                suggest: function(term) {
-                                    return $scope.suggestTagValues(term, localKey);
-                                }
-                            };
-                            $scope.re[localKey] = true;
-                        }
-                        fn(tagNames[i]);
+                // setup tagk options prior to making them available
+                for (var i=0; i<tagNames.length; i++) {
+                    // nasty inner function to get around closure issues
+                    var fn = function(localKey) {
+                        $scope.tagOptions[localKey] = {
+                            suggest: function(term) {
+                                return $scope.suggestTagValues(term, localKey);
+                            }
+                        };
+                        $scope.re[localKey] = true;
                     }
-                    $scope.tagNames = tagNames;
-                    $scope.tagValues = json;
-                });
+                    fn(tagNames[i]);
+                }
+                $scope.tagNames = tagNames;
+                $scope.tagValues = json;
+            });
+        };
+
+        $scope.metricDeselected = function() {
+            $scope.tagOptions = {};
+            $scope.tagValues = {};
+            $scope.tagNames = [];
+        };
+
+        $scope.tagValuesMatchCount = function(tag) {
+            var inputText = $scope.tag[tag];
+            if (inputText=="" || inputText==null){
+                return "";
             }
-            $scope.suggestTagValues = function(term, tag) {
-                var q = term.toLowerCase().trim();
-
-                var lastPipe = q.lastIndexOf("|");
-                var prefix = "";
-
-                var haveValues = [];
-                if (lastPipe >= 0) {
-                    prefix = q.substring(0,lastPipe+1);
-                    q = q.substring(lastPipe+1);
-
-                    var haveValuesString = prefix.substring(0, lastPipe);
-                    haveValues = haveValuesString.split("|");
-                }
-
-                var results = [];
-
-                var allValues = $scope.tagValues[tag];
-                for (var i=0; i<allValues.length; i++) {
-                    if (allValues[i].toLowerCase().startsWith(q) && haveValues.indexOf(allValues[i])<0) {
-                        results.push({label: allValues[i], value: prefix+allValues[i]});
-                    }
-                }
-                return results;
+            if (inputText.endsWith("|") && $scope.re[tag]) {
+                inputText = inputText.substring(0, inputText.length-1);
             }
-
-            $scope.tagValuesMatchCount = function(tag) {
-                var inputText = $scope.tag[tag];
-                if (inputText=="" || inputText==null){
-                    return "";
-                }
-                if (inputText.endsWith("|") && $scope.re[tag]) {
-                    inputText = inputText.substring(0, inputText.length-1);
-                }
-                var allValues = $scope.tagValues[tag];
-                var count = 0;
-                if (!$scope.re[tag] && inputText=="*") {
-                    return "("+allValues.length+")";
-                }
-                for (var i=0; i<allValues.length; i++) {
-                    if ($scope.re[tag]) {
+            var allValues = $scope.tagValues[tag];
+            var count = 0;
+            if (!$scope.re[tag] && inputText=="*") {
+                return "("+allValues.length+")";
+            }
+            for (var i=0; i<allValues.length; i++) {
+                if ($scope.re[tag]) {
+                    try {
                         if (new RegExp(inputText).test(allValues[i])) {
                             count++;
                         }
                     }
-                    else if (inputText == allValues[i]) {
-                        count++;
-                    }
-
+                    catch (ignoreError) {}
                 }
-                return "("+count+")";
+                else if (inputText == allValues[i]) {
+                    count++;
+                }
+
+            }
+            return "("+count+")";
+        };
+
+        $scope.suggestTagValues = function(term, tag) {
+            var q = term.toLowerCase().trim();
+
+            var lastPipe = q.lastIndexOf("|");
+            var prefix = "";
+
+            var haveValues = [];
+            if (lastPipe >= 0) {
+                prefix = q.substring(0,lastPipe+1);
+                q = q.substring(lastPipe+1);
+
+                var haveValuesString = prefix.substring(0, lastPipe);
+                haveValues = haveValuesString.split("|");
             }
 
-            $scope.suggestTagValues = function(term, tag) {
-                var q = term.toLowerCase().trim();
+            var results = [];
 
-                var lastPipe = q.lastIndexOf("|");
-                var prefix = "";
-
-                var haveValues = [];
-                if (lastPipe >= 0) {
-                    prefix = q.substring(0,lastPipe+1);
-                    q = q.substring(lastPipe+1);
-
-                    var haveValuesString = prefix.substring(0, lastPipe);
-                    haveValues = haveValuesString.split("|");
-                }
-
-                var results = [];
-
-                var allValues = $scope.tagValues[tag];
-                for (var i=0; i<allValues.length; i++) {
-                    if (haveValues.indexOf(allValues[i])<0) {
-                        if ($scope.re[tag]) {
-                            if (new RegExp(q).test(allValues[i])) {
-                                results.push({label: allValues[i], value: prefix+allValues[i]});
-                            }
+            var allValues = $scope.tagValues[tag];
+            for (var i=0; i<allValues.length; i++) {
+                if (haveValues.indexOf(allValues[i])<0) {
+                    if ($scope.re[tag]) {
+                        if (new RegExp(q).test(allValues[i])) {
+                            results.push({label: allValues[i], value: prefix+allValues[i]});
                         }
-                        else {
-                            if (allValues[i].toLowerCase().startsWith(q)) {
-                                results.push({label: allValues[i], value: prefix+allValues[i]});
-                            }
+                    }
+                    else {
+                        if (allValues[i].toLowerCase().startsWith(q)) {
+                            results.push({label: allValues[i], value: prefix+allValues[i]});
                         }
                     }
                 }
-                return results;
             }
+            return results;
         };
 
         // tell the main app controller to call us on any update of the scope

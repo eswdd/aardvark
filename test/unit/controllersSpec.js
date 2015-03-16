@@ -107,18 +107,162 @@ describe('Otis controllers', function () {
 
     describe('MetricControlCtrl', function() {
         var rootScope, scope, ctrl, $httpBackend, controllerCreator;
+        var configUpdateFunc;
 
         beforeEach(inject(function ($rootScope, _$httpBackend_, $browser, $location, $controller) {
             $httpBackend = _$httpBackend_;
-            $httpBackend.expectGET('/otis/config').respond({key: "value"});
-            browser = $browser;
             controllerCreator = $controller;
 
             // hmm
             rootScope = $rootScope;
+
+            rootScope.onConfigUpdate = function(func) {
+                configUpdateFunc = func;
+            }
+
             scope = $rootScope.$new();
             ctrl = $controller('MetricControlCtrl', {$scope: scope, $rootScope: rootScope});
         }));
+
+        it('should register for config loads on start', function () {
+            expect(configUpdateFunc).not.toEqual(null);
+        });
+
+        it('should load data for the tree on config update', function() {
+            $httpBackend.expectGET('/api/suggest?type=metrics&max=1000000').respond(
+                [
+                    "flob",
+                    "name.baldrick",
+                    "name.blackadder",
+                    "wibble",
+                    "wibble.wobble"
+                ]
+            );
+
+            configUpdateFunc();
+            $httpBackend.flush();
+
+            var expectedDataForTheTree = [
+                {id: "flob", name: "flob", isMetric: true, children: []},
+                {id: "name", name: "name", isMetric: false, children: [
+                    {id: "name.baldrick", name: "baldrick", isMetric: true, children: []},
+                    {id: "name.blackadder", name: "blackadder", isMetric: true, children: []}
+                ]},
+                {id: "wibble", name: "wibble", isMetric: true, children: [
+                    {id: "wibble.wobble", name: "wobble", isMetric: true, children: []}
+                ]}
+            ];
+
+            expect(scope.dataForTheTree).toEqualData(expectedDataForTheTree);
+            expect(scope.allParentNodes).toEqualData([
+                expectedDataForTheTree[1], expectedDataForTheTree[2]
+            ]);
+        });
+
+        // todo
+        it('should not load data for the tree if already loading', function() {
+            //throw 'todo';
+        });
+
+        it('should correctly process a selected node in the tree', function() {
+            var node = {id: "name.baldrick", name: "baldrick", isMetric: true, children: []};
+
+            var response = {
+                key1: [ "value1", "value2" ],
+                key2: [ "value3" ]
+            };
+
+            $httpBackend.expectGET('/otis/tags?metric=name.baldrick').respond(response);
+
+            scope.nodeSelected(node, true);
+            $httpBackend.flush();
+
+            // simple results
+            expect(scope.addButtonEnabled).toEqualData(true);
+            expect(scope.selectedMetric).toEqualData("name.baldrick");
+            expect(scope.tagNames).toEqualData(["key1","key2"]);
+            expect(scope.tagValues).toEqualData(response);
+            expect(scope.re).toEqualData({key1: true, key2: true});
+
+            // tag options are a little more complex
+            expect(scope.tagOptions.key1.suggest('')).toEqualData([{label:"value1",value:"value1"},{label:"value2",value:"value2"}]);
+            expect(scope.tagOptions.key2.suggest('')).toEqualData([{label:"value3",value:"value3"}]);
+
+        })
+
+        it('should not cleanup when a node is deselected and not try to get tag values', function() {
+            var node = {id: "name.baldrick", name: "baldrick", isMetric: true, children: []};
+
+            scope.nodeSelected(node, false);
+            // no calls should be made
+            $httpBackend.verifyNoOutstandingRequest();
+
+            // simple results
+            expect(scope.addButtonEnabled).toEqualData(false);
+            expect(scope.selectedMetric).toEqualData("");
+            expect(scope.tagNames).toEqualData([]);
+            expect(scope.tagValues).toEqualData({});
+            expect(scope.re).toEqualData({});
+            expect(scope.tagOptions).toEqualData({});
+        })
+
+        it('should suggest correct tag values', function() {
+            scope.tagValues = { key1: ["value1","something2","value2"] };
+
+            var ret_value1 = {label:"value1",value:"value1"};
+            var ret_something2 = {label:"something2",value:"something2"};
+            var ret_value2 = {label:"value2",value:"value2"};
+
+            scope.re = { key1: false };
+            expect(scope.suggestTagValues('','key1')).toEqualData([ret_value1,ret_something2,ret_value2]);
+            expect(scope.suggestTagValues('value','key1')).toEqualData([ret_value1,ret_value2]);
+            expect(scope.suggestTagValues('value1','key1')).toEqualData([ret_value1]);
+            expect(scope.suggestTagValues('value12','key1')).toEqualData([]);
+            expect(scope.suggestTagValues('*','key1')).toEqualData([]);
+
+            // todo: would you expect suggested tag values to change because you ticked RE?
+            scope.re = { key1: true };
+            expect(scope.suggestTagValues('','key1')).toEqualData([ret_value1,ret_something2,ret_value2]);
+            expect(scope.suggestTagValues('value','key1')).toEqualData([ret_value1,ret_value2]);
+            expect(scope.suggestTagValues('value1','key1')).toEqualData([ret_value1]);
+            expect(scope.suggestTagValues('2','key1')).toEqualData([ret_something2, ret_value2]);
+            expect(scope.suggestTagValues('th','key1')).toEqualData([ret_something2]);
+            expect(scope.suggestTagValues('.*','key1')).toEqualData([ret_value1,ret_something2,ret_value2]);
+        });
+
+        it('should correctly count matching tag values', function() {
+            scope.tagValues = { key1: ["value1","something2","value2"] };
+
+            scope.re = { key1: false };
+            scope.tag = { key1: '' };
+            expect(scope.tagValuesMatchCount('key1')).toEqualData("");
+            scope.tag = { key1: 'value' };
+            expect(scope.tagValuesMatchCount('key1')).toEqualData("(0)");
+            scope.tag = { key1: 'value1' };
+            expect(scope.tagValuesMatchCount('key1')).toEqualData("(1)");
+            scope.tag = { key1: 'value12' };
+            expect(scope.tagValuesMatchCount('key1')).toEqualData("(0)");
+            scope.tag = { key1: '*' };
+            expect(scope.tagValuesMatchCount('key1')).toEqualData("(3)");
+            scope.tag = { key1: '.*' };
+            expect(scope.tagValuesMatchCount('key1')).toEqualData("(0)");
+
+            scope.re = { key1: true };
+            scope.tag = { key1: '' };
+            expect(scope.tagValuesMatchCount('key1')).toEqualData("");
+            scope.tag = { key1: 'value' };
+            expect(scope.tagValuesMatchCount('key1')).toEqualData("(2)");
+            scope.tag = { key1: 'value1' };
+            expect(scope.tagValuesMatchCount('key1')).toEqualData("(1)");
+            scope.tag = { key1: '2' };
+            expect(scope.tagValuesMatchCount('key1')).toEqualData("(2)");
+            scope.tag = { key1: 'th' };
+            expect(scope.tagValuesMatchCount('key1')).toEqualData("(1)");
+            scope.tag = { key1: '.*' };
+            expect(scope.tagValuesMatchCount('key1')).toEqualData("(3)");
+            scope.tag = { key1: '*' };
+            expect(scope.tagValuesMatchCount('key1')).toEqualData("(0)");
+        });
     });
 
     /*
