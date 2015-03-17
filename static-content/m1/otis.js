@@ -156,11 +156,25 @@ angular
         };
 
         $scope.nextId = function() {
-            var next = $scope.lastId+1;
+            var next = new Date().getTime();
+            if (next <= $scope.lastId) {
+                next = $scope.lastId+1;
+            }
             $scope.lastId = next;
             return next;
         }
 
+        $scope.updateIds = function() {
+            for (var i=0; i<$rootScope.model.metrics.length; i++) {
+                var item = $rootScope.model.metrics[i];
+                if (item.id > $scope.lastId) {
+                    $scope.lastId = item.id;
+                }
+            }
+        }
+
+        // todo: how to do tag expansion with regexes? here or in graph rendering?
+        //       here i suspect..
         $scope.addMetric = function() {
             var tArray = [];
             for (var i=0; i<$scope.tagNames.length; i++) {
@@ -331,7 +345,12 @@ angular
             return results;
         };
 
+        $scope.updateModel = function() {
+            $scope.updateTree();
+            $scope.updateIds();
+        }
+
         // tell the main app controller to call us on any update of the scope
         // it will call us if it's already loaded too
-        $rootScope.onConfigUpdate($scope.updateTree);
+        $rootScope.onConfigUpdate($scope.updateModel);
     }]);

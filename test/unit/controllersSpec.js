@@ -97,10 +97,12 @@ describe('Otis controllers', function () {
 
     });
 
+    // todo: test GraphControlCtrl
     describe('GraphControlCtrl', function() {
 
     });
 
+    // todo: test GraphCtrl
     describe('GraphCtrl', function() {
 
     });
@@ -108,6 +110,7 @@ describe('Otis controllers', function () {
     describe('MetricControlCtrl', function() {
         var rootScope, scope, ctrl, $httpBackend, controllerCreator;
         var configUpdateFunc;
+        var saveModelCalled = false;
 
         beforeEach(inject(function ($rootScope, _$httpBackend_, $browser, $location, $controller) {
             $httpBackend = _$httpBackend_;
@@ -119,6 +122,10 @@ describe('Otis controllers', function () {
             rootScope.onConfigUpdate = function(func) {
                 configUpdateFunc = func;
             }
+            rootScope.saveModel = function() {
+                saveModelCalled = true;
+            }
+            rootScope.model = { metrics: [] };
 
             scope = $rootScope.$new();
             ctrl = $controller('MetricControlCtrl', {$scope: scope, $rootScope: rootScope});
@@ -159,7 +166,7 @@ describe('Otis controllers', function () {
             ]);
         });
 
-        // todo
+        // todo: test should not load data for the tree if already loading
         it('should not load data for the tree if already loading', function() {
             //throw 'todo';
         });
@@ -263,6 +270,84 @@ describe('Otis controllers', function () {
             scope.tag = { key1: '*' };
             expect(scope.tagValuesMatchCount('key1')).toEqualData("(0)");
         });
+
+        it('should add the metric to the model when addMetric() is called', function() {
+            scope.tagNames = ["tag1","tag2","tag3"];
+            scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
+            scope.re = {tag1:false,tag2:false,tag3:true};
+            scope.selectedMetric = "some.metric.name";
+            scope.rate = false;
+            scope.downsample = true;
+            scope.downsampleBy = "10m";
+
+            scope.addMetric();
+
+            expect(saveModelCalled).toEqualData(true);
+            expect(rootScope.model.metrics).toEqualData([
+                {
+                    id: scope.lastId,
+                    name: 'some.metric.name',
+                    tags: [
+                        {
+                            name: "tag1",
+                            value: "",
+                            re: false
+                        },
+                        {
+                            name: "tag2",
+                            value: "*",
+                            re: false
+                        },
+                        {
+                            name: "tag3",
+                            value: "value",
+                            re: true
+                        }
+                    ],
+                    graphOptions: {
+                        rate: false,
+                        downsample: true,
+                        downsampleBy: '10m'
+                    }
+                }
+            ]);
+        })
+
+        it('should not generate new metrics with the ids of ones from an existing model', function() {
+            rootScope.model = { metrics : [ { id : 1, name : 'fred' } ] };
+            configUpdateFunc();
+
+            scope.tagNames = [];
+            scope.tag = {};
+            scope.re = {};
+            scope.selectedMetric = "some.metric.name";
+            scope.rate = false;
+            scope.downsample = false;
+            scope.downsampleBy = "";
+
+
+            scope.addMetric();
+
+            expect(saveModelCalled).toEqualData(true);
+            expect(rootScope.model.metrics).toEqualData([
+                {
+                    id: 1,
+                    name: 'fred'
+                },
+                {
+                    id: scope.lastId,
+                    name: 'some.metric.name',
+                    tags: [],
+                    graphOptions: {
+                        rate: false,
+                        downsample: false,
+                        downsampleBy: ''
+                    }
+                }
+            ]);
+
+            expect(rootScope.model.metrics[0].id == rootScope.model.metrics[1].id).toEqualData(false);
+        })
     });
 
     /*

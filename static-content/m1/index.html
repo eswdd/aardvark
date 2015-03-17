@@ -33,11 +33,13 @@
 
     <div ui-layout-container>
         <div ui-layout="{flow : 'column'}" >
-            <div ui-layout-container class="graph-control-panel" size="150px" ng-controller="GraphControlCtrl">Graph Control</div>
+            <div ui-layout-container class="graph-control-panel" size="150px" ng-controller="GraphControlCtrl">
+                Graph Control
+            </div>
             <div ui-layout-container class="graph-panel" ng-controller="GraphCtrl">
                 Graphs
                 <ul>
-                    <li ng-repeat="metric in model.metrics">
+                    <li ng-repeat="metric in model.metrics track by metric.id">
                         {{metric.id}}: {{metric.name}}
                     </li>
                 </ul>
