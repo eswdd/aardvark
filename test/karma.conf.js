@@ -7,6 +7,7 @@ module.exports = function (config) {
             'bower_components/angular/angular.js',
             'bower_components/angular-mocks/angular-mocks.js',
             'bower_components/angular-ui-layout/ui-layout.js',
+            'bower_components/angular-bootstrap/ui-bootstrap-tpls.js',
             'bower_components/angular-tree-control/angular-tree-control.js',
             'bower_components/angular-sanitize/angular-sanitize.js',
             'bower_components/angular-mass-autocomplete/massautocomplete.js',

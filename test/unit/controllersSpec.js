@@ -32,6 +32,7 @@ describe('Otis controllers', function () {
 
         it('should create a default model and initialise the config on initialisation', function () {
             expect(rootScope.model).toEqualData({
+                graphs: [],
                 metrics: []
             });
             $httpBackend.flush();
@@ -65,10 +66,12 @@ describe('Otis controllers', function () {
         it('should save the model to the location hash when requested', function () {
 
             expect(rootScope.model).toEqualData({
+                graphs: [],
                 metrics: []
             });
 
             rootScope.model = {
+                graphs: [],
                 metrics: [
                     {
                         id: "1",
@@ -79,7 +82,7 @@ describe('Otis controllers', function () {
             rootScope.saveModel();
 
 //            browser.poll();
-            expect(location.url()).toEqualData('#'+encodeURI('{"metrics":[{"id":"1","name":"fred"}]}'));
+            expect(location.url()).toEqualData('#'+encodeURI('{"graphs":[],"metrics":[{"id":"1","name":"fred"}]}'));
         });
 
 
@@ -125,7 +128,7 @@ describe('Otis controllers', function () {
             rootScope.saveModel = function() {
                 saveModelCalled = true;
             }
-            rootScope.model = { metrics: [] };
+            rootScope.model = { graphs: [], metrics: [] };
 
             scope = $rootScope.$new();
             ctrl = $controller('MetricControlCtrl', {$scope: scope, $rootScope: rootScope});
@@ -181,11 +184,11 @@ describe('Otis controllers', function () {
 
             $httpBackend.expectGET('/otis/tags?metric=name.baldrick').respond(response);
 
-            scope.nodeSelected(node, true);
+            scope.nodeSelectedForAddition(node, true);
             $httpBackend.flush();
 
             // simple results
-            expect(scope.addButtonEnabled).toEqualData(true);
+            expect(scope.addButtonVisible).toEqualData(true);
             expect(scope.selectedMetric).toEqualData("name.baldrick");
             expect(scope.tagNames).toEqualData(["key1","key2"]);
             expect(scope.tagValues).toEqualData(response);
@@ -200,12 +203,12 @@ describe('Otis controllers', function () {
         it('should not cleanup when a node is deselected and not try to get tag values', function() {
             var node = {id: "name.baldrick", name: "baldrick", isMetric: true, children: []};
 
-            scope.nodeSelected(node, false);
+            scope.nodeSelectedForAddition(node, false);
             // no calls should be made
             $httpBackend.verifyNoOutstandingRequest();
 
             // simple results
-            expect(scope.addButtonEnabled).toEqualData(false);
+            expect(scope.addButtonVisible).toEqualData(false);
             expect(scope.selectedMetric).toEqualData("");
             expect(scope.tagNames).toEqualData([]);
             expect(scope.tagValues).toEqualData({});
@@ -285,7 +288,7 @@ describe('Otis controllers', function () {
             expect(saveModelCalled).toEqualData(true);
             expect(rootScope.model.metrics).toEqualData([
                 {
-                    id: scope.lastId,
+                    id: scope.lastId+"",
                     name: 'some.metric.name',
                     tags: [
                         {
@@ -305,6 +308,7 @@ describe('Otis controllers', function () {
                         }
                     ],
                     graphOptions: {
+                        graphId: '0',
                         rate: false,
                         downsample: true,
                         downsampleBy: '10m'
@@ -335,10 +339,11 @@ describe('Otis controllers', function () {
                     name: 'fred'
                 },
                 {
-                    id: scope.lastId,
+                    id: scope.lastId + "",
                     name: 'some.metric.name',
                     tags: [],
                     graphOptions: {
+                        graphId: '0',
                         rate: false,
                         downsample: false,
                         downsampleBy: ''

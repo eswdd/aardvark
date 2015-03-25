@@ -222,7 +222,7 @@ angular
         $scope.tagNames = [];
         $scope.tagValues = {};
         $scope.lastId = 0;
-        $scope.graphId = 0;
+        $scope.graphId = "0";
         $scope.selectedMetricId = 0;
         $scope.clearButtonEnabled = false;
         $scope.addButtonVisible = false;
