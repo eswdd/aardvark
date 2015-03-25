@@ -2,7 +2,7 @@
 angular
     .module('myApp', ['ui.bootstrap'])
     .controller('GraphCtrl', ['$scope', function($scope) {
-        $scope.nextGraphNumber = 2;
+        $scope.lastGraphId = 2;
         $scope.graphTypes = ["gnuplot","dygraph"];
         $scope.graphs = [
             {

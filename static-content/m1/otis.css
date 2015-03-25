@@ -2,6 +2,10 @@
     background-color: #eee;
     text-align: center;
 }
+.graph-control-buttons-panel {
+    background-color: #eee;
+    text-align: right;
+}
 .graph-control-panel {
     background-color: #eee;
 }
@@ -18,3 +22,5 @@
 .glyphicon-chevron-down{
     color: #aaa;
 }
+
+.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }

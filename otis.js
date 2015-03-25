@@ -3,6 +3,7 @@ var http = require('http'),
 
 var config = {
     sourceBuild: false,
+    devMode: false,
     tsdbHost: "localhost",
     tsdbPort: 4242
 };
@@ -11,6 +12,7 @@ for (var i=0; i<args.length; i++) {
     switch (args[i]) {
         case '-d':
             config.sourceBuild = true;
+            config.devMode = true;
             break;
         case '-h':
             config.tsdbHost = args[++i];

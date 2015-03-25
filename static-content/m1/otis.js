@@ -1,5 +1,5 @@
 angular
-    .module('Otis', ['ui.layout','treeControl','ngSanitize','MassAutoComplete'])
+    .module('Otis', ['ui.layout','ui.bootstrap','treeControl','ngSanitize','MassAutoComplete'])
     /*
      * Otis controller is responsible for the main app, providing config
      * and model<-> hash functionality for the other controllers
@@ -11,7 +11,8 @@ angular
          * for correctly populating any derivable volatile data from persistent on page load
          */
         $rootScope.model = {
-            metrics: []
+            metrics: [],
+            graphs: []
         };
 
         var hash = $location.hash();
@@ -23,8 +24,11 @@ angular
             $rootScope.model = JSON.parse(hash);
         }
 
-        $rootScope.saveModel = function() {
+        $rootScope.saveModel = function(render) {
             $location.hash(JSON.stringify($rootScope.model));
+            if (render && $rootScope.renderGraphs) {
+                $rootScope.renderGraphs();
+            }
         }
 
         /*
@@ -49,30 +53,147 @@ angular
         }
 
         $rootScope.config = null;
+        $rootScope.graphTypes = [ "gnuplot" ];
 
 
         $rootScope.updateConfig = function() {
             $http.get('/otis/config').success(function(json) {
                 $rootScope.config = json;
+                if (json.devMode && $rootScope.graphTypes.indexOf("debug") < 0) {
+                    $rootScope.graphTypes.splice(0, 0, "debug");
+                }
                 for (var i=$rootScope.configListeners.length-1; i>=0; i--) {
                     $rootScope.configListeners[i]();
                 }
             });
         };
 
+        $rootScope.clearAll = function() {
+            $location.url("");
+        }
+
         $rootScope.updateConfig();
     }])
     /*
      *
      */
-    .controller('GraphControlCtrl', [ '$scope', function GraphControlCtrl($scope) {
+    .controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphControlCtrl($scope, $rootScope) {
+        $scope.lastGraphId = 0;
+        $scope.showEdit={};
+        $scope.isOpen={};
+        $scope.firstOpen = true;
+        $scope.loadModel = function() {
+            var model = $rootScope.model;
+            if (model.graphs == null || model.graphs.length == 0) {
+                model.graphs = [
+                    {
+                        id: new Date().getTime()+"",
+                        title: "Graph 1",
+                        type: $rootScope.graphTypes[0],
+                        showTitle: false
+                    }
+                ];
+            }
+            for (var i=0; i<model.graphs.length; i++) {
+                var item = model.graphs[i];
+                if (item.id>$scope.lastGraphId) {
+                    $scope.lastGraphId = item.id;
+                }
+            }
+        }
 
+        $scope.nextId = function() {
+            var next = new Date().getTime();
+            if (next <= $scope.lastGraphId) {
+                next = $scope.lastGraphId+1;
+            }
+            $scope.lastId = next;
+            return next+"";
+        }
+
+        $scope.addGraph = function() {
+            //todo: should stage new graphs and edits into an internal model and only push to model when click a save button
+            var id = $scope.nextId();
+            $rootScope.model.graphs.push({
+                id: id,
+                title: "Graph "+($rootScope.model.graphs.length+1),
+                type: $rootScope.graphTypes[0],
+                showTitle: true
+            });
+            $rootScope.saveModel();
+            $scope.showEdit[id] = true;
+            // todo: is it always this one open?
+            $scope.firstOpen = false;
+            $scope.isOpen[id] = true;
+        };
+        $scope.deleteGraph = function(id) {
+            var index = -1;
+            for (var i=0; i<$rootScope.model.graphs.length; i++) {
+                if ($rootScope.model.graphs[i].id == id) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index == -1) {
+                return;
+            }
+            $rootScope.model.graphs.splice(index, 1);
+            $rootScope.saveModel();
+        }
+        $scope.renderGraphs = function() {
+            $rootScope.saveModel(true);
+        }
+        $rootScope.onConfigUpdate($scope.loadModel);
     }])
     /*
      *
      */
-    .controller('GraphCtrl', [ '$scope', function GraphCtrl($scope) {
+    .controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope, $rootScope) {
+        $scope.renderedContent = {};
+        $scope.renderers = {};
+        $scope.renderers["debug"] = function(graph, metrics) {
+            var txt = graph.title;
+            for (var i=0; i<metrics.length; i++) {
+                var m = metrics[i];
+                txt += "\n["+i+"] " + m.id + ": " + m.name;
+                var sep = " {";
+                for (var t=0; t< m.tags.length; t++) {
+                    var tag = m.tags[t];
+                    if (tag.value != '') {
+                        txt += sep + " " + tag.name + "='" + tag.value + "'";
+                        sep = ",";
+                    }
+                }
+                if (sep != " {") {
+                    txt += " }";
+                }
+            }
+            $scope.renderedContent[graph.id] = txt;
+        };
+        $scope.renderers["gnuplot"] = function(graph, metrics) {
+            $scope.renderedContent[graph.id] = graph.title;
+        };
 
+        $rootScope.renderGraphs = function() {
+            // todo: ould be cleverer about clearing in case some graphs haven't changed
+            // ie track ids found and delete others
+            $scope.renderedContent = {};
+            for (var i=0; i<$rootScope.model.graphs.length; i++) {
+                var graph = $rootScope.model.graphs[i];
+                var renderer = $scope.renderers[graph.type];
+                if (renderer) {
+                    var metrics = [];
+                    for (var j=0; j<$rootScope.model.metrics.length; j++) {
+                        var metricGraphId = $rootScope.model.metrics[j].graphOptions.graphId;
+                        if (metricGraphId==graph.id) {
+                            metrics.splice(metrics.length, 0, $rootScope.model.metrics[j]);
+                        }
+                    }
+                    renderer(graph, metrics);
+                }
+            }
+        };
+        $rootScope.renderGraphs();
     }])
     /*
      *
@@ -89,7 +210,6 @@ angular
         $scope.showTreeFilter = false;
         $scope.allParentNodes = [];
         $scope.showFilterInput = false;
-        $scope.addButtonEnabled = false;
         $scope.selectedMetric = "";
         $scope.filter = "";
         $scope.expandedNodes = [];
@@ -102,6 +222,12 @@ angular
         $scope.tagNames = [];
         $scope.tagValues = {};
         $scope.lastId = 0;
+        $scope.graphId = 0;
+        $scope.selectedMetricId = 0;
+        $scope.clearButtonEnabled = false;
+        $scope.addButtonVisible = false;
+        $scope.saveButtonVisible = false;
+        $scope.nodeSelectionDisabled = false;
 
 
         $scope.treeOptions = {
@@ -119,17 +245,70 @@ angular
             }
         };
 
-        $scope.nodeSelected = function (node,selected) {
+        $scope.nodeSelectedForAddition = function (node,selected) {
             var valid = selected && node.isMetric;
-            $scope.addButtonEnabled = valid;
+            $scope.addButtonVisible = valid;
+            $scope.clearButtonEnabled = valid;
+            $scope.saveButtonVisible = !valid;
             $scope.selectedMetric = valid ? node.id : '';
+            $scope.nodeSelectionDisabled = valid;
             if (valid) {
-                $scope.metricSelected();
+                $scope.selectedMetricId = "0";
+                if ($rootScope.model.graphs.length == 1) {
+                    $scope.graphId = $rootScope.model.graphs[0].id;
+                }
+                else {
+                    $scope.graphId = "0";
+                }
+                $scope.metricSelected($scope.selectedMetric.trim(), true);
             }
             else {
                 $scope.metricDeselected();
             }
         };
+
+        // localhost:8000/m1/index.html##%7B%22metrics%22:%5B%7B%22id%22:1427097769459,%22name%22:%22dave.fred%22,%22tags%22:%5B%7B%22name%22:%22host%22,%22re%22:true%7D,%7B%22name%22:%22user%22,%22re%22:true%7D,%7B%22name%22:%22method%22,%22re%22:true%7D%5D,%22graphOptions%22:%7B%22graphId%22:%221427097741599%22,%22rate%22:false,%22downsample%22:false,%22downsampleBy%22:%22%22%7D%7D%5D,%22graphs%22:%5B%7B%22id%22:%221427097741599%22,%22title%22:%22Graph%201%22,%22type%22:%22debug%22,%22showTitle%22:false%7D,%7B%22id%22:%221427097752136%22,%22title%22:%22Graph%202%22,%22type%22:%22debug%22,%22showTitle%22:true%7D%5D%7D
+
+        $scope.nodeSelectedForEditing = function() {
+            var metricId = $scope.selectedMetricId;
+            if (metricId == "0") {
+                return;
+            }
+            // todo: make sure the edit button is shown rather than the add button
+            var metric = null;
+            for (var i=0; i<$rootScope.model.metrics.length; i++) {
+                var m = $rootScope.model.metrics[i];
+                if (m.id == metricId) {
+                    metric = m;
+                    break;
+                }
+            }
+
+            if (metric == null) {
+                alert("couldn't find metric "+metricId);
+                return;
+            }
+
+            // load the tag names / possible values
+            $scope.metricSelected(metric.name, false);
+            // populate tag chosen values / re flags
+            for (var t=0; t<metric.tags.length; t++) {
+                var tag = metric.tags[t];
+                $scope.re[tag.name] = tag.re;
+                $scope.tag[tag.name] = tag.value;
+            }
+            // populate graph options
+            if (metric.graphOptions) {
+                $scope.graphId = metric.graphOptions.graphId;
+                $scope.rate = metric.graphOptions.rate;
+                $scope.downsample = metric.graphOptions.downsample;
+                $scope.downsampleBy = metric.graphOptions.downsampleBy;
+            }
+            $scope.addButtonVisible = false;
+            $scope.saveButtonVisible = true;
+            $scope.clearButtonEnabled = true;
+
+        }
 
         $scope.showHideFilterInput = function() {
             if ($scope.showFilterInput) {
@@ -161,7 +340,7 @@ angular
                 next = $scope.lastId+1;
             }
             $scope.lastId = next;
-            return next;
+            return next + "";
         }
 
         $scope.updateIds = function() {
@@ -173,9 +352,35 @@ angular
             }
         }
 
-        // todo: how to do tag expansion with regexes? here or in graph rendering?
-        //       here i suspect..
         $scope.addMetric = function() {
+            var metric = {
+                id: $scope.nextId(),
+                name: $scope.selectedMetric
+            };
+            $rootScope.model.metrics.push(metric);
+            $scope.persistViewToExistingMetric(metric);
+            $scope.nodeSelectedForAddition('', false);
+        }
+
+        $scope.saveMetric = function() {
+            // unlike the function above, this wants to save the state into the existing metric
+            for (var i=0; i<$rootScope.model.metrics.length; i++) {
+                if ($rootScope.model.metrics[i].id == $scope.selectedMetricId) {
+                    $scope.persistViewToExistingMetric($rootScope.model.metrics[i]);
+                    return;
+                }
+            }
+        }
+
+        $scope.clearMetric = function() {
+            $scope.metricDeselected();
+            $scope.addButtonVisible = false;
+            $scope.saveButtonVisible = false;
+            $scope.clearButtonEnabled = false;
+        }
+
+        // todo: how to do tag expansion with regexes? here or in graph rendering? here i suspect..
+        $scope.persistViewToExistingMetric = function(metric) {
             var tArray = [];
             for (var i=0; i<$scope.tagNames.length; i++) {
                 tArray.push({
@@ -184,18 +389,15 @@ angular
                     re: $scope.re[$scope.tagNames[i]]
                 });
             }
-            $rootScope.model.metrics.push({
-                id: $scope.nextId(),
-                name: $scope.selectedMetric,
-                tags: tArray,
-                graphOptions: {
-                    rate: $scope.rate,
-                    downsample: $scope.downsample,
-                    downsampleBy: $scope.downsampleBy
-                }
-
-            });
-            $rootScope.saveModel();
+            metric.tags = tArray;
+            metric.graphOptions = {
+                graphId: $scope.graphId,
+                rate: $scope.rate,
+                downsample: $scope.downsample,
+                downsampleBy: $scope.downsampleBy
+            };
+            $rootScope.saveModel(true);
+            $scope.clearButtonEnabled = false;
         }
 
         // todo: this needs to not do any work if it's already running a request
@@ -246,8 +448,8 @@ angular
             });
         };
 
-        $scope.metricSelected = function() {
-            $http.get("/otis/tags?metric="+$scope.selectedMetric.trim()).success(function (json) {
+        $scope.metricSelected = function(metricName, newMetric) {
+            $http.get("/otis/tags?metric="+metricName).success(function (json) {
                 var tagNames = [];
 
                 for (var key in json) {
@@ -265,7 +467,10 @@ angular
                                 return $scope.suggestTagValues(term, localKey);
                             }
                         };
-                        $scope.re[localKey] = true;
+                        if (newMetric) {
+                            $scope.re[localKey] = true;
+                            $scope.tag[localKey] = '';
+                        }
                     }
                     fn(tagNames[i]);
                 }
@@ -278,6 +483,11 @@ angular
             $scope.tagOptions = {};
             $scope.tagValues = {};
             $scope.tagNames = [];
+            $scope.graphId = "0";
+            $scope.rate = false;
+            $scope.downsample = false;
+            $scope.downsampleBy = "";
+
         };
 
         $scope.tagValuesMatchCount = function(tag) {
