@@ -153,7 +153,10 @@ angular
      */
     .controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope, $rootScope) {
         $scope.renderedContent = {};
-        $scope.renderers = {};
+        // pre-defined in unit tests
+        if (!$scope.renderers) {
+            $scope.renderers = {};
+        }
         $scope.renderers["debug"] = function(graph, metrics) {
             var txt = graph.title;
             for (var i=0; i<metrics.length; i++) {

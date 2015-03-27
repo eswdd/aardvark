@@ -107,7 +107,53 @@ describe('Otis controllers', function () {
 
     // todo: test GraphCtrl
     describe('GraphCtrl', function() {
+        var rootScope, scope;
+        var graphs, metricss;
 
+        beforeEach(inject(function ($rootScope, $controller) {
+            // hmm
+            rootScope = $rootScope;
+            scope = $rootScope.$new();
+            graphs = [];
+            metricss = [];
+
+            scope.renderers = {};
+            scope.renderers["unittest"] = function(graph,metrics) {
+                graphs.push(graph);
+                metricss.push(metrics);
+            }
+
+            rootScope.model = {
+                graphs: [],
+                metrics: []
+            }
+
+            $controller('GraphCtrl', {$scope: scope, $rootScope: rootScope});
+        }));
+
+        it('should define the renderGraphs function on the rootScope', function() {
+            var defined = false;
+            if (rootScope.renderGraphs) {
+                defined = true;
+            }
+            expect(defined).toEqualData(true);
+        });
+
+        it('should call the correct renderer when a graph with the correct type is defined', function() {
+            var graph = { id: "abc", type: "unittest" };
+            var notGraph = { id: "def", type: "something" };
+            var incMetric = { id: "123", graphOptions: { graphId: "abc" }};
+            var excMetric = { id: "456", graphOptions: { graphId: "def" }};
+            rootScope.model.graphs = [ graph, notGraph ];
+            rootScope.model.metrics = [ incMetric, excMetric ];
+
+            rootScope.renderGraphs();
+
+            expect(graphs).toEqualData([graph]);
+            expect(metricss).toEqualData([[incMetric]]);
+        });
+
+        // todo: tests for specific renderers when we have them (not incl debug)
     });
 
     describe('MetricControlCtrl', function() {
