@@ -1,8 +1,8 @@
 angular
     .module('Otis', ['ui.layout','ui.bootstrap','treeControl','ngSanitize','MassAutoComplete'])
     /*
-     * Otis controller is responsible for the main app, providing config
-     * and model<-> hash functionality for the other controllers
+     * Responsible for the main app, providing config and model<-> hash
+     * functionality for the other controllers
      */
     .controller('OtisCtrl', [ '$rootScope', '$http', '$location', function OtisCtrl($rootScope, $http, $location) {
         /*
@@ -75,7 +75,10 @@ angular
         $rootScope.updateConfig();
     }])
     /*
-     *
+     * Graph management:
+     * - adding/removing
+     * - global graph options
+     * - per-graph options (shared and type specific)
      */
     .controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphControlCtrl($scope, $rootScope) {
         $scope.lastGraphId = 0;
@@ -146,7 +149,7 @@ angular
         $rootScope.onConfigUpdate($scope.loadModel);
     }])
     /*
-     *
+     * Graph rendering
      */
     .controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope, $rootScope) {
         $scope.renderedContent = {};
@@ -196,7 +199,7 @@ angular
         $rootScope.renderGraphs();
     }])
     /*
-     *
+     * Used to render the tag value rows in the metrics control panel.
      */
     .directive('tagSelection', function() {
         return {
@@ -205,6 +208,13 @@ angular
             //template: '<div mass-autocomplete><input type="text" ng-model="tag[tagk]" mass-autocomplete-item="tagOptions[tagk]" size="15" /> RE? <input type="checkbox" ng-model="re[tagk]"/> {{tagValuesMatchCount(tagk)}}</div>'
         }
     })
+    /*
+     * Metric management:
+     * - adding/removing
+     * - graph association
+     * - per metric graphing options (timeseries selection, aggregation)
+     * - graph type specific graphing options
+     */
     .controller('MetricControlCtrl', [ '$scope', '$rootScope', '$sce', '$http', function MetricControlCtrl($scope, $rootScope, $sce, $http) {
 
         $scope.showTreeFilter = false;
