@@ -359,7 +359,6 @@ angular
             };
             $rootScope.model.metrics.push(metric);
             $scope.persistViewToExistingMetric(metric);
-            $scope.nodeSelectedForAddition('', false);
         }
 
         $scope.saveMetric = function() {
@@ -397,7 +396,11 @@ angular
                 downsampleBy: $scope.downsampleBy
             };
             $rootScope.saveModel(true);
-            $scope.clearButtonEnabled = false;
+            $scope.clearButtonEnabled = true;
+            $scope.saveButtonVisible = true;
+            $scope.addButtonVisible = false;
+            $scope.selectedMetric = "";
+            $scope.selectedMetricId = metric.id;
         }
 
         // todo: this needs to not do any work if it's already running a request
@@ -483,7 +486,11 @@ angular
             $scope.tagOptions = {};
             $scope.tagValues = {};
             $scope.tagNames = [];
+            $scope.tag = {};
+            $scope.re = {};
             $scope.graphId = "0";
+            $scope.selectedMetric = "";
+            $scope.selectedMetricId = "";
             $scope.rate = false;
             $scope.downsample = false;
             $scope.downsampleBy = "";

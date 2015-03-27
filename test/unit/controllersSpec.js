@@ -128,6 +128,7 @@ describe('Otis controllers', function () {
             rootScope.saveModel = function() {
                 saveModelCalled = true;
             }
+            saveModelCalled = false;
             rootScope.model = { graphs: [], metrics: [] };
 
             scope = $rootScope.$new();
@@ -209,6 +210,7 @@ describe('Otis controllers', function () {
 
             // simple results
             expect(scope.addButtonVisible).toEqualData(false);
+            expect(scope.clearButtonEnabled).toEqualData(false);
             expect(scope.selectedMetric).toEqualData("");
             expect(scope.tagNames).toEqualData([]);
             expect(scope.tagValues).toEqualData({});
@@ -286,9 +288,10 @@ describe('Otis controllers', function () {
             scope.addMetric();
 
             expect(saveModelCalled).toEqualData(true);
+            var newMetricId = scope.lastId+"";
             expect(rootScope.model.metrics).toEqualData([
                 {
-                    id: scope.lastId+"",
+                    id: newMetricId,
                     name: 'some.metric.name',
                     tags: [
                         {
@@ -315,7 +318,38 @@ describe('Otis controllers', function () {
                     }
                 }
             ]);
+            expect(scope.selectedMetric).toEqualData("");
+            expect(scope.selectedMetricId).toEqualData(newMetricId);
+            expect(scope.saveButtonVisible).toEqualData(true);
+            expect(scope.clearButtonEnabled).toEqualData(true);
+            expect(scope.addButtonVisible).toEqualData(false);
         })
+
+        it('should clear the form when a user cancels adding a new metric', function() {
+            scope.clearButtonEnabled = true;
+            scope.addButtonVisible = true;
+            scope.tagNames = ["tag1","tag2","tag3"];
+            scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
+            scope.re = {tag1:false,tag2:false,tag3:true};
+            scope.selectedMetric = "some.metric.name";
+            scope.rate = false;
+            scope.downsample = true;
+            scope.downsampleBy = "10m";
+
+            scope.clearMetric();
+
+            expect(saveModelCalled).toEqualData(false);
+            expect(scope.tagNames).toEqualData([]);
+            expect(scope.tag).toEqualData({});
+            expect(scope.re).toEqualData({});
+            expect(scope.selectedMetric).toEqualData('');
+            expect(scope.rate).toEqualData(false);
+            expect(scope.downsample).toEqualData(false);
+            expect(scope.downsampleBy).toEqualData('');
+            expect(scope.clearButtonEnabled).toEqualData(false);
+            expect(scope.addButtonVisible).toEqualData(false);
+            expect(scope.saveButtonVisible).toEqualData(false);
+        });
 
         it('should not generate new metrics with the ids of ones from an existing model', function() {
             rootScope.model = { metrics : [ { id : 1, name : 'fred' } ] };
@@ -352,7 +386,199 @@ describe('Otis controllers', function () {
             ]);
 
             expect(rootScope.model.metrics[0].id == rootScope.model.metrics[1].id).toEqualData(false);
-        })
+        });
+
+        it('should populate the metric form when an existing metric is selected', function() {
+            rootScope.model = {
+                graphs: [
+                    {
+                        id: "abc",
+                        type: "debug",
+                        title: "Title1",
+                        showTitle: true
+                    }
+                ],
+                metrics: [
+                    {
+                        id: "123",
+                        name: 'some.metric.name',
+                        tags: [
+                            {
+                                name: "tag1",
+                                value: "",
+                                re: false
+                            },
+                            {
+                                name: "tag2",
+                                value: "*",
+                                re: false
+                            },
+                            {
+                                name: "tag3",
+                                value: "value",
+                                re: true
+                            }
+                        ],
+                        graphOptions: {
+                            graphId: 'abc',
+                            rate: true,
+                            downsample: true,
+                            downsampleBy: '10m'
+                        }
+                    }
+                ]
+            }
+
+            scope.selectedMetricId = "123";
+
+
+            var response = {
+                tag1: [ "value1", "value2" ],
+                tag2: [ "value3" ],
+                tag3: [ "value"]
+            };
+
+            $httpBackend.expectGET('/otis/tags?metric=some.metric.name').respond(response);
+
+            scope.nodeSelectedForEditing();
+            $httpBackend.flush();
+
+            expect(scope.tagNames).toEqualData(["tag1","tag2","tag3"]);
+            expect(scope.tag).toEqualData({tag1:"",tag2:"*",tag3:"value"});
+            expect(scope.re).toEqualData({tag1:false,tag2:false,tag3:true});
+            expect(scope.selectedMetric).toEqualData('');
+            expect(scope.rate).toEqualData(true);
+            expect(scope.downsample).toEqualData(true);
+            expect(scope.downsampleBy).toEqualData('10m');
+            expect(scope.clearButtonEnabled).toEqualData(true);
+            expect(scope.addButtonVisible).toEqualData(false);
+            expect(scope.saveButtonVisible).toEqualData(true);
+        });
+
+        it('should update the model when a user clicks save from an existing metric being edited', function() {
+            rootScope.model = {
+                graphs: [],
+                    metrics: [
+                    {
+                        id: "123",
+                        name: 'some.metric.name',
+                        tags: [
+                            {
+                                name: "tag1",
+                                value: "abc",
+                                re: true
+                            },
+                            {
+                                name: "tag2",
+                                value: "zab",
+                                re: true
+                            },
+                            {
+                                name: "tag3",
+                                value: "",
+                                re: false
+                            }
+                        ],
+                        graphOptions: {
+                            graphId: 'abc',
+                            rate: true,
+                            downsample: false,
+                            downsampleBy: ''
+                        }
+                    }
+                ]
+                };
+
+            // todo: these should be based on:
+            // clear: selectedMetric != "" || selectedMetricId != "0"
+            // add: selectedMetric != ""
+            // save: selectedMetricId != "0"
+            scope.clearButtonEnabled = true;
+            scope.saveButtonVisible = true;
+            scope.tagNames = ["tag1","tag2","tag3"];
+            scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
+            scope.re = {tag1:false,tag2:false,tag3:true};
+            scope.selectedMetricId = "123";
+            scope.rate = false;
+            scope.downsample = true;
+            scope.downsampleBy = "10m";
+
+            scope.saveMetric();
+
+            expect(saveModelCalled).toEqualData(true);
+            expect(scope.tagNames).toEqualData(["tag1","tag2","tag3"]);
+            expect(scope.tag).toEqualData({tag1: '', tag2: '*', tag3: 'value'});
+            expect(scope.re).toEqualData({tag1:false,tag2:false,tag3:true});
+            expect(scope.selectedMetricId).toEqualData('123');
+            expect(scope.selectedMetric).toEqualData('');
+            expect(scope.rate).toEqualData(false);
+            expect(scope.downsample).toEqualData(true);
+            expect(scope.downsampleBy).toEqualData('10m');
+            expect(scope.clearButtonEnabled).toEqualData(true);
+            expect(scope.addButtonVisible).toEqualData(false);
+            expect(scope.saveButtonVisible).toEqualData(true);
+
+            expect(rootScope.model).toEqualData(
+                {
+                    graphs: [],
+                    metrics: [
+                        {
+                            id: "123",
+                            name: 'some.metric.name',
+                            tags: [
+                                {
+                                    name: "tag1",
+                                    value: "",
+                                    re: false
+                                },
+                                {
+                                    name: "tag2",
+                                    value: "*",
+                                    re: false
+                                },
+                                {
+                                    name: "tag3",
+                                    value: "value",
+                                    re: true
+                                }
+                            ],
+                            graphOptions: {
+                                graphId: '0',
+                                rate: false,
+                                downsample: true,
+                                downsampleBy: '10m'
+                            }
+                        }
+                    ]
+                }
+            );
+        });
+
+        it('should clear the form when a user cancels editing an existing metric', function() {
+            scope.clearButtonEnabled = true;
+            scope.saveButtonVisible = true;
+            scope.tagNames = ["tag1","tag2","tag3"];
+            scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
+            scope.re = {tag1:false,tag2:false,tag3:true};
+            scope.selectedMetricId = "123";
+            scope.rate = false;
+            scope.downsample = true;
+            scope.downsampleBy = "10m";
+
+            scope.clearMetric();
+
+            expect(saveModelCalled).toEqualData(false);
+            expect(scope.tagNames).toEqualData([]);
+            expect(scope.tag).toEqualData({});
+            expect(scope.re).toEqualData({});
+            expect(scope.selectedMetricId).toEqualData('');
+            expect(scope.rate).toEqualData(false);
+            expect(scope.downsample).toEqualData(false);
+            expect(scope.downsampleBy).toEqualData('');
+            expect(scope.clearButtonEnabled).toEqualData(false);
+            expect(scope.addButtonVisible).toEqualData(false);
+            expect(scope.saveButtonVisible).toEqualData(false);
+        });
     });
 
     /*
