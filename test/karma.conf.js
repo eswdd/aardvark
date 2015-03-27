@@ -16,6 +16,8 @@ module.exports = function (config) {
         ],
 
         autoWatch: true,
+        
+        reporters: ['mocha'],
 
         frameworks: ['jasmine'],
 
@@ -24,7 +26,8 @@ module.exports = function (config) {
         plugins: [
             'karma-chrome-launcher',
             'karma-firefox-launcher',
-            'karma-jasmine'
+            'karma-jasmine',
+            'karma-mocha-reporter'
         ],
 
         junitReporter: {
