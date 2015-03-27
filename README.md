@@ -29,6 +29,11 @@ Getting started
 ```
 * Point browser at [http://localhost:8000/](http://localhost:8000/).
 
+Project info
+------------
+
+[![Build Status](https://travis-ci.org/eswdd/otis.svg?branch=master)](https://travis-ci.org/eswdd/otis)
+
 Copyright
 ---------
 ```
