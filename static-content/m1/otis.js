@@ -181,7 +181,7 @@ angular
         };
 
         $rootScope.renderGraphs = function() {
-            // todo: ould be cleverer about clearing in case some graphs haven't changed
+            // todo: could be cleverer about clearing in case some graphs haven't changed
             // ie track ids found and delete others
             $scope.renderedContent = {};
             for (var i=0; i<$rootScope.model.graphs.length; i++) {
@@ -237,10 +237,17 @@ angular
         $scope.lastId = 0;
         $scope.graphId = "0";
         $scope.selectedMetricId = 0;
-        $scope.clearButtonEnabled = false;
-        $scope.addButtonVisible = false;
-        $scope.saveButtonVisible = false;
         $scope.nodeSelectionDisabled = false;
+
+        $scope.addButtonVisible = function() {
+            return $scope.selectedMetric != "";
+        };
+        $scope.saveButtonVisible = function() {
+            return $scope.selectedMetricId != "0";
+        };
+        $scope.clearButtonEnabled = function() {
+            return $scope.addButtonVisible() || $scope.saveButtonVisible();
+        };
 
 
         $scope.treeOptions = {
@@ -260,9 +267,6 @@ angular
 
         $scope.nodeSelectedForAddition = function (node,selected) {
             var valid = selected && node.isMetric;
-            $scope.addButtonVisible = valid;
-            $scope.clearButtonEnabled = valid;
-            $scope.saveButtonVisible = !valid;
             $scope.selectedMetric = valid ? node.id : '';
             $scope.nodeSelectionDisabled = valid;
             if (valid) {
@@ -317,9 +321,6 @@ angular
                 $scope.downsample = metric.graphOptions.downsample;
                 $scope.downsampleBy = metric.graphOptions.downsampleBy;
             }
-            $scope.addButtonVisible = false;
-            $scope.saveButtonVisible = true;
-            $scope.clearButtonEnabled = true;
 
         }
 
@@ -386,9 +387,6 @@ angular
 
         $scope.clearMetric = function() {
             $scope.metricDeselected();
-            $scope.addButtonVisible = false;
-            $scope.saveButtonVisible = false;
-            $scope.clearButtonEnabled = false;
         }
 
         // todo: how to do tag expansion with regexes? here or in graph rendering? here i suspect..
@@ -409,9 +407,6 @@ angular
                 downsampleBy: $scope.downsampleBy
             };
             $rootScope.saveModel(true);
-            $scope.clearButtonEnabled = true;
-            $scope.saveButtonVisible = true;
-            $scope.addButtonVisible = false;
             $scope.selectedMetric = "";
             $scope.selectedMetricId = metric.id;
         }
@@ -503,7 +498,7 @@ angular
             $scope.re = {};
             $scope.graphId = "0";
             $scope.selectedMetric = "";
-            $scope.selectedMetricId = "";
+            $scope.selectedMetricId = "0";
             $scope.rate = false;
             $scope.downsample = false;
             $scope.downsampleBy = "";

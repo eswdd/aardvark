@@ -105,7 +105,6 @@ describe('Otis controllers', function () {
 
     });
 
-    // todo: test GraphCtrl
     describe('GraphCtrl', function() {
         var rootScope, scope;
         var graphs, metricss;
@@ -218,7 +217,6 @@ describe('Otis controllers', function () {
 
         // todo: test should not load data for the tree if already loading
         it('should not load data for the tree if already loading', function() {
-            //throw 'todo';
         });
 
         it('should correctly process a selected node in the tree', function() {
@@ -235,7 +233,8 @@ describe('Otis controllers', function () {
             $httpBackend.flush();
 
             // simple results
-            expect(scope.addButtonVisible).toEqualData(true);
+            expect(scope.addButtonVisible()).toEqualData(true);
+            expect(scope.clearButtonEnabled()).toEqualData(true);
             expect(scope.selectedMetric).toEqualData("name.baldrick");
             expect(scope.tagNames).toEqualData(["key1","key2"]);
             expect(scope.tagValues).toEqualData(response);
@@ -247,7 +246,7 @@ describe('Otis controllers', function () {
 
         })
 
-        it('should not cleanup when a node is deselected and not try to get tag values', function() {
+        it('should cleanup when a node is deselected and not try to get tag values', function() {
             var node = {id: "name.baldrick", name: "baldrick", isMetric: true, children: []};
 
             scope.nodeSelectedForAddition(node, false);
@@ -255,8 +254,9 @@ describe('Otis controllers', function () {
             $httpBackend.verifyNoOutstandingRequest();
 
             // simple results
-            expect(scope.addButtonVisible).toEqualData(false);
-            expect(scope.clearButtonEnabled).toEqualData(false);
+            expect(scope.addButtonVisible()).toEqualData(false);
+            expect(scope.clearButtonEnabled()).toEqualData(false);
+            expect(scope.selectedMetricId).toEqualData("0");
             expect(scope.selectedMetric).toEqualData("");
             expect(scope.tagNames).toEqualData([]);
             expect(scope.tagValues).toEqualData({});
@@ -366,14 +366,12 @@ describe('Otis controllers', function () {
             ]);
             expect(scope.selectedMetric).toEqualData("");
             expect(scope.selectedMetricId).toEqualData(newMetricId);
-            expect(scope.saveButtonVisible).toEqualData(true);
-            expect(scope.clearButtonEnabled).toEqualData(true);
-            expect(scope.addButtonVisible).toEqualData(false);
+            expect(scope.saveButtonVisible()).toEqualData(true);
+            expect(scope.clearButtonEnabled()).toEqualData(true);
+            expect(scope.addButtonVisible()).toEqualData(false);
         })
 
         it('should clear the form when a user cancels adding a new metric', function() {
-            scope.clearButtonEnabled = true;
-            scope.addButtonVisible = true;
             scope.tagNames = ["tag1","tag2","tag3"];
             scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
             scope.re = {tag1:false,tag2:false,tag3:true};
@@ -392,9 +390,9 @@ describe('Otis controllers', function () {
             expect(scope.rate).toEqualData(false);
             expect(scope.downsample).toEqualData(false);
             expect(scope.downsampleBy).toEqualData('');
-            expect(scope.clearButtonEnabled).toEqualData(false);
-            expect(scope.addButtonVisible).toEqualData(false);
-            expect(scope.saveButtonVisible).toEqualData(false);
+            expect(scope.clearButtonEnabled()).toEqualData(false);
+            expect(scope.addButtonVisible()).toEqualData(false);
+            expect(scope.saveButtonVisible()).toEqualData(false);
         });
 
         it('should not generate new metrics with the ids of ones from an existing model', function() {
@@ -496,9 +494,9 @@ describe('Otis controllers', function () {
             expect(scope.rate).toEqualData(true);
             expect(scope.downsample).toEqualData(true);
             expect(scope.downsampleBy).toEqualData('10m');
-            expect(scope.clearButtonEnabled).toEqualData(true);
-            expect(scope.addButtonVisible).toEqualData(false);
-            expect(scope.saveButtonVisible).toEqualData(true);
+            expect(scope.clearButtonEnabled()).toEqualData(true);
+            expect(scope.addButtonVisible()).toEqualData(false);
+            expect(scope.saveButtonVisible()).toEqualData(true);
         });
 
         it('should update the model when a user clicks save from an existing metric being edited', function() {
@@ -535,12 +533,6 @@ describe('Otis controllers', function () {
                 ]
                 };
 
-            // todo: these should be based on:
-            // clear: selectedMetric != "" || selectedMetricId != "0"
-            // add: selectedMetric != ""
-            // save: selectedMetricId != "0"
-            scope.clearButtonEnabled = true;
-            scope.saveButtonVisible = true;
             scope.tagNames = ["tag1","tag2","tag3"];
             scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
             scope.re = {tag1:false,tag2:false,tag3:true};
@@ -560,9 +552,9 @@ describe('Otis controllers', function () {
             expect(scope.rate).toEqualData(false);
             expect(scope.downsample).toEqualData(true);
             expect(scope.downsampleBy).toEqualData('10m');
-            expect(scope.clearButtonEnabled).toEqualData(true);
-            expect(scope.addButtonVisible).toEqualData(false);
-            expect(scope.saveButtonVisible).toEqualData(true);
+            expect(scope.clearButtonEnabled()).toEqualData(true);
+            expect(scope.addButtonVisible()).toEqualData(false);
+            expect(scope.saveButtonVisible()).toEqualData(true);
 
             expect(rootScope.model).toEqualData(
                 {
@@ -601,8 +593,6 @@ describe('Otis controllers', function () {
         });
 
         it('should clear the form when a user cancels editing an existing metric', function() {
-            scope.clearButtonEnabled = true;
-            scope.saveButtonVisible = true;
             scope.tagNames = ["tag1","tag2","tag3"];
             scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
             scope.re = {tag1:false,tag2:false,tag3:true};
@@ -617,13 +607,13 @@ describe('Otis controllers', function () {
             expect(scope.tagNames).toEqualData([]);
             expect(scope.tag).toEqualData({});
             expect(scope.re).toEqualData({});
-            expect(scope.selectedMetricId).toEqualData('');
+            expect(scope.selectedMetricId).toEqualData('0');
             expect(scope.rate).toEqualData(false);
             expect(scope.downsample).toEqualData(false);
             expect(scope.downsampleBy).toEqualData('');
-            expect(scope.clearButtonEnabled).toEqualData(false);
-            expect(scope.addButtonVisible).toEqualData(false);
-            expect(scope.saveButtonVisible).toEqualData(false);
+            expect(scope.clearButtonEnabled()).toEqualData(false);
+            expect(scope.addButtonVisible()).toEqualData(false);
+            expect(scope.saveButtonVisible()).toEqualData(false);
         });
     });
 
