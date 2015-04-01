@@ -100,8 +100,213 @@ describe('Otis controllers', function () {
 
     });
 
-    // todo: test GraphControlCtrl
     describe('GraphControlCtrl', function() {
+        var rootScope, scope;
+        var configUpdateFunc;
+        var saveModelCalled, saveModelRenderArg;
+
+        beforeEach(inject(function ($rootScope, $controller) {
+            // hmm
+            rootScope = $rootScope;
+            scope = $rootScope.$new();
+
+            rootScope.onConfigUpdate = function(func) {
+                configUpdateFunc = func;
+            }
+            rootScope.saveModel = function(render) {
+                saveModelCalled = true;
+                saveModelRenderArg = render;
+            }
+            saveModelCalled = false;
+            saveModelRenderArg = false;
+            rootScope.model = { graphs: [], metrics: [] };
+            rootScope.graphTypes = [ "unittest1", "unittest2" ];
+
+            $controller('GraphControlCtrl', {$scope: scope, $rootScope: rootScope});
+        }));
+
+        it('should create a single graph on initialisation if none exist', function () {
+            configUpdateFunc();
+
+            expect(rootScope.model.graphs).toEqualData([
+                {
+                    id: scope.lastGraphId+"",
+                    title: "Graph 1",
+                    type: null,
+                    showTitle: false
+                }
+            ]);
+        });
+
+        it('should set the graph type when creating a graph on initialisation if only one type is defined', function () {
+            rootScope.graphTypes = [ "unittest1" ];
+
+            configUpdateFunc();
+
+            expect(rootScope.model.graphs).toEqualData([
+                {
+                    id: scope.lastGraphId+"",
+                    title: "Graph 1",
+                    type: "unittest1",
+                    showTitle: false
+                }
+            ]);
+        });
+
+        it('should load the existing model on initialisation', function () {
+
+
+            rootScope.model.graphs = [
+                {
+                    id: "1234",
+                    title: "Graph 1",
+                    type: null,
+                    showTitle: true
+                }
+            ];
+
+            configUpdateFunc();
+
+            expect(scope.lastGraphId).toEqualData(1234);
+        });
+
+        it('should add a new graph to the model with a default title when the addGraph() function is called', function () {
+
+            scope.addGraph();
+
+            var firstId = scope.lastGraphId+"";
+            expect(rootScope.model.graphs).toEqualData([
+                {
+                    id: firstId,
+                    title: "Graph 1",
+                    type: null,
+                    showTitle: true
+                }
+            ]);
+
+            scope.addGraph();
+
+            var secondId = scope.lastGraphId+"";
+            expect(rootScope.model.graphs).toEqualData([
+                {
+                    id: firstId,
+                    title: "Graph 1",
+                    type: null,
+                    showTitle: true
+                },
+                {
+                    id: secondId,
+                    title: "Graph 2",
+                    type: null,
+                    showTitle: true
+                }
+            ]);
+        });
+
+        it('should set the graph type on new graphs if there is only one type defined', function () {
+            rootScope.graphTypes = [ "unittest1" ];
+
+            scope.addGraph();
+
+            var firstId = scope.lastGraphId+"";
+            expect(rootScope.model.graphs).toEqualData([
+                {
+                    id: firstId,
+                    title: "Graph 1",
+                    type: "unittest1",
+                    showTitle: true
+                }
+            ]);
+
+            scope.addGraph();
+
+            var secondId = scope.lastGraphId+"";
+            expect(rootScope.model.graphs).toEqualData([
+                {
+                    id: firstId,
+                    title: "Graph 1",
+                    type: "unittest1",
+                    showTitle: true
+                },
+                {
+                    id: secondId,
+                    title: "Graph 2",
+                    type: "unittest1",
+                    showTitle: true
+                }
+            ]);
+        });
+
+        it('should request rendering when saving changes', function () {
+            scope.renderGraphs();
+            expect(saveModelCalled).toEqualData(true);
+            expect(saveModelRenderArg).toEqualData(true);
+        });
+
+        it('should remove a graph from the model when requested', function () {
+            scope.addGraph();
+
+            var firstId = scope.lastGraphId+"";
+            expect(rootScope.model.graphs).toEqualData([
+                {
+                    id: firstId,
+                    title: "Graph 1",
+                    type: null,
+                    showTitle: true
+                }
+            ]);
+
+            scope.deleteGraph(firstId);
+
+            expect(rootScope.model.graphs).toEqualData([]);
+        });
+
+        it("should not remove a graph if it can't be found", function () {
+            scope.addGraph();
+
+            var firstId = scope.lastGraphId+"";
+            expect(rootScope.model.graphs).toEqualData([
+                {
+                    id: firstId,
+                    title: "Graph 1",
+                    type: null,
+                    showTitle: true
+                }
+            ]);
+
+            scope.deleteGraph("0");
+            expect(rootScope.model.graphs).toEqualData([
+                {
+                    id: firstId,
+                    title: "Graph 1",
+                    type: null,
+                    showTitle: true
+                }
+            ]);
+        });
+
+        it('should not create new graphs with an existing id', function () {
+            scope.addGraph();
+
+            var firstId = scope.lastGraphId+"";
+
+            scope.addGraph();
+
+            var secondId = scope.lastGraphId+"";
+
+            expect(firstId == secondId).toEqualData(false);
+        });
+
+        //todo: move id generation to a service
+        it('should generate unique ids', function () {
+            scope.timeInMillis = function() {
+                return 0;
+            }
+
+            var firstId = scope.nextId();
+            var secondId = scope.nextId();
+            expect(firstId == secondId).toEqualData(false);
+        });
 
     });
 
@@ -396,8 +601,9 @@ describe('Otis controllers', function () {
         });
 
         it('should not generate new metrics with the ids of ones from an existing model', function() {
-            rootScope.model = { metrics : [ { id : 1, name : 'fred' } ] };
+            rootScope.model = { metrics : [ { id : "1", name : 'fred' } ] };
             configUpdateFunc();
+            expect(scope.lastId).toEqualData(1);
 
             scope.tagNames = [];
             scope.tag = {};
@@ -413,7 +619,7 @@ describe('Otis controllers', function () {
             expect(saveModelCalled).toEqualData(true);
             expect(rootScope.model.metrics).toEqualData([
                 {
-                    id: 1,
+                    id: "1",
                     name: 'fred'
                 },
                 {
@@ -616,38 +822,4 @@ describe('Otis controllers', function () {
             expect(scope.saveButtonVisible()).toEqualData(false);
         });
     });
-
-    /*
-
-     x'#%7B%22metrics%22:%5B%7B%22id%22:%221%22,%22name%22:%22fred%22%7D%5D%7D' to equal data
-      '#%7B%22metrics%22:%5B%7B%22id%22:%221%22,%22name%22:%22fred%22%7D%5D%7D'.
-
-
-     describe('PhoneDetailCtrl', function(){
-     var scope, $httpBackend, ctrl,
-     xyzPhoneData = function() {
-     return {
-     name: 'phone xyz',
-     images: ['image/url1.png', 'image/url2.png']
-     }
-     };
-
-
-     beforeEach(inject(function(_$httpBackend_, $rootScope, $routeParams, $controller) {
-     $httpBackend = _$httpBackend_;
-     $httpBackend.expectGET('phones/xyz.json').respond(xyzPhoneData());
-
-     $routeParams.phoneId = 'xyz';
-     scope = $rootScope.$new();
-     ctrl = $controller('PhoneDetailCtrl', {$scope: scope});
-     }));
-
-
-     it('should fetch phone detail', function() {
-     expect(scope.phone).toEqualData({});
-     $httpBackend.flush();
-
-     expect(scope.phone).toEqualData(xyzPhoneData());
-     });
-     });*/
 });

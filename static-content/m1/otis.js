@@ -85,6 +85,7 @@ angular
         $scope.showEdit={};
         $scope.isOpen={};
         $scope.firstOpen = true;
+
         $scope.loadModel = function() {
             var model = $rootScope.model;
             if (model.graphs == null || model.graphs.length == 0) {
@@ -92,7 +93,7 @@ angular
                     {
                         id: new Date().getTime()+"",
                         title: "Graph 1",
-                        type: $rootScope.graphTypes[0],
+                        type: $rootScope.graphTypes.length == 1 ? $rootScope.graphTypes[0] : null,
                         showTitle: false
                     }
                 ];
@@ -100,17 +101,23 @@ angular
             for (var i=0; i<model.graphs.length; i++) {
                 var item = model.graphs[i];
                 if (item.id>$scope.lastGraphId) {
-                    $scope.lastGraphId = item.id;
+                    $scope.lastGraphId = parseInt(item.id);
                 }
             }
         }
 
+        // extracted for testing
+        $scope.timeInMillis = function()
+        {
+            return new Date().getTime();
+        }
+
         $scope.nextId = function() {
-            var next = new Date().getTime();
+            var next = $scope.timeInMillis();
             if (next <= $scope.lastGraphId) {
                 next = $scope.lastGraphId+1;
             }
-            $scope.lastId = next;
+            $scope.lastGraphId = next;
             return next+"";
         }
 
@@ -120,12 +127,13 @@ angular
             $rootScope.model.graphs.push({
                 id: id,
                 title: "Graph "+($rootScope.model.graphs.length+1),
-                type: $rootScope.graphTypes[0],
+                type: $rootScope.graphTypes.length == 1 ? $rootScope.graphTypes[0] : null,
                 showTitle: true
             });
             $rootScope.saveModel();
             $scope.showEdit[id] = true;
-            // todo: is it always this one open?
+            // Q: is it always this one open?
+            // A: yes - currently you can only add a graph from the top section
             $scope.firstOpen = false;
             $scope.isOpen[id] = true;
         };
@@ -361,7 +369,7 @@ angular
             for (var i=0; i<$rootScope.model.metrics.length; i++) {
                 var item = $rootScope.model.metrics[i];
                 if (item.id > $scope.lastId) {
-                    $scope.lastId = item.id;
+                    $scope.lastId = parseInt(item.id);
                 }
             }
         }
