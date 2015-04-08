@@ -5,27 +5,51 @@
  * - per-graph options (shared and type specific)
  */
 otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphControlCtrl($scope, $rootScope) {
-    $scope.lastGraphId = 0;
-    $scope.showEdit={};
+    // accordion openings
     $scope.isOpen={};
     $scope.firstOpen = true;
+
+    // misc logic
+    $scope.lastGraphId = 0;
+
+    // per graph settings
+    $scope.showEdit={};
+
+    // global settings
+    $scope.fromTimestamp = "";
+    $scope.autoReload = false;
+    $scope.toTimestamp = "";
+
+    // gnuplot stuff - nothing global
+    $scope.gnuplot = {};
+    // axes
+    $scope.gnuplot.yAxisLabel = "";
+    $scope.gnuplot.y2AxisLabel = "";
+    $scope.gnuplot.yAxisFormat = "";
+    $scope.gnuplot.y2AxisFormat = "";
+    $scope.gnuplot.yAxisRange = "[:]";
+    $scope.gnuplot.y2AxisRange = "[:]";
+    $scope.gnuplot.yAxisLogScale = false;
+    $scope.gnuplot.y2AxisLogScale = false;
+    // key
+    $scope.gnuplot.showKey = true;
+    $scope.gnuplot.keyAlignment = "columnar";
+    $scope.gnuplot.keyLocation = "top left";
+    // style
+    $scope.gnuplot.lineSmoothing = false;
 
     $scope.loadModel = function() {
         var model = $rootScope.model;
         if (model.graphs == null || model.graphs.length == 0) {
-            model.graphs = [
-                {
-                    id: new Date().getTime()+"",
-                    title: "Graph 1",
-                    type: $rootScope.graphTypes.length == 1 ? $rootScope.graphTypes[0] : null,
-                    showTitle: false
-                }
-            ];
+            model.graphs = [];
+            $scope.addGraph();
         }
-        for (var i=0; i<model.graphs.length; i++) {
-            var item = model.graphs[i];
-            if (item.id>$scope.lastGraphId) {
-                $scope.lastGraphId = parseInt(item.id);
+        else {
+            for (var i=0; i<model.graphs.length; i++) {
+                var item = model.graphs[i];
+                if (item.id>$scope.lastGraphId) {
+                    $scope.lastGraphId = parseInt(item.id);
+                }
             }
         }
     }
@@ -52,7 +76,15 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
             id: id,
             title: "Graph "+($rootScope.model.graphs.length+1),
             type: $rootScope.graphTypes.length == 1 ? $rootScope.graphTypes[0] : null,
-            showTitle: true
+            showTitle: true,
+            // gnuplot defaults
+            gnuplot: {
+                yAxisRange: "[:]",
+                y2AxisRange: "[:]",
+                showKey: true,
+                keyAlignment: "columnar",
+                keyLocation: "top left"
+            }
         });
         $rootScope.saveModel();
         $scope.showEdit[id] = true;

@@ -133,7 +133,14 @@ describe('Otis controllers', function () {
                     id: scope.lastGraphId+"",
                     title: "Graph 1",
                     type: null,
-                    showTitle: false
+                    showTitle: true,
+                    gnuplot: {
+                        yAxisRange: "[:]",
+                        y2AxisRange: "[:]",
+                        showKey: true,
+                        keyAlignment: "columnar",
+                        keyLocation: "top left"
+                    }
                 }
             ]);
         });
@@ -148,14 +155,21 @@ describe('Otis controllers', function () {
                     id: scope.lastGraphId+"",
                     title: "Graph 1",
                     type: "unittest1",
-                    showTitle: false
+                    showTitle: true,
+                    gnuplot: {
+                        yAxisRange: "[:]",
+                        y2AxisRange: "[:]",
+                        showKey: true,
+                        keyAlignment: "columnar",
+                        keyLocation: "top left"
+                    }
                 }
             ]);
         });
 
         it('should load the existing model on initialisation', function () {
 
-
+            //todo: should we 'fix' model with new defaults?
             rootScope.model.graphs = [
                 {
                     id: "1234",
@@ -180,7 +194,14 @@ describe('Otis controllers', function () {
                     id: firstId,
                     title: "Graph 1",
                     type: null,
-                    showTitle: true
+                    showTitle: true,
+                    gnuplot: {
+                        yAxisRange: "[:]",
+                        y2AxisRange: "[:]",
+                        showKey: true,
+                        keyAlignment: "columnar",
+                        keyLocation: "top left"
+                    }
                 }
             ]);
 
@@ -192,13 +213,27 @@ describe('Otis controllers', function () {
                     id: firstId,
                     title: "Graph 1",
                     type: null,
-                    showTitle: true
+                    showTitle: true,
+                    gnuplot: {
+                        yAxisRange: "[:]",
+                        y2AxisRange: "[:]",
+                        showKey: true,
+                        keyAlignment: "columnar",
+                        keyLocation: "top left"
+                    }
                 },
                 {
                     id: secondId,
                     title: "Graph 2",
                     type: null,
-                    showTitle: true
+                    showTitle: true,
+                    gnuplot: {
+                        yAxisRange: "[:]",
+                        y2AxisRange: "[:]",
+                        showKey: true,
+                        keyAlignment: "columnar",
+                        keyLocation: "top left"
+                    }
                 }
             ]);
         });
@@ -214,7 +249,14 @@ describe('Otis controllers', function () {
                     id: firstId,
                     title: "Graph 1",
                     type: "unittest1",
-                    showTitle: true
+                    showTitle: true,
+                    gnuplot: {
+                        yAxisRange: "[:]",
+                        y2AxisRange: "[:]",
+                        showKey: true,
+                        keyAlignment: "columnar",
+                        keyLocation: "top left"
+                    }
                 }
             ]);
 
@@ -226,13 +268,27 @@ describe('Otis controllers', function () {
                     id: firstId,
                     title: "Graph 1",
                     type: "unittest1",
-                    showTitle: true
+                    showTitle: true,
+                    gnuplot: {
+                        yAxisRange: "[:]",
+                        y2AxisRange: "[:]",
+                        showKey: true,
+                        keyAlignment: "columnar",
+                        keyLocation: "top left"
+                    }
                 },
                 {
                     id: secondId,
                     title: "Graph 2",
                     type: "unittest1",
-                    showTitle: true
+                    showTitle: true,
+                    gnuplot: {
+                        yAxisRange: "[:]",
+                        y2AxisRange: "[:]",
+                        showKey: true,
+                        keyAlignment: "columnar",
+                        keyLocation: "top left"
+                    }
                 }
             ]);
         });
@@ -247,14 +303,7 @@ describe('Otis controllers', function () {
             scope.addGraph();
 
             var firstId = scope.lastGraphId+"";
-            expect(rootScope.model.graphs).toEqualData([
-                {
-                    id: firstId,
-                    title: "Graph 1",
-                    type: null,
-                    showTitle: true
-                }
-            ]);
+            expect(rootScope.model.graphs.length).toEqualData(1);
 
             scope.deleteGraph(firstId);
 
@@ -265,24 +314,10 @@ describe('Otis controllers', function () {
             scope.addGraph();
 
             var firstId = scope.lastGraphId+"";
-            expect(rootScope.model.graphs).toEqualData([
-                {
-                    id: firstId,
-                    title: "Graph 1",
-                    type: null,
-                    showTitle: true
-                }
-            ]);
+            expect(rootScope.model.graphs.length).toEqualData(1);
 
             scope.deleteGraph("0");
-            expect(rootScope.model.graphs).toEqualData([
-                {
-                    id: firstId,
-                    title: "Graph 1",
-                    type: null,
-                    showTitle: true
-                }
-            ]);
+            expect(rootScope.model.graphs.length).toEqualData(1);
         });
 
         it('should not create new graphs with an existing id', function () {

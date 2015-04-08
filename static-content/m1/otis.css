@@ -16,6 +16,10 @@
     background-color: #eee;
 }
 
+.panel-body {
+    padding: 0;
+}
+
 .glyphicon-chevron-left,
 .glyphicon-chevron-right,
 .glyphicon-chevron-up,
