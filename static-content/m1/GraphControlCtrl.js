@@ -10,6 +10,7 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
     $scope.firstOpen = true;
 
     // misc logic
+    $scope.graphs = [];
     $scope.lastGraphId = 0;
 
     // per graph settings
@@ -43,6 +44,7 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
         if (model.graphs == null || model.graphs.length == 0) {
             model.graphs = [];
             $scope.addGraph();
+            $scope.renderGraphs();
         }
         else {
             for (var i=0; i<model.graphs.length; i++) {
@@ -52,6 +54,7 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
                 }
             }
         }
+        $scope.graphs = model.graphs;
     }
 
     // extracted for testing
@@ -70,11 +73,10 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
     }
 
     $scope.addGraph = function() {
-        //todo: should stage new graphs and edits into an internal model and only push to model when click a save button
         var id = $scope.nextId();
-        $rootScope.model.graphs.push({
+        $scope.graphs.push({
             id: id,
-            title: "Graph "+($rootScope.model.graphs.length+1),
+            title: "Graph "+($scope.graphs.length+1),
             type: $rootScope.graphTypes.length == 1 ? $rootScope.graphTypes[0] : null,
             showTitle: true,
             // gnuplot defaults
@@ -86,7 +88,6 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
                 keyLocation: "top left"
             }
         });
-        $rootScope.saveModel();
         $scope.showEdit[id] = true;
         // Q: is it always this one open?
         // A: yes - currently you can only add a graph from the top section
@@ -95,8 +96,8 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
     };
     $scope.deleteGraph = function(id) {
         var index = -1;
-        for (var i=0; i<$rootScope.model.graphs.length; i++) {
-            if ($rootScope.model.graphs[i].id == id) {
+        for (var i=0; i<$scope.graphs.length; i++) {
+            if ($scope.graphs[i].id == id) {
                 index = i;
                 break;
             }
@@ -104,10 +105,10 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
         if (index == -1) {
             return;
         }
-        $rootScope.model.graphs.splice(index, 1);
-        $rootScope.saveModel();
+        $scope.graphs.splice(index, 1);
     }
     $scope.renderGraphs = function() {
+        $rootScope.model.graphs = $scope.graphs;
         $rootScope.saveModel(true);
     }
     $rootScope.onConfigUpdate($scope.loadModel);

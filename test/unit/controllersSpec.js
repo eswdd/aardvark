@@ -128,7 +128,7 @@ describe('Otis controllers', function () {
         it('should create a single graph on initialisation if none exist', function () {
             configUpdateFunc();
 
-            expect(rootScope.model.graphs).toEqualData([
+            expect(scope.graphs).toEqualData([
                 {
                     id: scope.lastGraphId+"",
                     title: "Graph 1",
@@ -143,6 +143,7 @@ describe('Otis controllers', function () {
                     }
                 }
             ]);
+            expect(rootScope.model.graphs).toEqualData(scope.graphs);
         });
 
         it('should set the graph type when creating a graph on initialisation if only one type is defined', function () {
@@ -150,7 +151,7 @@ describe('Otis controllers', function () {
 
             configUpdateFunc();
 
-            expect(rootScope.model.graphs).toEqualData([
+            expect(scope.graphs).toEqualData([
                 {
                     id: scope.lastGraphId+"",
                     title: "Graph 1",
@@ -165,6 +166,7 @@ describe('Otis controllers', function () {
                     }
                 }
             ]);
+            expect(rootScope.model.graphs).toEqualData(scope.graphs);
         });
 
         it('should load the existing model on initialisation', function () {
@@ -182,6 +184,7 @@ describe('Otis controllers', function () {
             configUpdateFunc();
 
             expect(scope.lastGraphId).toEqualData(1234);
+            expect(scope.graphs).toEqualData(rootScope.model.graphs);
         });
 
         it('should add a new graph to the model with a default title when the addGraph() function is called', function () {
@@ -189,7 +192,7 @@ describe('Otis controllers', function () {
             scope.addGraph();
 
             var firstId = scope.lastGraphId+"";
-            expect(rootScope.model.graphs).toEqualData([
+            expect(scope.graphs).toEqualData([
                 {
                     id: firstId,
                     title: "Graph 1",
@@ -208,7 +211,7 @@ describe('Otis controllers', function () {
             scope.addGraph();
 
             var secondId = scope.lastGraphId+"";
-            expect(rootScope.model.graphs).toEqualData([
+            expect(scope.graphs).toEqualData([
                 {
                     id: firstId,
                     title: "Graph 1",
@@ -244,7 +247,7 @@ describe('Otis controllers', function () {
             scope.addGraph();
 
             var firstId = scope.lastGraphId+"";
-            expect(rootScope.model.graphs).toEqualData([
+            expect(scope.graphs).toEqualData([
                 {
                     id: firstId,
                     title: "Graph 1",
@@ -263,7 +266,7 @@ describe('Otis controllers', function () {
             scope.addGraph();
 
             var secondId = scope.lastGraphId+"";
-            expect(rootScope.model.graphs).toEqualData([
+            expect(scope.graphs).toEqualData([
                 {
                     id: firstId,
                     title: "Graph 1",
@@ -299,25 +302,32 @@ describe('Otis controllers', function () {
             expect(saveModelRenderArg).toEqualData(true);
         });
 
+        it('should persist internal graphs to the model when saving changes', function () {
+            expect(rootScope.model.graphs).toEqualData([]);
+            scope.addGraph();
+            scope.renderGraphs();
+            expect(saveModelCalled).toEqualData(true);
+            expect(rootScope.model.graphs.length).toEqualData(1);
+        });
+
         it('should remove a graph from the model when requested', function () {
             scope.addGraph();
 
             var firstId = scope.lastGraphId+"";
-            expect(rootScope.model.graphs.length).toEqualData(1);
+            expect(scope.graphs.length).toEqualData(1);
 
             scope.deleteGraph(firstId);
 
-            expect(rootScope.model.graphs).toEqualData([]);
+            expect(scope.graphs).toEqualData([]);
         });
 
         it("should not remove a graph if it can't be found", function () {
             scope.addGraph();
 
-            var firstId = scope.lastGraphId+"";
-            expect(rootScope.model.graphs.length).toEqualData(1);
+            expect(scope.graphs.length).toEqualData(1);
 
             scope.deleteGraph("0");
-            expect(rootScope.model.graphs.length).toEqualData(1);
+            expect(scope.graphs.length).toEqualData(1);
         });
 
         it('should not create new graphs with an existing id', function () {
