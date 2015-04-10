@@ -54,8 +54,45 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
                 }
             }
         }
-        $scope.graphs = model.graphs;
+        $scope.graphs = $scope.deepClone(model.graphs);
     }
+
+    $scope.deepClone = function(incoming) {
+        var ret;
+        if (incoming == null) {
+            return null;
+        }
+        switch (typeof incoming)
+        {
+            case 'string':
+            case 'number':
+            case 'boolean':
+                return incoming;
+            case 'object':
+                if (incoming instanceof Array)
+                {
+                    ret = [];
+                    for (var i=0; i<incoming.length; i++) {
+                        ret[i] = $scope.deepClone(incoming[i]);
+                    }
+                }
+                else {
+                    ret = {};
+                    for (var k in incoming) {
+                        if (incoming.hasOwnProperty(k)) {
+                            ret[k] = $scope.deepClone(incoming[k]);
+                        }
+                    }
+                }
+                break;
+            default:
+                throw 'Unrecognized type: '+(typeof incoming);
+        }
+
+
+        return ret;
+    };
+
 
     // extracted for testing
     $scope.timeInMillis = function()
@@ -108,7 +145,7 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
         $scope.graphs.splice(index, 1);
     }
     $scope.renderGraphs = function() {
-        $rootScope.model.graphs = $scope.graphs;
+        $rootScope.model.graphs = $scope.deepClone($scope.graphs);
         $rootScope.saveModel(true);
     }
     $rootScope.onConfigUpdate($scope.loadModel);

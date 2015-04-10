@@ -125,6 +125,30 @@ describe('Otis controllers', function () {
             $controller('GraphControlCtrl', {$scope: scope, $rootScope: rootScope});
         }));
 
+        it('should deep clone correctly', function() {
+            var orig = [
+                {
+                    a: ["a","b","c"],
+                    e: {
+                        f: "g"
+                    }
+                },
+                [
+                    "h"
+                ],
+                [
+                    {
+                        i: "j",
+                        k: []
+                    }
+                ],
+                3
+            ];
+            var clone = scope.deepClone(orig);
+            expect(clone).toEqualData(orig);
+            expect(clone == orig).toEqualData(false);
+        });
+
         it('should create a single graph on initialisation if none exist', function () {
             configUpdateFunc();
 

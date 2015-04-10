@@ -62,7 +62,7 @@
                                         </div>
                                     </div>
                                 </accordion-group>
-                                <accordion-group heading="{{graph.title}}" is-open="isOpen[graph.id]" ng-repeat="graph in model.graphs track by graph.id">
+                                <accordion-group heading="{{graph.title}}" is-open="isOpen[graph.id]" ng-repeat="graph in graphs track by graph.id">
 
                                     <div ng-show="showEdit[graph.id]">
                                         <input type="text" ng-model="graph.title" />
@@ -294,11 +294,14 @@
                             <input id="metricControl_editMetric_downsample" type="checkbox" ng-model="downsample">
                             <label for="metricControl_editMetric_downsampleBy">by</label>
                             <select id="metricControl_editMetric_downsampleBy" ng-model="downsampleBy" ng-disabled="!downsample">
-                                <option selected="selected">avg</option>
                                 <option>sum</option>
                                 <option>min</option>
                                 <option>max</option>
-                                <option>...</option>
+                                <option selected="selected">avg</option>
+                                <option>dev</option>
+                                <option>zimsum</option>
+                                <option>mimmin</option>
+                                <option>mimmax</option>
                                 <!-- TODO load aggregators from /aggregators on tsdb.. -->
                             </select>
                             <input type="text" ng-model="downsampleTo" ng-disabled="!downsample">
