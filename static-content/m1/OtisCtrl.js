@@ -70,5 +70,10 @@ otis.controller('OtisCtrl', [ '$rootScope', '$http', '$location', function OtisC
         $location.url("");
     }
 
+//    $rootScope.undoAll = function() {
+        // todo: m1: implement undo all
+//        alert("Not implemented");
+//    }
+
     $rootScope.updateConfig();
 }]);

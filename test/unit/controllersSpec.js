@@ -377,6 +377,53 @@ describe('Otis controllers', function () {
             expect(firstId == secondId).toEqualData(false);
         });
 
+        it('should control the accordion appropriately when adding / removing graphs', function() {
+            expect(scope.firstOpen).toEqualData(true);
+
+            scope.addGraph();
+            var id1 = scope.lastGraphId + "";
+
+            expect(scope.firstOpen).toEqualData(false);
+            expect(scope.isOpen[id1]).toEqualData(true);
+
+            scope.addGraph();
+            var id2 = scope.lastGraphId + "";
+
+            expect(scope.firstOpen).toEqualData(false);
+            expect(scope.isOpen[id1]).toEqualData(false);
+            expect(scope.isOpen[id2]).toEqualData(true);
+
+            scope.addGraph();
+            var id3 = scope.lastGraphId + "";
+
+            expect(scope.firstOpen).toEqualData(false);
+            expect(scope.isOpen[id1]).toEqualData(false);
+            expect(scope.isOpen[id2]).toEqualData(false);
+            expect(scope.isOpen[id3]).toEqualData(true);
+
+            scope.deleteGraph(id3);
+
+            expect(scope.firstOpen).toEqualData(false);
+            expect(scope.isOpen[id1]).toEqualData(false);
+            expect(scope.isOpen[id2]).toEqualData(true);
+            expect(scope.isOpen[id3]).toEqualData(false);
+
+            scope.deleteGraph(id1);
+
+            expect(scope.firstOpen).toEqualData(false);
+            expect(scope.isOpen[id1]).toEqualData(false);
+            expect(scope.isOpen[id2]).toEqualData(true);
+            expect(scope.isOpen[id3]).toEqualData(false);
+
+            scope.deleteGraph(id2);
+
+            expect(scope.firstOpen).toEqualData(true);
+            expect(scope.isOpen[id1]).toEqualData(false);
+            expect(scope.isOpen[id2]).toEqualData(false);
+            expect(scope.isOpen[id3]).toEqualData(false);
+        });
+
+
     });
 
     describe('GraphCtrl', function() {
@@ -427,6 +474,7 @@ describe('Otis controllers', function () {
         });
 
         // todo: tests for specific renderers when we have them (not incl debug)
+        // gnuplot: agg:[interval-agg:][rate[{counter[,max[,reset]]}:]metric[{tag=value,...}]
     });
 
     describe('MetricControlCtrl', function() {
@@ -552,7 +600,7 @@ describe('Otis controllers', function () {
             expect(scope.suggestTagValues('value12','key1')).toEqualData([]);
             expect(scope.suggestTagValues('*','key1')).toEqualData([]);
 
-            // todo: would you expect suggested tag values to change because you ticked RE?
+            // todo: m1: would you expect suggested tag values to change because you ticked RE?
             scope.re = { key1: true };
             expect(scope.suggestTagValues('','key1')).toEqualData([ret_value1,ret_something2,ret_value2]);
             expect(scope.suggestTagValues('value','key1')).toEqualData([ret_value1,ret_value2]);

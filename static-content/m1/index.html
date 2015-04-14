@@ -34,7 +34,7 @@
 <div ui-layout>
     <div ui-layout-container class="top-panel" size="60px" ng-controller="OtisCtrl">
         <p><b>Otis - An OpenTSDB Visualiser</b></p>
-        <p style="text-align: right"><button ng-click="clearAll()">Reset</button></p>
+        <p style="text-align: right"><!--button ng-click="undoAll()">Undo</button--><button ng-click="clearAll()">Reset</button></p>
     </div>
 
     <div ui-layout-container>
@@ -56,7 +56,7 @@
                                             <input type="checkbox" id="autoReload" ng-model="autoReload">
                                             Auto reload
                                             <div >
-                                                <input type="text" size="10" id="toTimestamp" ng-model="toTimetamp" ng-disabled="!autoReload"/>
+                                                <input type="text" size="10" id="toTimestamp" ng-model="toTimetamp" ng-disabled="autoReload"/>
                                                 <button ng-disabled="autoReload">Cal</button>
                                             </div>
                                         </div>
@@ -287,24 +287,51 @@
                                     </option>
                                 </select>
                             </div>
-                            <label for="metricControl_editMetric_rate">Rate?</label>
-                            <input id="metricControl_editMetric_rate" type="checkbox" ng-model="rate">
-                            <br/>
-                            <label for="metricControl_editMetric_downsample">Downsample?</label>
-                            <input id="metricControl_editMetric_downsample" type="checkbox" ng-model="downsample">
-                            <label for="metricControl_editMetric_downsampleBy">by</label>
-                            <select id="metricControl_editMetric_downsampleBy" ng-model="downsampleBy" ng-disabled="!downsample">
-                                <option>sum</option>
-                                <option>min</option>
-                                <option>max</option>
-                                <option selected="selected">avg</option>
-                                <option>dev</option>
-                                <option>zimsum</option>
-                                <option>mimmin</option>
-                                <option>mimmax</option>
-                                <!-- TODO load aggregators from /aggregators on tsdb.. -->
-                            </select>
-                            <input type="text" ng-model="downsampleTo" ng-disabled="!downsample">
+                            <div>
+                                <label for="metricControl_editMetric_aggregator">Aggregator</label>
+                                <select id="metricControl_editMetric_aggregator" ng-model="aggregator">
+                                    <option>sum</option>
+                                    <option>min</option>
+                                    <option>max</option>
+                                    <option selected="selected">avg</option>
+                                    <option>dev</option>
+                                    <option>zimsum</option>
+                                    <option>mimmin</option>
+                                    <option>mimmax</option>
+                                    <!-- TODO load aggregators from /aggregators on tsdb.. -->
+                                </select>
+                                <label for="metricControl_editMetric_rightAxis">Right Axis</label>
+                                <input id="metricControl_editMetric_rightAxis" type="checkbox" ng-model="rightAxis"/>
+                            </div>
+                            <div>
+                                <label for="metricControl_editMetric_rate">Rate?</label>
+                                <input id="metricControl_editMetric_rate" type="checkbox" ng-model="rate">
+                                <label for="metricControl_editMetric_rate">Rate Ctr?</label>
+                                <input id="metricControl_editMetric_rateCounter" type="checkbox" ng-model="rateCounter">
+                            </div>
+                            <div ng-show="rateCounter">
+                                <label for="metricControl_editMetric_rateCounterMax">Counter max</label>
+                                <input id="metricControl_editMetric_rateCounterMax" type="text" ng-model="rateCounterMax"/>
+                                <label for="metricControl_editMetric_rateCounterReset">Counter reset</label>
+                                <input id="metricControl_editMetric_rateCounterReset" type="text" ng-model="rateCounterReset"/>
+                            </div>
+                            <div>
+                                <label for="metricControl_editMetric_downsample">Downsample?</label>
+                                <input id="metricControl_editMetric_downsample" type="checkbox" ng-model="downsample">
+                                <label for="metricControl_editMetric_downsampleBy">by</label>
+                                <select id="metricControl_editMetric_downsampleBy" ng-model="downsampleBy" ng-disabled="!downsample">
+                                    <option>sum</option>
+                                    <option>min</option>
+                                    <option>max</option>
+                                    <option selected="selected">avg</option>
+                                    <option>dev</option>
+                                    <option>zimsum</option>
+                                    <option>mimmin</option>
+                                    <option>mimmax</option>
+                                    <!-- TODO load aggregators from /aggregators on tsdb.. -->
+                                </select>
+                                <input type="text" ng-model="downsampleTo" ng-disabled="!downsample">
+                            </div>
 
                             <table>
                                 <tr ng-repeat="tagk in tagNames">

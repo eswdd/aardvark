@@ -126,9 +126,10 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
             }
         });
         $scope.showEdit[id] = true;
-        // Q: is it always this one open?
-        // A: yes - currently you can only add a graph from the top section
         $scope.firstOpen = false;
+        for (var i=0; i<$scope.graphs.length; i++) {
+            $scope.isOpen[$scope.graphs[i].id] = false;
+        }
         $scope.isOpen[id] = true;
     };
     $scope.deleteGraph = function(id) {
@@ -143,6 +144,14 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
             return;
         }
         $scope.graphs.splice(index, 1);
+        $scope.isOpen[id] = false;
+        if ($scope.graphs.length > 0) {
+            var prevGraph = index == 0 ? 0 : index-1;
+            $scope.isOpen[$scope.graphs[prevGraph].id] = true;
+        }
+        else {
+            $scope.firstOpen = true;
+        }
     }
     $scope.renderGraphs = function() {
         $rootScope.model.graphs = $scope.deepClone($scope.graphs);

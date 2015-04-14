@@ -4,7 +4,7 @@
 otis.directive('tagSelection', function() {
     return {
         template: '<div><input type="text" ng-model="tag[tagk]" size="15" /> RE? <input type="checkbox" ng-model="re[tagk]"/> {{tagValuesMatchCount(tagk)}}</div>'
-        // todo: put this back when issue#27 is fixed
+        // todo: m1: put this back when issue#27 is fixed
         //template: '<div mass-autocomplete><input type="text" ng-model="tag[tagk]" mass-autocomplete-item="tagOptions[tagk]" size="15" /> RE? <input type="checkbox" ng-model="re[tagk]"/> {{tagValuesMatchCount(tagk)}}</div>'
     }
 })
@@ -88,7 +88,7 @@ otis.directive('tagSelection', function() {
         if (metricId == "0") {
             return;
         }
-        // todo: make sure the edit button is shown rather than the add button
+        // todo: m1: make sure the edit button is shown rather than the add button
         var metric = null;
         for (var i=0; i<$rootScope.model.metrics.length; i++) {
             var m = $rootScope.model.metrics[i];
@@ -186,7 +186,7 @@ otis.directive('tagSelection', function() {
         $scope.metricDeselected();
     }
 
-    // todo: how to do tag expansion with regexes? here or in graph rendering? here i suspect..
+    // todo: m1: how to do tag expansion with regexes? here or in graph rendering? here i suspect..
     $scope.persistViewToExistingMetric = function(metric) {
         var tArray = [];
         for (var i=0; i<$scope.tagNames.length; i++) {
