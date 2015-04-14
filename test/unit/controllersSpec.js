@@ -195,7 +195,7 @@ describe('Otis controllers', function () {
 
         it('should load the existing model on initialisation', function () {
 
-            //todo: should we 'fix' model with new defaults?
+            //todo: m2: we should 'fix' model with new defaults?
             rootScope.model.graphs = [
                 {
                     id: "1234",
@@ -366,7 +366,7 @@ describe('Otis controllers', function () {
             expect(firstId == secondId).toEqualData(false);
         });
 
-        //todo: move id generation to a service
+        //todo: m2: move id generation to a service
         it('should generate unique ids', function () {
             scope.timeInMillis = function() {
                 return 0;

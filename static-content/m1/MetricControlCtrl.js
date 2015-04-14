@@ -88,7 +88,6 @@ otis.directive('tagSelection', function() {
         if (metricId == "0") {
             return;
         }
-        // todo: m1: make sure the edit button is shown rather than the add button
         var metric = null;
         for (var i=0; i<$rootScope.model.metrics.length; i++) {
             var m = $rootScope.model.metrics[i];

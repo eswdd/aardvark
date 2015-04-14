@@ -46,6 +46,7 @@
                             <accordion close-others="true">
                                 <accordion-group heading="Global" is-open="firstOpen">
                                     <div>
+                                        <!-- todo: m1: calendar controls incl date/time -->
                                         <div style="border: solid 1px black">
                                             <label for="fromTimestamp">From</label><br/>
                                             <input type="text" size="10" id="fromTimestamp" ng-model="fromTimestamp"/>
@@ -300,6 +301,8 @@
                                     <option>mimmax</option>
                                     <!-- TODO load aggregators from /aggregators on tsdb.. -->
                                 </select>
+                            </div>
+                            <div>
                                 <label for="metricControl_editMetric_rightAxis">Right Axis</label>
                                 <input id="metricControl_editMetric_rightAxis" type="checkbox" ng-model="rightAxis"/>
                             </div>
@@ -340,6 +343,7 @@
                                 </tr>
                             </table>
                         </div>
+                        <!-- todo: m1: buttons enabled at wrong time, as are all controls above -->
                         <input type="button" value="Cancel" ng-click="clearMetric()" ng-disabled="!clearButtonEnabled">
                         <input type="button" value="Add" ng-click="addMetric()" ng-show="addButtonVisible">
                         <input type="button" value="Save" ng-click="saveMetric()" ng-show="saveButtonVisible">
