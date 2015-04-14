@@ -3,7 +3,7 @@
  */
 otis.directive('tagSelection', function() {
     return {
-        template: '<div><input type="text" ng-model="tag[tagk]" size="15" /> RE? <input type="checkbox" ng-model="re[tagk]"/> {{tagValuesMatchCount(tagk)}}</div>'
+        template: '<div><input type="text" ng-model="tag[tagk]" size="15" /> RE? <input type="checkbox" ng-model="re[tagk]" ng-disabled="!clearButtonEnabled()"/> {{tagValuesMatchCount(tagk)}}</div>'
         // todo: m1: put this back when issue#27 is fixed
         //template: '<div mass-autocomplete><input type="text" ng-model="tag[tagk]" mass-autocomplete-item="tagOptions[tagk]" size="15" /> RE? <input type="checkbox" ng-model="re[tagk]"/> {{tagValuesMatchCount(tagk)}}</div>'
     }

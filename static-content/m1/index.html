@@ -281,7 +281,7 @@
                         <div style="border: 1px solid black; overflow: auto">
                             <div  ng-show="model.graphs.length > 1">
                                 <label for="metricControl_editMetric_selectGraph">Graph</label>
-                                <select id="metricControl_editMetric_selectGraph" ng-model="graphId">
+                                <select id="metricControl_editMetric_selectGraph" ng-model="graphId" ng-disabled="!clearButtonEnabled()">
                                     <option value="0" selected="selected">None</option>
                                     <option ng-repeat="graph in model.graphs track by graph.id" value="{{graph.id}}">
                                         {{graph.title}}
@@ -290,7 +290,7 @@
                             </div>
                             <div>
                                 <label for="metricControl_editMetric_aggregator">Aggregator</label>
-                                <select id="metricControl_editMetric_aggregator" ng-model="aggregator">
+                                <select id="metricControl_editMetric_aggregator" ng-model="aggregator" ng-disabled="!clearButtonEnabled()">
                                     <option>sum</option>
                                     <option>min</option>
                                     <option>max</option>
@@ -304,13 +304,13 @@
                             </div>
                             <div>
                                 <label for="metricControl_editMetric_rightAxis">Right Axis</label>
-                                <input id="metricControl_editMetric_rightAxis" type="checkbox" ng-model="rightAxis"/>
+                                <input id="metricControl_editMetric_rightAxis" type="checkbox" ng-model="rightAxis" ng-disabled="!clearButtonEnabled()"/>
                             </div>
                             <div>
                                 <label for="metricControl_editMetric_rate">Rate?</label>
-                                <input id="metricControl_editMetric_rate" type="checkbox" ng-model="rate">
+                                <input id="metricControl_editMetric_rate" type="checkbox" ng-model="rate" ng-disabled="!clearButtonEnabled()">
                                 <label for="metricControl_editMetric_rate">Rate Ctr?</label>
-                                <input id="metricControl_editMetric_rateCounter" type="checkbox" ng-model="rateCounter">
+                                <input id="metricControl_editMetric_rateCounter" type="checkbox" ng-model="rateCounter" ng-disabled="!clearButtonEnabled()">
                             </div>
                             <div ng-show="rateCounter">
                                 <label for="metricControl_editMetric_rateCounterMax">Counter max</label>
@@ -320,7 +320,7 @@
                             </div>
                             <div>
                                 <label for="metricControl_editMetric_downsample">Downsample?</label>
-                                <input id="metricControl_editMetric_downsample" type="checkbox" ng-model="downsample">
+                                <input id="metricControl_editMetric_downsample" type="checkbox" ng-model="downsample" ng-disabled="!clearButtonEnabled()">
                                 <label for="metricControl_editMetric_downsampleBy">by</label>
                                 <select id="metricControl_editMetric_downsampleBy" ng-model="downsampleBy" ng-disabled="!downsample">
                                     <option>sum</option>
@@ -343,10 +343,9 @@
                                 </tr>
                             </table>
                         </div>
-                        <!-- todo: m1: buttons enabled at wrong time, as are all controls above -->
-                        <input type="button" value="Cancel" ng-click="clearMetric()" ng-disabled="!clearButtonEnabled">
-                        <input type="button" value="Add" ng-click="addMetric()" ng-show="addButtonVisible">
-                        <input type="button" value="Save" ng-click="saveMetric()" ng-show="saveButtonVisible">
+                        <input type="button" value="Cancel" ng-click="clearMetric()" ng-disabled="!clearButtonEnabled()">
+                        <input type="button" value="Add" ng-click="addMetric()" ng-show="addButtonVisible()">
+                        <input type="button" value="Save" ng-click="saveMetric()" ng-show="saveButtonVisible()">
                     </div>
                 </div>
 
