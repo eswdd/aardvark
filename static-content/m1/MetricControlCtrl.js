@@ -351,15 +351,8 @@ otis.directive('tagSelection', function() {
         var allValues = $scope.tagValues[tag];
         for (var i=0; i<allValues.length; i++) {
             if (haveValues.indexOf(allValues[i])<0) {
-                if ($scope.re[tag]) {
-                    if (new RegExp(q).test(allValues[i])) {
-                        results.push({label: allValues[i], value: prefix+allValues[i]});
-                    }
-                }
-                else {
-                    if (allValues[i].toLowerCase().startsWith(q)) {
-                        results.push({label: allValues[i], value: prefix+allValues[i]});
-                    }
+                if (allValues[i].toLowerCase().startsWith(q)) {
+                    results.push({label: allValues[i], value: prefix+allValues[i]});
                 }
             }
         }

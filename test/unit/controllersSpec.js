@@ -600,14 +600,15 @@ describe('Otis controllers', function () {
             expect(scope.suggestTagValues('value12','key1')).toEqualData([]);
             expect(scope.suggestTagValues('*','key1')).toEqualData([]);
 
-            // todo: m1: would you expect suggested tag values to change because you ticked RE?
+            // q: would you expect suggested tag values to change because you ticked RE?
+            // a: no
             scope.re = { key1: true };
             expect(scope.suggestTagValues('','key1')).toEqualData([ret_value1,ret_something2,ret_value2]);
             expect(scope.suggestTagValues('value','key1')).toEqualData([ret_value1,ret_value2]);
             expect(scope.suggestTagValues('value1','key1')).toEqualData([ret_value1]);
-            expect(scope.suggestTagValues('2','key1')).toEqualData([ret_something2, ret_value2]);
-            expect(scope.suggestTagValues('th','key1')).toEqualData([ret_something2]);
-            expect(scope.suggestTagValues('.*','key1')).toEqualData([ret_value1,ret_something2,ret_value2]);
+            expect(scope.suggestTagValues('value12','key1')).toEqualData([]);
+            expect(scope.suggestTagValues('*','key1')).toEqualData([]);
+            expect(scope.suggestTagValues('.*','key1')).toEqualData([]);
         });
 
         it('should correctly count matching tag values', function() {
