@@ -114,6 +114,7 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
         $scope.graphs.push({
             id: id,
             title: "Graph "+($scope.graphs.length+1),
+            showTitle: true,
             type: $rootScope.graphTypes.length == 1 ? $rootScope.graphTypes[0] : null,
             showTitle: true,
             // gnuplot defaults

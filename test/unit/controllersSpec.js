@@ -429,6 +429,7 @@ describe('Otis controllers', function () {
     describe('GraphCtrl', function() {
         var rootScope, scope;
         var graphs, metricss;
+        var configUpdateFunc;
 
         beforeEach(inject(function ($rootScope, $controller) {
             // hmm
@@ -446,6 +447,9 @@ describe('Otis controllers', function () {
             rootScope.model = {
                 graphs: [],
                 metrics: []
+            }
+            rootScope.onConfigUpdate = function(func) {
+                configUpdateFunc = func;
             }
 
             $controller('GraphCtrl', {$scope: scope, $rootScope: rootScope});

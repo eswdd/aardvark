@@ -189,10 +189,11 @@ otis.directive('tagSelection', function() {
     $scope.persistViewToExistingMetric = function(metric) {
         var tArray = [];
         for (var i=0; i<$scope.tagNames.length; i++) {
+            var tName = $scope.tagNames[i];
             tArray.push({
-                name: $scope.tagNames[i],
-                value: $scope.tag[$scope.tagNames[i]],
-                re: $scope.re[$scope.tagNames[i]]
+                name: tName,
+                value: $scope.tag[tName],
+                re: $scope.re[tName]
             });
         }
         metric.tags = tArray;

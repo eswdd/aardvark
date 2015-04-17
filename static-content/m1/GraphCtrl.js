@@ -8,10 +8,10 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
         $scope.renderers = {};
     }
     $scope.renderers["debug"] = function(graph, metrics) {
-        var txt = graph.title;
+        var txt = "";
         for (var i=0; i<metrics.length; i++) {
             var m = metrics[i];
-            txt += "\n["+i+"] " + m.id + ": " + m.name;
+            txt += "["+i+"] " + m.id + ": " + m.name;
             var sep = " {";
             for (var t=0; t< m.tags.length; t++) {
                 var tag = m.tags[t];
@@ -27,7 +27,46 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
         $scope.renderedContent[graph.id] = txt;
     };
     $scope.renderers["gnuplot"] = function(graph, metrics) {
-        $scope.renderedContent[graph.id] = graph.title;
+        var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/q";
+        var sep = "?";
+        for (var i=0; i<metrics.length; i++) {
+            // agg:[interval-agg:][rate[{counter[,max[,reset]]}:]metric[{tag=value,...}]
+            var metric = metrics[i];
+            url += sep + "m=" + metric.aggregator + ":";
+            if (metric.downsample) {
+                url += metric.downsampleTo + "-" + metric.downsampleBy + ":";
+            }
+            if (metric.rate) {
+                url += "rate:";
+            }
+            else if (metric.rateCounter) {
+                url += "ratecounter";
+                if (metric.rateCounterMax != "") {
+                    url += "," + metric.rateCounterMax;
+                    if (metric.rateCounterReset != "") {
+                        url += "," + metric.rateCounterReset;
+                    }
+                }
+                url += ":";
+            }
+            url += metric.name;
+            sep = "{";
+            for (var t=0; t<metric.tags.length; t++) {
+                var tag = metric.tags[t];
+                if (tag.value != "") {
+                    url += sep + tag.name + "=" + tag.value;
+                    sep = ",";
+                }
+            }
+            if (sep == ",") {
+                url += "}";
+            }
+
+            // ready for next metric
+            sep = "&";
+        }
+
+        $scope.renderedContent[graph.id] = url;
     };
 
     $rootScope.renderGraphs = function() {
@@ -49,5 +88,7 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
             }
         }
     };
-    $rootScope.renderGraphs();
+    $rootScope.onConfigUpdate(function() {
+        $rootScope.renderGraphs();
+    });
 }]);
