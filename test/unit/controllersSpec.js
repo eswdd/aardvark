@@ -654,9 +654,14 @@ describe('Otis controllers', function () {
             scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
             scope.re = {tag1:false,tag2:false,tag3:true};
             scope.selectedMetric = "some.metric.name";
-            scope.rate = false;
+            scope.rate = true;
+            scope.rateCounter = true;
+            scope.rateCounterMax = '123';
+            scope.rateCounterReset = '1';
+            scope.rightAxis = true;
             scope.downsample = true;
-            scope.downsampleBy = "10m";
+            scope.downsampleBy = "zimsum";
+            scope.downsampleTo = "10m"
 
             scope.addMetric();
 
@@ -685,9 +690,15 @@ describe('Otis controllers', function () {
                     ],
                     graphOptions: {
                         graphId: '0',
-                        rate: false,
+                        axis: 'x1y2',
+                        aggregator: 'sum',
+                        rate: true,
+                        rateCounter: true,
+                        rateCounterMax: '123',
+                        rateCounterReset: '1',
                         downsample: true,
-                        downsampleBy: '10m'
+                        downsampleBy: 'zimsum',
+                        downsampleTo: '10m'
                     }
                 }
             ]);
@@ -703,9 +714,15 @@ describe('Otis controllers', function () {
             scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
             scope.re = {tag1:false,tag2:false,tag3:true};
             scope.selectedMetric = "some.metric.name";
-            scope.rate = false;
+            scope.rightAxis = false;
+            scope.rate = true;
+            scope.rateCounter = true;
+            scope.rateCounterMax = '123';
+            scope.rateCounterReset = '1';
+            scope.aggregator = "zimsum";
             scope.downsample = true;
-            scope.downsampleBy = "10m";
+            scope.downsampleBy = "sum";
+            scope.downsampleTo = "10m";
 
             scope.clearMetric();
 
@@ -714,9 +731,15 @@ describe('Otis controllers', function () {
             expect(scope.tag).toEqualData({});
             expect(scope.re).toEqualData({});
             expect(scope.selectedMetric).toEqualData('');
+            expect(scope.aggregator).toEqualData('sum');
+            expect(scope.rightAxis).toEqualData(false);
             expect(scope.rate).toEqualData(false);
+            expect(scope.rateCounter).toEqualData(false);
+            expect(scope.rateCounterMax).toEqualData('');
+            expect(scope.rateCounterReset).toEqualData('');
             expect(scope.downsample).toEqualData(false);
-            expect(scope.downsampleBy).toEqualData('');
+            expect(scope.downsampleBy).toEqualData('avg');
+            expect(scope.downsampleTo).toEqualData('');
             expect(scope.clearButtonEnabled()).toEqualData(false);
             expect(scope.addButtonVisible()).toEqualData(false);
             expect(scope.saveButtonVisible()).toEqualData(false);
@@ -731,9 +754,6 @@ describe('Otis controllers', function () {
             scope.tag = {};
             scope.re = {};
             scope.selectedMetric = "some.metric.name";
-            scope.rate = false;
-            scope.downsample = false;
-            scope.downsampleBy = "";
 
 
             scope.addMetric();
@@ -750,9 +770,15 @@ describe('Otis controllers', function () {
                     tags: [],
                     graphOptions: {
                         graphId: '0',
+                        aggregator: 'sum',
+                        axis: 'x1y1',
                         rate: false,
+                        rateCounter: false,
+                        rateCounterMax: '',
+                        rateCounterReset: '',
                         downsample: false,
-                        downsampleBy: ''
+                        downsampleBy: 'avg',
+                        downsampleTo: ''
                     }
                 }
             ]);
@@ -865,9 +891,15 @@ describe('Otis controllers', function () {
             scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
             scope.re = {tag1:false,tag2:false,tag3:true};
             scope.selectedMetricId = "123";
+            scope.aggregator = 'zimsum';
+            scope.rightAxis = false;
             scope.rate = false;
+            scope.rateCounter = false;
+            scope.rateCounterMax = '123';
+            scope.rateCounterReset = '456';
             scope.downsample = true;
-            scope.downsampleBy = "10m";
+            scope.downsampleTo = "10m";
+            scope.downsampleBy = "sum";
 
             scope.saveMetric();
 
@@ -877,9 +909,15 @@ describe('Otis controllers', function () {
             expect(scope.re).toEqualData({tag1:false,tag2:false,tag3:true});
             expect(scope.selectedMetricId).toEqualData('123');
             expect(scope.selectedMetric).toEqualData('');
+            expect(scope.aggregator).toEqualData('zimsum');
+            expect(scope.rightAxis).toEqualData(false);
             expect(scope.rate).toEqualData(false);
+            expect(scope.rateCounter).toEqualData(false);
+            expect(scope.rateCounterMax).toEqualData('123');
+            expect(scope.rateCounterReset).toEqualData('456');
             expect(scope.downsample).toEqualData(true);
-            expect(scope.downsampleBy).toEqualData('10m');
+            expect(scope.downsampleBy).toEqualData('sum');
+            expect(scope.downsampleTo).toEqualData('10m');
             expect(scope.clearButtonEnabled()).toEqualData(true);
             expect(scope.addButtonVisible()).toEqualData(false);
             expect(scope.saveButtonVisible()).toEqualData(true);
@@ -910,9 +948,15 @@ describe('Otis controllers', function () {
                             ],
                             graphOptions: {
                                 graphId: '0',
+                                aggregator: 'zimsum',
+                                axis: 'x1y1',
                                 rate: false,
+                                rateCounter: false,
+                                rateCounterMax: '123',
+                                rateCounterReset: '456',
                                 downsample: true,
-                                downsampleBy: '10m'
+                                downsampleBy: 'sum',
+                                downsampleTo: '10m'
                             }
                         }
                     ]
@@ -925,9 +969,15 @@ describe('Otis controllers', function () {
             scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
             scope.re = {tag1:false,tag2:false,tag3:true};
             scope.selectedMetricId = "123";
-            scope.rate = false;
+            scope.aggregator = "avg";
+            scope.rightAxis = true;
+            scope.rate = true;
+            scope.rateCounter = true;
+            scope.rateCounterReset = "123";
+            scope.rateCounterMax = "123";
             scope.downsample = true;
-            scope.downsampleBy = "10m";
+            scope.downsampleTo = "10m";
+            scope.downsampleBy = "sum";
 
             scope.clearMetric();
 
@@ -936,12 +986,19 @@ describe('Otis controllers', function () {
             expect(scope.tag).toEqualData({});
             expect(scope.re).toEqualData({});
             expect(scope.selectedMetricId).toEqualData('0');
+            expect(scope.aggregator).toEqualData('sum');
+            expect(scope.rightAxis).toEqualData(false);
             expect(scope.rate).toEqualData(false);
+            expect(scope.rateCounter).toEqualData(false);
+            expect(scope.rateCounterReset).toEqualData('');
+            expect(scope.rateCounterMax).toEqualData('');
             expect(scope.downsample).toEqualData(false);
-            expect(scope.downsampleBy).toEqualData('');
+            expect(scope.downsampleBy).toEqualData('avg');
+            expect(scope.downsampleTo).toEqualData('');
             expect(scope.clearButtonEnabled()).toEqualData(false);
             expect(scope.addButtonVisible()).toEqualData(false);
             expect(scope.saveButtonVisible()).toEqualData(false);
         });
     });
 });
+

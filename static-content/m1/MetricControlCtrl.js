@@ -26,15 +26,23 @@ otis.directive('tagSelection', function() {
     $scope.tag = {};
     $scope.re = {};
     $scope.tagOptions = {};
-    $scope.rate = false;
-    $scope.downsample = false;
-    $scope.downsampleBy = "";
     $scope.tagNames = [];
     $scope.tagValues = {};
     $scope.lastId = 0;
-    $scope.graphId = "0";
     $scope.selectedMetricId = 0;
     $scope.nodeSelectionDisabled = false;
+
+    $scope.graphId = "0";
+    $scope.aggregator = "sum";
+    $scope.rightAxis = false;
+    $scope.rate = false;
+    $scope.rateCounter = false;
+    $scope.rateCounterMax = "";
+    $scope.rateCounterReset = "";
+    $scope.downsample = false;
+    $scope.downsampleBy = "avg";
+    $scope.downsampleTo = "";
+
 
     $scope.addButtonVisible = function() {
         return $scope.selectedMetric != "";
@@ -114,8 +122,14 @@ otis.directive('tagSelection', function() {
         if (metric.graphOptions) {
             $scope.graphId = metric.graphOptions.graphId;
             $scope.rate = metric.graphOptions.rate;
+            $scope.rateCounter = metric.graphOptions.rateCounter;
+            $scope.rateCounterReset = metric.graphOptions.rateCounterReset;
+            $scope.rateCounterMax = metric.graphOptions.rateCounterMax;
+            $scope.aggregator = metric.graphOptions.aggregator;
+            $scope.rightAxis = metric.graphOptions.rightAxis;
             $scope.downsample = metric.graphOptions.downsample;
             $scope.downsampleBy = metric.graphOptions.downsampleBy;
+            $scope.downsampleTo = metric.graphOptions.downsampleTo;
         }
 
     }
@@ -200,8 +214,14 @@ otis.directive('tagSelection', function() {
         metric.graphOptions = {
             graphId: $scope.graphId,
             rate: $scope.rate,
+            rateCounter: $scope.rateCounter,
+            rateCounterMax: $scope.rateCounterMax,
+            rateCounterReset: $scope.rateCounterReset,
+            aggregator: $scope.aggregator,
+            axis: $scope.rightAxis ? "x1y2" : "x1y1",
             downsample: $scope.downsample,
-            downsampleBy: $scope.downsampleBy
+            downsampleBy: $scope.downsampleBy,
+            downsampleTo: $scope.downsampleTo
         };
         $rootScope.saveModel(true);
         $scope.selectedMetric = "";
@@ -287,6 +307,8 @@ otis.directive('tagSelection', function() {
         });
     };
 
+        // todo: m2: need better way of defining defaulting and copying between scope and model on per graph type basis
+        //           perhaps using skeleton style approach
     $scope.metricDeselected = function() {
         $scope.tagOptions = {};
         $scope.tagValues = {};
@@ -297,8 +319,14 @@ otis.directive('tagSelection', function() {
         $scope.selectedMetric = "";
         $scope.selectedMetricId = "0";
         $scope.rate = false;
+        $scope.rateCounter = false;
+        $scope.rateCounterMax = "";
+        $scope.rateCounterReset = "";
         $scope.downsample = false;
-        $scope.downsampleBy = "";
+        $scope.downsampleBy = "avg";
+        $scope.downsampleTo = "";
+        $scope.rightAxis = false;
+        $scope.aggregator = "sum";
 
     };
 
