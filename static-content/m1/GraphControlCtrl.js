@@ -7,7 +7,6 @@
 otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphControlCtrl($scope, $rootScope) {
     // accordion openings
     $scope.isOpen={};
-    $scope.firstOpen = true;
 
     // misc logic
     $scope.graphs = [];
@@ -17,27 +16,37 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
     $scope.showEdit={};
 
     // global settings
-    $scope.fromTimestamp = "";
-    $scope.autoReload = false;
-    $scope.toTimestamp = "";
+    $scope.fromTimestamp = "1d-ago";
+    $scope.autoReload = true;
+    $scope.autoReloadPeriod = "15";
+    $scope.toTimestamp = "1s-ago";
 
-    // gnuplot stuff - nothing global
-    $scope.gnuplot = {};
+    // gnuplot stuff - nothing global in here
+//    $scope.gnuplot = {};
     // axes
-    $scope.gnuplot.yAxisLabel = "";
-    $scope.gnuplot.y2AxisLabel = "";
-    $scope.gnuplot.yAxisFormat = "";
-    $scope.gnuplot.y2AxisFormat = "";
-    $scope.gnuplot.yAxisRange = "[:]";
-    $scope.gnuplot.y2AxisRange = "[:]";
-    $scope.gnuplot.yAxisLogScale = false;
-    $scope.gnuplot.y2AxisLogScale = false;
+//    $scope.gnuplot.yAxisLabel = "";
+//    $scope.gnuplot.y2AxisLabel = "";
+//    $scope.gnuplot.yAxisFormat = "";
+//    $scope.gnuplot.y2AxisFormat = "";
+//    $scope.gnuplot.yAxisRange = "[:]";
+//    $scope.gnuplot.y2AxisRange = "[:]";
+//    $scope.gnuplot.yAxisLogScale = false;
+//    $scope.gnuplot.y2AxisLogScale = false;
     // key
-    $scope.gnuplot.showKey = true;
-    $scope.gnuplot.keyAlignment = "columnar";
-    $scope.gnuplot.keyLocation = "top left";
+//    $scope.gnuplot.showKey = true;
+//    $scope.gnuplot.keyAlignment = "columnar";
+//    $scope.gnuplot.keyLocation = "top left";
     // style
-    $scope.gnuplot.lineSmoothing = false;
+//    $scope.gnuplot.lineSmoothing = false;
+
+    $scope.now = function() {
+        if ($scope.autoReload) {
+            // todo: refresh graphs now
+        }
+        else {
+            $scope.toTimestamp = new Date().toString();
+        }
+    }
 
     $scope.loadModel = function() {
         var model = $rootScope.model;
@@ -55,6 +64,13 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
             }
         }
         $scope.graphs = $scope.deepClone(model.graphs);
+
+        if (model.global != null) {
+            $scope.fromTimestamp = model.global.fromTimestamp;
+            $scope.autoReload = model.global.autoReload;
+            $scope.autoReloadPeriod = model.global.autoReloadPeriod;
+            $scope.toTimestamp = model.global.toTimestamp;
+        }
     }
 
     $scope.deepClone = function(incoming) {
@@ -116,7 +132,6 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
             title: "Graph "+($scope.graphs.length+1),
             showTitle: true,
             type: $rootScope.graphTypes.length == 1 ? $rootScope.graphTypes[0] : null,
-            showTitle: true,
             // gnuplot defaults
             gnuplot: {
                 yAxisRange: "[:]",
@@ -127,7 +142,6 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
             }
         });
         $scope.showEdit[id] = true;
-        $scope.firstOpen = false;
         for (var i=0; i<$scope.graphs.length; i++) {
             $scope.isOpen[$scope.graphs[i].id] = false;
         }
@@ -150,12 +164,15 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
             var prevGraph = index == 0 ? 0 : index-1;
             $scope.isOpen[$scope.graphs[prevGraph].id] = true;
         }
-        else {
-            $scope.firstOpen = true;
-        }
     }
     $scope.renderGraphs = function() {
         $rootScope.model.graphs = $scope.deepClone($scope.graphs);
+        $rootScope.model.global = {
+            fromTimestamp: $scope.fromTimestamp,
+            autoReload: $scope.autoReload,
+            autoReloadPeriod: $scope.autoReloadPeriod,
+            toTimestamp: $scope.toTimestamp
+        };
         $rootScope.saveModel(true);
     }
     $rootScope.onConfigUpdate($scope.loadModel);

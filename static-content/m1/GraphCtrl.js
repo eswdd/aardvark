@@ -3,11 +3,12 @@
  */
 otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope, $rootScope) {
     $scope.renderedContent = {};
+    $scope.renderErrors = {};
     // pre-defined in unit tests
     if (!$scope.renderers) {
         $scope.renderers = {};
     }
-    $scope.renderers["debug"] = function(graph, metrics) {
+    $scope.renderers["debug"] = function(global, graph, metrics) {
         var txt = "";
         for (var i=0; i<metrics.length; i++) {
             var m = metrics[i];
@@ -26,31 +27,53 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
         }
         $scope.renderedContent[graph.id] = txt;
     };
-    $scope.renderers["gnuplot"] = function(graph, metrics) {
+    $scope.renderers["gnuplot"] = function(global, graph, metrics) {
+        $scope.renderedContent[graph.id] = "";
+        if (global.fromTimestamp == null) {
+            $scope.renderErrors[graph.id] = "No start date specified";
+            return;
+        }
+        if (metrics == null || metrics.length == 0) {
+            $scope.renderErrors[graph.id] = "No metrics specified";
+            return;
+        }
+
+
         var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/q";
-        var sep = "?";
+
+        url += "?start=" + global.fromTimestamp;
+        if (global.toTimestamp != "" && global.toTimestamp != null && !global.autoReload) {
+            url += "&end=" + global.toTimestamp;
+        }
+
         for (var i=0; i<metrics.length; i++) {
             // agg:[interval-agg:][rate[{counter[,max[,reset]]}:]metric[{tag=value,...}]
             var metric = metrics[i];
-            url += sep + "m=" + metric.aggregator + ":";
-            if (metric.downsample) {
-                url += metric.downsampleTo + "-" + metric.downsampleBy + ":";
+            var options = metric.graphOptions;
+            url += "&m=" + options.aggregator + ":";
+            if (options.downsample) {
+                url += options.downsampleTo + "-" + options.downsampleBy + ":";
             }
-            if (metric.rate) {
-                url += "rate:";
-            }
-            else if (metric.rateCounter) {
-                url += "ratecounter";
-                if (metric.rateCounterMax != "") {
-                    url += "," + metric.rateCounterMax;
-                    if (metric.rateCounterReset != "") {
-                        url += "," + metric.rateCounterReset;
+            if (options.rate) {
+                url += "rate";
+                if (options.rateCounter) {
+                    url += "{counter";
+                    var rctrSep = ",";
+                    if (options.rateCounterMax != "") {
+                        url += "," + options.rateCounterMax;
                     }
+                    else {
+                        rctrSep = ",,";
+                    }
+                    if (options.rateCounterReset != "") {
+                        url += rctrSep + options.rateCounterReset;
+                    }
+                    url += "}";
                 }
                 url += ":";
             }
             url += metric.name;
-            sep = "{";
+            var sep = "{";
             for (var t=0; t<metric.tags.length; t++) {
                 var tag = metric.tags[t];
                 if (tag.value != "") {
@@ -62,8 +85,9 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
                 url += "}";
             }
 
+            url += "&o=axis+"+options.axis;
+
             // ready for next metric
-            sep = "&";
         }
 
         $scope.renderedContent[graph.id] = url;
@@ -73,6 +97,9 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
         // todo: could be cleverer about clearing in case some graphs haven't changed
         // ie track ids found and delete others
         $scope.renderedContent = {};
+        $scope.renderErrors = {};
+        $scope.renderWarnings = {};
+        var global = $rootScope.model.global || {};
         for (var i=0; i<$rootScope.model.graphs.length; i++) {
             var graph = $rootScope.model.graphs[i];
             var renderer = $scope.renderers[graph.type];
@@ -84,7 +111,7 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
                         metrics.splice(metrics.length, 0, $rootScope.model.metrics[j]);
                     }
                 }
-                renderer(graph, metrics);
+                renderer(global, graph, metrics);
             }
         }
     };

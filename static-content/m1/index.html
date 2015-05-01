@@ -43,26 +43,29 @@
                 <div ui-layout="{flow : 'row'}" >
                     <div ui-layout-container class="graph-control-panel">
                         <div style="overflow: auto; height: 100%; border-color: black; border-width: 1px; border-style: solid">
+                            <!-- todo: m1: calendar controls incl date/time -->
+                            <div style="border: solid 1px black">
+                                <div>
+                                    <label for="fromTimestampId">From</label><br/>
+                                    <input type="text" size="10" id="fromTimestampId" ng-model="fromTimestamp" ng-required />
+                                    <button>Cal</button>
+                                </div>
+                                <div>
+                                    <label for="toTimestampId">To</label>
+                                    <button ng-click="now()">Now</button>
+                                    <input type="checkbox" id="autoReloadId" ng-model="autoReload">
+                                    <label for="autoReloadId">Auto reload</label>
+                                </div>
+                                <div ng-show="autoReload">
+                                    <input type="text" size="2" id="autoReloadPeriodId" ng-model="autoReloadPeriod"/>
+                                    <label for="autoReloadPeriodId">seconds</label>
+                                </div>
+                                <div ng-show="!autoReload">
+                                    <input type="text" size="10" id="toTimestampId" ng-model="toTimestamp"/>
+                                    <button ng-disabled="autoReload">Cal</button>
+                                </div>
+                            </div>
                             <accordion close-others="true">
-                                <accordion-group heading="Global" is-open="firstOpen">
-                                    <div>
-                                        <!-- todo: m1: calendar controls incl date/time -->
-                                        <div style="border: solid 1px black">
-                                            <label for="fromTimestamp">From</label><br/>
-                                            <input type="text" size="10" id="fromTimestamp" ng-model="fromTimestamp"/>
-                                            <button>Cal</button>
-                                            <br/>
-                                            <label for="toTimestamp">To</label>
-                                            <button>Now</button>
-                                            <input type="checkbox" id="autoReload" ng-model="autoReload">
-                                            Auto reload
-                                            <div >
-                                                <input type="text" size="10" id="toTimestamp" ng-model="toTimetamp" ng-disabled="autoReload"/>
-                                                <button ng-disabled="autoReload">Cal</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </accordion-group>
                                 <accordion-group heading="{{graph.title}}" is-open="isOpen[graph.id]" ng-repeat="graph in graphs track by graph.id">
 
                                     <div ng-show="showEdit[graph.id]">
@@ -238,13 +241,22 @@
                     <div class="graph-title" ng-show="graph.showTitle">
                         {{graph.title}}
                     </div>
-                    <div id="debugDiv_{{graph.id}}" ng-show="graph.type == 'debug'">
-                        <pre>{{renderedContent[graph.id]}}</pre>
+                    <div ng-show="renderErrors[graph.id]!=null">
+                        <span style="color: red">{{renderErrors[graph.id]}}</span>
                     </div>
-                    <div id="gnuplotDiv_{{graph.id}}" ng-show="graph.type == 'gnuplot'">
-                        <pre>{{renderedContent[graph.id]}}</pre>
+                    <div ng-show="renderWarnings[graph.id]!=null">
+                        <span>Warning: {{renderErrors[graph.id]}}</span>
                     </div>
-                    <!--<img id="gnuplotImg_{{graph.id}}" ng-src="renderedContent[graph.id]" ng-show="graph.type == 'gnuplot'" />-->
+                    <!-- content -->
+                    <div ng-show="renderErrors[graph.id]==null">
+                        <div id="debugDiv_{{graph.id}}" ng-show="graph.type == 'debug'">
+                            <pre>{{renderedContent[graph.id]}}</pre>
+                        </div>
+                        <div id="gnuplotDiv_{{graph.id}}" ng-show="graph.type == 'gnuplot'">
+                            <pre>{{renderedContent[graph.id]}}</pre>
+                        </div>
+                        <!--<img id="gnuplotImg_{{graph.id}}" ng-src="renderedContent[graph.id]" ng-show="graph.type == 'gnuplot'" />-->
+                    </div>
                 </div>
             </div>
             <div ui-layout-container class="metric-control-panel" size="250px" ng-controller="MetricControlCtrl">
@@ -316,7 +328,7 @@
                                 <label for="metricControl_editMetric_rate">Rate?</label>
                                 <input id="metricControl_editMetric_rate" type="checkbox" ng-model="rate" ng-disabled="!clearButtonEnabled()">
                                 <label for="metricControl_editMetric_rate">Rate Ctr?</label>
-                                <input id="metricControl_editMetric_rateCounter" type="checkbox" ng-model="rateCounter" ng-disabled="!clearButtonEnabled()">
+                                <input id="metricControl_editMetric_rateCounter" type="checkbox" ng-model="rateCounter" ng-disabled="!clearButtonEnabled() && !rate">
                             </div>
                             <div ng-show="rateCounter">
                                 <label for="metricControl_editMetric_rateCounterMax">Counter max</label>

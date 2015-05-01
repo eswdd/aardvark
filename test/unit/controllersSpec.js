@@ -378,46 +378,39 @@ describe('Otis controllers', function () {
         });
 
         it('should control the accordion appropriately when adding / removing graphs', function() {
-            expect(scope.firstOpen).toEqualData(true);
-
+            expect(scope.isOpen).toEqualData({});
             scope.addGraph();
             var id1 = scope.lastGraphId + "";
 
-            expect(scope.firstOpen).toEqualData(false);
             expect(scope.isOpen[id1]).toEqualData(true);
 
             scope.addGraph();
             var id2 = scope.lastGraphId + "";
 
-            expect(scope.firstOpen).toEqualData(false);
             expect(scope.isOpen[id1]).toEqualData(false);
             expect(scope.isOpen[id2]).toEqualData(true);
 
             scope.addGraph();
             var id3 = scope.lastGraphId + "";
 
-            expect(scope.firstOpen).toEqualData(false);
             expect(scope.isOpen[id1]).toEqualData(false);
             expect(scope.isOpen[id2]).toEqualData(false);
             expect(scope.isOpen[id3]).toEqualData(true);
 
             scope.deleteGraph(id3);
 
-            expect(scope.firstOpen).toEqualData(false);
             expect(scope.isOpen[id1]).toEqualData(false);
             expect(scope.isOpen[id2]).toEqualData(true);
             expect(scope.isOpen[id3]).toEqualData(false);
 
             scope.deleteGraph(id1);
 
-            expect(scope.firstOpen).toEqualData(false);
             expect(scope.isOpen[id1]).toEqualData(false);
             expect(scope.isOpen[id2]).toEqualData(true);
             expect(scope.isOpen[id3]).toEqualData(false);
 
             scope.deleteGraph(id2);
 
-            expect(scope.firstOpen).toEqualData(true);
             expect(scope.isOpen[id1]).toEqualData(false);
             expect(scope.isOpen[id2]).toEqualData(false);
             expect(scope.isOpen[id3]).toEqualData(false);
@@ -428,18 +421,20 @@ describe('Otis controllers', function () {
 
     describe('GraphCtrl', function() {
         var rootScope, scope;
-        var graphs, metricss;
+        var globals, graphs, metricss;
         var configUpdateFunc;
 
         beforeEach(inject(function ($rootScope, $controller) {
             // hmm
             rootScope = $rootScope;
             scope = $rootScope.$new();
+            globals = [];
             graphs = [];
             metricss = [];
 
             scope.renderers = {};
-            scope.renderers["unittest"] = function(graph,metrics) {
+            scope.renderers["unittest"] = function(global,graph,metrics) {
+                globals.push(global);
                 graphs.push(graph);
                 metricss.push(metrics);
             }
