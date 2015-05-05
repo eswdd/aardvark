@@ -472,6 +472,8 @@ describe('Otis controllers', function () {
             expect(metricss).toEqualData([[incMetric]]);
         });
 
+        // ---------- gnuplot rendering ----------
+
         it('should report an error when trying to render with gnuplot and no start time', function() {
             scope.renderedContent = {};
             scope.renderErrors = {};
@@ -512,7 +514,7 @@ describe('Otis controllers', function () {
 
             var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
             var graph = {id:"abc"};
-            var metrics = [ { id: "123", name: "metric1", tags: {}, graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
             scope.renderers.gnuplot(global, graph, metrics);
 
@@ -529,7 +531,7 @@ describe('Otis controllers', function () {
 
             var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
             var graph = {id:"abc"};
-            var metrics = [ { id: "123", name: "metric1", tags: {}, graphOptions: { aggregator: "sum", axis: "x1y1", downsample: false, rate: true } } ];
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", downsample: false, rate: true } } ];
 
             scope.renderers.gnuplot(global, graph, metrics);
 
@@ -546,7 +548,7 @@ describe('Otis controllers', function () {
 
             var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
             var graph = {id:"abc"};
-            var metrics = [ { id: "123", name: "metric1", tags: {}, graphOptions: { aggregator: "sum", axis: "x1y1", downsample: true, downsampleBy: "avg", downsampleTo: "1m" } } ];
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", downsample: true, downsampleBy: "avg", downsampleTo: "1m" } } ];
 
             scope.renderers.gnuplot(global, graph, metrics);
 
@@ -563,11 +565,164 @@ describe('Otis controllers', function () {
 
             var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
             var graph = {id:"abc"};
-            var metrics = [ { id: "123", name: "metric1", tags: {}, graphOptions: { aggregator: "sum", axis: "x1y1", downsample: true, downsampleBy: "avg", downsampleTo: "1m", rate: true } } ];
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", downsample: true, downsampleBy: "avg", downsampleTo: "1m", rate: true } } ];
 
             scope.renderers.gnuplot(global, graph, metrics);
 
             expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&m=sum:1m-avg:rate:metric1&o=axis+x1y1"});
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
+        it('should render with gnuplot with a ratecounter with no rate (with a warning)', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
+
+            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var graph = {id:"abc"};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false, rateCounter: true } } ];
+
+            scope.renderers.gnuplot(global, graph, metrics);
+
+            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&m=sum:metric1&o=axis+x1y1"});
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({abc:"You have specified a rate counter without a rate, ignoring"});
+        });
+
+        it('should render with gnuplot with a ratecounter', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
+
+            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var graph = {id:"abc"};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: true, rateCounter: true } } ];
+
+            scope.renderers.gnuplot(global, graph, metrics);
+
+            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&m=sum:rate{counter}:metric1&o=axis+x1y1"});
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
+        it('should render with gnuplot with a ratecounter and a max', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
+
+            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var graph = {id:"abc"};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: true, rateCounter: true, rateCounterMax: "123" } } ];
+
+            scope.renderers.gnuplot(global, graph, metrics);
+
+            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&m=sum:rate{counter,123}:metric1&o=axis+x1y1"});
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
+        it('should render with gnuplot with a ratecounter and a reset', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
+
+            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var graph = {id:"abc"};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: true, rateCounter: true, rateCounterMax: "", rateCounterReset: "456" } } ];
+
+            scope.renderers.gnuplot(global, graph, metrics);
+
+            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&m=sum:rate{counter,,456}:metric1&o=axis+x1y1"});
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
+        it('should render with gnuplot with a ratecounter and a max and a reset', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
+
+            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var graph = {id:"abc"};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: true, rateCounter: true, rateCounterMax: "123", rateCounterReset: "456" } } ];
+
+            scope.renderers.gnuplot(global, graph, metrics);
+
+            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&m=sum:rate{counter,123,456}:metric1&o=axis+x1y1"});
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
+        it('should render with gnuplot with a tag with a value', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
+
+            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var graph = {id:"abc"};
+            var metrics = [ { id: "123", name: "metric1", tags: [ { name: "tag1", value: "value1" } ], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ];
+
+            scope.renderers.gnuplot(global, graph, metrics);
+
+            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&m=sum:metric1{tag1=value1}&o=axis+x1y1"});
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
+        it('should render with gnuplot with a tag with a multi-value', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
+
+            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var graph = {id:"abc"};
+            var metrics = [ { id: "123", name: "metric1", tags: [ { name: "tag1", value: "value1|value2" } ], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ];
+
+            scope.renderers.gnuplot(global, graph, metrics);
+
+            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&m=sum:metric1{tag1=value1|value2}&o=axis+x1y1"});
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
+        it('should render with gnuplot with a tag with a wildcard value', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
+
+            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var graph = {id:"abc"};
+            var metrics = [ { id: "123", name: "metric1", tags: [ { name: "tag1", value: "*" } ], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ];
+
+            scope.renderers.gnuplot(global, graph, metrics);
+
+            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&m=sum:metric1{tag1=*}&o=axis+x1y1"});
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
+        it('should render with gnuplot with a tag with a blank value', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
+
+            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var graph = {id:"abc"};
+            var metrics = [ { id: "123", name: "metric1", tags: [ { name: "tag1", value: "" } ], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ];
+
+            scope.renderers.gnuplot(global, graph, metrics);
+
+            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&m=sum:metric1&o=axis+x1y1"});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });

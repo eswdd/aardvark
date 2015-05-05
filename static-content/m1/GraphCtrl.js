@@ -59,18 +59,22 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
                 if (options.rateCounter) {
                     url += "{counter";
                     var rctrSep = ",";
-                    if (options.rateCounterMax != "") {
+                    if (options.rateCounterMax != null && options.rateCounterMax != "") {
                         url += "," + options.rateCounterMax;
                     }
                     else {
                         rctrSep = ",,";
                     }
-                    if (options.rateCounterReset != "") {
+                    if (options.rateCounterReset != null && options.rateCounterReset != "") {
                         url += rctrSep + options.rateCounterReset;
                     }
                     url += "}";
                 }
                 url += ":";
+            }
+            else if (options.rateCounter) {
+                // todo: warnings should be appended..
+                $scope.renderWarnings[graph.id] = "You have specified a rate counter without a rate, ignoring";
             }
             url += metric.name;
             var sep = "{";
