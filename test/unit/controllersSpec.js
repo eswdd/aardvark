@@ -472,6 +472,106 @@ describe('Otis controllers', function () {
             expect(metricss).toEqualData([[incMetric]]);
         });
 
+        it('should report an error when trying to render with gnuplot and no start time', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+
+            var global = { fromTimestamp: "", toTimestamp: "", autoReload: false };
+            var graph = { id: "abc" };
+            var metrics = [ { id: "123", graphOptions: {} } ];
+
+            scope.renderers.gnuplot(global, graph, metrics);
+
+            expect(scope.renderedContent).toEqualData({abc: ""});
+            expect(scope.renderErrors).toEqualData({abc:"No start date specified"});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
+        it('should report an error when trying to render with gnuplot and no metrics', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+
+            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var graph = {id:"abc"};
+            var metrics = [ ];
+
+            scope.renderers.gnuplot(global, graph, metrics);
+
+            expect(scope.renderedContent).toEqualData({abc:""});
+            expect(scope.renderErrors).toEqualData({abc:"No metrics specified"});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
+        it('should render with gnuplot', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
+
+            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var graph = {id:"abc"};
+            var metrics = [ { id: "123", name: "metric1", tags: {}, graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+
+            scope.renderers.gnuplot(global, graph, metrics);
+
+            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&m=sum:metric1&o=axis+x1y1"});
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
+        it('should render with gnuplot with a rate', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
+
+            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var graph = {id:"abc"};
+            var metrics = [ { id: "123", name: "metric1", tags: {}, graphOptions: { aggregator: "sum", axis: "x1y1", downsample: false, rate: true } } ];
+
+            scope.renderers.gnuplot(global, graph, metrics);
+
+            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&m=sum:rate:metric1&o=axis+x1y1"});
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
+        it('should render with gnuplot with a downsample', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
+
+            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var graph = {id:"abc"};
+            var metrics = [ { id: "123", name: "metric1", tags: {}, graphOptions: { aggregator: "sum", axis: "x1y1", downsample: true, downsampleBy: "avg", downsampleTo: "1m" } } ];
+
+            scope.renderers.gnuplot(global, graph, metrics);
+
+            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&m=sum:1m-avg:metric1&o=axis+x1y1"});
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
+        it('should render with gnuplot with a rate and a downsample', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
+
+            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var graph = {id:"abc"};
+            var metrics = [ { id: "123", name: "metric1", tags: {}, graphOptions: { aggregator: "sum", axis: "x1y1", downsample: true, downsampleBy: "avg", downsampleTo: "1m", rate: true } } ];
+
+            scope.renderers.gnuplot(global, graph, metrics);
+
+            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&m=sum:1m-avg:rate:metric1&o=axis+x1y1"});
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
         // todo: tests for specific renderers when we have them (not incl debug)
         // gnuplot: agg:[interval-agg:][rate[{counter[,max[,reset]]}:]metric[{tag=value,...}]
     });

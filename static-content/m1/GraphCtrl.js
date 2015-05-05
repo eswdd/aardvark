@@ -29,7 +29,7 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
     };
     $scope.renderers["gnuplot"] = function(global, graph, metrics) {
         $scope.renderedContent[graph.id] = "";
-        if (global.fromTimestamp == null) {
+        if (global.fromTimestamp == null || global.fromTimestamp == "") {
             $scope.renderErrors[graph.id] = "No start date specified";
             return;
         }

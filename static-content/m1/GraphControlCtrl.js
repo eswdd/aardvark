@@ -16,10 +16,10 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
     $scope.showEdit={};
 
     // global settings
-    $scope.fromTimestamp = "1d-ago";
-    $scope.autoReload = true;
+    $scope.fromTimestamp = "2h-ago";
+    $scope.autoReload = false;
     $scope.autoReloadPeriod = "15";
-    $scope.toTimestamp = "1s-ago";
+    $scope.toTimestamp = "";
 
     // gnuplot stuff - nothing global in here
 //    $scope.gnuplot = {};
