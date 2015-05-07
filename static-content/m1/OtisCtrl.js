@@ -70,6 +70,14 @@ otis.controller('OtisCtrl', [ '$rootScope', '$http', '$location', function OtisC
         $location.url("");
     }
 
+    $rootScope.formEncode = function(val) {
+        var ret = val.replace(" ","+");
+        if (ret != val) {
+            return $rootScope.formEncode(ret);
+        }
+        return ret;
+    }
+
 //    $rootScope.undoAll = function() {
         // todo: m1: implement undo all
 //        alert("Not implemented");

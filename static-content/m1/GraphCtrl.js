@@ -4,6 +4,8 @@
 otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope, $rootScope) {
     $scope.renderedContent = {};
     $scope.renderErrors = {};
+    $scope.renderWarnings = {};
+    $scope.imageRenderCount = 0;
     // pre-defined in unit tests
     if (!$scope.renderers) {
         $scope.renderers = {};
@@ -29,6 +31,8 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
     };
     $scope.renderers["gnuplot"] = function(global, graph, metrics) {
         $scope.renderedContent[graph.id] = "";
+
+        // validation
         if (global.fromTimestamp == null || global.fromTimestamp == "") {
             $scope.renderErrors[graph.id] = "No start date specified";
             return;
@@ -37,14 +41,37 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
             $scope.renderErrors[graph.id] = "No metrics specified";
             return;
         }
+        var usingLeftAxis = false;
+        var usingRightAxis = false;
+        for (var i=0; i<metrics.length; i++) {
+            if (metrics[i].graphOptions.axis == "x1y1") {
+                usingLeftAxis = true;
+            }
+            else if (metrics[i].graphOptions.axis == "x1y2") {
+                usingRightAxis = true;
+            }
+            else {
+                $scope.renderErrors[graph.id] = "Invalid axis specified";
+                return;
+            }
+        }
 
-
+        // url construction
         var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/q";
 
         url += "?start=" + global.fromTimestamp;
-        if (global.toTimestamp != "" && global.toTimestamp != null && !global.autoReload) {
-            url += "&end=" + global.toTimestamp;
+        if (global.autoReload) {
+            // todo: put now in
         }
+        else {
+            if (global.toTimestamp != "" && global.toTimestamp != null) {
+                url += "&end=" + global.toTimestamp;
+            }
+            else {
+                url += "&ignore="+(++$scope.imageRenderCount);
+            }
+        }
+
 
         for (var i=0; i<metrics.length; i++) {
             // agg:[interval-agg:][rate[{counter[,max[,reset]]}:]metric[{tag=value,...}]
@@ -93,6 +120,85 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
 
             // ready for next metric
         }
+
+        if (usingLeftAxis) {
+            if (graph.gnuplot != null && graph.gnuplot.yAxisLabel != null && graph.gnuplot.yAxisLabel != "") {
+                url += "&ylabel=" + $rootScope.formEncode(graph.gnuplot.yAxisLabel);
+            }
+            if (graph.gnuplot != null && graph.gnuplot.yAxisFormat != null && graph.gnuplot.yAxisFormat != "") {
+                url += "&yformat=" + $rootScope.formEncode(graph.gnuplot.yAxisFormat);
+            }
+            if (graph.gnuplot != null && graph.gnuplot.yAxisRange != null && graph.gnuplot.yAxisRange != "") {
+                url += "&yrange=" + $rootScope.formEncode(graph.gnuplot.yAxisRange);
+            }
+            if (graph.gnuplot != null && graph.gnuplot.yAxisLogScale != null && graph.gnuplot.yAxisLogScale) {
+                url += "&ylog";
+            }
+
+        }
+
+        if (usingRightAxis) {
+            if (graph.gnuplot != null && graph.gnuplot.y2AxisLabel != null && graph.gnuplot.y2AxisLabel != "") {
+                url += "&y2label=" + $rootScope.formEncode(graph.gnuplot.y2AxisLabel);
+            }
+            if (graph.gnuplot != null && graph.gnuplot.y2AxisFormat != null && graph.gnuplot.y2AxisFormat != "") {
+                url += "&y2format=" + $rootScope.formEncode(graph.gnuplot.y2AxisFormat);
+            }
+            if (graph.gnuplot != null && graph.gnuplot.y2AxisRange != null && graph.gnuplot.y2AxisRange != "") {
+                url += "&y2range=" + $rootScope.formEncode(graph.gnuplot.y2AxisRange);
+            }
+            if (graph.gnuplot != null && graph.gnuplot.y2AxisLogScale != null && graph.gnuplot.y2AxisLogScale) {
+                url += "&y2log";
+            }
+
+        }
+
+        if (graph.gnuplot != null && graph.gnuplot.showKey != null) {
+            if (graph.gnuplot.showKey) {
+                var keyPos = graph.gnuplot.keyLocation;
+                if (keyPos == null || keyPos == "") {
+                    // todo: warnings should be appended..
+                    $scope.renderWarnings[graph.id] = "Invalid key location specified '"+keyPos+"', defaulting to top left";
+                    keyPos = "top left";
+                }
+                if (graph.gnuplot.keyAlignment != null && graph.gnuplot.keyAlignment == "horizontal") {
+                    keyPos += " horiz";
+                }
+                if (graph.gnuplot.keyBox != null && graph.gnuplot.keyBox) {
+                    keyPos += " box";
+                }
+                url += "&key=" + $rootScope.formEncode(keyPos);
+            }
+            else {
+                url += "&nokey";
+            }
+        }
+
+
+        if (graph.gnuplot != null && graph.gnuplot.lineSmoothing != null && graph.gnuplot.lineSmoothing) {
+            url += "&smooth=csplines";
+        }
+
+        /*
+
+         if (nokey.getValue()) {
+           url.append("&nokey");
+         } else if (!keypos.isEmpty() || horizontalkey.getValue()) {
+           url.append("&key=");
+           if (!keypos.isEmpty()) {
+             url.append(keypos);
+           }
+           if (horizontalkey.getValue()) {
+             url.append(" horiz");
+           }
+           if (keybox.getValue()) {
+             url.append(" box");
+           }
+         }
+
+         url.append("&wxh=").append(wxh.getText());
+
+         */
 
         $scope.renderedContent[graph.id] = url;
     };

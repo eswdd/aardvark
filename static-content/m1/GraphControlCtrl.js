@@ -138,7 +138,8 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
                 y2AxisRange: "[:]",
                 showKey: true,
                 keyAlignment: "columnar",
-                keyLocation: "top left"
+                keyLocation: "top left",
+                keyBox: true
             }
         });
         $scope.showEdit[id] = true;
