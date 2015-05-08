@@ -134,8 +134,8 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
             type: $rootScope.graphTypes.length == 1 ? $rootScope.graphTypes[0] : null,
             // gnuplot defaults
             gnuplot: {
-                yAxisRange: "[:]",
-                y2AxisRange: "[:]",
+                yAxisRange: "[0:]",
+                y2AxisRange: "[0:]",
                 showKey: true,
                 keyAlignment: "columnar",
                 keyLocation: "top left",

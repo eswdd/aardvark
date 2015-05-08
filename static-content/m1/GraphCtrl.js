@@ -179,6 +179,8 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
             url += "&smooth=csplines";
         }
 
+        url += "&png";
+
         /*
 
          if (nokey.getValue()) {
