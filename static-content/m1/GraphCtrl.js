@@ -1,6 +1,3 @@
-/*
- * Graph rendering
- */
 otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope, $rootScope) {
     $scope.renderedContent = {};
     $scope.renderErrors = {};
@@ -181,26 +178,11 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
 
         url += "&png";
 
-        /*
-
-         if (nokey.getValue()) {
-           url.append("&nokey");
-         } else if (!keypos.isEmpty() || horizontalkey.getValue()) {
-           url.append("&key=");
-           if (!keypos.isEmpty()) {
-             url.append(keypos);
-           }
-           if (horizontalkey.getValue()) {
-             url.append(" horiz");
-           }
-           if (keybox.getValue()) {
-             url.append(" box");
-           }
-         }
-
-         url.append("&wxh=").append(wxh.getText());
-
-         */
+        // simple for now - this would have to change if we do dashboarding
+        var boundingBox = document.getElementById("graph-panel");
+        if (boundingBox != null) {
+            url += "&wxh="+(boundingBox.scrollWidth-4)+"x"+(boundingBox.scrollHeight-20);
+        }
 
         $scope.renderedContent[graph.id] = url;
     };
@@ -230,4 +212,7 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
     $rootScope.onConfigUpdate(function() {
         $rootScope.renderGraphs();
     });
-}]);
+}]);,
+/*
+ * Graph rendering
+ */

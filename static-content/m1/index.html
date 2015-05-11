@@ -242,7 +242,7 @@
                     </div>
                 </div>
             </div>
-            <div ui-layout-container class="graph-panel" ng-controller="GraphCtrl">
+            <div ui-layout-container class="graph-panel" ng-controller="GraphCtrl" id="graph-panel">
                 <div ng-repeat="graph in model.graphs track by graph.id" id="graphDiv_{{graph.id}}">
                     <div class="graph-title" ng-show="graph.showTitle">
                         {{graph.title}}

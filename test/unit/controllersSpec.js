@@ -1085,8 +1085,6 @@ describe('Otis controllers', function () {
             expect(scope.renderWarnings).toEqualData({});
         });
 
-        // todo: m1: gnuplot: size
-
         // todo: tests for specific renderers when we have them (not incl debug)
         // gnuplot: agg:[interval-agg:][rate[{counter[,max[,reset]]}:]metric[{tag=value,...}]
     });
