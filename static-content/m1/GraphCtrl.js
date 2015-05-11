@@ -1,3 +1,6 @@
+/*
+ * Graph rendering
+ */
 otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope, $rootScope) {
     $scope.renderedContent = {};
     $scope.renderErrors = {};
@@ -212,7 +215,4 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
     $rootScope.onConfigUpdate(function() {
         $rootScope.renderGraphs();
     });
-}]);,
-/*
- * Graph rendering
- */
+}]);
