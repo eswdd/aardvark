@@ -258,10 +258,10 @@
                         <div id="debugDiv_{{graph.id}}" ng-show="graph.type == 'debug'">
                             <pre>{{renderedContent[graph.id]}}</pre>
                         </div>
-                        <div id="gnuplotDiv_{{graph.id}}" ng-show="graph.type == 'gnuplot'">
-                            <pre>{{renderedContent[graph.id]}}</pre>
-                        </div>
-                        <!--<img id="gnuplotImg_{{graph.id}}" ng-src="renderedContent[graph.id]" ng-show="graph.type == 'gnuplot'" />-->
+                        <!--<div id="gnuplotDiv_{{graph.id}}" ng-show="graph.type == 'gnuplot'">-->
+                            <!--<pre>{{renderedContent[graph.id]}}</pre>-->
+                        <!--</div>-->
+                        <img id="gnuplotImg_{{graph.id}}" ng-src="{{renderedContent[graph.id].src}}" ng-show="graph.type == 'gnuplot'" width="{{renderedContent[graph.id].width}}" height="{{renderedContent[graph.id].height}}" />
                     </div>
                 </div>
             </div>
@@ -303,6 +303,7 @@
                         </div>
 
                         <div style="border: 1px solid black; overflow: auto">
+                            <!-- todo: m1: start -> 1 graph -> add metric -> save -> delete graph -> save -> add graph -> save -> no graph, edit metric -> no graph selection -->
                             <div  ng-show="model.graphs.length > 1">
                                 <label for="metricControl_editMetric_selectGraph">Graph</label>
                                 <select id="metricControl_editMetric_selectGraph" ng-model="graphId" ng-disabled="!clearButtonEnabled()">

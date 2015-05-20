@@ -39,16 +39,18 @@ app.use(express.static('./static-content'));
 // fake tsdb
 var tsdb = require('./faketsdb');
 app.use('/api',tsdb);
+app.use('/q',tsdb);
+
 
 // otis backend
 var otis = express.Router();
 
 // middleware specific to this router
 otis.use(function timeLog(req, res, next) {
-//    console.log('Time: ', Date.now());
+    console.log(Date.now()+': '+req);
     next();
 })
-// define the about route
+// define the
 otis.get('/tags', function(req, res) {
     var tagValues = {};
     tagValues["host"] = ["host1","host2","host3"];

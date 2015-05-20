@@ -30,7 +30,7 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
         $scope.renderedContent[graph.id] = txt;
     };
     $scope.renderers["gnuplot"] = function(global, graph, metrics) {
-        $scope.renderedContent[graph.id] = "";
+        $scope.renderedContent[graph.id] = { src: "", width: 0, height: 0 };
 
         // validation
         if (global.fromTimestamp == null || global.fromTimestamp == "") {
@@ -181,13 +181,17 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
 
         url += "&png";
 
+        var width = 0;
+        var height = 0;
         // simple for now - this would have to change if we do dashboarding
         var boundingBox = document.getElementById("graph-panel");
         if (boundingBox != null) {
-            url += "&wxh="+(boundingBox.scrollWidth-4)+"x"+(boundingBox.scrollHeight-20);
+            width = boundingBox.scrollWidth-4;
+            height = boundingBox.scrollHeight-20;
+            url += "&wxh="+width+"x"+height;
         }
 
-        $scope.renderedContent[graph.id] = url;
+        $scope.renderedContent[graph.id] = { src: url, width: width, height: height };
     };
 
     $rootScope.renderGraphs = function() {

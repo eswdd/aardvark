@@ -16,6 +16,19 @@ router.get('/suggest', function(req, res) {
         "fred",
         "dave.fred"
     ]);
+});
+
+
+router.get("", function(req,res) {
+    if (req.baseUrl == "/q") {
+        var queryParams = req.query;
+        if (queryParams["png"] != null) {
+            res.sendfile("tsd-sample.png");
+        }
+        else {
+            res.json({output:"json",params: req.query});
+        }
+    }
 })
 
 

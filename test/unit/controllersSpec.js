@@ -502,7 +502,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc: ""});
+            expect(scope.renderedContent).toEqualData({abc: { src : '', width : 0, height : 0 }});
             expect(scope.renderErrors).toEqualData({abc:"No start date specified"});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -518,7 +518,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:""});
+            expect(scope.renderedContent).toEqualData({abc:{ src : '', width : 0, height : 0 }});
             expect(scope.renderErrors).toEqualData({abc:"No metrics specified"});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -534,7 +534,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:""});
+            expect(scope.renderedContent).toEqualData({abc:{ src : '', width : 0, height : 0 }});
             expect(scope.renderErrors).toEqualData({abc:"Invalid axis specified"});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -551,7 +551,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:metric1&o=axis+x1y1&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:metric1&o=axis+x1y1&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -568,7 +568,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&end=1h-ago&m=sum:metric1&o=axis+x1y1&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1h-ago&m=sum:metric1&o=axis+x1y1&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -587,7 +587,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:rate:metric1&o=axis+x1y1&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:rate:metric1&o=axis+x1y1&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -604,7 +604,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:1m-avg:metric1&o=axis+x1y1&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:1m-avg:metric1&o=axis+x1y1&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -621,7 +621,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:1m-avg:rate:metric1&o=axis+x1y1&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:1m-avg:rate:metric1&o=axis+x1y1&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -638,7 +638,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:metric1&o=axis+x1y1&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:metric1&o=axis+x1y1&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({abc:"You have specified a rate counter without a rate, ignoring"});
         });
@@ -655,7 +655,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:rate{counter}:metric1&o=axis+x1y1&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:rate{counter}:metric1&o=axis+x1y1&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -672,7 +672,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:rate{counter,123}:metric1&o=axis+x1y1&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:rate{counter,123}:metric1&o=axis+x1y1&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -689,7 +689,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:rate{counter,,456}:metric1&o=axis+x1y1&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:rate{counter,,456}:metric1&o=axis+x1y1&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -706,7 +706,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:rate{counter,123,456}:metric1&o=axis+x1y1&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:rate{counter,123,456}:metric1&o=axis+x1y1&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -723,7 +723,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:metric1{tag1=value1}&o=axis+x1y1&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:metric1{tag1=value1}&o=axis+x1y1&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -740,7 +740,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:metric1{tag1=value1|value2}&o=axis+x1y1&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:metric1{tag1=value1|value2}&o=axis+x1y1&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -757,7 +757,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:metric1{tag1=*}&o=axis+x1y1&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:metric1{tag1=*}&o=axis+x1y1&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -774,7 +774,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:metric1&o=axis+x1y1&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:metric1&o=axis+x1y1&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -791,7 +791,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&ylabel=Label+1&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&ylabel=Label+1&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -808,7 +808,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y2&y2label=Label+2&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y2&y2label=Label+2&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -825,7 +825,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&yformat=Format+1&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&yformat=Format+1&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -842,7 +842,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y2&y2format=Format+2&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y2&y2format=Format+2&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -859,7 +859,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&yrange=[0:1]&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&yrange=[0:1]&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -876,7 +876,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y2&y2range=[0:2]&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y2&y2range=[0:2]&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -893,7 +893,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&ylog&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&ylog&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -910,7 +910,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y2&y2log&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y2&y2log&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -927,7 +927,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -944,7 +944,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y2&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y2&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -961,7 +961,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&smooth=csplines&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&smooth=csplines&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -978,7 +978,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&nokey&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&nokey&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -995,7 +995,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&key=top+left&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&key=top+left&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -1012,7 +1012,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&key=top+left&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&key=top+left&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({abc: "Invalid key location specified '', defaulting to top left"});
         });
@@ -1029,7 +1029,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&key=bottom+right&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&key=bottom+right&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -1046,7 +1046,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&key=top+left+horiz&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&key=top+left+horiz&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -1063,7 +1063,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&key=top+left+box&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&key=top+left+box&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -1080,7 +1080,7 @@ describe('Otis controllers', function () {
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&key=top+left+horiz+box&png"});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&key=top+left+horiz+box&png",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
