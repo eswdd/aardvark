@@ -181,15 +181,10 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
 
         url += "&png";
 
-        var width = 0;
-        var height = 0;
-        // simple for now - this would have to change if we do dashboarding
-        var boundingBox = document.getElementById("graph-panel");
-        if (boundingBox != null) {
-            width = boundingBox.scrollWidth-4;
-            height = boundingBox.scrollHeight-20;
-            url += "&wxh="+width+"x"+height;
-        }
+        var width = graph.graphWidth;
+        var height = graph.graphHeight;
+
+        url += "&wxh="+width+"x"+height;
 
         $scope.renderedContent[graph.id] = { src: url, width: width, height: height };
     };

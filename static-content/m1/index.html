@@ -65,6 +65,20 @@
                                     <button ng-disabled="autoReload">Cal</button>
                                 </div>
                             </div>
+                            <div style="border: solid 1px black" ng-show="graphs.length > 1">
+                                <div>
+                                    <label for="autoGraphHeight">Auto-height graphs</label>
+                                    <input type="checkbox" id="autoGraphHeight" ng-model="autoGraphHeight">
+                                </div>
+                                <div ng-show="autoGraphHeight">
+                                    <label for="minGraphHeight">Min height (pixels)</label>
+                                    <input type="text" id="minGraphHeight" ng-model="minGraphHeight">
+                                </div>
+                                <div ng-show="!autoGraphHeight">
+                                    <label for="graphHeight">Fixed height (pixels)</label>
+                                    <input type="text" id="graphHeight" ng-model="graphHeight">
+                                </div>
+                            </div>
                             <accordion close-others="true">
                                 <accordion-group heading="{{graph.title}}" is-open="isOpen[graph.id]" ng-repeat="graph in graphs track by graph.id">
 
@@ -242,26 +256,28 @@
                     </div>
                 </div>
             </div>
-            <div ui-layout-container class="graph-panel" ng-controller="GraphCtrl" id="graph-panel">
-                <div ng-repeat="graph in model.graphs track by graph.id" id="graphDiv_{{graph.id}}">
-                    <div class="graph-title" ng-show="graph.showTitle">
-                        {{graph.title}}
-                    </div>
-                    <div ng-show="renderErrors[graph.id]!=null">
-                        <span style="color: red">{{renderErrors[graph.id]}}</span>
-                    </div>
-                    <div ng-show="renderWarnings[graph.id]!=null">
-                        <span>Warning: {{renderErrors[graph.id]}}</span>
-                    </div>
-                    <!-- content -->
-                    <div ng-show="renderErrors[graph.id]==null">
-                        <div id="debugDiv_{{graph.id}}" ng-show="graph.type == 'debug'">
-                            <pre>{{renderedContent[graph.id]}}</pre>
+            <div ui-layout-container id="graph-panel" style="overflow: auto">
+                <div ng-controller="GraphCtrl" class="graph-panel" id="scrollable-graph-panel" style="overflow: scroll">
+                    <div ng-repeat="graph in model.graphs track by graph.id" id="graphDiv_{{graph.id}}">
+                        <div class="graph-title" ng-show="graph.showTitle">
+                            {{graph.title}}
                         </div>
-                        <!--<div id="gnuplotDiv_{{graph.id}}" ng-show="graph.type == 'gnuplot'">-->
-                            <!--<pre>{{renderedContent[graph.id]}}</pre>-->
-                        <!--</div>-->
-                        <img id="gnuplotImg_{{graph.id}}" ng-src="{{renderedContent[graph.id].src}}" ng-show="graph.type == 'gnuplot'" width="{{renderedContent[graph.id].width}}" height="{{renderedContent[graph.id].height}}" />
+                        <div ng-show="renderErrors[graph.id]!=null">
+                            <span style="color: red">{{renderErrors[graph.id]}}</span>
+                        </div>
+                        <div ng-show="renderWarnings[graph.id]!=null">
+                            <span>Warning: {{renderErrors[graph.id]}}</span>
+                        </div>
+                        <!-- content -->
+                        <div ng-show="renderErrors[graph.id]==null">
+                            <div id="debugDiv_{{graph.id}}" ng-show="graph.type == 'debug'">
+                                <pre>{{renderedContent[graph.id]}}</pre>
+                            </div>
+                            <!--<div id="gnuplotDiv_{{graph.id}}" ng-show="graph.type == 'gnuplot'">-->
+                                <!--<pre>{{renderedContent[graph.id]}}</pre>-->
+                            <!--</div>-->
+                            <img id="gnuplotImg_{{graph.id}}" ng-src="{{renderedContent[graph.id].src}}" ng-show="graph.type == 'gnuplot'" width="{{renderedContent[graph.id].width}}" height="{{renderedContent[graph.id].height}}" />
+                        </div>
                     </div>
                 </div>
             </div>

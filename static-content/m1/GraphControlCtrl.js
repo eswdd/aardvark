@@ -21,6 +21,10 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
     $scope.autoReloadPeriod = "15";
     $scope.toTimestamp = "";
 
+    $scope.autoGraphHeight = true;
+    $scope.minGraphHeight = 0;
+    $scope.graphHeight = 300;
+
     // gnuplot stuff - nothing global in here
 //    $scope.gnuplot = {};
     // axes
@@ -167,7 +171,36 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
         }
     }
     $scope.renderGraphs = function() {
+        // todo: move height calculations to rendering pane and send parameters through
+        // set width / height
+        var width = 0;
+        var height = 0;
+        // simple for now - this would have to change if we do dashboarding
+        var boundingBox = document.getElementById("graph-panel");
+        if (boundingBox != null) {
+            width = boundingBox.clientWidth-4;
+            height = boundingBox.clientHeight-($scope.graphs.length*20); // for titles
+        }
+        var eachHeight = 0;
+        if ($scope.autoGraphHeight) {
+            eachHeight = height / $scope.graphs.length;
+            var minGraphHeight = $scope.minGraphHeight == "" ? 0 : parseInt($scope.minGraphHeight);
+            if (eachHeight < minGraphHeight) {
+                eachHeight = minGraphHeight;
+            }
+        }
+        else {
+            eachHeight = $scope.graphHeight;
+        }
+        // not global to allow rendering code to be shared with future dashboards
+        for (var i=0; i<$scope.graphs.length; i++) {
+            var graph = $scope.graphs[i];
+            graph.graphWidth = width;
+            graph.graphHeight = eachHeight;
+        }
+        // now save for rendering
         $rootScope.model.graphs = $scope.deepClone($scope.graphs);
+
         $rootScope.model.global = {
             fromTimestamp: $scope.fromTimestamp,
             autoReload: $scope.autoReload,
