@@ -52,14 +52,13 @@ var otis = express.Router();
 
 // middleware specific to this router
 otis.use(function timeLog(req, res, next) {
-    console.log(Date.now()+': '+req);
+    console.log(new Date(Date.now())+': '+req.originalUrl);
     next();
 })
 // define the
 otis.get('/tags', function(req, res) {
     // todo: call through to tsdb/search/lookup
     var requestJson = {"metric": req.query["metric"]};
-    console.log("tags request for metric: "+req.query["metric"]);
     var postData = JSON.stringify(requestJson);
     var options = {
         hostname: config.tsdbHost,
