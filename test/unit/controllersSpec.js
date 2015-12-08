@@ -1243,6 +1243,8 @@ describe('Otis controllers', function () {
             expect(scope.tagValuesMatchCount('key1')).toEqualData("(3)");
             scope.tag = { key1: '.*' };
             expect(scope.tagValuesMatchCount('key1')).toEqualData("(0)");
+            scope.tag = { key1: 'value1|value2' };
+            expect(scope.tagValuesMatchCount('key1')).toEqualData("(2)");
 
             scope.re = { key1: true };
             scope.tag = { key1: '' };
@@ -1259,6 +1261,8 @@ describe('Otis controllers', function () {
             expect(scope.tagValuesMatchCount('key1')).toEqualData("(3)");
             scope.tag = { key1: '*' };
             expect(scope.tagValuesMatchCount('key1')).toEqualData("(0)");
+            scope.tag = { key1: 'value1|value2' };
+            expect(scope.tagValuesMatchCount('key1')).toEqualData("(2)");
         });
 
         it('should add the metric to the model when addMetric() is called', function() {

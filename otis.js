@@ -5,7 +5,8 @@ var config = {
     sourceBuild: false,
     devMode: false,
     tsdbHost: "localhost",
-    tsdbPort: 4242
+    tsdbPort: 4242,
+    port: 8000
 };
 var args = process.argv.slice(2);
 for (var i=0; i<args.length; i++) {
@@ -21,6 +22,10 @@ for (var i=0; i<args.length; i++) {
             config.tsdbPort = args[++i];
             break;
     }
+}
+
+if (config.devMode) {
+    config.tsdbPort = config.port;
 }
 
 console.log("Config: "+JSON.stringify(config));
@@ -52,11 +57,55 @@ otis.use(function timeLog(req, res, next) {
 })
 // define the
 otis.get('/tags', function(req, res) {
-    var tagValues = {};
-    tagValues["host"] = ["host1","host2","host3"];
-    tagValues["user"] = ["jon","dave","joe","simon","fred"];
-    tagValues["method"] = ["put","post","get","head","options","delete"];
-    res.json(tagValues);
+    // todo: call through to tsdb/search/lookup
+    var requestJson = {"metric": req.query["metric"]};
+    console.log("tags request for metric: "+req.query["metric"]);
+    var postData = JSON.stringify(requestJson);
+    var options = {
+        hostname: config.tsdbHost,
+        port: config.tsdbPort,
+        path: '/api/search/lookup',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'text/json',
+            'Content-Length': postData.length
+        }
+    };
+
+    var clientReq = http.request(options, function(clientRes) {
+        clientRes.setEncoding('utf8');
+        var data = "";
+        clientRes.on('data', function (chunk) {
+            data += chunk;
+        });
+        clientRes.on('end', function() {
+            var tagValues = {};
+
+            var tsdbResponse = JSON.parse(data);
+            var results = tsdbResponse.results;
+            for (var i=0; i<results.length; i++) {
+                var ts = results[i];
+                for (var tagk in ts.tags) {
+                    if (ts.tags.hasOwnProperty(tagk)) {
+                        if (!(tagk in tagValues)) {
+                            tagValues[tagk] = [];
+                        }
+                        if (tagValues[tagk].indexOf(ts.tags[tagk]) < 0) {
+                            tagValues[tagk].push(ts.tags[tagk]);
+                        }
+                    }
+                }
+            }
+            tagValues["host"] = ["host1","host2","host3"];
+            tagValues["user"] = ["jon","dave","joe","simon","fred"];
+            tagValues["method"] = ["put","post","get","head","options","delete"];
+            res.json(tagValues);
+        })
+    });
+
+    clientReq.write(postData);
+    clientReq.end();
+
 });
 otis.get('/config', function(req, res) {
     res.json(config);
@@ -65,7 +114,7 @@ otis.get('/config', function(req, res) {
 app.use('/otis',otis);
 
 
-var server = app.listen(8000, function() {
+var server = app.listen(config.port, function() {
     var host = server.address().address
     var port = server.address().port
 

@@ -11,10 +11,12 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
         $scope.renderers = {};
     }
     $scope.renderers["debug"] = function(global, graph, metrics) {
+        var lineSep = "";
         var txt = "";
         for (var i=0; i<metrics.length; i++) {
             var m = metrics[i];
-            txt += "["+i+"] " + m.id + ": " + m.name;
+            txt += lineSep + "["+i+"] " + m.id + ": " + m.name;
+            lineSep = "\n";
             var sep = " {";
             for (var t=0; t< m.tags.length; t++) {
                 var tag = m.tags[t];
@@ -25,6 +27,9 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
             }
             if (sep != " {") {
                 txt += " }";
+            }
+            if (metrics[i].graphOptions.axis == "x1y2") {
+                txt += " [rightAxis]";
             }
         }
         $scope.renderedContent[graph.id] = txt;
@@ -181,8 +186,8 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
 
         url += "&png";
 
-        var width = graph.graphWidth;
-        var height = graph.graphHeight;
+        var width = Math.floor(graph.graphWidth);
+        var height = Math.floor(graph.graphHeight);
 
         url += "&wxh="+width+"x"+height;
 

@@ -343,8 +343,8 @@ otis.directive('tagSelection', function() {
         if (!$scope.re[tag] && inputText=="*") {
             return "("+allValues.length+")";
         }
-        for (var i=0; i<allValues.length; i++) {
-            if ($scope.re[tag]) {
+        if ($scope.re[tag]) {
+            for (var i=0; i<allValues.length; i++) {
                 try {
                     if (new RegExp(inputText).test(allValues[i])) {
                         count++;
@@ -352,10 +352,15 @@ otis.directive('tagSelection', function() {
                 }
                 catch (ignoreError) {}
             }
-            else if (inputText == allValues[i]) {
-                count++;
+        }
+        else {
+            var allTags = inputText.split("|");
+            for (var j=0; j<allValues.length; j++) {
+                var ind = allTags.indexOf(allValues[j]);
+                if (ind >= 0) {
+                    count++;
+                }
             }
-
         }
         return "("+count+")";
     };
