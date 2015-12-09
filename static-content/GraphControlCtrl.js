@@ -43,9 +43,10 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
     // style
 //    $scope.gnuplot.lineSmoothing = false;
 
+    // todo: m1: implement this properly, with correct formatting
     $scope.now = function() {
         if ($scope.autoReload) {
-            // todo: refresh graphs now
+            $scope.renderGraphs();
         }
         else {
             $scope.toTimestamp = new Date().toString();

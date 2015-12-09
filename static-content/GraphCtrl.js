@@ -66,7 +66,15 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
 
         url += "?start=" + global.fromTimestamp;
         if (global.autoReload) {
-            // todo: put now in
+            // todo: do we need to do a conversion to utc?
+            var now = new Date();
+            var y = now.getFullYear();
+            var mo = now.getMonth()+1;
+            var d = now.getDate();
+            var h = now.getHours();
+            var mi = now.getMinutes();
+            var s = now.getSeconds();
+            url += "&end="+y+"/"+(mo<10?("0"+mo):mo)+"/"+(d<10?("0"+d):d)+"-"+(h<10?("0"+h):h)+":"+(mi<10?("0"+mi):mi)+":"+(s<10?("0"+s):s);
         }
         else {
             if (global.toTimestamp != "" && global.toTimestamp != null) {

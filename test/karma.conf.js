@@ -11,11 +11,11 @@ module.exports = function (config) {
             'bower_components/angular-tree-control/angular-tree-control.js',
             'bower_components/angular-sanitize/angular-sanitize.js',
             'bower_components/angular-mass-autocomplete/massautocomplete.js',
-            'static-content/m1/otis.js',
-            'static-content/m1/OtisCtrl.js',
-            'static-content/m1/GraphControlCtrl.js',
-            'static-content/m1/GraphCtrl.js',
-            'static-content/m1/MetricControlCtrl.js',
+            'static-content/otis-client.js',
+            'static-content/OtisCtrl.js',
+            'static-content/GraphControlCtrl.js',
+            'static-content/GraphCtrl.js',
+            'static-content/MetricControlCtrl.js',
             'test/unit/**/*.js'
         ],
 

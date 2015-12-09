@@ -57,7 +57,6 @@ otis.use(function timeLog(req, res, next) {
 })
 // define the
 otis.get('/tags', function(req, res) {
-    // todo: call through to tsdb/search/lookup
     var requestJson = {"metric": req.query["metric"]};
     var postData = JSON.stringify(requestJson);
     var options = {

@@ -1,17 +1,399 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="Otis">
 
 <head>
     <meta charset="utf-8">
-    <title>Otis - UI Snippets</title>
+    <meta name="viewport" content="width=device-width">
+
+    <title>Otis - An OpenTSDB Visualiser</title>
+    <!-- Angular JS - keep order in here same as deps in otis-client.js -->
+    <script type="application/javascript" src="../bower_components/angular/angular.js"></script>
+    <script type="application/javascript" src="../bower_components/angular-ui-layout/ui-layout.js"></script>
+    <script type="application/javascript" src="../bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <script type="application/javascript" src="../bower_components/angular-tree-control/angular-tree-control.js"></script>
+    <script type="application/javascript" src="../bower_components/angular-sanitize/angular-sanitize.js"></script>
+    <script type="application/javascript" src="../bower_components/angular-mass-autocomplete/massautocomplete.js"></script>
+    <!-- Angular CSS - keep order in here same as deps in otis-client.js -->
+    <link rel="stylesheet" type="text/css" href="../bower_components/bootstrap-css-only/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../bower_components/bootstrap-css-only/css/bootstrap-theme.css">
+    <link rel="stylesheet" type="text/css" href="../bower_components/angular-ui-layout/ui-layout.css">
+    <link rel="stylesheet" type="text/css" href="../bower_components/angular-tree-control/css/tree-control-attribute.css">
+    <link rel="stylesheet" type="text/css" href="../bower_components/angular-mass-autocomplete/massautocomplete.theme.css">
+    <!-- App JS -->
+    <script type="text/javascript" src="otis-client.js"></script>
+    <script type="text/javascript" src="OtisCtrl.js"></script>
+    <script type="text/javascript" src="GraphControlCtrl.js"></script>
+    <script type="text/javascript" src="GraphCtrl.js"></script>
+    <script type="text/javascript" src="MetricControlCtrl.js"></script>
+    <!-- App CSS -->
+    <link rel="stylesheet" href="otis.css">
 </head>
 
 <body>
 
-<h2>Otis</h2>
+<div ui-layout>
+    <div ui-layout-container class="top-panel" size="60px" ng-controller="OtisCtrl">
+        <p><b>Otis - An OpenTSDB Visualiser</b></p>
+        <p style="text-align: right"><!--button ng-click="undoAll()">Undo</button--><button ng-click="clearAll()">Reset</button></p>
+    </div>
 
-<h4><a href="m0/index.html">Milestone 0</a> - UI Snippets</h4>
-<h4><a href="m1/index.html">Milestone 1</a> - Gnuplot support</h4>
+    <div ui-layout-container>
+        <div ui-layout="{flow : 'column'}" >
+            <div ui-layout-container size="200px" ng-controller="GraphControlCtrl">
+                <div ui-layout="{flow : 'row'}" >
+                    <div ui-layout-container class="graph-control-panel">
+                        <div style="overflow: auto; height: 100%; border-color: black; border-width: 1px; border-style: solid">
+                            <!-- todo: m1: calendar controls incl date/time -->
+                            <div style="border: solid 1px black">
+                                <div>
+                                    <label for="fromTimestampId">From</label><br/>
+                                    <input type="text" size="10" id="fromTimestampId" ng-model="fromTimestamp" ng-required />
+                                    <button>Cal</button>
+                                </div>
+                                <div>
+                                    <label for="toTimestampId">To</label>
+                                    <button ng-click="now()">Now</button>
+                                    <input type="checkbox" id="autoReloadId" ng-model="autoReload">
+                                    <label for="autoReloadId">Auto reload</label>
+                                </div>
+                                <div ng-show="autoReload">
+                                    <input type="text" size="2" id="autoReloadPeriodId" ng-model="autoReloadPeriod"/>
+                                    <label for="autoReloadPeriodId">seconds</label>
+                                </div>
+                                <div ng-show="!autoReload">
+                                    <input type="text" size="10" id="toTimestampId" ng-model="toTimestamp"/>
+                                    <button ng-disabled="autoReload">Cal</button>
+                                </div>
+                            </div>
+                            <div style="border: solid 1px black" ng-show="graphs.length > 1">
+                                <div>
+                                    <label for="autoGraphHeight">Auto-height graphs</label>
+                                    <input type="checkbox" id="autoGraphHeight" ng-model="autoGraphHeight">
+                                </div>
+                                <div ng-show="autoGraphHeight">
+                                    <label for="minGraphHeight">Min height (pixels)</label>
+                                    <input type="text" id="minGraphHeight" ng-model="minGraphHeight">
+                                </div>
+                                <div ng-show="!autoGraphHeight">
+                                    <label for="graphHeight">Fixed height (pixels)</label>
+                                    <input type="text" id="graphHeight" ng-model="graphHeight">
+                                </div>
+                            </div>
+                            <accordion close-others="true">
+                                <accordion-group heading="{{graph.title}}" is-open="isOpen[graph.id]" ng-repeat="graph in graphs track by graph.id">
+
+                                    <div ng-show="showEdit[graph.id]">
+                                        <input type="text" ng-model="graph.title" />
+
+                                        <select ng-model="graph.type" ng-show="graphTypes.length > 1">
+                                            <option ng-repeat="type in graphTypes">{{type}}</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <button ng-click="showEdit[graph.id] = !showEdit[graph.id]">Edit title/type</button> <button ng-click="deleteGraph(graph.id)">Delete</button>
+                                    </div>
+
+                                    <div ng-show="graph.type == 'debug'">
+                                        debug controls
+                                    </div>
+                                    <div ng-show="graph.type == 'gnuplot'">
+                                        <tabset>
+                                            <tab heading="Axes">
+                                                <table>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th style="text-align: center">Y</th>
+                                                        <th style="text-align: center">Y2</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="3">Label</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td width="5px">&nbsp;</td>
+                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.yAxisLabel"/></td>
+                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.y2AxisLabel"/></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="3">Format</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td></td>
+                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.yAxisFormat"/></td>
+                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.y2AxisFormat"/></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="3">Range</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td></td>
+                                                        <td style="text-align: center"><input type="text" size="2" ng-model="graph.gnuplot.yAxisRange"/></td>
+                                                        <td style="text-align: center"><input type="text" size="2" ng-model="graph.gnuplot.y2AxisRange"/></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="3">Log&nbsp;scale</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td></td>
+                                                        <td style="text-align: center"><input type="checkbox" ng-model="graph.gnuplot.yAxisLogScale"></td>
+                                                        <td style="text-align: center"><input type="checkbox" ng-model="graph.gnuplot.y2AxisLogScale"></td>
+                                                    </tr>
+                                                </table>
+                                            </tab>
+                                            <tab heading="Key">
+                                                <label for="showKey">Show key</label>
+                                                <input id="showKey" type="checkbox" ng-model="graph.gnuplot.showKey"/>
+                                                <div>
+                                                    <div>
+                                                        Key placement:
+                                                    </div>
+                                                    <table>
+                                                        <tr>
+                                                            <td>
+                                                                <input ng-disabled="!showKey" type="radio" value="out top left" ng-model="graph.gnuplot.keyLocation" />
+                                                            </td>
+                                                            <td></td>
+                                                            <td>
+                                                                <input ng-disabled="!showKey" type="radio" value="out top center" ng-model="graph.gnuplot.keyLocation" />
+                                                            </td>
+                                                            <td></td>
+                                                            <td>
+                                                                <input ng-disabled="!showKey" type="radio" value="out top right" ng-model="graph.gnuplot.keyLocation" />
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td></td>
+                                                            <td style="border-top: 1px solid black; border-left: 1px solid black">
+                                                                <input ng-disabled="!showKey" type="radio" value="top left" ng-model="graph.gnuplot.keyLocation" />
+                                                            </td>
+                                                            <td style="border-top: 1px solid black">
+                                                                <input ng-disabled="!showKey" type="radio" value="top center" ng-model="graph.gnuplot.keyLocation" />
+                                                            </td>
+                                                            <td style="border-top: 1px solid black; border-right: 1px solid black">
+                                                                <input ng-disabled="!showKey" type="radio" value="top right" ng-model="graph.gnuplot.keyLocation" />
+                                                            </td>
+                                                            <td></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <input ng-disabled="!showKey" type="radio" value="out center left" ng-model="graph.gnuplot.keyLocation" />
+                                                            </td>
+                                                            <td style="border-left: 1px solid black">
+                                                                <input ng-disabled="!showKey" type="radio" value="center left" ng-model="graph.gnuplot.keyLocation" />
+                                                            </td>
+                                                            <td>
+                                                                <input ng-disabled="!showKey" type="radio" value="center" ng-model="graph.gnuplot.keyLocation" />
+                                                            </td>
+                                                            <td style="border-right: 1px solid black">
+                                                                <input ng-disabled="!showKey" type="radio" value="center right" ng-model="graph.gnuplot.keyLocation" />
+                                                            </td>
+                                                            <td>
+                                                                <input ng-disabled="!showKey" type="radio" value="out center right" ng-model="graph.gnuplot.keyLocation" />
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td></td>
+                                                            <td style="border-bottom: 1px solid black; border-left: 1px solid black">
+                                                                <input ng-disabled="!showKey" type="radio" value="bottom left" ng-model="graph.gnuplot.keyLocation" />
+                                                            </td>
+                                                            <td style="border-bottom: 1px solid black">
+                                                                <input ng-disabled="!showKey" type="radio" value="bottom center" ng-model="graph.gnuplot.keyLocation" />
+                                                            </td>
+                                                            <td style="border-bottom: 1px solid black; border-right: 1px solid black">
+                                                                <input ng-disabled="!showKey" type="radio" value="bottom right" ng-model="graph.gnuplot.keyLocation" />
+                                                            </td>
+                                                            <td></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <input ng-disabled="!showKey" type="radio" value="out bottom left" ng-model="graph.gnuplot.keyLocation" />
+                                                            </td>
+                                                            <td></td>
+                                                            <td>
+                                                                <input ng-disabled="!showKey" type="radio" value="out bottom center" ng-model="graph.gnuplot.keyLocation" />
+                                                            </td>
+                                                            <td></td>
+                                                            <td>
+                                                                <input ng-disabled="!showKey" type="radio" value="out bottom right" ng-model="graph.gnuplot.keyLocation" />
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                    <div>
+                                                        Key alignment:
+                                                    </div>
+                                                    <div>
+                                                        <input ng-disabled="!showKey" type="radio" id="columnar" ng-model="graph.gnuplot.keyAlignment" value="columnar"><label for="columnar">Columnar</label>
+                                                        <input ng-disabled="!showKey" type="radio" id="horizontal" ng-model="graph.gnuplot.keyAlignment" value="horizontal"><label for="horizontal">Horizontal</label>
+                                                    </div>
+                                                    <div>
+                                                        Key outline:
+                                                    </div>
+                                                    <div>
+                                                        <input ng-disabled="!showKey" type="checkbox" id="outline" ng-model="graph.gnuplot.keyBox"><label for="outline">On</label>
+                                                    </div>
+                                                </div>
+                                            </tab>
+                                            <tab heading="Style">
+                                                <input type="checkbox" id="smooth" ng-model="graph.gnuplot.lineSmoothing"/>
+                                                <label for="smooth">Smooth lines</label>
+                                            </tab>
+                                        </tabset>
+                                    </div>
+                                    <!--div ng-show="graph.type == 'dygraph'">
+                                        dygraph controls<br/>
+                                        <input type="checkbox" ng-model="graph.dygraph.highlightLines"/> Highlight lines
+                                    </div>
+                                    <div ng-show="graph.type == 'cubism'">
+                                        cubism controls
+                                    </div-->
+
+                                </accordion-group>
+                            </accordion>
+                        </div>
+                    </div>
+                    <div ui-layout-container size="40px" class="graph-control-buttons-panel">
+                        <button ng-click="addGraph()" value="Add graph">Add graph</button>
+                        <button ng-click="renderGraphs()">Save..</button>
+                    </div>
+                </div>
+            </div>
+            <div ui-layout-container id="graph-panel" style="overflow: auto">
+                <div ng-controller="GraphCtrl" class="graph-panel" id="scrollable-graph-panel" style="overflow: scroll">
+                    <div ng-repeat="graph in model.graphs track by graph.id" id="graphDiv_{{graph.id}}">
+                        <div class="graph-title" ng-show="graph.showTitle">
+                            {{graph.title}}
+                        </div>
+                        <div ng-show="renderErrors[graph.id]!=null">
+                            <span style="color: red">{{renderErrors[graph.id]}}</span>
+                        </div>
+                        <div ng-show="renderWarnings[graph.id]!=null">
+                            <span>Warning: {{renderErrors[graph.id]}}</span>
+                        </div>
+                        <!-- content -->
+                        <div ng-show="renderErrors[graph.id]==null">
+                            <div id="debugDiv_{{graph.id}}" ng-show="graph.type == 'debug'">
+                                <pre>{{renderedContent[graph.id]}}</pre>
+                            </div>
+                            <!--<div id="gnuplotDiv_{{graph.id}}" ng-show="graph.type == 'gnuplot'">-->
+                                <!--<pre>{{renderedContent[graph.id]}}</pre>-->
+                            <!--</div>-->
+                            <img id="gnuplotImg_{{graph.id}}" ng-src="{{renderedContent[graph.id].src}}" ng-show="graph.type == 'gnuplot'" width="{{renderedContent[graph.id].width}}" height="{{renderedContent[graph.id].height}}" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div ui-layout-container class="metric-control-panel" size="250px" ng-controller="MetricControlCtrl">
+                <div ui-layout="{flow : 'row'}" >
+                    <div ui-layout-container class="metric-control-panel" size="50%">
+                        <div style="border: 1px solid black; height: 100%">
+                            <div>
+                                <input type="button" value="+" ng-click="expandAll()">
+                                <input type="button" value="-" ng-click="collapseAll()">
+                                <input type="button" value="F" ng-click="showHideFilterInput()">
+                            </div>
+                            <div ng-show="showFilterInput">
+                                <input type="text" ng-model="filter">
+                                <input type="button" value="C" ng-click="clearFilterInput()">
+                            </div>
+
+                            <div style="overflow: auto">
+                                <div treecontrol
+                                     class="tree-light"
+                                     tree-model="dataForTheTree"
+                                     options="treeOptions"
+                                     on-selection="nodeSelectedForAddition(node,selected)"
+                                     selected-node="node1"
+                                     filter-expression="filter"
+                                     expanded-nodes="expandedNodes"
+                                        >
+                                    <span style="text-decoration: {{nodeDecoration(node)}}">{{node.name}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div ui-layout-container class="metric-control-panel">
+                        <div>
+                            <label for="metricControl_selectMetric">Metric</label>
+                            <select id="metricControl_selectMetric" ng-model="selectedMetricId" ng-change="nodeSelectedForEditing()" ng-disabled="nodeSelectionDisabled">
+                                <option ng-repeat="metric in model.metrics track by metric.id" value="{{metric.id}}">{{metric.name}}</option>
+                            </select>
+                        </div>
+
+                        <div style="border: 1px solid black; overflow: auto">
+                            <!-- todo: m1: start -> 1 graph -> add metric -> save -> delete graph -> save -> add graph -> save -> no graph, edit metric -> no graph selection -->
+                            <div  ng-show="model.graphs.length > 1">
+                                <label for="metricControl_editMetric_selectGraph">Graph</label>
+                                <select id="metricControl_editMetric_selectGraph" ng-model="graphId" ng-disabled="!clearButtonEnabled()">
+                                    <option value="0" selected="selected">None</option>
+                                    <option ng-repeat="graph in model.graphs track by graph.id" value="{{graph.id}}">
+                                        {{graph.title}}
+                                    </option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="metricControl_editMetric_aggregator">Aggregator</label>
+                                <select id="metricControl_editMetric_aggregator" ng-model="aggregator" ng-disabled="!clearButtonEnabled()">
+                                    <option>sum</option>
+                                    <option>min</option>
+                                    <option>max</option>
+                                    <option>avg</option>
+                                    <option>dev</option>
+                                    <option>zimsum</option>
+                                    <option>mimmin</option>
+                                    <option>mimmax</option>
+                                    <!-- TODO load aggregators from /aggregators on tsdb.. -->
+                                </select>
+                            </div>
+                            <div>
+                                <label for="metricControl_editMetric_rightAxis">Right Axis</label>
+                                <input id="metricControl_editMetric_rightAxis" type="checkbox" ng-model="rightAxis" ng-disabled="!clearButtonEnabled()"/>
+                            </div>
+                            <div>
+                                <label for="metricControl_editMetric_rate">Rate?</label>
+                                <input id="metricControl_editMetric_rate" type="checkbox" ng-model="rate" ng-disabled="!clearButtonEnabled()">
+                                <label for="metricControl_editMetric_rate">Rate Ctr?</label>
+                                <input id="metricControl_editMetric_rateCounter" type="checkbox" ng-model="rateCounter" ng-disabled="!clearButtonEnabled() && !rate">
+                            </div>
+                            <div ng-show="rateCounter">
+                                <label for="metricControl_editMetric_rateCounterMax">Counter max</label>
+                                <input id="metricControl_editMetric_rateCounterMax" type="text" ng-model="rateCounterMax"/>
+                                <label for="metricControl_editMetric_rateCounterReset">Counter reset</label>
+                                <input id="metricControl_editMetric_rateCounterReset" type="text" ng-model="rateCounterReset"/>
+                            </div>
+                            <div>
+                                <label for="metricControl_editMetric_downsample">Downsample?</label>
+                                <input id="metricControl_editMetric_downsample" type="checkbox" ng-model="downsample" ng-disabled="!clearButtonEnabled()">
+                                <label for="metricControl_editMetric_downsampleBy">by</label>
+                                <select id="metricControl_editMetric_downsampleBy" ng-model="downsampleBy" ng-disabled="!downsample">
+                                    <option>sum</option>
+                                    <option>min</option>
+                                    <option>max</option>
+                                    <option>avg</option>
+                                    <option>dev</option>
+                                    <option>zimsum</option>
+                                    <option>mimmin</option>
+                                    <option>mimmax</option>
+                                    <!-- TODO load aggregators from /aggregators on tsdb.. -->
+                                </select>
+                                <input type="text" ng-model="downsampleTo" ng-disabled="!downsample">
+                            </div>
+
+                            <table>
+                                <tr ng-repeat="tagk in tagNames">
+                                    <td>{{tagk}}</td>
+                                    <td><div tag-selection></div></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <input type="button" value="Cancel" ng-click="clearMetric()" ng-disabled="!clearButtonEnabled()">
+                        <input type="button" value="Add" ng-click="addMetric()" ng-show="addButtonVisible()">
+                        <input type="button" value="Save" ng-click="saveMetric()" ng-show="saveButtonVisible()">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
