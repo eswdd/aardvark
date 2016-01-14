@@ -47,6 +47,9 @@ otis.directive('tagSelection', function() {
     $scope.addButtonVisible = function() {
         return $scope.selectedMetric != "";
     };
+    $scope.deleteButtonVisible = function() {
+        return $scope.selectedMetricId != "0";
+    };
     $scope.saveButtonVisible = function() {
         return $scope.selectedMetricId != "0";
     };
@@ -193,6 +196,10 @@ otis.directive('tagSelection', function() {
                 return;
             }
         }
+    }
+
+    $scope.deleteMetric = function() {
+
     }
 
     $scope.clearMetric = function() {
