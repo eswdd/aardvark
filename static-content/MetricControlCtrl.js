@@ -231,8 +231,7 @@ otis.directive('tagSelection', function() {
     // todo: this needs to not do any work if it's already running a request
     // todo: this needs to have some failure handling
     $scope.updateTree = function() {
-        $http.get('/api/suggest?type=metrics&max=1000000').success(function(json) {
-            //$http.get('http://localhost:4242/api/suggest?type=metrics&max=1000000').success(function(json) {
+        $http.get('http://'+$rootScope.config.tsdbHost+':'+$rootScope.config.tsdbPort+'/api/suggest?type=metrics&max=1000000').success(function(json) {
             // right we need to build our tree, we have an array of name, we need to split by "."
 
             var roots = [];

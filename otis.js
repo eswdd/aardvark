@@ -12,14 +12,19 @@ var args = process.argv.slice(2);
 for (var i=0; i<args.length; i++) {
     switch (args[i]) {
         case '-d':
-            config.sourceBuild = true;
             config.devMode = true;
+            break;
+        case '-s':
+            config.sourceBuild = true;
             break;
         case '-h':
             config.tsdbHost = args[++i];
             break;
         case '-p':
             config.tsdbPort = args[++i];
+            break;
+        case '-l':
+            config.port = args[++i];
             break;
     }
 }
