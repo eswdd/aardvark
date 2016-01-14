@@ -99,9 +99,11 @@ otis.get('/tags', function(req, res) {
                     }
                 }
             }
-            tagValues["host"] = ["host1","host2","host3"];
-            tagValues["user"] = ["jon","dave","joe","simon","fred"];
-            tagValues["method"] = ["put","post","get","head","options","delete"];
+            if (config.devMode) {
+                tagValues["host"] = ["host1","host2","host3"];
+                tagValues["user"] = ["jon","dave","joe","simon","fred"];
+                tagValues["method"] = ["put","post","get","head","options","delete"];
+            }
             res.json(tagValues);
         })
     });
