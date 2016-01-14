@@ -1123,7 +1123,8 @@ describe('Otis controllers', function () {
         });
 
         it('should load data for the tree on config update', function() {
-            $httpBackend.expectGET('/api/suggest?type=metrics&max=1000000').respond(
+            rootScope.config = {tsdbHost: 'tsdb', tsdbPort: '4242'};
+            $httpBackend.expectGET('http://tsdb:4242/api/suggest?type=metrics&max=1000000').respond(
                 [
                     "flob",
                     "name.baldrick",
@@ -1173,6 +1174,7 @@ describe('Otis controllers', function () {
             // simple results
             expect(scope.addButtonVisible()).toEqualData(true);
             expect(scope.clearButtonEnabled()).toEqualData(true);
+            expect(scope.deleteButtonVisible()).toEqualData(false);
             expect(scope.selectedMetric).toEqualData("name.baldrick");
             expect(scope.tagNames).toEqualData(["key1","key2"]);
             expect(scope.tagValues).toEqualData(response);
@@ -1362,6 +1364,7 @@ describe('Otis controllers', function () {
         });
 
         it('should not generate new metrics with the ids of ones from an existing model', function() {
+            rootScope.config = {tsdbHost: 'tsdb', tsdbPort: '4242'};
             rootScope.model = { metrics : [ { id : "1", name : 'fred' } ] };
             configUpdateFunc();
             expect(scope.lastId).toEqualData(1);
@@ -1467,6 +1470,7 @@ describe('Otis controllers', function () {
             expect(scope.clearButtonEnabled()).toEqualData(true);
             expect(scope.addButtonVisible()).toEqualData(false);
             expect(scope.saveButtonVisible()).toEqualData(true);
+            expect(scope.deleteButtonVisible()).toEqualData(true);
         });
 
         it('should update the model when a user clicks save from an existing metric being edited', function() {
@@ -1579,6 +1583,86 @@ describe('Otis controllers', function () {
                 }
             );
         });
+
+        //todo
+        /*
+        it('should update the model when a user clicks delete from an existing metric being edited', function() {
+            rootScope.model = {
+                graphs: [],
+                    metrics: [
+                    {
+                        id: "123",
+                        name: 'some.metric.name',
+                        tags: [
+                            {
+                                name: "tag1",
+                                value: "abc",
+                                re: true
+                            },
+                            {
+                                name: "tag2",
+                                value: "zab",
+                                re: true
+                            },
+                            {
+                                name: "tag3",
+                                value: "",
+                                re: false
+                            }
+                        ],
+                        graphOptions: {
+                            graphId: 'abc',
+                            rate: true,
+                            downsample: false,
+                            downsampleBy: ''
+                        }
+                    }
+                ]
+                };
+
+            scope.tagNames = ["tag1","tag2","tag3"];
+            scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
+            scope.re = {tag1:false,tag2:false,tag3:true};
+            scope.selectedMetricId = "123";
+            scope.aggregator = 'zimsum';
+            scope.rightAxis = false;
+            scope.rate = false;
+            scope.rateCounter = false;
+            scope.rateCounterMax = '123';
+            scope.rateCounterReset = '456';
+            scope.downsample = true;
+            scope.downsampleTo = "10m";
+            scope.downsampleBy = "sum";
+
+            scope.deleteMetric();
+
+            expect(saveModelCalled).toEqualData(true);
+            expect(scope.tagNames).toEqualData([]);
+            expect(scope.tag).toEqualData({});
+            expect(scope.re).toEqualData({});
+            expect(scope.selectedMetricId).toEqualData('');
+            expect(scope.selectedMetric).toEqualData('');
+            expect(scope.aggregator).toEqualData('');
+            expect(scope.rightAxis).toEqualData(false);
+            expect(scope.rate).toEqualData(false);
+            expect(scope.rateCounter).toEqualData(false);
+            expect(scope.rateCounterMax).toEqualData('');
+            expect(scope.rateCounterReset).toEqualData('');
+            expect(scope.downsample).toEqualData(false);
+            expect(scope.downsampleBy).toEqualData('');
+            expect(scope.downsampleTo).toEqualData('');
+            expect(scope.clearButtonEnabled()).toEqualData(false);
+            expect(scope.addButtonVisible()).toEqualData(false);
+            expect(scope.deleteButtonVisible()).toEqualData(false);
+            expect(scope.saveButtonVisible()).toEqualData(false);
+
+            expect(rootScope.model).toEqualData(
+                {
+                    graphs: [],
+                    metrics: []
+                }
+            );
+        });*/
 
         it('should clear the form when a user cancels editing an existing metric', function() {
             scope.tagNames = ["tag1","tag2","tag3"];
