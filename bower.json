@@ -23,5 +23,8 @@
         "angular-ui-layout": "~1.0.5",
         "bootstrap": "3.3.0",
         "angular-mass-autocomplete": "~0.2.2"
+    },
+    "resolutions": {
+        "angular": "1.2.28"
     }
 }
