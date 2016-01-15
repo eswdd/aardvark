@@ -1,16 +1,28 @@
 var http = require('http'),
     fs = require('fs');
 
-var config = {
-    sourceBuild: false,
-    devMode: false,
-    tsdbHost: "localhost",
-    tsdbPort: 4242,
-    port: 8000
-};
 var args = process.argv.slice(2);
 for (var i=0; i<args.length; i++) {
     switch (args[i]) {
+        case '-c':
+            try {
+                config = JSON.parse(fs.readFileSync(args[++i]));
+            }
+            catch (err) {
+                console.error("Error reading config file '"+args[i]+"': "+err);
+                process.exit(1);
+            }
+
+            break;
+    }
+}
+
+for (var i=0; i<args.length; i++) {
+    switch (args[i]) {
+        case '-c':
+            i++; // skip file name
+            // already dealt with
+            break;
         case '-d':
             config.devMode = true;
             break;
@@ -26,8 +38,40 @@ for (var i=0; i<args.length; i++) {
         case '-l':
             config.port = args[++i];
             break;
+        default:
+            console.error("Unrecognised option: "+args[i]);
     }
 }
+
+// config defaults
+if (!config.hasOwnProperty('sourceBuild')) {
+    config.sourceBuild = false;
+}
+if (!config.hasOwnProperty('devMode')) {
+    config.devMode = false;
+}
+if (!config.hasOwnProperty('tsdbHost')) {
+    config.tsdbHost = 'localhost';
+}
+if (!config.hasOwnProperty('tsdbHost')) {
+    config.tsdbHost = 'localhost';
+}
+if (!config.hasOwnProperty('tsdbPort')) {
+    config.tsdbPort = 4242;
+}
+if (!config.hasOwnProperty('port')) {
+    config.port = 8000;
+}
+if (!config.hasOwnProperty('ui')) {
+    config.ui = {};
+}
+if (!config.ui.hasOwnProperty('metrics')) {
+    config.ui.metrics = {};
+}
+if (!config.ui.metrics.hasOwnProperty('enableExpandAll')) {
+    config.ui.metrics.enableExpandAll = true;
+}
+// end of config defaults
 
 if (config.devMode) {
     config.tsdbPort = config.port;

@@ -286,7 +286,7 @@
                     <div ui-layout-container class="metric-control-panel" size="50%">
                         <div style="border: 1px solid black; height: 100%">
                             <div>
-                                <input type="button" value="+" ng-click="expandAll()">
+                                <input type="button" value="+" ng-click="expandAll()" ng-show="expandAllVisible()">
                                 <input type="button" value="-" ng-click="collapseAll()">
                                 <input type="button" value="F" ng-click="showHideFilterInput()">
                             </div>

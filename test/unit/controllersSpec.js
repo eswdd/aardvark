@@ -1158,6 +1158,16 @@ describe('Otis controllers', function () {
         it('should not load data for the tree if already loading', function() {
         });
 
+        it('should not show the expand all button if it is disabled in config', function() {
+            rootScope.config = {ui:{metrics:{enableExpandAll: false}}};
+            expect(scope.expandAllVisible()).toEqual(false);
+        });
+
+        it('should show the expand all button if it is enabled in config', function() {
+            rootScope.config = {ui:{metrics:{enableExpandAll: true}}};
+            expect(scope.expandAllVisible()).toEqual(true);
+        });
+
         it('should correctly process a selected node in the tree', function() {
             var node = {id: "name.baldrick", name: "baldrick", isMetric: true, children: []};
 

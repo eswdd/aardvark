@@ -56,6 +56,9 @@ otis.directive('tagSelection', function() {
     $scope.clearButtonEnabled = function() {
         return $scope.addButtonVisible() || $scope.saveButtonVisible();
     };
+    $scope.expandAllVisible = function() {
+        return $rootScope.config.ui.metrics.enableExpandAll;
+    }
 
 
     $scope.treeOptions = {
