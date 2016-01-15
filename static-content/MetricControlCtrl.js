@@ -199,7 +199,14 @@ otis.directive('tagSelection', function() {
     }
 
     $scope.deleteMetric = function() {
-
+        for (var i=0; i<$rootScope.model.metrics.length; i++) {
+            if ($rootScope.model.metrics[i].id == $scope.selectedMetricId) {
+                $rootScope.model.metrics.splice(i);
+                $rootScope.saveModel(true);
+                $scope.clearMetric();
+                return;
+            }
+        }
     }
 
     $scope.clearMetric = function() {

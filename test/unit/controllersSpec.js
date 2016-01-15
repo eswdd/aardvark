@@ -1584,8 +1584,6 @@ describe('Otis controllers', function () {
             );
         });
 
-        //todo
-        /*
         it('should update the model when a user clicks delete from an existing metric being edited', function() {
             rootScope.model = {
                 graphs: [],
@@ -1640,16 +1638,16 @@ describe('Otis controllers', function () {
             expect(scope.tagNames).toEqualData([]);
             expect(scope.tag).toEqualData({});
             expect(scope.re).toEqualData({});
-            expect(scope.selectedMetricId).toEqualData('');
+            expect(scope.selectedMetricId).toEqualData('0');
             expect(scope.selectedMetric).toEqualData('');
-            expect(scope.aggregator).toEqualData('');
+            expect(scope.aggregator).toEqualData('sum');
             expect(scope.rightAxis).toEqualData(false);
             expect(scope.rate).toEqualData(false);
             expect(scope.rateCounter).toEqualData(false);
             expect(scope.rateCounterMax).toEqualData('');
             expect(scope.rateCounterReset).toEqualData('');
             expect(scope.downsample).toEqualData(false);
-            expect(scope.downsampleBy).toEqualData('');
+            expect(scope.downsampleBy).toEqualData('avg');
             expect(scope.downsampleTo).toEqualData('');
             expect(scope.clearButtonEnabled()).toEqualData(false);
             expect(scope.addButtonVisible()).toEqualData(false);
@@ -1662,7 +1660,7 @@ describe('Otis controllers', function () {
                     metrics: []
                 }
             );
-        });*/
+        });
 
         it('should clear the form when a user cancels editing an existing metric', function() {
             scope.tagNames = ["tag1","tag2","tag3"];
