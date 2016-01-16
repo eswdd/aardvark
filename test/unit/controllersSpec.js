@@ -1189,6 +1189,7 @@ describe('Otis controllers', function () {
             expect(scope.tagNames).toEqualData(["key1","key2"]);
             expect(scope.tagValues).toEqualData(response);
             expect(scope.re).toEqualData({key1: true, key2: true});
+            expect(scope.nodeSelectionDisabled).toEqualData(true);
 
             // tag options are a little more complex
             expect(scope.tagOptions.key1.suggest('')).toEqualData([{label:"value1",value:"value1"},{label:"value2",value:"value2"}]);
@@ -1212,6 +1213,7 @@ describe('Otis controllers', function () {
             expect(scope.tagValues).toEqualData({});
             expect(scope.re).toEqualData({});
             expect(scope.tagOptions).toEqualData({});
+            expect(scope.nodeSelectionDisabled).toEqualData(false);
         })
 
         it('should suggest correct tag values', function() {
@@ -1289,7 +1291,8 @@ describe('Otis controllers', function () {
             scope.rightAxis = true;
             scope.downsample = true;
             scope.downsampleBy = "zimsum";
-            scope.downsampleTo = "10m"
+            scope.downsampleTo = "10m";
+            scope.nodeSelectionDisabled = true; // set by nodeSelectedForAddition normally
 
             scope.addMetric();
 
@@ -1332,6 +1335,7 @@ describe('Otis controllers', function () {
             ]);
             expect(scope.selectedMetric).toEqualData("");
             expect(scope.selectedMetricId).toEqualData(newMetricId);
+            expect(scope.nodeSelectionDisabled).toEqualData(true);
             expect(scope.saveButtonVisible()).toEqualData(true);
             expect(scope.clearButtonEnabled()).toEqualData(true);
             expect(scope.addButtonVisible()).toEqualData(false);
@@ -1352,6 +1356,7 @@ describe('Otis controllers', function () {
             scope.downsample = true;
             scope.downsampleBy = "sum";
             scope.downsampleTo = "10m";
+            scope.nodeSelectionDisabled = true; // set by nodeSelectedForAddition normally
 
             scope.clearMetric();
 
@@ -1369,6 +1374,7 @@ describe('Otis controllers', function () {
             expect(scope.downsample).toEqualData(false);
             expect(scope.downsampleBy).toEqualData('avg');
             expect(scope.downsampleTo).toEqualData('');
+            expect(scope.nodeSelectionDisabled).toEqualData(false);
             expect(scope.selectedTreeNode).toEqualData(undefined);
             expect(scope.clearButtonEnabled()).toEqualData(false);
             expect(scope.addButtonVisible()).toEqualData(false);
@@ -1479,6 +1485,7 @@ describe('Otis controllers', function () {
             expect(scope.rate).toEqualData(true);
             expect(scope.downsample).toEqualData(true);
             expect(scope.downsampleBy).toEqualData('10m');
+            expect(scope.nodeSelectionDisabled).toEqualData(false);
             expect(scope.clearButtonEnabled()).toEqualData(true);
             expect(scope.addButtonVisible()).toEqualData(false);
             expect(scope.saveButtonVisible()).toEqualData(true);
@@ -1550,6 +1557,7 @@ describe('Otis controllers', function () {
             expect(scope.downsample).toEqualData(true);
             expect(scope.downsampleBy).toEqualData('sum');
             expect(scope.downsampleTo).toEqualData('10m');
+            expect(scope.nodeSelectionDisabled).toEqualData(false);
             expect(scope.clearButtonEnabled()).toEqualData(true);
             expect(scope.addButtonVisible()).toEqualData(false);
             expect(scope.saveButtonVisible()).toEqualData(true);
@@ -1662,6 +1670,7 @@ describe('Otis controllers', function () {
             expect(scope.downsample).toEqualData(false);
             expect(scope.downsampleBy).toEqualData('avg');
             expect(scope.downsampleTo).toEqualData('');
+            expect(scope.nodeSelectionDisabled).toEqualData(false);
             expect(scope.selectedTreeNode).toEqualData(undefined);
             expect(scope.clearButtonEnabled()).toEqualData(false);
             expect(scope.addButtonVisible()).toEqualData(false);
@@ -1708,6 +1717,7 @@ describe('Otis controllers', function () {
             expect(scope.downsample).toEqualData(false);
             expect(scope.downsampleBy).toEqualData('avg');
             expect(scope.downsampleTo).toEqualData('');
+            expect(scope.nodeSelectionDisabled).toEqualData(false);
             expect(scope.selectedTreeNode).toEqualData(undefined);
             expect(scope.clearButtonEnabled()).toEqualData(false);
             expect(scope.addButtonVisible()).toEqualData(false);

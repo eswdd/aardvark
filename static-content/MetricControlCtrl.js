@@ -356,7 +356,7 @@ otis.directive('tagSelection', function() {
         $scope.downsampleTo = "";
         $scope.rightAxis = false;
         $scope.aggregator = "sum";
-
+        $scope.nodeSelectionDisabled = false;
     };
 
     $scope.tagValuesMatchCount = function(tag) {
