@@ -20,6 +20,7 @@ otis.directive('tagSelection', function() {
     $scope.showTreeFilter = false;
     $scope.allParentNodes = [];
     $scope.showFilterInput = false;
+    $scope.selectedTreeNode = undefined;
     $scope.selectedMetric = "";
     $scope.filter = "";
     $scope.expandedNodes = [];
@@ -58,6 +59,9 @@ otis.directive('tagSelection', function() {
     };
     $scope.expandAllVisible = function() {
         return $rootScope.config && $rootScope.config.ui.metrics.enableExpandAll;
+    }
+    $scope.clearSelectedTreeNode = function() {
+        $scope.selectedTreeNode = undefined;
     }
     $scope.addOrSaveMetric = function() {
         if ($scope.addButtonVisible()) {
@@ -222,6 +226,7 @@ otis.directive('tagSelection', function() {
 
     $scope.clearMetric = function() {
         $scope.metricDeselected();
+        $scope.clearSelectedTreeNode();
     }
 
     // todo: m1: how to do tag expansion with regexes? here or in graph rendering? here i suspect..

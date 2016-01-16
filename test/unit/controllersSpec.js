@@ -1342,6 +1342,7 @@ describe('Otis controllers', function () {
             scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
             scope.re = {tag1:false,tag2:false,tag3:true};
             scope.selectedMetric = "some.metric.name";
+            scope.selectedTreeNode = "mock-node";
             scope.rightAxis = false;
             scope.rate = true;
             scope.rateCounter = true;
@@ -1368,6 +1369,7 @@ describe('Otis controllers', function () {
             expect(scope.downsample).toEqualData(false);
             expect(scope.downsampleBy).toEqualData('avg');
             expect(scope.downsampleTo).toEqualData('');
+            expect(scope.selectedTreeNode).toEqualData(undefined);
             expect(scope.clearButtonEnabled()).toEqualData(false);
             expect(scope.addButtonVisible()).toEqualData(false);
             expect(scope.saveButtonVisible()).toEqualData(false);
@@ -1632,6 +1634,7 @@ describe('Otis controllers', function () {
             scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
             scope.re = {tag1:false,tag2:false,tag3:true};
             scope.selectedMetricId = "123";
+            scope.selectedTreeNode = "mock-node";
             scope.aggregator = 'zimsum';
             scope.rightAxis = false;
             scope.rate = false;
@@ -1659,6 +1662,7 @@ describe('Otis controllers', function () {
             expect(scope.downsample).toEqualData(false);
             expect(scope.downsampleBy).toEqualData('avg');
             expect(scope.downsampleTo).toEqualData('');
+            expect(scope.selectedTreeNode).toEqualData(undefined);
             expect(scope.clearButtonEnabled()).toEqualData(false);
             expect(scope.addButtonVisible()).toEqualData(false);
             expect(scope.deleteButtonVisible()).toEqualData(false);
@@ -1677,6 +1681,7 @@ describe('Otis controllers', function () {
             scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
             scope.re = {tag1:false,tag2:false,tag3:true};
             scope.selectedMetricId = "123";
+            scope.selectedTreeNode = "mock-node";
             scope.aggregator = "avg";
             scope.rightAxis = true;
             scope.rate = true;
@@ -1703,6 +1708,7 @@ describe('Otis controllers', function () {
             expect(scope.downsample).toEqualData(false);
             expect(scope.downsampleBy).toEqualData('avg');
             expect(scope.downsampleTo).toEqualData('');
+            expect(scope.selectedTreeNode).toEqualData(undefined);
             expect(scope.clearButtonEnabled()).toEqualData(false);
             expect(scope.addButtonVisible()).toEqualData(false);
             expect(scope.saveButtonVisible()).toEqualData(false);
