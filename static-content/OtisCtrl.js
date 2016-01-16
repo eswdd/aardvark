@@ -2,7 +2,20 @@
  * Responsible for the main app, providing config and model<-> hash
  * functionality for the other controllers
  */
-otis.controller('OtisCtrl', [ '$rootScope', '$http', '$location', function OtisCtrl($rootScope, $http, $location) {
+otis.directive('otisEnter', function() {
+        return function(scope, element, attrs) {
+            element.bind("keydown keypress", function (event) {
+               if (event.which == 13) {
+                   scope.$apply(function() {
+                       scope.$eval(attrs.otisEnter);
+                   })
+
+                   event.preventDefault();
+               }
+            });
+        }
+    })
+    .controller('OtisCtrl', [ '$rootScope', '$http', '$location', function OtisCtrl($rootScope, $http, $location) {
     /*
      * Model persistence - ensures that persistent data is saved to the hash whilst leaving
      * controllers free to litter their own scope with volatile data. Controllers are responsible

@@ -3,9 +3,9 @@
  */
 otis.directive('tagSelection', function() {
     return {
-        template: '<div><input type="text" ng-model="tag[tagk]" size="15" /> RE? <input type="checkbox" ng-model="re[tagk]" ng-disabled="!clearButtonEnabled()"/> {{tagValuesMatchCount(tagk)}}</div>'
+        template: '<div><input type="text" ng-model="tag[tagk]" size="15" otis-enter="addOrSaveMetric()" /> RE? <input type="checkbox" ng-model="re[tagk]" ng-disabled="!clearButtonEnabled()" otis-enter="addOrSaveMetric()" /> {{tagValuesMatchCount(tagk)}}</div>'
         // todo: m1: put this back when issue#27 is fixed
-        //template: '<div mass-autocomplete><input type="text" ng-model="tag[tagk]" mass-autocomplete-item="tagOptions[tagk]" size="15" /> RE? <input type="checkbox" ng-model="re[tagk]"/> {{tagValuesMatchCount(tagk)}}</div>'
+        //template: '<div mass-autocomplete><input type="text" ng-model="tag[tagk]" mass-autocomplete-item="tagOptions[tagk]" size="15" otis-enter="addOrSaveMetric()" /> RE? <input type="checkbox" ng-model="re[tagk]" otis-enter="addOrSaveMetric()" /> {{tagValuesMatchCount(tagk)}}</div>'
     }
 })
 /*
@@ -57,7 +57,15 @@ otis.directive('tagSelection', function() {
         return $scope.addButtonVisible() || $scope.saveButtonVisible();
     };
     $scope.expandAllVisible = function() {
-        return $rootScope.config.ui.metrics.enableExpandAll;
+        return $rootScope.config && $rootScope.config.ui.metrics.enableExpandAll;
+    }
+    $scope.addOrSaveMetric = function() {
+        if ($scope.addButtonVisible()) {
+            $scope.addMetric();
+        }
+        else {
+            $scope.saveMetric();
+        }
     }
 
 

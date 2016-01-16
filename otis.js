@@ -1,6 +1,8 @@
 var http = require('http'),
     fs = require('fs');
 
+var config = {};
+
 var args = process.argv.slice(2);
 for (var i=0; i<args.length; i++) {
     switch (args[i]) {

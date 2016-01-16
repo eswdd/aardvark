@@ -47,45 +47,45 @@
                             <div style="border: solid 1px black">
                                 <div>
                                     <label for="fromTimestampId">From</label><br/>
-                                    <input type="text" size="10" id="fromTimestampId" ng-model="fromTimestamp" ng-required />
+                                    <input type="text" size="10" id="fromTimestampId" ng-model="fromTimestamp" ng-required otis-enter="renderGraphs()" />
                                     <button>Cal</button>
                                 </div>
                                 <div>
                                     <label for="toTimestampId">To</label>
                                     <button ng-click="now()">Now</button>
-                                    <input type="checkbox" id="autoReloadId" ng-model="autoReload">
+                                    <input type="checkbox" id="autoReloadId" ng-model="autoReload" otis-enter="renderGraphs()">
                                     <label for="autoReloadId">Auto reload</label>
                                 </div>
                                 <div ng-show="autoReload">
-                                    <input type="text" size="2" id="autoReloadPeriodId" ng-model="autoReloadPeriod"/>
+                                    <input type="text" size="2" id="autoReloadPeriodId" ng-model="autoReloadPeriod" otis-enter="renderGraphs()" />
                                     <label for="autoReloadPeriodId">seconds</label>
                                 </div>
                                 <div ng-show="!autoReload">
-                                    <input type="text" size="10" id="toTimestampId" ng-model="toTimestamp"/>
+                                    <input type="text" size="10" id="toTimestampId" ng-model="toTimestamp" otis-enter="renderGraphs()" />
                                     <button ng-disabled="autoReload">Cal</button>
                                 </div>
                             </div>
                             <div style="border: solid 1px black" ng-show="graphs.length > 1">
                                 <div>
                                     <label for="autoGraphHeight">Auto-height graphs</label>
-                                    <input type="checkbox" id="autoGraphHeight" ng-model="autoGraphHeight">
+                                    <input type="checkbox" id="autoGraphHeight" ng-model="autoGraphHeight" otis-enter="renderGraphs()">
                                 </div>
                                 <div ng-show="autoGraphHeight">
                                     <label for="minGraphHeight">Min height (pixels)</label>
-                                    <input type="text" id="minGraphHeight" ng-model="minGraphHeight">
+                                    <input type="text" id="minGraphHeight" ng-model="minGraphHeight" otis-enter="renderGraphs()">
                                 </div>
                                 <div ng-show="!autoGraphHeight">
                                     <label for="graphHeight">Fixed height (pixels)</label>
-                                    <input type="text" id="graphHeight" ng-model="graphHeight">
+                                    <input type="text" id="graphHeight" ng-model="graphHeight" otis-enter="renderGraphs()">
                                 </div>
                             </div>
                             <accordion close-others="true">
                                 <accordion-group heading="{{graph.title}}" is-open="isOpen[graph.id]" ng-repeat="graph in graphs track by graph.id">
 
                                     <div ng-show="showEdit[graph.id]">
-                                        <input type="text" ng-model="graph.title" />
+                                        <input type="text" ng-model="graph.title" otis-enter="renderGraphs()" />
 
-                                        <select ng-model="graph.type" ng-show="graphTypes.length > 1">
+                                        <select ng-model="graph.type" ng-show="graphTypes.length > 1" otis-enter="renderGraphs()">
                                             <option ng-repeat="type in graphTypes">{{type}}</option>
                                         </select>
                                     </div>
@@ -110,38 +110,38 @@
                                                     </tr>
                                                     <tr>
                                                         <td width="5px">&nbsp;</td>
-                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.yAxisLabel"/></td>
-                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.y2AxisLabel"/></td>
+                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.yAxisLabel" otis-enter="renderGraphs()" /></td>
+                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.y2AxisLabel"  otis-enter="renderGraphs()" /></td>
                                                     </tr>
                                                     <tr>
                                                         <td colspan="3">Format</td>
                                                     </tr>
                                                     <tr>
                                                         <td></td>
-                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.yAxisFormat"/></td>
-                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.y2AxisFormat"/></td>
+                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.yAxisFormat" otis-enter="renderGraphs()" /></td>
+                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.y2AxisFormat" otis-enter="renderGraphs()" /></td>
                                                     </tr>
                                                     <tr>
                                                         <td colspan="3">Range</td>
                                                     </tr>
                                                     <tr>
                                                         <td></td>
-                                                        <td style="text-align: center"><input type="text" size="2" ng-model="graph.gnuplot.yAxisRange"/></td>
-                                                        <td style="text-align: center"><input type="text" size="2" ng-model="graph.gnuplot.y2AxisRange"/></td>
+                                                        <td style="text-align: center"><input type="text" size="2" ng-model="graph.gnuplot.yAxisRange" otis-enter="renderGraphs()" /></td>
+                                                        <td style="text-align: center"><input type="text" size="2" ng-model="graph.gnuplot.y2AxisRange" otis-enter="renderGraphs()" /></td>
                                                     </tr>
                                                     <tr>
                                                         <td colspan="3">Log&nbsp;scale</td>
                                                     </tr>
                                                     <tr>
                                                         <td></td>
-                                                        <td style="text-align: center"><input type="checkbox" ng-model="graph.gnuplot.yAxisLogScale"></td>
-                                                        <td style="text-align: center"><input type="checkbox" ng-model="graph.gnuplot.y2AxisLogScale"></td>
+                                                        <td style="text-align: center"><input type="checkbox" ng-model="graph.gnuplot.yAxisLogScale" otis-enter="renderGraphs()" /></td>
+                                                        <td style="text-align: center"><input type="checkbox" ng-model="graph.gnuplot.y2AxisLogScale" otis-enter="renderGraphs()" /></td>
                                                     </tr>
                                                 </table>
                                             </tab>
                                             <tab heading="Key">
                                                 <label for="showKey">Show key</label>
-                                                <input id="showKey" type="checkbox" ng-model="graph.gnuplot.showKey"/>
+                                                <input id="showKey" type="checkbox" ng-model="graph.gnuplot.showKey" otis-enter="renderGraphs()" />
                                                 <div>
                                                     <div>
                                                         Key placement:
@@ -149,71 +149,71 @@
                                                     <table>
                                                         <tr>
                                                             <td>
-                                                                <input ng-disabled="!showKey" type="radio" value="out top left" ng-model="graph.gnuplot.keyLocation" />
+                                                                <input ng-disabled="!showKey" type="radio" value="out top left" ng-model="graph.gnuplot.keyLocation" otis-enter="renderGraphs()" />
                                                             </td>
                                                             <td></td>
                                                             <td>
-                                                                <input ng-disabled="!showKey" type="radio" value="out top center" ng-model="graph.gnuplot.keyLocation" />
+                                                                <input ng-disabled="!showKey" type="radio" value="out top center" ng-model="graph.gnuplot.keyLocation" otis-enter="renderGraphs()" />
                                                             </td>
                                                             <td></td>
                                                             <td>
-                                                                <input ng-disabled="!showKey" type="radio" value="out top right" ng-model="graph.gnuplot.keyLocation" />
+                                                                <input ng-disabled="!showKey" type="radio" value="out top right" ng-model="graph.gnuplot.keyLocation" otis-enter="renderGraphs()" />
                                                             </td>
                                                         </tr>
                                                         <tr>
                                                             <td></td>
                                                             <td style="border-top: 1px solid black; border-left: 1px solid black">
-                                                                <input ng-disabled="!showKey" type="radio" value="top left" ng-model="graph.gnuplot.keyLocation" />
+                                                                <input ng-disabled="!showKey" type="radio" value="top left" ng-model="graph.gnuplot.keyLocation" otis-enter="renderGraphs()" />
                                                             </td>
                                                             <td style="border-top: 1px solid black">
-                                                                <input ng-disabled="!showKey" type="radio" value="top center" ng-model="graph.gnuplot.keyLocation" />
+                                                                <input ng-disabled="!showKey" type="radio" value="top center" ng-model="graph.gnuplot.keyLocation" otis-enter="renderGraphs()" />
                                                             </td>
                                                             <td style="border-top: 1px solid black; border-right: 1px solid black">
-                                                                <input ng-disabled="!showKey" type="radio" value="top right" ng-model="graph.gnuplot.keyLocation" />
+                                                                <input ng-disabled="!showKey" type="radio" value="top right" ng-model="graph.gnuplot.keyLocation" otis-enter="renderGraphs()" />
                                                             </td>
                                                             <td></td>
                                                         </tr>
                                                         <tr>
                                                             <td>
-                                                                <input ng-disabled="!showKey" type="radio" value="out center left" ng-model="graph.gnuplot.keyLocation" />
+                                                                <input ng-disabled="!showKey" type="radio" value="out center left" ng-model="graph.gnuplot.keyLocation" otis-enter="renderGraphs()" />
                                                             </td>
                                                             <td style="border-left: 1px solid black">
-                                                                <input ng-disabled="!showKey" type="radio" value="center left" ng-model="graph.gnuplot.keyLocation" />
+                                                                <input ng-disabled="!showKey" type="radio" value="center left" ng-model="graph.gnuplot.keyLocation" otis-enter="renderGraphs()" />
                                                             </td>
                                                             <td>
-                                                                <input ng-disabled="!showKey" type="radio" value="center" ng-model="graph.gnuplot.keyLocation" />
+                                                                <input ng-disabled="!showKey" type="radio" value="center" ng-model="graph.gnuplot.keyLocation" otis-enter="renderGraphs()" />
                                                             </td>
                                                             <td style="border-right: 1px solid black">
-                                                                <input ng-disabled="!showKey" type="radio" value="center right" ng-model="graph.gnuplot.keyLocation" />
+                                                                <input ng-disabled="!showKey" type="radio" value="center right" ng-model="graph.gnuplot.keyLocation" otis-enter="renderGraphs()" />
                                                             </td>
                                                             <td>
-                                                                <input ng-disabled="!showKey" type="radio" value="out center right" ng-model="graph.gnuplot.keyLocation" />
+                                                                <input ng-disabled="!showKey" type="radio" value="out center right" ng-model="graph.gnuplot.keyLocation" otis-enter="renderGraphs()" />
                                                             </td>
                                                         </tr>
                                                         <tr>
                                                             <td></td>
                                                             <td style="border-bottom: 1px solid black; border-left: 1px solid black">
-                                                                <input ng-disabled="!showKey" type="radio" value="bottom left" ng-model="graph.gnuplot.keyLocation" />
+                                                                <input ng-disabled="!showKey" type="radio" value="bottom left" ng-model="graph.gnuplot.keyLocation" otis-enter="renderGraphs()" />
                                                             </td>
                                                             <td style="border-bottom: 1px solid black">
-                                                                <input ng-disabled="!showKey" type="radio" value="bottom center" ng-model="graph.gnuplot.keyLocation" />
+                                                                <input ng-disabled="!showKey" type="radio" value="bottom center" ng-model="graph.gnuplot.keyLocation" otis-enter="renderGraphs()" />
                                                             </td>
                                                             <td style="border-bottom: 1px solid black; border-right: 1px solid black">
-                                                                <input ng-disabled="!showKey" type="radio" value="bottom right" ng-model="graph.gnuplot.keyLocation" />
+                                                                <input ng-disabled="!showKey" type="radio" value="bottom right" ng-model="graph.gnuplot.keyLocation" otis-enter="renderGraphs()" />
                                                             </td>
                                                             <td></td>
                                                         </tr>
                                                         <tr>
                                                             <td>
-                                                                <input ng-disabled="!showKey" type="radio" value="out bottom left" ng-model="graph.gnuplot.keyLocation" />
+                                                                <input ng-disabled="!showKey" type="radio" value="out bottom left" ng-model="graph.gnuplot.keyLocation" otis-enter="renderGraphs()" />
                                                             </td>
                                                             <td></td>
                                                             <td>
-                                                                <input ng-disabled="!showKey" type="radio" value="out bottom center" ng-model="graph.gnuplot.keyLocation" />
+                                                                <input ng-disabled="!showKey" type="radio" value="out bottom center" ng-model="graph.gnuplot.keyLocation" otis-enter="renderGraphs()" />
                                                             </td>
                                                             <td></td>
                                                             <td>
-                                                                <input ng-disabled="!showKey" type="radio" value="out bottom right" ng-model="graph.gnuplot.keyLocation" />
+                                                                <input ng-disabled="!showKey" type="radio" value="out bottom right" ng-model="graph.gnuplot.keyLocation" otis-enter="renderGraphs()" />
                                                             </td>
                                                         </tr>
                                                     </table>
@@ -221,19 +221,19 @@
                                                         Key alignment:
                                                     </div>
                                                     <div>
-                                                        <input ng-disabled="!showKey" type="radio" id="columnar" ng-model="graph.gnuplot.keyAlignment" value="columnar"><label for="columnar">Columnar</label>
-                                                        <input ng-disabled="!showKey" type="radio" id="horizontal" ng-model="graph.gnuplot.keyAlignment" value="horizontal"><label for="horizontal">Horizontal</label>
+                                                        <input ng-disabled="!showKey" type="radio" id="columnar" ng-model="graph.gnuplot.keyAlignment" value="columnar" otis-enter="renderGraphs()" /><label for="columnar">Columnar</label>
+                                                        <input ng-disabled="!showKey" type="radio" id="horizontal" ng-model="graph.gnuplot.keyAlignment" value="horizontal" otis-enter="renderGraphs()" /><label for="horizontal">Horizontal</label>
                                                     </div>
                                                     <div>
                                                         Key outline:
                                                     </div>
                                                     <div>
-                                                        <input ng-disabled="!showKey" type="checkbox" id="outline" ng-model="graph.gnuplot.keyBox"><label for="outline">On</label>
+                                                        <input ng-disabled="!showKey" type="checkbox" id="outline" ng-model="graph.gnuplot.keyBox" otis-enter="renderGraphs()" /><label for="outline">On</label>
                                                     </div>
                                                 </div>
                                             </tab>
                                             <tab heading="Style">
-                                                <input type="checkbox" id="smooth" ng-model="graph.gnuplot.lineSmoothing"/>
+                                                <input type="checkbox" id="smooth" ng-model="graph.gnuplot.lineSmoothing" otis-enter="renderGraphs()" />
                                                 <label for="smooth">Smooth lines</label>
                                             </tab>
                                         </tabset>
@@ -322,7 +322,7 @@
                             <!-- todo: m1: start -> 1 graph -> add metric -> save -> delete graph -> save -> add graph -> save -> graph, edit metric -> no graph selection -->
                             <div  ng-show="model.graphs.length > 1">
                                 <label for="metricControl_editMetric_selectGraph">Graph</label>
-                                <select id="metricControl_editMetric_selectGraph" ng-model="graphId" ng-disabled="!clearButtonEnabled()">
+                                <select id="metricControl_editMetric_selectGraph" ng-model="graphId" ng-disabled="!clearButtonEnabled()" otis-enter="addOrSaveMetric()">
                                     <option value="0" selected="selected">None</option>
                                     <option ng-repeat="graph in model.graphs track by graph.id" value="{{graph.id}}">
                                         {{graph.title}}
@@ -331,7 +331,7 @@
                             </div>
                             <div>
                                 <label for="metricControl_editMetric_aggregator">Aggregator</label>
-                                <select id="metricControl_editMetric_aggregator" ng-model="aggregator" ng-disabled="!clearButtonEnabled()">
+                                <select id="metricControl_editMetric_aggregator" ng-model="aggregator" ng-disabled="!clearButtonEnabled()" otis-enter="addOrSaveMetric()">
                                     <option>sum</option>
                                     <option>min</option>
                                     <option>max</option>
@@ -345,25 +345,25 @@
                             </div>
                             <div>
                                 <label for="metricControl_editMetric_rightAxis">Right Axis</label>
-                                <input id="metricControl_editMetric_rightAxis" type="checkbox" ng-model="rightAxis" ng-disabled="!clearButtonEnabled()"/>
+                                <input id="metricControl_editMetric_rightAxis" type="checkbox" ng-model="rightAxis" ng-disabled="!clearButtonEnabled()" otis-enter="addOrSaveMetric()" />
                             </div>
                             <div>
                                 <label for="metricControl_editMetric_rate">Rate?</label>
-                                <input id="metricControl_editMetric_rate" type="checkbox" ng-model="rate" ng-disabled="!clearButtonEnabled()">
+                                <input id="metricControl_editMetric_rate" type="checkbox" ng-model="rate" ng-disabled="!clearButtonEnabled()" otis-enter="addOrSaveMetric()" />
                                 <label for="metricControl_editMetric_rate">Rate Ctr?</label>
-                                <input id="metricControl_editMetric_rateCounter" type="checkbox" ng-model="rateCounter" ng-disabled="!clearButtonEnabled() && !rate">
+                                <input id="metricControl_editMetric_rateCounter" type="checkbox" ng-model="rateCounter" ng-disabled="!clearButtonEnabled() && !rate" otis-enter="addOrSaveMetric()" />
                             </div>
                             <div ng-show="rateCounter">
                                 <label for="metricControl_editMetric_rateCounterMax">Counter max</label>
-                                <input id="metricControl_editMetric_rateCounterMax" type="text" ng-model="rateCounterMax"/>
+                                <input id="metricControl_editMetric_rateCounterMax" type="text" ng-model="rateCounterMax" otis-enter="addOrSaveMetric()" />
                                 <label for="metricControl_editMetric_rateCounterReset">Counter reset</label>
-                                <input id="metricControl_editMetric_rateCounterReset" type="text" ng-model="rateCounterReset"/>
+                                <input id="metricControl_editMetric_rateCounterReset" type="text" ng-model="rateCounterReset" otis-enter="addOrSaveMetric()" />
                             </div>
                             <div>
                                 <label for="metricControl_editMetric_downsample">Downsample?</label>
-                                <input id="metricControl_editMetric_downsample" type="checkbox" ng-model="downsample" ng-disabled="!clearButtonEnabled()">
+                                <input id="metricControl_editMetric_downsample" type="checkbox" ng-model="downsample" ng-disabled="!clearButtonEnabled()" otis-enter="addOrSaveMetric()" />
                                 <label for="metricControl_editMetric_downsampleBy">by</label>
-                                <select id="metricControl_editMetric_downsampleBy" ng-model="downsampleBy" ng-disabled="!downsample">
+                                <select id="metricControl_editMetric_downsampleBy" ng-model="downsampleBy" ng-disabled="!downsample" otis-enter="addOrSaveMetric()">
                                     <option>sum</option>
                                     <option>min</option>
                                     <option>max</option>
@@ -374,7 +374,7 @@
                                     <option>mimmax</option>
                                     <!-- TODO load aggregators from /aggregators on tsdb.. -->
                                 </select>
-                                <input type="text" ng-model="downsampleTo" ng-disabled="!downsample">
+                                <input type="text" ng-model="downsampleTo" ng-disabled="!downsample" otis-enter="addOrSaveMetric()" />
                             </div>
 
                             <table>
