@@ -28,3 +28,16 @@
 }
 
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+
+/* https://github.com/hakib/MassAutocomplete/issues/13#issuecomment-70501721 */
+/* fix styles */
+[mass-autocomplete] {
+    position: relative;
+}
+
+.ac-container {
+    position: absolute;
+    top: 100% !important;
+    left: 0 !important;
+    width: 100% !important;
+}
