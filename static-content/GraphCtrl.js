@@ -201,6 +201,9 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
 
         $scope.renderedContent[graph.id] = { src: url, width: width, height: height };
     };
+    $scope.renderers["cubism"] = function(global, graph, metrics) {
+
+    };
 
     $rootScope.renderGraphs = function() {
         // todo: could be cleverer about clearing in case some graphs haven't changed

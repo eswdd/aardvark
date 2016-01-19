@@ -13,6 +13,7 @@
     <script type="application/javascript" src="../bower_components/angular-tree-control/angular-tree-control.js"></script>
     <script type="application/javascript" src="../bower_components/angular-sanitize/angular-sanitize.js"></script>
     <script type="application/javascript" src="../bower_components/angular-mass-autocomplete/massautocomplete.js"></script>
+    <script type="application/javascript" src="../bower_components/d3/d3.js"></script>
     <!-- Angular CSS - keep order in here same as deps in otis-client.js -->
     <link rel="stylesheet" type="text/css" href="../bower_components/bootstrap-css-only/css/bootstrap.css">
     <link rel="stylesheet" type="text/css" href="../bower_components/bootstrap-css-only/css/bootstrap-theme.css">
@@ -277,6 +278,8 @@
                                 <!--<pre>{{renderedContent[graph.id]}}</pre>-->
                             <!--</div>-->
                             <img id="gnuplotImg_{{graph.id}}" ng-src="{{renderedContent[graph.id].src}}" ng-show="graph.type == 'gnuplot'" width="{{renderedContent[graph.id].width}}" height="{{renderedContent[graph.id].height}}" />
+                            <div id="cubismDiv_{{graph.id}}" ng-show="graph.type == 'cubism'">
+                            </div>
                         </div>
                     </div>
                 </div>
