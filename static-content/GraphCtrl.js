@@ -331,6 +331,7 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCt
 
         // cubism plots a pixel per step, so we need to calculate step size (we ignore downsampling time measure)
         var width = Math.floor(graph.graphWidth);
+        var height = Math.floor(graph.graphHeight);
         // todo: calc actual time diff
         var diff = 0;
         var timeWidth = 1000 * 60 * 60 * 2; // 2h
@@ -368,6 +369,9 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCt
             .attr("class", "rule")
             .call(context.rule());
 
+        // remove old horizon charts
+        d3.select(divSelector).selectAll(".horizon").remove();
+
         context.on("focus", function(i) {
 //        d3.selectAll(".value").style("right", i == null ? null : context.size() - i + "px");
             d3.selectAll(".value").style("right", "10px");
@@ -377,11 +381,12 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCt
 
         function buildMetrics(metrics, index, cMetrics) {
             if (index >= metrics.length) {
+                var perLineHeight = (height - 60)/cMetrics.length;
                 d3.select(divSelector).selectAll(".horizon")
                     .data(cMetrics)
                     .enter().insert("div", ".bottom")
                     .attr("class", "horizon")
-                    .call(context.horizon());
+                    .call(context.horizon().height(perLineHeight));
                 return;
             }
 
