@@ -23,6 +23,7 @@
     "start": "node otis.js",
     "pretest-continuous": "npm install",
     "pretest": "npm install",
+    "test-debug": "node node_modules/karma/bin/karma start test/karma.conf.js --debug",
     "test-continuous": "node node_modules/karma/bin/karma start test/karma.conf.js",
     "test": "node node_modules/karma/bin/karma start test/karma.conf.js  --single-run"
   },

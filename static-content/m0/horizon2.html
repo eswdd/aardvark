@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script src="../../bower_components/d3/d3.js"></script>
+<script src="../../bower_components/cubism/cubism.v1.js"></script>
+<style>
+
+    body {
+        font-family: "Helvetica Neue", Helvetica, sans-serif;
+        margin: 30px auto;
+        width: 1280px;
+        position: relative;
+    }
+
+</style>
+<body>
+Graph area:
+<div id="cubsim_1234">
+
+</div>
+<script>
+
+    var diff = 800*86400000;
+    console.log("diff="+diff);
+
+//    console.log("width="+(86400000*800));
+
+    var context = cubism.context()
+//            .serverDelay(diff)
+            .step(86400000)
+            .size(800)
+            .stop();
+    var tsdb = context.opentsdb("http://localhost:8000");
+
+    d3.select("#cubsim_1234").selectAll(".axis")
+            .data(["top", "bottom"])
+            .enter().append("div")
+            .attr("class", function(d) { return d + " axis"; })
+            .each(function(d) { d3.select(this).call(context.axis().ticks(12).orient(d)); });
+
+    d3.select("#cubsim_1234").append("div")
+            .attr("class", "rule")
+            .call(context.rule());
+
+    d3.select("#cubsim_1234").selectAll(".horizon")
+            .data(["AAPL", "BIDU", "SINA", "GOOG"].map(stock))
+            .enter().insert("div", ".bottom")
+            .attr("class", "horizon")
+            .call(context.horizon());
+//                    .format(d3.format("+,.2p")));
+
+    context.on("focus", function(i) {
+//        d3.selectAll(".value").style("right", i == null ? null : context.size() - i + "px");
+        d3.selectAll(".value").style("right", "10px");
+    });
+
+
+
+    // Replace this with context.graphite and graphite.metric!
+    function stock(name) {
+        return tsdb.metric(name, "rate", null, name);
+//        var format = d3.time.format("%d-%b-%y");
+//        return context.metric(function(start, stop, step, callback) {
+//            d3.csv("stocks/" + name + ".csv", function(rows) {
+//                rows = rows.map(function(d) { return [format.parse(d.Date), +d.Open]; }).filter(function(d) { return d[1]; }).reverse();
+//                var date = rows[0][0], compare = rows[400][1], value = rows[0][1], values = [value];
+//                rows.forEach(function(d) {
+//                    while ((date = d3.time.day.offset(date, 1)) < d[0]) values.push(value);
+//                    values.push(value = (d[1] - compare) / compare);
+//                });
+//                var ret = values.slice(-context.size());
+//                callback(null, ret);
+//            });
+//        }, name);
+    }
+
+</script>

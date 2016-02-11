@@ -432,13 +432,14 @@ describe('Otis controllers', function () {
     });
 
     describe('GraphCtrl', function() {
-        var rootScope, scope;
+        var rootScope, $httpBackend, scope;
         var globals, graphs, metricss;
         var configUpdateFunc;
 
-        beforeEach(inject(function ($rootScope, $controller) {
+        beforeEach(inject(function ($rootScope, _$httpBackend_, $controller) {
             // hmm
             rootScope = $rootScope;
+            $httpBackend = _$httpBackend_;
             scope = $rootScope.$new();
             globals = [];
             graphs = [];
@@ -491,6 +492,88 @@ describe('Otis controllers', function () {
 
             expect(graphs).toEqualData([graph]);
             expect(metricss).toEqualData([[incMetric]]);
+        });
+
+        // ---------- tsdb helper functions ------
+
+        var objectLength = function(obj) {
+            var count = 0;
+            for (var key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        var test_tsdb_distinctGraphLines = function(metric, expectHttpRequests, expectationsFn) {
+            var callBackComplete = false;
+            var graphLines = {};
+            scope.tsdb_distinctGraphLines(metric, function(m) {
+                graphLines = m;
+                callBackComplete = true;
+            });
+            if (expectHttpRequests) {
+                $httpBackend.flush();
+            }
+            waitsFor(function () {
+                return callBackComplete;
+            }, "callback completed", 1000);
+            runs(function() {
+                expectationsFn(graphLines);
+            });
+        }
+
+        it('should callback with a single entry when getting lines for a metric with no tags', function () {
+            test_tsdb_distinctGraphLines({name:"some.metric", tags: [], graphOptions: {}}, false, function(graphLines) {
+                expect(objectLength(graphLines)).toEqualData(1);
+            });
+        });
+
+        it('should callback with two entries when getting lines for a metric with a single tag with two possible values', function () {
+            $httpBackend.expectGET('/otis/tags?metric=some.metric').respond({host: ["host1", "host2"]});
+
+            test_tsdb_distinctGraphLines({name:"some.metric", tags: [{name: "host", value: "*"}], graphOptions: {}}, true, function(graphLines) {
+                expect(objectLength(graphLines)).toEqualData(2);
+                expect(graphLines["some.metric{host=host1}"]).toEqualData({host: "host1"});
+                expect(graphLines["some.metric{host=host2}"]).toEqualData({host: "host2"});
+            });
+        });
+
+        it('should callback with four entries when getting lines for a metric with a two tags each with two possible values', function () {
+            $httpBackend.expectGET('/otis/tags?metric=some.metric').respond({host: ["host1", "host2"], type: ["type1", "type2"]});
+
+            test_tsdb_distinctGraphLines({name:"some.metric", tags: [{name: "host", value: "*"}, {name: "type", value: "*"}], graphOptions: {}}, true, function(graphLines) {
+                expect(objectLength(graphLines)).toEqualData(4);
+                expect(graphLines["some.metric{host=host1,type=type1}"]).toEqualData({host: "host1", type: "type1"});
+                expect(graphLines["some.metric{host=host1,type=type2}"]).toEqualData({host: "host1", type: "type2"});
+                expect(graphLines["some.metric{host=host2,type=type1}"]).toEqualData({host: "host2", type: "type1"});
+                expect(graphLines["some.metric{host=host2,type=type2}"]).toEqualData({host: "host2", type: "type2"});
+            });
+        });
+
+        it('should callback with four entries when getting lines for a metric with one tag with two possible values and the other with three, but only two selected', function () {
+            $httpBackend.expectGET('/otis/tags?metric=some.metric').respond({host: ["host1", "host2"], type: ["type1", "type2", "type2"]});
+
+            test_tsdb_distinctGraphLines({name:"some.metric", tags: [{name: "host", value: "*"}, {name: "type", value: "type1|type2"}], graphOptions: {}}, true, function(graphLines) {
+                expect(objectLength(graphLines)).toEqualData(4);
+                expect(graphLines["some.metric{type=type1,host=host1}"]).toEqualData({host: "host1", type: "type1"});
+                expect(graphLines["some.metric{type=type2,host=host1}"]).toEqualData({host: "host1", type: "type2"});
+                expect(graphLines["some.metric{type=type1,host=host2}"]).toEqualData({host: "host2", type: "type1"});
+                expect(graphLines["some.metric{type=type2,host=host2}"]).toEqualData({host: "host2", type: "type2"});
+            });
+        });
+
+        it('should callback with four entries when getting lines for a metric with a two tags each with two possible values, one tag with a fixed single value and one tag with no value', function () {
+            $httpBackend.expectGET('/otis/tags?metric=some.metric').respond({host: ["host1", "host2"], type: ["type1", "type2"], direction: ["in","out"], application: ["app1","app2"]});
+
+            test_tsdb_distinctGraphLines({name:"some.metric", tags: [{name: "host", value: "*"}, {name: "type", value: "*"}, {name: "direction", value: "in"}, {name: "application", value: ""}], graphOptions: {}}, true, function(graphLines) {
+                expect(objectLength(graphLines)).toEqualData(4);
+                expect(graphLines["some.metric{direction=in,host=host1,type=type1}"]).toEqualData({host: "host1", type: "type1", direction: "in"});
+                expect(graphLines["some.metric{direction=in,host=host1,type=type2}"]).toEqualData({host: "host1", type: "type2", direction: "in"});
+                expect(graphLines["some.metric{direction=in,host=host2,type=type1}"]).toEqualData({host: "host2", type: "type1", direction: "in"});
+                expect(graphLines["some.metric{direction=in,host=host2,type=type2}"]).toEqualData({host: "host2", type: "type2", direction: "in"});
+            });
         });
 
         // ---------- gnuplot rendering ----------

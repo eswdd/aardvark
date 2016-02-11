@@ -1,11 +1,131 @@
 /*
  * Graph rendering
  */
-otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope, $rootScope) {
+otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCtrl($scope, $rootScope, $http) {
     $scope.renderedContent = {};
     $scope.renderErrors = {};
     $scope.renderWarnings = {};
     $scope.imageRenderCount = 0;
+    // helper functions for dealing with tsdb data
+    $scope.tsdb_rateString = function(metricOptions) {
+        var ret = "rate";
+        if (metricOptions.rateCounter) {
+            ret += "{counter";
+            var rctrSep = ",";
+            if (metricOptions.rateCounterMax != null && metricOptions.rateCounterMax != "") {
+                ret += "," + metricOptions.rateCounterMax;
+            }
+            else {
+                rctrSep = ",,";
+            }
+            if (metricOptions.rateCounterReset != null && metricOptions.rateCounterReset != "") {
+                ret += rctrSep + metricOptions.rateCounterReset;
+            }
+            ret += "}";
+        }
+        return ret;
+    }
+    $scope.tsdb_distinctGraphLines = function(metric, fn) {
+        // returns a map of string to metric with tag set which represents a single line (fully defined tags only, tag omissions allowed to aggregate)
+        // string will be the metric name and interesting tags only (ie won't include aggregate tags)
+        var tagsAndValues = [];
+        var tagsToGetFromServer = [];
+        for (var i=0; i<metric.tags.length; i++) {
+            var tag = metric.tags[i];
+            if (!tag.re) { // todo: support re
+                var tagk = tag.name;
+                var tagv = tag.value;
+                if (tagv == null || tagv == undefined || tagv == "") {
+                    continue;
+                }
+                if (tagv == "*") {
+                    tagsToGetFromServer.push(tagk);
+                }
+                else if (tagv.indexOf("|") >= 0) {
+                    tagsAndValues.push({tagk: tagk, tagvs: tagv.split("|")});
+                }
+                else {
+                    tagsAndValues.push({tagk: tagk, tagvs: [tagv]});
+                }
+            }
+        }
+
+
+        var iterateTagSets = function(metric, tagsAndValues, tagMap, index, lineMap) {
+            // and now call the fn
+            if (index >= tagsAndValues.length) {
+                var tagsArg = {};
+                var tagString = "{";
+                var sep = "";
+                for (var tagk in tagMap) {
+                    if (tagMap.hasOwnProperty(tagk)) {
+                        var tagv = tagMap[tagk];
+                        tagsArg[tagk] = tagv;
+                        tagString += sep + tagk + "=" + tagv;
+                        sep=",";
+                    }
+                }
+                tagString += "}";
+                if (tagString == "{}") {
+                    tagString = "";
+                }
+                lineMap[metric.name+tagString] = tagsArg;
+                return;
+            }
+
+            var tagAndValues = tagsAndValues[index];
+            for (var v=0; v<tagAndValues.tagvs.length; v++) {
+                var tagv = tagAndValues.tagvs[v];
+                tagMap[tagAndValues.tagk] = tagv;
+                iterateTagSets(metric, tagsAndValues, tagMap, index+1, lineMap);
+                tagMap[tagAndValues.tagk] = null;
+            }
+        }
+
+        var httpCallback = function(json, tagsToFill, metric, tagsAndValues, lineMap) {
+            // fill in blanks
+            if (tagsToFill.length != 0) {
+                for (var t=0; t<tagsToFill.length; t++) {
+                    var tagk = tagsToFill[t];
+                    tagsAndValues.push({tagk: tagk, tagvs: json[tagk]});
+                }
+            }
+
+            // now we can safely construct the array
+            iterateTagSets(metric, tagsAndValues, {}, 0, lineMap);
+        }
+
+        if (tagsToGetFromServer.length > 0) {
+            $http.get("/otis/tags?metric="+metric.name)
+                .success(function (json) {
+                    var lineMap = {};
+                    httpCallback(json, tagsToGetFromServer, metric, tagsAndValues, lineMap);
+                    for (var key in lineMap) {
+                        if (lineMap.hasOwnProperty(key)) {
+                            fn(lineMap);
+                            return;
+                        }
+                    }
+                    // no tag sets - shouldn't get here
+                    var ret = {};
+                    ret[metric.name] = {};
+                    fn(ret);
+                })
+                .error(function (arg) {
+                    console.log("error in http call: "+arg);
+                    // default response
+                    var ret = {};
+                    ret[metric.name] = {};
+                    fn(ret);
+                });
+        }
+        else {
+            var lineMap = {};
+            iterateTagSets(metric, tagsAndValues, {}, 0, lineMap);
+            fn(lineMap);
+        }
+    }
+
     // pre-defined in unit tests
     if (!$scope.renderers) {
         $scope.renderers = {};
@@ -95,22 +215,7 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
                 url += options.downsampleTo + "-" + options.downsampleBy + ":";
             }
             if (options.rate) {
-                url += "rate";
-                if (options.rateCounter) {
-                    url += "{counter";
-                    var rctrSep = ",";
-                    if (options.rateCounterMax != null && options.rateCounterMax != "") {
-                        url += "," + options.rateCounterMax;
-                    }
-                    else {
-                        rctrSep = ",,";
-                    }
-                    if (options.rateCounterReset != null && options.rateCounterReset != "") {
-                        url += rctrSep + options.rateCounterReset;
-                    }
-                    url += "}";
-                }
-                url += ":";
+                url += $scope.tsdb_rateString(options) + ":";
             }
             else if (options.rateCounter) {
                 // todo: warnings should be appended..
@@ -202,7 +307,96 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', function GraphCtrl($scope
         $scope.renderedContent[graph.id] = { src: url, width: width, height: height };
     };
     $scope.renderers["cubism"] = function(global, graph, metrics) {
+        var divSelector = "#cubismDiv_"+graph.id;
 
+        var s = 1000;
+        var m = s * 60;
+        var h = m * 60;
+        var d = h * 24;
+        var w = d * 7;
+
+        var steps = [s,10*s,20*s,30*s,m,1*m,2*m,5*m,10*m,15*m,20*m,30*m,h,2*h,3*h,4*h,6*h,12*h,d,2*d,w];
+        for (var i=2; i<=52; i++) {
+            steps.push(i*w);
+        }
+
+
+        // todo: clean out old stuff
+        // d3.select(divSelector)
+
+//        var diff = 800*86400000;
+//        console.log("diff="+diff);
+
+//    console.log("width="+(86400000*800));
+
+        // cubism plots a pixel per step, so we need to calculate step size (we ignore downsampling time measure)
+        var width = Math.floor(graph.graphWidth);
+        // todo: calc actual time diff
+        var diff = 0;
+        var timeWidth = 1000 * 60 * 60 * 2; // 2h
+        var rawStepSize = timeWidth / width;
+        console.log("raw step = "+rawStepSize);
+        var stepSize = steps[0];
+        for (var i=0; i<steps.length-1; i++) {
+            console.log("considering "+steps[i]+" < " + rawStepSize + " <= "+steps[i+1]);
+            if (steps[i] < rawStepSize && rawStepSize <= steps[i+1]) {
+                stepSize = steps[i+1];
+                break;
+            }
+        }
+
+        // now recalculate width so we get the time range requested
+        width = Math.ceil(timeWidth / stepSize);
+
+        console.log("step = "+stepSize);
+
+
+        var context = cubism.context()
+            .serverDelay(diff)
+            .step(stepSize)
+            .size(width)
+            .stop();
+        var tsdb = context.opentsdb("http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort);
+
+        d3.select(divSelector).selectAll(".axis")
+            .data(["top", "bottom"])
+            .enter().append("div")
+            .attr("class", function(d) { return d + " axis"; })
+            .each(function(d) { d3.select(this).call(context.axis().ticks(12).orient(d)); });
+
+        d3.select(divSelector).append("div")
+            .attr("class", "rule")
+            .call(context.rule());
+
+        context.on("focus", function(i) {
+//        d3.selectAll(".value").style("right", i == null ? null : context.size() - i + "px");
+            d3.selectAll(".value").style("right", "10px");
+        });
+
+        var cMetrics = [];
+
+        function buildMetrics(metrics, index, cMetrics) {
+            if (index >= metrics.length) {
+                d3.select(divSelector).selectAll(".horizon")
+                    .data(cMetrics)
+                    .enter().insert("div", ".bottom")
+                    .attr("class", "horizon")
+                    .call(context.horizon());
+                return;
+            }
+
+            $scope.tsdb_distinctGraphLines(metrics[index], function(graphLines) {
+                for (var lineKey in graphLines) {
+                    if (graphLines.hasOwnProperty(lineKey)) {
+                        cMetrics.push(tsdb.metric(metrics[index].name, $scope.tsdb_rateString(metrics[index].graphOptions), graphLines[lineKey], lineKey));
+                    }
+                }
+
+                buildMetrics(metrics, index+1, cMetrics);
+            });
+        }
+
+        buildMetrics(metrics, 0, cMetrics);
     };
 
     $rootScope.renderGraphs = function() {
