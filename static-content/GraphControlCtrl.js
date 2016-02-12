@@ -136,7 +136,7 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
             id: id,
             title: "Graph "+($scope.graphs.length+1),
             showTitle: true,
-            type: $rootScope.graphTypes.length == 1 ? $rootScope.graphTypes[0] : null,
+            type: $rootScope.graphTypes.length == 1 ? $rootScope.graphTypes[0] : $rootScope.config.defaultGraphType,
             // gnuplot defaults
             gnuplot: {
                 yAxisRange: "[0:]",
