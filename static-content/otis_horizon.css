@@ -41,6 +41,7 @@
     background-image: -webkit-linear-gradient(bottom, #fff 0%, rgba(255,255,255,0) 100%);
     background-image: -ms-linear-gradient(bottom, #fff 0%, rgba(255,255,255,0) 100%);
     padding: 0 0 0 0;
+    position: relative;
 }
 
 .horizon {

@@ -306,8 +306,8 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCt
 
         $scope.renderedContent[graph.id] = { src: url, width: width, height: height };
     };
-    $scope.renderers["cubism"] = function(global, graph, metrics) {
-        var divSelector = "#cubismDiv_"+graph.id;
+    $scope.renderers["horizon"] = function(global, graph, metrics) {
+        var divSelector = "#horizonDiv_"+graph.id;
 
         var s = 1000;
         var m = s * 60;
@@ -352,6 +352,22 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCt
         console.log("step = "+stepSize);
 
 
+        // remove old horizon charts
+        d3.select(divSelector)
+            .selectAll(".horizon")
+            .remove();
+        // remove everything else
+        d3.select(divSelector)
+            .selectAll(".axis")
+            .remove();
+        d3.select(divSelector)
+            .selectAll(".rule")
+            .remove();
+        d3.select(divSelector)
+            .selectAll(".value")
+            .remove();
+
+
         var context = cubism.context()
             .serverDelay(diff)
             .step(stepSize)
@@ -369,8 +385,6 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCt
             .attr("class", "rule")
             .call(context.rule());
 
-        // remove old horizon charts
-        d3.select(divSelector).selectAll(".horizon").remove();
 
         context.on("focus", function(i) {
 //        d3.selectAll(".value").style("right", i == null ? null : context.size() - i + "px");
@@ -381,7 +395,9 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCt
 
         function buildMetrics(metrics, index, cMetrics) {
             if (index >= metrics.length) {
-                var perLineHeight = (height - 60)/cMetrics.length;
+
+                var perLineHeight = ((height - 62)/cMetrics.length)-2;
+                perLineHeight = Math.min(Math.max(perLineHeight,60),25);
                 d3.select(divSelector).selectAll(".horizon")
                     .data(cMetrics)
                     .enter().insert("div", ".bottom")

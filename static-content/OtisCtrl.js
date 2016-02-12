@@ -64,7 +64,7 @@ otis.directive('otisEnter', function() {
     }
 
     $rootScope.config = null;
-    $rootScope.graphTypes = [ "gnuplot", "cubism" ];
+    $rootScope.graphTypes = [ "gnuplot", "horizon" ];
 
 
     $rootScope.updateConfig = function() {

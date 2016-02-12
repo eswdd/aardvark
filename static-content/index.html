@@ -29,7 +29,7 @@
     <script type="text/javascript" src="MetricControlCtrl.js"></script>
     <!-- App CSS -->
     <link rel="stylesheet" href="otis.css">
-    <link rel="stylesheet" href="otis_cubism.css">
+    <link rel="stylesheet" href="otis_horizon.css">
 </head>
 
 <body>
@@ -241,12 +241,12 @@
                                             </tab>
                                         </tabset>
                                     </div>
+                                    <div ng-show="graph.type == 'horizon'">
+                                        No specific horizon controls
+                                    </div>
                                     <!--div ng-show="graph.type == 'dygraph'">
                                         dygraph controls<br/>
                                         <input type="checkbox" ng-model="graph.dygraph.highlightLines"/> Highlight lines
-                                    </div>
-                                    <div ng-show="graph.type == 'cubism'">
-                                        cubism controls
                                     </div-->
 
                                 </accordion-group>
@@ -280,7 +280,7 @@
                                 <!--<pre>{{renderedContent[graph.id]}}</pre>-->
                             <!--</div>-->
                             <img id="gnuplotImg_{{graph.id}}" ng-src="{{renderedContent[graph.id].src}}" ng-show="graph.type == 'gnuplot'" width="{{renderedContent[graph.id].width}}" height="{{renderedContent[graph.id].height}}" />
-                            <div id="cubismDiv_{{graph.id}}" ng-show="graph.type == 'cubism'">
+                            <div id="horizonDiv_{{graph.id}}" ng-show="graph.type == 'horizon'">
                             </div>
                         </div>
                     </div>
