@@ -108,7 +108,7 @@ otis.use(function timeLog(req, res, next) {
 })
 // define the
 otis.get('/tags', function(req, res) {
-    var requestJson = {"metric": req.query["metric"]};
+    var requestJson = {"metric": req.query["metric"], "limit": 100000, "useMeta": true}; // todo: useMeta should be based on tsdb config
     var postData = JSON.stringify(requestJson);
     var options = {
         hostname: config.tsdbHost,
