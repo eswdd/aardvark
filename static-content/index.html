@@ -242,7 +242,14 @@
                                         </tabset>
                                     </div>
                                     <div ng-show="graph.type == 'horizon'">
-                                        No specific horizon controls
+                                        <div>
+                                            <label for="interpolateGaps">Interpolate gaps?</label>
+                                            <input type="checkbox" id="interpolateGaps" ng-model="graph.horizon.interpolateGaps" otis-enter="renderGraphs()" />
+                                        </div>
+                                        <div>
+                                            <label for="interpolateGaps">Squash -ve y?</label>
+                                            <input type="checkbox" id="squashNegative" ng-model="graph.horizon.squashNegative" otis-enter="renderGraphs()" />
+                                        </div>
                                     </div>
                                     <!--div ng-show="graph.type == 'dygraph'">
                                         dygraph controls<br/>

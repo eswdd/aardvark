@@ -403,6 +403,9 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCt
         var cMetrics = [];
 
         function buildMetrics(metrics, index, cMetrics) {
+            var interpolate = graph.horizon && graph.horizon.interpolateGaps;
+            var squash = graph.horizon && graph.horizon.squashNegatives;
+
             if (index >= metrics.length) {
 
                 var perLineHeight = ((height - 62)/cMetrics.length)-2;
@@ -418,7 +421,7 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCt
             $scope.tsdb_distinctGraphLines(metrics[index], function(graphLines) {
                 for (var lineKey in graphLines) {
                     if (graphLines.hasOwnProperty(lineKey)) {
-                        cMetrics.push(tsdb.metric(metrics[index].name, metrics[index].graphOptions.rate ? $scope.tsdb_rateString(metrics[index].graphOptions) : "", graphLines[lineKey], lineKey));
+                        cMetrics.push(tsdb.metric(metrics[index].name, metrics[index].graphOptions.rate ? $scope.tsdb_rateString(metrics[index].graphOptions) : "", graphLines[lineKey], lineKey).interpolate(interpolate).squashNegatives(squash));
                     }
                 }
 
