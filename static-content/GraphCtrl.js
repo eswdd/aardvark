@@ -375,11 +375,20 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCt
             .stop();
         var tsdb = context.opentsdb("http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort);
 
+
+        var cubism_axisFormatSeconds = d3.time.format("%H:%M:%S"),
+            cubism_axisFormatMinutes = d3.time.format("%H:%M"),
+            cubism_axisFormatDays = d3.time.format("%B %d");
+
+        var axisFormat = context.step() < 6e4 ? cubism_axisFormatSeconds
+            : context.step() < 864e5 ? cubism_axisFormatMinutes
+            : cubism_axisFormatDays;
+
         d3.select(divSelector).selectAll(".axis")
             .data(["top", "bottom"])
             .enter().append("div")
             .attr("class", function(d) { return d + " axis"; })
-            .each(function(d) { d3.select(this).call(context.axis().ticks(12).orient(d)); });
+            .each(function(d) { d3.select(this).call(context.axis().focusFormat(axisFormat).ticks(12).orient(d)); });
 
         d3.select(divSelector).append("div")
             .attr("class", "rule")
@@ -409,7 +418,7 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCt
             $scope.tsdb_distinctGraphLines(metrics[index], function(graphLines) {
                 for (var lineKey in graphLines) {
                     if (graphLines.hasOwnProperty(lineKey)) {
-                        cMetrics.push(tsdb.metric(metrics[index].name, $scope.tsdb_rateString(metrics[index].graphOptions), graphLines[lineKey], lineKey));
+                        cMetrics.push(tsdb.metric(metrics[index].name, metrics[index].graphOptions.rate ? $scope.tsdb_rateString(metrics[index].graphOptions) : "", graphLines[lineKey], lineKey));
                     }
                 }
 

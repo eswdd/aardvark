@@ -24,7 +24,7 @@
     "bootstrap": "3.3.0",
     "angular-mass-autocomplete": "~0.2.2",
     "d3": "~3.5.12",
-    "cubism": "https://github.com/eswdd/cubism.git#~1.0.0"
+    "cubism": "https://github.com/eswdd/cubism.git#~1.7.0"
   },
   "resolutions": {
     "angular": "1.2.29"
