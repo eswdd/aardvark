@@ -125,6 +125,55 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCt
             fn(lineMap);
         }
     }
+    $scope.cubism_parser = function(json, start, step, stop, interpolate, squashNegatives) {
+        // no data
+        if (json.length == 0) {
+            return [[]];
+        }
+        return json.map(function (ts) {
+            if (ts.dps.length == 0) {
+                return [];
+            }
+            var firstTime = ts.dps[0][0];
+            var ret = [];
+            for (var v=start; v<firstTime; v+=step) {
+                ret.push(null);
+            }
+            var lastValue;
+            var lastValueTime;
+            var nextIndex = 0;
+            var startFrom = Math.max(firstTime, start);
+            for (var v=startFrom; nextIndex<ts.dps.length && v<=stop; v+=step) {
+                while (nextIndex < ts.dps.length && ts.dps[nextIndex][0] < v) {
+                    nextIndex++;
+                }
+                if (ts.dps[nextIndex][0] == v) {
+                    lastValue = ts.dps[nextIndex][1];
+                    lastValueTime = ts.dps[nextIndex][0];
+                    ret.push(squashNegatives && lastValue < 0 ? 0 : lastValue);
+                    nextIndex++;
+                    if (nextIndex>=ts.dps.length) {
+                        break;
+                    }
+                }
+                else if (ts.dps[nextIndex][0] > v) {
+                    // interpolate
+                    if (interpolate) {
+                        var nextValue = ts.dps[nextIndex][1];
+                        var nextTime = ts.dps[nextIndex][0];
+                        var timeDiffLastToNext = nextTime - lastValueTime;
+                        var timeDiffLastToNow = v - lastValueTime;
+                        var value = lastValue + ((nextValue - lastValue) * (timeDiffLastToNow / timeDiffLastToNext));
+                        ret.push(squashNegatives && value < 0 ? 0 : value);
+                    }
+                    else {
+                        ret.push(null);
+                    }
+                }
+            }
+            return ret;
+        });
+    };
 
     // pre-defined in unit tests
     if (!$scope.renderers) {
@@ -421,7 +470,12 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCt
             $scope.tsdb_distinctGraphLines(metrics[index], function(graphLines) {
                 for (var lineKey in graphLines) {
                     if (graphLines.hasOwnProperty(lineKey)) {
-                        cMetrics.push(tsdb.metric(metrics[index].name, metrics[index].graphOptions.rate ? $scope.tsdb_rateString(metrics[index].graphOptions) : "", graphLines[lineKey], lineKey).interpolate(interpolate).squashNegatives(squash));
+                        var rateString = metrics[index].graphOptions.rate ? $scope.tsdb_rateString(metrics[index].graphOptions) : "";
+                        var m = tsdb.metric(metrics[index].name, rateString, graphLines[lineKey], lineKey)
+                                    .interpolate(interpolate)
+                                    .squashNegatives(squash)
+                                    .parser($scope.cubism_parser);
+                        cMetrics.push(m);
                     }
                 }
 
