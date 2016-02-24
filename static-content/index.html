@@ -295,30 +295,28 @@
             </div>
             <div ui-layout-container class="metric-control-panel" size="250px" ng-controller="MetricControlCtrl">
                 <div ui-layout="{flow : 'row'}" >
-                    <div ui-layout-container class="metric-control-panel" size="50%">
-                        <div style="border: 1px solid black; height: 100%">
-                            <div>
-                                <input type="button" value="+" ng-click="expandAll()" ng-show="expandAllVisible()">
-                                <input type="button" value="-" ng-click="collapseAll()">
-                                <input type="button" value="F" ng-click="showHideFilterInput()">
-                            </div>
-                            <div ng-show="showFilterInput">
-                                <input type="text" ng-model="filter">
-                                <input type="button" value="C" ng-click="clearFilterInput()">
-                            </div>
+                    <div ui-layout-container class="metric-control-panel" size="50%" style="border: 1px solid black; height: 100%">
+                        <div>
+                            <input type="button" value="+" ng-click="expandAll()" ng-show="expandAllVisible()">
+                            <input type="button" value="-" ng-click="collapseAll()">
+                            <input type="button" value="F" ng-click="showHideFilterInput()">
+                        </div>
+                        <div ng-show="showFilterInput">
+                            <input type="text" ng-model="filter">
+                            <input type="button" value="C" ng-click="clearFilterInput()">
+                        </div>
 
-                            <div style="overflow: auto">
-                                <div treecontrol
-                                     class="tree-light"
-                                     tree-model="dataForTheTree"
-                                     options="treeOptions"
-                                     on-selection="nodeSelectedForAddition(node,selected)"
-                                     selected-node="selectedTreeNode"
-                                     filter-expression="filter"
-                                     expanded-nodes="expandedNodes"
-                                        >
-                                    <span style="text-decoration: {{nodeDecoration(node)}}">{{node.name}}</span>
-                                </div>
+                        <div style="overflow: auto">
+                            <div treecontrol
+                                 class="tree-light"
+                                 tree-model="dataForTheTree"
+                                 options="treeOptions"
+                                 on-selection="nodeSelectedForAddition(node,selected)"
+                                 selected-node="selectedTreeNode"
+                                 filter-expression="filter"
+                                 expanded-nodes="expandedNodes"
+                                    >
+                                <span style="text-decoration: {{nodeDecoration(node)}}">{{node.name}}</span>
                             </div>
                         </div>
                     </div>
