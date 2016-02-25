@@ -16,10 +16,14 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
     $scope.showEdit={};
 
     // global settings
-    $scope.fromTimestamp = "2h-ago";
+    $scope.relativePeriod = "2h";
+    $scope.absoluteTimeSpecification = false;
     $scope.autoReload = false;
     $scope.autoReloadPeriod = "15";
-    $scope.toTimestamp = "";
+    $scope.fromDate = "";
+    $scope.fromTime = "";
+    $scope.toDate = "";
+    $scope.toTime = "";
 
     $scope.autoGraphHeight = true;
     $scope.minGraphHeight = 0;
@@ -49,7 +53,9 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
             $scope.renderGraphs();
         }
         else {
-            $scope.toTimestamp = new Date().toString();
+            // todo: proper formatting
+            $scope.toDate = new Date().toString();
+            $scope.toTime = new Date().toString();
         }
     }
 

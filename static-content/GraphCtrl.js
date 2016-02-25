@@ -25,6 +25,52 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCt
         }
         return ret;
     }
+    $scope.tsdb_fromTimestampAsTsdbString = function(global) {
+        if (global.absoluteTimeSpecification) {
+            return global.fromDate+" "+global.fromTime;
+        }
+        else {
+            if (global.relativePeriod == null || global.relativePeriod == "") {
+                return "";
+            }
+            return global.relativePeriod+"-ago";
+        }
+    }
+    $scope.tsdb_toTimestampAsTsdbString = function(global) {
+        if (global.absoluteTimeSpecification) {
+            return global.toDate+" "+global.toTime;
+        }
+        else {
+            return null;
+        }
+    }
+    $scope.tsdb_fromTimestampAsDate = function(global, datum) {
+        if (global.absoluteTimeSpecification) {
+            return moment(global.fromDate+" "+global.fromTime,
+                "YYYY/MM/DD HH:mm:ss").toDate();
+        }
+        else {
+            if (global.relativePeriod == null || global.relativePeriod == "") {
+                return new Date();
+            }
+            var numberComponent = global.relativePeriod.match(/^[0-9]+/);
+            var stringComponent = global.relativePeriod.match(/[a-zA-Z]+$/);
+            if (numberComponent.length == 1 && stringComponent.length == 1) {
+                var now = datum ? moment(datum) : moment();
+                return now.subtract(numberComponent[0], stringComponent[0]).toDate();
+            }
+            return new Date();
+        }
+    }
+    $scope.tsdb_toTimestampAsDate = function(global, datum) {
+        if (global.absoluteTimeSpecification) {
+            return moment(global.toDate+" "+global.toTime,
+                "YYYY/MM/DD HH:mm:ss").toDate();
+        }
+        else {
+            return datum ? datum : new Date();
+        }
+    }
     $scope.tsdb_distinctGraphLines = function(metric, fn) {
         // returns a map of string to metric with tag set which represents a single line (fully defined tags only, tag omissions allowed to aggregate)
         // string will be the metric name and interesting tags only (ie won't include aggregate tags)
@@ -206,8 +252,9 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCt
     $scope.renderers["gnuplot"] = function(global, graph, metrics) {
         $scope.renderedContent[graph.id] = { src: "", width: 0, height: 0 };
 
+        var fromTimestamp = $scope.tsdb_fromTimestampAsTsdbString(global);
         // validation
-        if (global.fromTimestamp == null || global.fromTimestamp == "") {
+        if (fromTimestamp == null || fromTimestamp == "") {
             $scope.renderErrors[graph.id] = "No start date specified";
             return;
         }
@@ -233,7 +280,7 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCt
         // url construction
         var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/q";
 
-        url += "?start=" + global.fromTimestamp;
+        url += "?start=" + fromTimestamp;
         if (global.autoReload) {
             // todo: do we need to do a conversion to utc?
             var now = new Date();
@@ -246,8 +293,9 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCt
             url += "&end="+y+"/"+(mo<10?("0"+mo):mo)+"/"+(d<10?("0"+d):d)+"-"+(h<10?("0"+h):h)+":"+(mi<10?("0"+mi):mi)+":"+(s<10?("0"+s):s);
         }
         else {
-            if (global.toTimestamp != "" && global.toTimestamp != null) {
-                url += "&end=" + global.toTimestamp;
+            var toString = $scope.tsdb_toTimestampAsTsdbString(global);
+            if (toString != null) {
+                url += "&end=" + toString;
             }
             else {
                 url += "&ignore="+(++$scope.imageRenderCount);
@@ -381,14 +429,15 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCt
         // cubism plots a pixel per step, so we need to calculate step size (we ignore downsampling time measure)
         var width = Math.floor(graph.graphWidth);
         var height = Math.floor(graph.graphHeight);
-        // todo: calc actual time diff
-        var diff = 0;
-        var timeWidth = 1000 * 60 * 60 * 2; // 2h
+        var start = $scope.tsdb_fromTimestampAsDate(global);
+        var stop = $scope.tsdb_toTimestampAsDate(global);
+        var diff = new Date() - start.getTime();
+        var timeWidth = stop.getTime() - start.getTime();
         var rawStepSize = timeWidth / width;
-        console.log("raw step = "+rawStepSize);
+        //console.log("raw step = "+rawStepSize);
         var stepSize = steps[0];
         for (var i=0; i<steps.length-1; i++) {
-            console.log("considering "+steps[i]+" < " + rawStepSize + " <= "+steps[i+1]);
+            //console.log("considering "+steps[i]+" < " + rawStepSize + " <= "+steps[i+1]);
             if (steps[i] < rawStepSize && rawStepSize <= steps[i+1]) {
                 stepSize = steps[i+1];
                 break;
@@ -398,7 +447,7 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCt
         // now recalculate width so we get the time range requested
         width = Math.ceil(timeWidth / stepSize);
 
-        console.log("step = "+stepSize);
+        //console.log("step = "+stepSize);
 
 
         // remove old horizon charts

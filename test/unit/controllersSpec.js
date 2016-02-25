@@ -583,7 +583,7 @@ describe('Otis controllers', function () {
             scope.renderErrors = {};
             scope.renderWarnings = {};
 
-            var global = { fromTimestamp: "", toTimestamp: "", autoReload: false };
+            var global = { relativePeriod: "", autoReload: false };
             var graph = { id: "abc", graphWidth: 0, graphHeight: 0 };
             var metrics = [ { id: "123", graphOptions: {} } ];
 
@@ -599,7 +599,7 @@ describe('Otis controllers', function () {
             scope.renderErrors = {};
             scope.renderWarnings = {};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ ];
 
@@ -615,7 +615,7 @@ describe('Otis controllers', function () {
             scope.renderErrors = {};
             scope.renderWarnings = {};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, graphOptions: { axis: "fred" }};
             var metrics = [ { id: "123", graphOptions: {} } ];
 
@@ -632,30 +632,13 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
             scope.renderers.gnuplot(global, graph, metrics);
 
             expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:metric1&o=axis+x1y1&png&wxh=0x0",width:0,height:0}});
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
-        });
-
-        it('should render with gnuplot with a relative start and end time', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
-
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "1h-ago", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
-
-            scope.renderers.gnuplot(global, graph, metrics);
-
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1h-ago&m=sum:metric1&o=axis+x1y1&png&wxh=0x0",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -668,7 +651,7 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", downsample: false, rate: true } } ];
 
@@ -685,7 +668,7 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", downsample: true, downsampleBy: "avg", downsampleTo: "1m" } } ];
 
@@ -702,7 +685,7 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", downsample: true, downsampleBy: "avg", downsampleTo: "1m", rate: true } } ];
 
@@ -719,7 +702,7 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false, rateCounter: true } } ];
 
@@ -736,7 +719,7 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: true, rateCounter: true } } ];
 
@@ -753,7 +736,7 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: true, rateCounter: true, rateCounterMax: "123" } } ];
 
@@ -770,7 +753,7 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: true, rateCounter: true, rateCounterMax: "", rateCounterReset: "456" } } ];
 
@@ -787,7 +770,7 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: true, rateCounter: true, rateCounterMax: "123", rateCounterReset: "456" } } ];
 
@@ -804,7 +787,7 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ { id: "123", name: "metric1", tags: [ { name: "tag1", value: "value1" } ], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ];
 
@@ -821,7 +804,7 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ { id: "123", name: "metric1", tags: [ { name: "tag1", value: "value1|value2" } ], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ];
 
@@ -838,7 +821,7 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ { id: "123", name: "metric1", tags: [ { name: "tag1", value: "*" } ], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ];
 
@@ -855,7 +838,7 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ { id: "123", name: "metric1", tags: [ { name: "tag1", value: "" } ], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ];
 
@@ -872,13 +855,13 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "1s-ago", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisLabel: "Label 1", y2AxisLabel: "Label 2" }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&ylabel=Label+1&png&wxh=0x0",width:0,height:0}});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&ylabel=Label+1&png&wxh=0x0",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -889,13 +872,13 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "1s-ago", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisLabel: "Label 1", y2AxisLabel: "Label 2" }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y2&y2label=Label+2&png&wxh=0x0",width:0,height:0}});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y2&y2label=Label+2&png&wxh=0x0",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -906,13 +889,13 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "1s-ago", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisFormat: "Format 1", y2AxisFormat: "Format 2" }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&yformat=Format+1&png&wxh=0x0",width:0,height:0}});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&yformat=Format+1&png&wxh=0x0",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -923,13 +906,13 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "1s-ago", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisFormat: "Format 1", y2AxisFormat: "Format 2" }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y2&y2format=Format+2&png&wxh=0x0",width:0,height:0}});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y2&y2format=Format+2&png&wxh=0x0",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -940,13 +923,13 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "1s-ago", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisRange: "[0:1]", y2AxisRange: "[0:2]" }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&yrange=[0:1]&png&wxh=0x0",width:0,height:0}});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&yrange=[0:1]&png&wxh=0x0",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -957,13 +940,13 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "1s-ago", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisRange: "[0:1]", y2AxisRange: "[0:2]" }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y2&y2range=[0:2]&png&wxh=0x0",width:0,height:0}});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y2&y2range=[0:2]&png&wxh=0x0",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -974,13 +957,13 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "1s-ago", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisLogScale: true, y2AxisLogScale: true }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&ylog&png&wxh=0x0",width:0,height:0}});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&ylog&png&wxh=0x0",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -991,13 +974,13 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "1s-ago", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisLogScale: true, y2AxisLogScale: true }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y2&y2log&png&wxh=0x0",width:0,height:0}});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y2&y2log&png&wxh=0x0",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -1008,13 +991,13 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "1s-ago", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisLogScale: false, y2AxisLogScale: true }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&png&wxh=0x0",width:0,height:0}});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&png&wxh=0x0",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -1025,13 +1008,13 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "1s-ago", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisLogScale: true, y2AxisLogScale: false }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y2&png&wxh=0x0",width:0,height:0}});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y2&png&wxh=0x0",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -1042,13 +1025,13 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "1s-ago", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { lineSmoothing: true }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&smooth=csplines&png&wxh=0x0",width:0,height:0}});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&smooth=csplines&png&wxh=0x0",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -1059,13 +1042,13 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "1s-ago", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { showKey: false }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&nokey&png&wxh=0x0",width:0,height:0}});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&nokey&png&wxh=0x0",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -1076,13 +1059,13 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "1s-ago", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { showKey: true, keyLocation: "top left", keyAlignment: "vertical" }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&key=top+left&png&wxh=0x0",width:0,height:0}});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&key=top+left&png&wxh=0x0",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -1093,13 +1076,13 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "1s-ago", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { showKey: true, keyLocation: "", keyAlignment: "vertical" }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&key=top+left&png&wxh=0x0",width:0,height:0}});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&key=top+left&png&wxh=0x0",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({abc: "Invalid key location specified '', defaulting to top left"});
         });
@@ -1110,13 +1093,13 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "1s-ago", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { showKey: true, keyLocation: "bottom right", keyAlignment: "vertical" }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&key=bottom+right&png&wxh=0x0",width:0,height:0}});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&key=bottom+right&png&wxh=0x0",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -1127,13 +1110,13 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "1s-ago", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { showKey: true, keyLocation: "top left", keyAlignment: "horizontal" }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&key=top+left+horiz&png&wxh=0x0",width:0,height:0}});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&key=top+left+horiz&png&wxh=0x0",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -1144,13 +1127,13 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "1s-ago", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { showKey: true, keyLocation: "top left", keyAlignment: "vertical", keyBox: true }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&key=top+left+box&png&wxh=0x0",width:0,height:0}});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&key=top+left+box&png&wxh=0x0",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -1161,15 +1144,100 @@ describe('Otis controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
-            var global = { fromTimestamp: "1d-ago", toTimestamp: "1s-ago", autoReload: false };
+            var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { showKey: true, keyLocation: "top left", keyAlignment: "horizontal", keyBox: true }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&end=1s-ago&m=sum:metric1&o=axis+x1y1&key=top+left+horiz+box&png&wxh=0x0",width:0,height:0}});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&key=top+left+horiz+box&png&wxh=0x0",width:0,height:0}});
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
+        });
+
+        // ---------- tsdb helper functions ----------
+
+        it('should return an empty tsdb string for the from field when time is relative and no time specified', function() {
+            var result = scope.tsdb_fromTimestampAsTsdbString({
+                "absoluteTimeSpecification": false,
+                "relativePeriod": ""
+            });
+            expect(result).toEqualData("");
+        });
+
+        it('should return a valid tsdb string for the from field when time is absolute', function() {
+            var result = scope.tsdb_fromTimestampAsTsdbString({
+                "absoluteTimeSpecification": true,
+                "fromDate": "2016/02/24",
+                "fromTime": "12:23:22"
+            });
+            expect(result).toEqualData("2016/02/24 12:23:22");
+        });
+
+        it('should return a valid tsdb string for the from field when time is relative', function() {
+            var result = scope.tsdb_fromTimestampAsTsdbString({
+                "absoluteTimeSpecification": false,
+                "relativePeriod": "2h"
+            });
+            expect(result).toEqualData("2h-ago");
+        });
+
+        it('should return a valid tsdb string for the to field when time is absolute', function() {
+            var result = scope.tsdb_toTimestampAsTsdbString({
+                "absoluteTimeSpecification": true,
+                "toDate": "2016/02/24",
+                "toTime": "12:23:22"
+            });
+            expect(result).toEqualData("2016/02/24 12:23:22");
+        });
+
+        it('should return a valid tsdb string for the to field when time is relative', function() {
+            var result = scope.tsdb_toTimestampAsTsdbString({
+                "absoluteTimeSpecification": false,
+                "relativePeriod": "2h"
+            });
+            expect(result).toEqualData(null);
+        });
+        it('should return a valid date object for the from field when time is absolute', function() {
+            var datum = new Date(2016,1,24,12,23,22);
+
+            var result = scope.tsdb_fromTimestampAsDate({
+                "absoluteTimeSpecification": true,
+                "fromDate": "2016/02/24",
+                "fromTime": "12:23:22"
+            }, datum);
+            expect(result).toEqualData(datum);
+        });
+
+        it('should return a valid date object for the from field when time is relative', function() {
+            var datum = new Date(2016,1,24,12,23,22);
+
+            var result = scope.tsdb_fromTimestampAsDate({
+                "absoluteTimeSpecification": false,
+                "relativePeriod": "2h"
+            }, datum);
+            expect(result).toEqualData(new Date(datum.getTime()-7200000));
+        });
+
+        it('should return a valid date object for the to field when time is absolute', function() {
+            var datum = new Date(2016,1,24,12,23,22);
+
+            var result = scope.tsdb_toTimestampAsDate({
+                "absoluteTimeSpecification": true,
+                "toDate": "2016/02/24",
+                "toTime": "12:23:22"
+            }, datum);
+            expect(result).toEqualData(datum);
+        });
+
+        it('should return a valid date object for the to field when time is relative', function() {
+            var datum = new Date(116,1,24,12,23,22);
+
+            var result = scope.tsdb_toTimestampAsDate({
+                "absoluteTimeSpecification": false,
+                "relativePeriod": "2h"
+            }, datum);
+            expect(result).toEqualData(datum);
         });
 
         // ---------- rendering helper functions -----

@@ -11,6 +11,7 @@ module.exports = function (config) {
             'bower_components/angular-tree-control/angular-tree-control.js',
             'bower_components/angular-sanitize/angular-sanitize.js',
             'bower_components/angular-mass-autocomplete/massautocomplete.js',
+            'bower_components/moment/moment.js',
             'static-content/otis-client.js',
             'static-content/OtisCtrl.js',
             'static-content/GraphControlCtrl.js',

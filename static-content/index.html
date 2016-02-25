@@ -13,6 +13,7 @@
     <script type="application/javascript" src="../bower_components/angular-tree-control/angular-tree-control.js"></script>
     <script type="application/javascript" src="../bower_components/angular-sanitize/angular-sanitize.js"></script>
     <script type="application/javascript" src="../bower_components/angular-mass-autocomplete/massautocomplete.js"></script>
+    <script type="application/javascript" src="../bower_components/moment/moment.js"></script>
     <script type="application/javascript" src="../bower_components/d3/d3.js"></script>
     <script type="application/javascript" src="../bower_components/cubism/cubism.v1.js"></script>
     <!-- Angular CSS - keep order in here same as deps in otis-client.js -->
@@ -49,13 +50,8 @@
                             <!-- todo: m1: calendar controls incl date/time -->
                             <div style="border: solid 1px black">
                                 <div>
-                                    <label for="fromTimestampId">From</label><br/>
-                                    <input type="text" size="10" id="fromTimestampId" ng-model="fromTimestamp" ng-required otis-enter="renderGraphs()" />
-                                    <button>Cal</button>
-                                </div>
-                                <div>
-                                    <label for="toTimestampId">To</label>
-                                    <button ng-click="now()">Now</button>
+                                    <input type="checkbox" id="timeIsAbsoluteId" ng-model="absoluteTimeSpecification" otis-enter="renderGraphs()">
+                                    <label for="timeIsAbsoluteId">Absolute?</label>
                                     <input type="checkbox" id="autoReloadId" ng-model="autoReload" otis-enter="renderGraphs()">
                                     <label for="autoReloadId">Auto reload</label>
                                 </div>
@@ -63,9 +59,22 @@
                                     <input type="text" size="2" id="autoReloadPeriodId" ng-model="autoReloadPeriod" otis-enter="renderGraphs()" />
                                     <label for="autoReloadPeriodId">seconds</label>
                                 </div>
-                                <div ng-show="!autoReload">
-                                    <input type="text" size="10" id="toTimestampId" ng-model="toTimestamp" otis-enter="renderGraphs()" />
-                                    <button ng-disabled="autoReload">Cal</button>
+                                <div ng-show="!absoluteTimeSpecification">
+                                    <label for="relativePeriodId">Previous</label><br/>
+                                    <input type="text" size="10" id="relativePeriodId" ng-model="relativePeriod" ng-required otis-enter="renderGraphs()" />
+                                </div>
+                                <div ng-show="absoluteTimeSpecification">
+                                    <label for="fromDateId">From</label><br/>
+                                    <input type="date" size="10" id="fromDateId" ng-model="fromDate" ng-required otis-enter="renderGraphs()" />
+                                    <input type="time" size="8" id="fromTimeId" ng-model="fromTime" ng-required otis-enter="renderGraphs()" />
+                                </div>
+                                <div ng-show="!autoReload && absoluteTimeSpecification">
+                                    <label for="toDateId">To</label>
+                                    <button ng-click="now()">Now</button>
+                                </div>
+                                <div ng-show="!autoReload && absoluteTimeSpecification">
+                                    <input type="date" size="10" id="toDateId" ng-model="toDate" ng-required otis-enter="renderGraphs()" />
+                                    <input type="time" size="8" id="toTimeId" ng-model="toTime" ng-required otis-enter="renderGraphs()" />
                                 </div>
                             </div>
                             <div style="border: solid 1px black" ng-show="graphs.length > 1">
