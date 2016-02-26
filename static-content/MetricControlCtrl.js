@@ -3,7 +3,7 @@
  */
 otis.directive('tagSelection', function() {
     return {
-        template: '<div mass-autocomplete><input type="text" ng-model="tag[tagk]" mass-autocomplete-item="tagOptions[tagk]" size="15" otis-enter="addOrSaveMetric()" /> RE? <input type="checkbox" ng-model="re[tagk]" otis-enter="addOrSaveMetric()" /> {{tagValuesMatchCount(tagk)}}</div>'
+        template: '<div mass-autocomplete><input type="text" ng-model="tag[tagk]" mass-autocomplete-item="tagOptions[tagk]" size="15" otis-enter="addOrSaveMetric()" /> {{tagValuesMatchCount(tagk)}}</div>'
     }
 })
 /*
@@ -23,7 +23,6 @@ otis.directive('tagSelection', function() {
     $scope.filter = "";
     $scope.expandedNodes = [];
     $scope.tag = {};
-    $scope.re = {};
     $scope.tagOptions = {};
     $scope.tagNames = [];
     $scope.tagValues = {};
@@ -131,7 +130,6 @@ otis.directive('tagSelection', function() {
         // populate tag chosen values / re flags
         for (var t=0; t<metric.tags.length; t++) {
             var tag = metric.tags[t];
-            $scope.re[tag.name] = tag.re;
             $scope.tag[tag.name] = tag.value;
         }
         // populate graph options
@@ -234,8 +232,7 @@ otis.directive('tagSelection', function() {
             var tName = $scope.tagNames[i];
             tArray.push({
                 name: tName,
-                value: $scope.tag[tName],
-                re: $scope.re[tName]
+                value: $scope.tag[tName]
             });
         }
         metric.tags = tArray;
@@ -323,7 +320,6 @@ otis.directive('tagSelection', function() {
                         }
                     };
                     if (newMetric) {
-                        $scope.re[localKey] = true;
                         $scope.tag[localKey] = '';
                     }
                 }
@@ -341,7 +337,6 @@ otis.directive('tagSelection', function() {
         $scope.tagValues = {};
         $scope.tagNames = [];
         $scope.tag = {};
-        $scope.re = {};
         $scope.graphId = "0";
         $scope.selectedMetric = "";
         $scope.selectedMetricId = "0";
@@ -367,26 +362,15 @@ otis.directive('tagSelection', function() {
         }
         var allValues = $scope.tagValues[tag];
         var count = 0;
-        if (!$scope.re[tag] && inputText=="*") {
+        if (inputText=="*") {
             return "("+allValues.length+")";
         }
-        if ($scope.re[tag]) {
-            for (var i=0; i<allValues.length; i++) {
-                try {
-                    if (new RegExp(inputText).test(allValues[i])) {
-                        count++;
-                    }
-                }
-                catch (ignoreError) {}
-            }
-        }
-        else {
-            var allTags = inputText.split("|");
-            for (var j=0; j<allValues.length; j++) {
-                var ind = allTags.indexOf(allValues[j]);
-                if (ind >= 0) {
-                    count++;
-                }
+
+        var allTags = inputText.split("|");
+        for (var j=0; j<allValues.length; j++) {
+            var ind = allTags.indexOf(allValues[j]);
+            if (ind >= 0) {
+                count++;
             }
         }
         return "("+count+")";

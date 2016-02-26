@@ -92,21 +92,19 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOverla
         var tagsToGetFromServer = [];
         for (var i=0; i<metric.tags.length; i++) {
             var tag = metric.tags[i];
-            if (!tag.re) { // todo: support re
-                var tagk = tag.name;
-                var tagv = tag.value;
-                if (tagv == null || tagv == undefined || tagv == "") {
-                    continue;
-                }
-                if (tagv == "*") {
-                    tagsToGetFromServer.push(tagk);
-                }
-                else if (tagv.indexOf("|") >= 0) {
-                    tagsAndValues.push({tagk: tagk, tagvs: tagv.split("|")});
-                }
-                else {
-                    tagsAndValues.push({tagk: tagk, tagvs: [tagv]});
-                }
+            var tagk = tag.name;
+            var tagv = tag.value;
+            if (tagv == null || tagv == undefined || tagv == "") {
+                continue;
+            }
+            if (tagv == "*") {
+                tagsToGetFromServer.push(tagk);
+            }
+            else if (tagv.indexOf("|") >= 0) {
+                tagsAndValues.push({tagk: tagk, tagvs: tagv.split("|")});
+            }
+            else {
+                tagsAndValues.push({tagk: tagk, tagvs: [tagv]});
             }
         }
 

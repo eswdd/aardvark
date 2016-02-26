@@ -108,7 +108,6 @@ describe('Otis controllers', function () {
             expect(scope.selectedMetric).toEqualData("name.baldrick");
             expect(scope.tagNames).toEqualData(["key1","key2"]);
             expect(scope.tagValues).toEqualData(response);
-            expect(scope.re).toEqualData({key1: true, key2: true});
             expect(scope.nodeSelectionDisabled).toEqualData(true);
 
             // tag options are a little more complex
@@ -131,7 +130,6 @@ describe('Otis controllers', function () {
             expect(scope.selectedMetric).toEqualData("");
             expect(scope.tagNames).toEqualData([]);
             expect(scope.tagValues).toEqualData({});
-            expect(scope.re).toEqualData({});
             expect(scope.tagOptions).toEqualData({});
             expect(scope.nodeSelectionDisabled).toEqualData(false);
         })
@@ -143,28 +141,16 @@ describe('Otis controllers', function () {
             var ret_something2 = {label:"something2",value:"something2"};
             var ret_value2 = {label:"value2",value:"value2"};
 
-            scope.re = { key1: false };
             expect(scope.suggestTagValues('','key1')).toEqualData([ret_value1,ret_something2,ret_value2]);
             expect(scope.suggestTagValues('value','key1')).toEqualData([ret_value1,ret_value2]);
             expect(scope.suggestTagValues('value1','key1')).toEqualData([ret_value1]);
             expect(scope.suggestTagValues('value12','key1')).toEqualData([]);
             expect(scope.suggestTagValues('*','key1')).toEqualData([]);
-
-            // q: would you expect suggested tag values to change because you ticked RE?
-            // a: no
-            scope.re = { key1: true };
-            expect(scope.suggestTagValues('','key1')).toEqualData([ret_value1,ret_something2,ret_value2]);
-            expect(scope.suggestTagValues('value','key1')).toEqualData([ret_value1,ret_value2]);
-            expect(scope.suggestTagValues('value1','key1')).toEqualData([ret_value1]);
-            expect(scope.suggestTagValues('value12','key1')).toEqualData([]);
-            expect(scope.suggestTagValues('*','key1')).toEqualData([]);
-            expect(scope.suggestTagValues('.*','key1')).toEqualData([]);
         });
 
         it('should correctly count matching tag values', function() {
             scope.tagValues = { key1: ["value1","something2","value2"] };
 
-            scope.re = { key1: false };
             scope.tag = { key1: '' };
             expect(scope.tagValuesMatchCount('key1')).toEqualData("");
             scope.tag = { key1: 'value' };
@@ -179,30 +165,11 @@ describe('Otis controllers', function () {
             expect(scope.tagValuesMatchCount('key1')).toEqualData("(0)");
             scope.tag = { key1: 'value1|value2' };
             expect(scope.tagValuesMatchCount('key1')).toEqualData("(2)");
-
-            scope.re = { key1: true };
-            scope.tag = { key1: '' };
-            expect(scope.tagValuesMatchCount('key1')).toEqualData("");
-            scope.tag = { key1: 'value' };
-            expect(scope.tagValuesMatchCount('key1')).toEqualData("(2)");
-            scope.tag = { key1: 'value1' };
-            expect(scope.tagValuesMatchCount('key1')).toEqualData("(1)");
-            scope.tag = { key1: '2' };
-            expect(scope.tagValuesMatchCount('key1')).toEqualData("(2)");
-            scope.tag = { key1: 'th' };
-            expect(scope.tagValuesMatchCount('key1')).toEqualData("(1)");
-            scope.tag = { key1: '.*' };
-            expect(scope.tagValuesMatchCount('key1')).toEqualData("(3)");
-            scope.tag = { key1: '*' };
-            expect(scope.tagValuesMatchCount('key1')).toEqualData("(0)");
-            scope.tag = { key1: 'value1|value2' };
-            expect(scope.tagValuesMatchCount('key1')).toEqualData("(2)");
         });
 
         it('should add the metric to the model when addMetric() is called', function() {
             scope.tagNames = ["tag1","tag2","tag3"];
             scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
-            scope.re = {tag1:false,tag2:false,tag3:true};
             scope.selectedMetric = "some.metric.name";
             scope.rate = true;
             scope.rateCounter = true;
@@ -225,18 +192,15 @@ describe('Otis controllers', function () {
                     tags: [
                         {
                             name: "tag1",
-                            value: "",
-                            re: false
+                            value: ""
                         },
                         {
                             name: "tag2",
-                            value: "*",
-                            re: false
+                            value: "*"
                         },
                         {
                             name: "tag3",
-                            value: "value",
-                            re: true
+                            value: "value"
                         }
                     ],
                     graphOptions: {
@@ -264,7 +228,6 @@ describe('Otis controllers', function () {
         it('should clear the form when a user cancels adding a new metric', function() {
             scope.tagNames = ["tag1","tag2","tag3"];
             scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
-            scope.re = {tag1:false,tag2:false,tag3:true};
             scope.selectedMetric = "some.metric.name";
             scope.selectedTreeNode = "mock-node";
             scope.rightAxis = false;
@@ -283,7 +246,6 @@ describe('Otis controllers', function () {
             expect(saveModelCalled).toEqualData(false);
             expect(scope.tagNames).toEqualData([]);
             expect(scope.tag).toEqualData({});
-            expect(scope.re).toEqualData({});
             expect(scope.selectedMetric).toEqualData('');
             expect(scope.aggregator).toEqualData('sum');
             expect(scope.rightAxis).toEqualData(false);
@@ -309,7 +271,6 @@ describe('Otis controllers', function () {
 
             scope.tagNames = [];
             scope.tag = {};
-            scope.re = {};
             scope.selectedMetric = "some.metric.name";
 
 
@@ -360,18 +321,15 @@ describe('Otis controllers', function () {
                         tags: [
                             {
                                 name: "tag1",
-                                value: "",
-                                re: false
+                                value: ""
                             },
                             {
                                 name: "tag2",
-                                value: "*",
-                                re: false
+                                value: "*"
                             },
                             {
                                 name: "tag3",
-                                value: "value",
-                                re: true
+                                value: "value"
                             }
                         ],
                         graphOptions: {
@@ -400,7 +358,6 @@ describe('Otis controllers', function () {
 
             expect(scope.tagNames).toEqualData(["tag1","tag2","tag3"]);
             expect(scope.tag).toEqualData({tag1:"",tag2:"*",tag3:"value"});
-            expect(scope.re).toEqualData({tag1:false,tag2:false,tag3:true});
             expect(scope.selectedMetric).toEqualData('');
             expect(scope.rate).toEqualData(true);
             expect(scope.downsample).toEqualData(true);
@@ -422,18 +379,15 @@ describe('Otis controllers', function () {
                         tags: [
                             {
                                 name: "tag1",
-                                value: "abc",
-                                re: true
+                                value: "abc"
                             },
                             {
                                 name: "tag2",
-                                value: "zab",
-                                re: true
+                                value: "zab"
                             },
                             {
                                 name: "tag3",
-                                value: "",
-                                re: false
+                                value: ""
                             }
                         ],
                         graphOptions: {
@@ -448,7 +402,6 @@ describe('Otis controllers', function () {
 
             scope.tagNames = ["tag1","tag2","tag3"];
             scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
-            scope.re = {tag1:false,tag2:false,tag3:true};
             scope.selectedMetricId = "123";
             scope.aggregator = 'zimsum';
             scope.rightAxis = false;
@@ -465,7 +418,6 @@ describe('Otis controllers', function () {
             expect(saveModelCalled).toEqualData(true);
             expect(scope.tagNames).toEqualData(["tag1","tag2","tag3"]);
             expect(scope.tag).toEqualData({tag1: '', tag2: '*', tag3: 'value'});
-            expect(scope.re).toEqualData({tag1:false,tag2:false,tag3:true});
             expect(scope.selectedMetricId).toEqualData('123');
             expect(scope.selectedMetric).toEqualData('');
             expect(scope.aggregator).toEqualData('zimsum');
@@ -492,18 +444,15 @@ describe('Otis controllers', function () {
                             tags: [
                                 {
                                     name: "tag1",
-                                    value: "",
-                                    re: false
+                                    value: ""
                                 },
                                 {
                                     name: "tag2",
-                                    value: "*",
-                                    re: false
+                                    value: "*"
                                 },
                                 {
                                     name: "tag3",
-                                    value: "value",
-                                    re: true
+                                    value: "value"
                                 }
                             ],
                             graphOptions: {
@@ -534,18 +483,15 @@ describe('Otis controllers', function () {
                         tags: [
                             {
                                 name: "tag1",
-                                value: "abc",
-                                re: true
+                                value: "abc"
                             },
                             {
                                 name: "tag2",
-                                value: "zab",
-                                re: true
+                                value: "zab"
                             },
                             {
                                 name: "tag3",
-                                value: "",
-                                re: false
+                                value: ""
                             }
                         ],
                         graphOptions: {
@@ -560,7 +506,6 @@ describe('Otis controllers', function () {
 
             scope.tagNames = ["tag1","tag2","tag3"];
             scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
-            scope.re = {tag1:false,tag2:false,tag3:true};
             scope.selectedMetricId = "123";
             scope.selectedTreeNode = "mock-node";
             scope.aggregator = 'zimsum';
@@ -578,7 +523,6 @@ describe('Otis controllers', function () {
             expect(saveModelCalled).toEqualData(true);
             expect(scope.tagNames).toEqualData([]);
             expect(scope.tag).toEqualData({});
-            expect(scope.re).toEqualData({});
             expect(scope.selectedMetricId).toEqualData('0');
             expect(scope.selectedMetric).toEqualData('');
             expect(scope.aggregator).toEqualData('sum');
@@ -608,7 +552,6 @@ describe('Otis controllers', function () {
         it('should clear the form when a user cancels editing an existing metric', function() {
             scope.tagNames = ["tag1","tag2","tag3"];
             scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
-            scope.re = {tag1:false,tag2:false,tag3:true};
             scope.selectedMetricId = "123";
             scope.selectedTreeNode = "mock-node";
             scope.aggregator = "avg";
@@ -626,7 +569,6 @@ describe('Otis controllers', function () {
             expect(saveModelCalled).toEqualData(false);
             expect(scope.tagNames).toEqualData([]);
             expect(scope.tag).toEqualData({});
-            expect(scope.re).toEqualData({});
             expect(scope.selectedMetricId).toEqualData('0');
             expect(scope.aggregator).toEqualData('sum');
             expect(scope.rightAxis).toEqualData(false);
