@@ -1,1 +1,1 @@
-var otis = angular.module('Otis', ['ui.layout','ui.bootstrap','treeControl','ngSanitize','MassAutoComplete']);
+var otis = angular.module('Otis', ['ui.layout','ui.bootstrap','treeControl','ngSanitize','MassAutoComplete','bsLoadingOverlay']);

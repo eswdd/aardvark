@@ -1,11 +1,25 @@
 /*
  * Graph rendering
  */
-otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCtrl($scope, $rootScope, $http) {
+otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOverlayService', function GraphCtrl($scope, $rootScope, $http, bsLoadingOverlayService) {
     $scope.renderedContent = {};
     $scope.renderErrors = {};
     $scope.renderWarnings = {};
     $scope.imageRenderCount = 0;
+    // loading overlays
+    $scope.showOverlay = function (referenceId) {
+//        alert('showOverlay: '+referenceId);
+        bsLoadingOverlayService.start({
+            referenceId: referenceId
+        });
+    };
+
+    $scope.hideOverlay = function (referenceId) {
+//        alert('hideOverlay: '+referenceId);
+        bsLoadingOverlayService.stop({
+            referenceId: referenceId
+        });
+    }
     // helper functions for dealing with tsdb data
     $scope.tsdb_rateString = function(metricOptions) {
         var ret = "rate";
@@ -401,6 +415,7 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCt
 
         url += "&wxh="+width+"x"+height;
 
+        $scope.showOverlay("graphOverlay_"+graph.id);
         $scope.renderedContent[graph.id] = { src: url, width: width, height: height };
     };
     $scope.renderers["horizon"] = function(global, graph, metrics) {

@@ -77,10 +77,14 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
         $scope.graphs = $scope.deepClone(model.graphs);
 
         if (model.global != null) {
-            $scope.fromTimestamp = model.global.fromTimestamp;
+            $scope.fromDate= model.global.fromDate;
+            $scope.fromTime= model.global.fromTime;
             $scope.autoReload = model.global.autoReload;
             $scope.autoReloadPeriod = model.global.autoReloadPeriod;
-            $scope.toTimestamp = model.global.toTimestamp;
+            $scope.relativePeriod = model.global.relativePeriod;
+            $scope.absoluteTimeSpecification = model.global.absoluteTimeSpecification;
+            $scope.toDate = model.global.toDate;
+            $scope.toTime = model.global.toTime;
         }
     }
 
@@ -209,10 +213,14 @@ otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphCont
         $rootScope.model.graphs = $scope.deepClone($scope.graphs);
 
         $rootScope.model.global = {
-            fromTimestamp: $scope.fromTimestamp,
+            fromDate: $scope.fromDate,
+            fromTime: $scope.fromTime,
             autoReload: $scope.autoReload,
             autoReloadPeriod: $scope.autoReloadPeriod,
-            toTimestamp: $scope.toTimestamp
+            absoluteTimeSpecification: $scope.absoluteTimeSpecification,
+            relativePeriod: $scope.relativePeriod,
+            toDate: $scope.toDate,
+            toTime: $scope.toTime
         };
         $rootScope.saveModel(true);
     }

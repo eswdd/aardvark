@@ -1072,7 +1072,7 @@ router.get("", function(req,res) {
     if (req.baseUrl == "/q") {
         var queryParams = req.query;
         if (queryParams["png"] != null) {
-            res.sendfile("tsd-sample.png");
+            setTimeout(function(){res.sendfile("tsd-sample.png")}, 2000);
         }
         else {
             res.json({output:"json",params: req.query});

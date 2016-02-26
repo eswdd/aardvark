@@ -13,6 +13,7 @@
     <script type="application/javascript" src="../bower_components/angular-tree-control/angular-tree-control.js"></script>
     <script type="application/javascript" src="../bower_components/angular-sanitize/angular-sanitize.js"></script>
     <script type="application/javascript" src="../bower_components/angular-mass-autocomplete/massautocomplete.js"></script>
+    <script type="application/javascript" src="../bower_components/angular-loading-overlay/dist/angular-loading-overlay.js"></script>
     <script type="application/javascript" src="../bower_components/moment/moment.js"></script>
     <script type="application/javascript" src="../bower_components/d3/d3.js"></script>
     <script type="application/javascript" src="../bower_components/cubism/cubism.v1.js"></script>
@@ -33,18 +34,18 @@
     <link rel="stylesheet" href="otis_horizon.css">
 </head>
 
-<body>
+<body ng-controller="OtisCtrl">
 
 <div ui-layout>
-    <div ui-layout-container class="top-panel" size="60px" ng-controller="OtisCtrl">
+    <div ui-layout-container class="top-panel" size="60px">
         <p><b>Otis - An OpenTSDB Visualiser</b></p>
         <p style="text-align: right"><!--button ng-click="undoAll()">Undo</button--><button ng-click="clearAll()">Reset</button></p>
     </div>
 
     <div ui-layout-container>
         <div ui-layout="{flow : 'column'}" >
-            <div ui-layout-container size="200px" ng-controller="GraphControlCtrl">
-                <div ui-layout="{flow : 'row'}" >
+            <div ui-layout-container size="200px">
+                <div ui-layout="{flow : 'row'}" ng-controller="GraphControlCtrl">
                     <div ui-layout-container class="graph-control-panel">
                         <div style="overflow: auto; height: 100%; border-color: black; border-width: 1px; border-style: solid">
                             <!-- todo: m1: calendar controls incl date/time -->
@@ -277,7 +278,10 @@
             </div>
             <div ui-layout-container id="graph-panel" style="overflow: auto">
                 <div ng-controller="GraphCtrl" class="graph-panel" id="scrollable-graph-panel" style="overflow: scroll">
-                    <div ng-repeat="graph in model.graphs track by graph.id" id="graphDiv_{{graph.id}}">
+                    <div ng-repeat="graph in model.graphs track by graph.id" id="graphDiv_{{graph.id}}"
+                         bs-loading-overlay
+                         bs-loading-overlay-reference-id="graphOverlay_{{graph.id}}"
+                         bs-loading-overlay-template-url="loading-overlay-template.html">
                         <div class="graph-title" ng-show="graph.showTitle">
                             {{graph.title}}
                         </div>
@@ -295,15 +299,15 @@
                             <!--<div id="gnuplotDiv_{{graph.id}}" ng-show="graph.type == 'gnuplot'">-->
                                 <!--<pre>{{renderedContent[graph.id]}}</pre>-->
                             <!--</div>-->
-                            <img id="gnuplotImg_{{graph.id}}" ng-src="{{renderedContent[graph.id].src}}" ng-show="graph.type == 'gnuplot'" width="{{renderedContent[graph.id].width}}" height="{{renderedContent[graph.id].height}}" />
+                            <img id="gnuplotImg_{{graph.id}}" ng-src="{{renderedContent[graph.id].src}}" otis-load="hideOverlay('graphOverlay_{{graph.id}}')" ng-show="graph.type == 'gnuplot'" width="{{renderedContent[graph.id].width}}" height="{{renderedContent[graph.id].height}}" />
                             <div id="horizonDiv_{{graph.id}}" ng-show="graph.type == 'horizon'">
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div ui-layout-container class="metric-control-panel" size="250px" ng-controller="MetricControlCtrl">
-                <div ui-layout="{flow : 'row'}" >
+            <div ui-layout-container class="metric-control-panel" size="250px">
+                <div ui-layout="{flow : 'row'}" ng-controller="MetricControlCtrl">
                     <div ui-layout-container class="metric-control-panel" size="50%" style="border: 1px solid black; height: 100%">
                         <div>
                             <input type="button" value="+" ng-click="expandAll()" ng-show="expandAllVisible()">

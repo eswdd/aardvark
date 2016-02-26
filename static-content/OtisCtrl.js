@@ -15,6 +15,17 @@ otis.directive('otisEnter', function() {
             });
         }
     })
+    .directive('otisLoad', function() {
+        return function(scope, element, attrs) {
+            element.bind("load", function (event) {
+               scope.$apply(function() {
+                   scope.$eval(attrs.otisLoad);
+               })
+
+               event.preventDefault();
+            });
+        }
+    })
     .controller('OtisCtrl', [ '$rootScope', '$http', '$location', function OtisCtrl($rootScope, $http, $location) {
     /*
      * Model persistence - ensures that persistent data is saved to the hash whilst leaving
