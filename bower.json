@@ -25,7 +25,7 @@
     "angular-mass-autocomplete": "~0.2.2",
     "angular-loading-overlay": "~0.3.1",
     "d3": "~3.5.12",
-    "cubism": "https://github.com/eswdd/cubism.git#~1.7.1",
+    "cubism": "https://github.com/square/cubism.git#~1.6.0",
     "moment": "~2.11.2"
   },
   "resolutions": {
