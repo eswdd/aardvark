@@ -653,16 +653,11 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOverla
         d3.select(divSelector).selectAll(".axis")
             .data(["top", "bottom"])
             .enter().append("div")
+            .attr("id", function(d) { return "horizonAxis_" + d + "_" + graph.id; })
             .attr("class", function(d) { return d + " axis"; })
             .each(function(d) { d3.select(this).call(context.axis().focusFormat(axisFormat).ticks(12).orient(d)); });
 
-        d3.select(divSelector).append("div")
-            .attr("class", "rule")
-            .call(context.rule());
-
-
         context.on("focus", function(i) {
-//        d3.selectAll(".value").style("right", i == null ? null : context.size() - i + "px");
             d3.selectAll(".value").style("right", "10px");
         });
 
@@ -674,13 +669,32 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOverla
 
             if (index >= metrics.length) {
 
-                var perLineHeight = ((height - 62)/cMetrics.length)-2;
+                var graphPanelBox = d3.select("#scrollable-graph-panel").node().getBoundingClientRect();
+                var topAxisBox = d3.select("#horizonAxis_top_"+graph.id).node().getBoundingClientRect();
+                var bottomAxisBox = d3.select("#horizonAxis_bottom_"+graph.id).node().getBoundingClientRect();
+
+                var topAxisHeight = topAxisBox.height;
+                var bottomAxisHeight = bottomAxisBox.height;
+                var totalAxesHeight = topAxisHeight + bottomAxisHeight;
+
+                var perLineHeight = ((height - totalAxesHeight)/cMetrics.length)-2;
                 perLineHeight = Math.min(Math.max(perLineHeight,60),25);
                 d3.select(divSelector).selectAll(".horizon")
                     .data(cMetrics)
                     .enter().insert("div", ".bottom")
                     .attr("class", "horizon")
                     .call(context.horizon().height(perLineHeight));
+
+                // top needs to be relative to this panel, not whole window
+                var ruleTop = topAxisBox.top - graphPanelBox.top;
+                var ruleHeight = totalAxesHeight + (perLineHeight * cMetrics.length);
+                // now we can add rule safely as we know height as well
+                d3.select(divSelector).append("div")
+                    .attr("class", "rule")
+                    .attr("id","horizonRule_"+graph.id)
+                    .call(context.rule());
+                // and now we just go find the rule we added and set the top/height
+                d3.select("#horizonRule_"+graph.id).select(".line").style("top", ruleTop+"px").style("height",ruleHeight+"px").style("bottom",null);
                 return;
             }
 
