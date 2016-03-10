@@ -6,6 +6,16 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOverla
     $scope.renderErrors = {};
     $scope.renderWarnings = {};
     $scope.imageRenderCount = 0;
+    $scope.lastId = 0;
+
+    $scope.nextId = function() {
+        var next = new Date().getTime();
+        if (next <= $scope.lastId) {
+            next = $scope.lastId+1;
+        }
+        $scope.lastId = next;
+        return next + "";
+    }
     // loading overlays
     $scope.showOverlay = function (referenceId) {
 //        alert('showOverlay: '+referenceId);
@@ -245,6 +255,7 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOverla
             var downsampler = "avg";
             var interpolate = false;
             var squashNegatives = false;
+            var id = $scope.nextId();
 
             var ret = context.metric(function (start, stop, step, callback) {
                 // m=<aggregator>:[rate[{counter[,<counter_max>[,<reset_value>]]]}:][<down_sampler>:]<metric_name>[{<tag_name1>=<grouping filter>[,...<tag_nameN>=<grouping_filter>]}][{<tag_name1>=<non grouping filter>[,...<tag_nameN>=<non_grouping_filter>]}]
@@ -281,6 +292,8 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOverla
                     }
                     var parsed = $scope.cubism_opentsdbParse(json, start, step, interpolate, squashNegatives); // array response
                     callback(null, parsed[0]);
+                    console.log("hideOverlay(horizonGraph_"+id+")");
+                    $scope.hideOverlay("horizonGraph_"+id);
                 });
             }, name);
 
@@ -302,6 +315,10 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOverla
             ret.squashNegatives = function(_) {
                 squashNegatives = _;
                 return ret;
+            }
+
+            ret.id = function() {
+                return id;
             }
 
             return ret;
@@ -677,13 +694,24 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOverla
                 var bottomAxisHeight = bottomAxisBox.height;
                 var totalAxesHeight = topAxisHeight + bottomAxisHeight;
 
+                var minLineHeight = 25;
+                var maxLineHeight = 60;
+
                 var perLineHeight = ((height - totalAxesHeight)/cMetrics.length)-2;
-                perLineHeight = Math.min(Math.max(perLineHeight,60),25);
+                perLineHeight = Math.min(Math.max(perLineHeight,minLineHeight),maxLineHeight);
                 d3.select(divSelector).selectAll(".horizon")
                     .data(cMetrics)
                     .enter().insert("div", ".bottom")
                     .attr("class", "horizon")
+                    .attr("bs-loading-overlay", "")
+                    .attr("bs-loading-overlay-reference-id", function(m) {return "horizonGraph_"+m.id();})
+                    .attr("bs-loading-overlay-template-url", "loading-overlay-template.html")
                     .call(context.horizon().height(perLineHeight));
+
+                for (var m=0; m<cMetrics.length; m++) {
+                    console.log("showOverlay(horizonGraph_"+cMetrics[m].id()+")");
+                    $scope.showOverlay("horizonGraph_"+cMetrics[m].id());
+                }
 
                 // top needs to be relative to this panel, not whole window
                 var ruleTop = topAxisBox.top - graphPanelBox.top;

@@ -1,4 +1,5 @@
 target/
+coverage/
 *.iml
 .idea
 node_modules

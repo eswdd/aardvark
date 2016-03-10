@@ -1,12 +1,10 @@
 language: node_js
 sudo: false
 node_js:
-  - "0.10"
-  - "0.11"
-  - "0.12"
   - "4.0"
-  - "4.1"
-  - iojs
+  - "4.4"
+  - "5.0"
+  - "stable"
 notifications:
   email:
     on_success: always
@@ -18,3 +16,4 @@ before_script:
 before_install:
   - npm -g install npm@latest-2
   - "gem install --version 0.8.9 faraday"
+after_script: "cat ./coverage/lcov/lcov.info | ./node_modules/coveralls/bin/coveralls.js"

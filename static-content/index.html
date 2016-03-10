@@ -92,8 +92,8 @@
                                     <input type="text" id="graphHeight" ng-model="graphHeight" otis-enter="renderGraphs()">
                                 </div>
                             </div>
-                            <accordion close-others="true">
-                                <accordion-group heading="{{graph.title}}" is-open="isOpen[graph.id]" ng-repeat="graph in graphs track by graph.id">
+                            <uib-accordion close-others="true">
+                                <uib-accordion-group heading="{{graph.title}}" is-open="isOpen[graph.id]" ng-repeat="graph in graphs track by graph.id">
 
                                     <div ng-show="showEdit[graph.id]">
                                         <input type="text" ng-model="graph.title" otis-enter="renderGraphs()" />
@@ -110,8 +110,8 @@
                                         debug controls
                                     </div>
                                     <div ng-show="graph.type == 'gnuplot'">
-                                        <tabset>
-                                            <tab heading="Axes">
+                                        <uib-tabset>
+                                            <uib-tab heading="Axes">
                                                 <table>
                                                     <tr>
                                                         <th></th>
@@ -151,8 +151,8 @@
                                                         <td style="text-align: center"><input type="checkbox" ng-model="graph.gnuplot.y2AxisLogScale" otis-enter="renderGraphs()" /></td>
                                                     </tr>
                                                 </table>
-                                            </tab>
-                                            <tab heading="Key">
+                                            </uib-tab>
+                                            <uib-tab heading="Key">
                                                 <label for="showKey">Show key</label>
                                                 <input id="showKey" type="checkbox" ng-model="graph.gnuplot.showKey" otis-enter="renderGraphs()" />
                                                 <div>
@@ -244,12 +244,12 @@
                                                         <input ng-disabled="!graph.gnuplot.showKey" type="checkbox" id="outline" ng-model="graph.gnuplot.keyBox" otis-enter="renderGraphs()" /><label for="outline">On</label>
                                                     </div>
                                                 </div>
-                                            </tab>
-                                            <tab heading="Style">
+                                            </uib-tab>
+                                            <uib-tab heading="Style">
                                                 <input type="checkbox" id="smooth" ng-model="graph.gnuplot.lineSmoothing" otis-enter="renderGraphs()" />
                                                 <label for="smooth">Smooth lines</label>
-                                            </tab>
-                                        </tabset>
+                                            </uib-tab>
+                                        </uib-tabset>
                                     </div>
                                     <div ng-show="graph.type == 'horizon'">
                                         <div>
@@ -266,8 +266,8 @@
                                         <input type="checkbox" ng-model="graph.dygraph.highlightLines"/> Highlight lines
                                     </div-->
 
-                                </accordion-group>
-                            </accordion>
+                                </uib-accordion-group>
+                            </uib-accordion>
                         </div>
                     </div>
                     <div ui-layout-container size="40px" class="graph-control-buttons-panel">

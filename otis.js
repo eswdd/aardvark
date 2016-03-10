@@ -92,9 +92,35 @@ if (config.sourceBuild) {
 }
 app.use(express.static('./static-content'));
 
-// fake tsdb
-var tsdb = require('./faketsdb');
-app.use('/api',tsdb);
+// fake tsdb api
+var tsdb = require('faketsdb');
+tsdb.install(app);
+tsdb.addTimeSeries("tsd.rpc.received", { host: "host01", type: "put" }, "counter");
+tsdb.addTimeSeries("tsd.rpc.received", { host: "host01", type: "telnet" }, "counter");
+tsdb.addTimeSeries("tsd.rpc.errors", { host: "host01", type: "invalid_values" }, "counter");
+tsdb.addTimeSeries("tsd.rpc.errors", { host: "host01", type: "hbase_errors" }, "counter");
+tsdb.addTimeSeries("tsd.rpc.errors", { host: "host01", type: "illegal_arguments" }, "counter");
+tsdb.addTimeSeries("ifstat.bytes", { host: "host01", direction: "in" }, "counter");
+tsdb.addTimeSeries("ifstat.bytes", { host: "host01", direction: "out" }, "counter");
+tsdb.addTimeSeries("ifstat.bytes", { host: "host02", direction: "in" }, "counter");
+tsdb.addTimeSeries("ifstat.bytes", { host: "host02", direction: "out" }, "counter");
+tsdb.addTimeSeries("ifstat.bytes", { host: "host03", direction: "in" }, "counter");
+tsdb.addTimeSeries("ifstat.bytes", { host: "host03", direction: "out" }, "counter");
+tsdb.addTimeSeries("cpu.percent", { host: "host01" }, "gauge");
+tsdb.addTimeSeries("cpu.percent", { host: "host02" }, "gauge");
+tsdb.addTimeSeries("cpu.percent", { host: "host03" }, "gauge");
+tsdb.addTimeSeries("cpu.queue", { host: "host01" }, "gauge");
+tsdb.addTimeSeries("cpu.queue", { host: "host02" }, "gauge");
+tsdb.addTimeSeries("cpu.queue", { host: "host03" }, "gauge");
+tsdb.addTimeSeries("some.stat", { host: "host02" }, "gauge");
+tsdb.addTimeSeries("some.stat", { host: "host03" }, "gauge");
+tsdb.addTimeSeries("some.stat.min", { host: "host02" }, "gauge");
+tsdb.addTimeSeries("some.stat.min", { host: "host03" }, "gauge");
+tsdb.addTimeSeries("some.stat.max", { host: "host02" }, "gauge");
+tsdb.addTimeSeries("some.stat.max", { host: "host03" }, "gauge");
+
+// fake tsdb graph
+var tsdb = require('./mockTsdbGraph');
 app.use('/q',tsdb);
 
 
@@ -116,7 +142,7 @@ otis.get('/tags', function(req, res) {
         path: '/api/search/lookup',
         method: 'POST',
         headers: {
-            'Content-Type': 'text/json',
+            'Content-Type': 'application/json',
             'Content-Length': postData.length
         }
     };
@@ -144,11 +170,6 @@ otis.get('/tags', function(req, res) {
                         }
                     }
                 }
-            }
-            if (config.devMode) {
-                tagValues["host"] = ["host1","host2","host3"];
-                tagValues["user"] = ["jon","dave","joe","simon","fred"];
-                tagValues["method"] = ["put","post","get","head","options","delete"];
             }
             res.json(tagValues);
         })
