@@ -1,9 +1,10 @@
 {
   "version": "0.1.0",
-  "name": "otis2",
+  "name": "otis",
   "description": "An OpenTSDB Visualiser",
   "repository": "https://github.com/eswdd/otis",
   "license": "GPL",
+  "main": "otis.js",
   "devDependencies": {
     "bower": "^1.3.1",
     "coveralls": "^2.11.8",
