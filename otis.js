@@ -94,7 +94,10 @@ app.use(express.static('./static-content'));
 
 // fake tsdb api
 var tsdb = require('faketsdb');
-tsdb.install(app);
+var tsdbConfig = {
+    verbose: false
+};
+tsdb.install(app, tsdbConfig);
 tsdb.addTimeSeries("tsd.rpc.received", { host: "host01", type: "put" }, "counter");
 tsdb.addTimeSeries("tsd.rpc.received", { host: "host01", type: "telnet" }, "counter");
 tsdb.addTimeSeries("tsd.rpc.errors", { host: "host01", type: "invalid_values" }, "counter");
@@ -106,12 +109,12 @@ tsdb.addTimeSeries("ifstat.bytes", { host: "host02", direction: "in" }, "counter
 tsdb.addTimeSeries("ifstat.bytes", { host: "host02", direction: "out" }, "counter");
 tsdb.addTimeSeries("ifstat.bytes", { host: "host03", direction: "in" }, "counter");
 tsdb.addTimeSeries("ifstat.bytes", { host: "host03", direction: "out" }, "counter");
-tsdb.addTimeSeries("cpu.percent", { host: "host01" }, "gauge");
-tsdb.addTimeSeries("cpu.percent", { host: "host02" }, "gauge");
-tsdb.addTimeSeries("cpu.percent", { host: "host03" }, "gauge");
-tsdb.addTimeSeries("cpu.queue", { host: "host01" }, "gauge");
-tsdb.addTimeSeries("cpu.queue", { host: "host02" }, "gauge");
-tsdb.addTimeSeries("cpu.queue", { host: "host03" }, "gauge");
+tsdb.addTimeSeries("cpu.percent", { host: "host01" }, "gauge", {min:0, max:100});
+tsdb.addTimeSeries("cpu.percent", { host: "host02" }, "gauge", {min:0, max:100});
+tsdb.addTimeSeries("cpu.percent", { host: "host03" }, "gauge", {min:0, max:100});
+tsdb.addTimeSeries("cpu.queue", { host: "host01" }, "gauge", {min:0});
+tsdb.addTimeSeries("cpu.queue", { host: "host02" }, "gauge", {min:0});
+tsdb.addTimeSeries("cpu.queue", { host: "host03" }, "gauge", {min:0});
 tsdb.addTimeSeries("some.stat", { host: "host02" }, "gauge");
 tsdb.addTimeSeries("some.stat", { host: "host03" }, "gauge");
 tsdb.addTimeSeries("some.stat.min", { host: "host02" }, "gauge");

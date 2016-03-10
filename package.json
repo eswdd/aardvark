@@ -16,7 +16,6 @@
         "karma-firefox-launcher": "^0.1.4",
         "karma-mocha-reporter": "^0.3.0",
         "karma-jasmine": "^0.1.5",
-        "protractor": "~1.0.0",
         "shelljs": "^0.2.6",
         "tmp": "0.0.23"
     },
@@ -35,7 +34,7 @@
         "body-parser": "^1.15.0",
         "seedrandom": "^2.4.2",
         "moment": "^2.11.2",
-        "faketsdb": "^0.1.7"
+        "faketsdb": "^0.1.9"
     },
     "main": "otis.js"
 }
