@@ -372,11 +372,9 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOverla
 //                var loopLimit = 720; // max 720 points - just in case we have some bugs!
                 for (var v=firstTime; nextIndex<ts.dps.length; v+=step) {
 //                    if (loopCount++>loopLimit) break;
-                    console.log(v+": nextIndex="+nextIndex+", loopCount="+loopCount+", step="+step);
                     if (ts.dps[nextIndex][0] == v) {
                         lastValue = ts.dps[nextIndex][1];
                         lastValueTime = ts.dps[nextIndex][0];
-                        console.log(v+": lastValueTime="+lastValueTime+", lastValue="+lastValue);
                         ret.push(squashNegatives && lastValue < 0 ? 0 : lastValue);
                         nextIndex++;
                         if (nextIndex>=ts.dps.length) {
