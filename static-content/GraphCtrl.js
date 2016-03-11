@@ -7,6 +7,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOv
     $scope.renderWarnings = {};
     $scope.imageRenderCount = 0;
     $scope.lastId = 0;
+    $scope.hiddenElements = {};
 
     $scope.nextId = function() {
         var next = new Date().getTime();
@@ -18,18 +19,38 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOv
     }
     // loading overlays
     $scope.showOverlay = function (referenceId) {
-//        alert('showOverlay: '+referenceId);
-//        bsLoadingOverlayService.start({
-//            referenceId: referenceId
-//        });
+//        console.log('showOverlay: '+referenceId);
+        bsLoadingOverlayService.start({
+            referenceId: referenceId
+        });
     };
 
     $scope.hideOverlay = function (referenceId) {
-//        alert('hideOverlay: '+referenceId);
-//        bsLoadingOverlayService.stop({
-//            referenceId: referenceId
-//        });
+//        console.log('hideOverlay: '+referenceId);
+        bsLoadingOverlayService.stop({
+            referenceId: referenceId
+        });
     }
+
+    $scope.showElement = function (divId) {
+//        console.log("showElement: "+divId);
+        if ($scope.hiddenElements.hasOwnProperty(divId)) {
+            delete $scope.hiddenElements[divId];
+        }
+    }
+
+    $scope.hideElement = function (divId) {
+//        console.log("showElement: "+divId);
+        $scope.hiddenElements[divId] = true;
+    }
+
+    $scope.hiddenElement = function (divId) {
+        if ($scope.hiddenElements.hasOwnProperty(divId)) {
+            return $scope.hiddenElements[divId];
+        }
+        return false;
+    }
+
     // helper functions for dealing with tsdb data
     $scope.tsdb_rateString = function(metricOptions) {
         var ret = "rate";
@@ -685,6 +706,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOv
 
         var allInOne = true;
         if (allInOne) {
+            $scope.hideElement("horizonDiv_"+graph.id);
             $scope.showOverlay("graphOverlay_"+graph.id);
             // construct the query string for these metrics, when we have a response, then use that to construct
             //    constant metrics (data already loaded) for time series which are returned.
@@ -827,6 +849,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOv
                     d3.select("#horizonRule_"+graph.id).select(".line").style("top", ruleTop+"px").style("height",ruleHeight+"px").style("bottom",null);
 
                     $scope.hideOverlay("graphOverlay_"+graph.id);
+                    $scope.showElement("horizonDiv_"+graph.id);
                     return;
                 })
                 .error(function (arg) {

@@ -300,7 +300,7 @@
                                 <!--<pre>{{renderedContent[graph.id]}}</pre>-->
                             <!--</div>-->
                             <img id="gnuplotImg_{{graph.id}}" ng-src="{{renderedContent[graph.id].src}}" aardvark-load="hideOverlay('graphOverlay_{{graph.id}}')" ng-show="graph.type == 'gnuplot'" width="{{renderedContent[graph.id].width}}" height="{{renderedContent[graph.id].height}}" />
-                            <div id="horizonDiv_{{graph.id}}" ng-show="graph.type == 'horizon'">
+                            <div id="horizonDiv_{{graph.id}}" ng-show="graph.type == 'horizon' && !hiddenElement('horizonDiv_'+graph.id)">
                             </div>
                         </div>
                     </div>
