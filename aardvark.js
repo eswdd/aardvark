@@ -127,16 +127,16 @@ var tsdb = require('./mockTsdbGraph');
 app.use('/q',tsdb);
 
 
-// otis backend
-var otis = express.Router();
+// aardvark backend
+var aardvark = express.Router();
 
 // middleware specific to this router
-otis.use(function timeLog(req, res, next) {
+aardvark.use(function timeLog(req, res, next) {
     console.log(new Date(Date.now())+': '+req.originalUrl);
     next();
 })
 // define the
-otis.get('/tags', function(req, res) {
+aardvark.get('/tags', function(req, res) {
     var requestJson = {"metric": req.query["metric"], "limit": 100000, "useMeta": true}; // todo: useMeta should be based on tsdb config
     var postData = JSON.stringify(requestJson);
     var options = {
@@ -182,18 +182,18 @@ otis.get('/tags', function(req, res) {
     clientReq.end();
 
 });
-otis.get('/config', function(req, res) {
+aardvark.get('/config', function(req, res) {
     res.json(config);
 });
 
-app.use('/otis',otis);
+app.use('/aardvark',aardvark);
 
 
 var server = app.listen(config.port, function() {
     var host = server.address().address
     var port = server.address().port
 
-    console.log('Otis running at http://%s:%s', host, port)
+    console.log('Aardvark running at http://%s:%s', host, port)
 });
 
 

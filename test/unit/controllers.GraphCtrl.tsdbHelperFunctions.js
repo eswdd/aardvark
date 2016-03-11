@@ -1,7 +1,7 @@
 'use strict';
 
 /* jasmine specs for controllers go here */
-describe('Otis controllers', function () {
+describe('Aardvark controllers', function () {
 
     beforeEach(function () {
         this.addMatchers({
@@ -11,7 +11,7 @@ describe('Otis controllers', function () {
         });
     });
 
-    beforeEach(module('Otis'));
+    beforeEach(module('Aardvark'));
 
     describe('GraphCtrl.tsdbHelperFunctions', function() {
         var rootScope, $httpBackend, scope;
@@ -91,7 +91,7 @@ describe('Otis controllers', function () {
         });
 
         it('should callback with two entries when getting lines for a metric with a single tag with two possible values', function () {
-            $httpBackend.expectGET('/otis/tags?metric=some.metric').respond({host: ["host1", "host2"]});
+            $httpBackend.expectGET('/aardvark/tags?metric=some.metric').respond({host: ["host1", "host2"]});
 
             test_tsdb_distinctGraphLines({name:"some.metric", tags: [{name: "host", value: "*"}], graphOptions: {}}, true, function(graphLines) {
                 expect(objectLength(graphLines)).toEqualData(2);
@@ -101,7 +101,7 @@ describe('Otis controllers', function () {
         });
 
         it('should callback with four entries when getting lines for a metric with a two tags each with two possible values', function () {
-            $httpBackend.expectGET('/otis/tags?metric=some.metric').respond({host: ["host1", "host2"], type: ["type1", "type2"]});
+            $httpBackend.expectGET('/aardvark/tags?metric=some.metric').respond({host: ["host1", "host2"], type: ["type1", "type2"]});
 
             test_tsdb_distinctGraphLines({name:"some.metric", tags: [{name: "host", value: "*"}, {name: "type", value: "*"}], graphOptions: {}}, true, function(graphLines) {
                 expect(objectLength(graphLines)).toEqualData(4);
@@ -113,7 +113,7 @@ describe('Otis controllers', function () {
         });
 
         it('should callback with four entries when getting lines for a metric with one tag with two possible values and the other with three, but only two selected', function () {
-            $httpBackend.expectGET('/otis/tags?metric=some.metric').respond({host: ["host1", "host2"], type: ["type1", "type2", "type2"]});
+            $httpBackend.expectGET('/aardvark/tags?metric=some.metric').respond({host: ["host1", "host2"], type: ["type1", "type2", "type2"]});
 
             test_tsdb_distinctGraphLines({name:"some.metric", tags: [{name: "host", value: "*"}, {name: "type", value: "type1|type2"}], graphOptions: {}}, true, function(graphLines) {
                 expect(objectLength(graphLines)).toEqualData(4);
@@ -125,7 +125,7 @@ describe('Otis controllers', function () {
         });
 
         it('should callback with four entries when getting lines for a metric with a two tags each with two possible values, one tag with a fixed single value and one tag with no value', function () {
-            $httpBackend.expectGET('/otis/tags?metric=some.metric').respond({host: ["host1", "host2"], type: ["type1", "type2"], direction: ["in","out"], application: ["app1","app2"]});
+            $httpBackend.expectGET('/aardvark/tags?metric=some.metric').respond({host: ["host1", "host2"], type: ["type1", "type2"], direction: ["in","out"], application: ["app1","app2"]});
 
             test_tsdb_distinctGraphLines({name:"some.metric", tags: [{name: "host", value: "*"}, {name: "type", value: "*"}, {name: "direction", value: "in"}, {name: "application", value: ""}], graphOptions: {}}, true, function(graphLines) {
                 expect(objectLength(graphLines)).toEqualData(4);

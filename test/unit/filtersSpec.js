@@ -2,7 +2,7 @@
 
 /* jasmine specs for filters go here */
 
-describe('Otis filters', function() {
+describe('Aardvark filters', function() {
 
     /*
   beforeEach(module('phonecatFilters'));

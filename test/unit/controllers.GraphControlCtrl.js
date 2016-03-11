@@ -1,7 +1,7 @@
 'use strict';
 
 /* jasmine specs for controllers go here */
-describe('Otis controllers', function () {
+describe('Aardvark controllers', function () {
 
     beforeEach(function () {
         this.addMatchers({
@@ -11,7 +11,7 @@ describe('Otis controllers', function () {
         });
     });
 
-    beforeEach(module('Otis'));
+    beforeEach(module('Aardvark'));
 
     describe('GraphControlCtrl', function() {
         var rootScope, scope;

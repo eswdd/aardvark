@@ -1,7 +1,7 @@
 /*
  * Graph rendering
  */
-otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOverlayService', function GraphCtrl($scope, $rootScope, $http, bsLoadingOverlayService) {
+aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOverlayService', function GraphCtrl($scope, $rootScope, $http, bsLoadingOverlayService) {
     $scope.renderedContent = {};
     $scope.renderErrors = {};
     $scope.renderWarnings = {};
@@ -164,7 +164,7 @@ otis.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOverla
         }
 
         if (tagsToGetFromServer.length > 0) {
-            $http.get("/otis/tags?metric="+metric.name)
+            $http.get("/aardvark/tags?metric="+metric.name)
                 .success(function (json) {
                     var lineMap = {};
                     httpCallback(json, tagsToGetFromServer, metric, tagsAndValues, lineMap);

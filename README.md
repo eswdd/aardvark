@@ -1,7 +1,7 @@
-otis
-====
+aardvark
+========
 
-An [<b>O</b>pen<b>T</b>SDB](http://opentsdb.net) V<b>is</b>ualiser.
+An [OpenTSDB](http://opentsdb.net) Visualiser.
 
 A brief list of intended features:
 * Javascript client-side rendered graphs
@@ -22,17 +22,23 @@ Getting started
 * Install node
 * Run some commands:
 ```
-   $ git clone https://github.com/eswdd/otis.git
-   $ cd otis
+   $ git clone https://github.com/eswdd/aardvark.git
+   $ cd aardvark
    $ npm install
    $ npm start
 ```
 * Point browser at [http://localhost:8000/](http://localhost:8000/).
 
+Why the name?
+-------------
+
+It was originally called Aardvark (from <u>O</u>pen<u>T</u>SDB V<u>is</u>ualiser). Anyone growing up in the UK in the 90's
+should be well aware of [https://en.wikipedia.org/wiki/Aardvark_the_Aardvark](Aardvark the Aardvark).
+
 Project info
 ------------
 
-[![Build Status](https://travis-ci.org/eswdd/otis.svg?branch=master)](https://travis-ci.org/eswdd/otis)
+[![Build Status](https://travis-ci.org/eswdd/aardvark.svg?branch=master)](https://travis-ci.org/eswdd/aardvark)
 
 Copyright
 ---------

@@ -1,6 +1,6 @@
 'use strict';
 
-describe('Otis services', function() {
+describe('Aardvark services', function() {
 
     /*
   // load modules

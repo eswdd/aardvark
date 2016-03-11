@@ -4,7 +4,7 @@
  * - global graph options
  * - per-graph options (shared and type specific)
  */
-otis.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphControlCtrl($scope, $rootScope) {
+aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphControlCtrl($scope, $rootScope) {
     // accordion openings
     $scope.isOpen={};
 

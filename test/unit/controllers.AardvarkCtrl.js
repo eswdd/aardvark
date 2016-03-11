@@ -1,7 +1,7 @@
 'use strict';
 
 /* jasmine specs for controllers go here */
-describe('Otis controllers', function () {
+describe('Aardvark controllers', function () {
 
     beforeEach(function () {
         this.addMatchers({
@@ -11,14 +11,14 @@ describe('Otis controllers', function () {
         });
     });
 
-    beforeEach(module('Otis'));
+    beforeEach(module('Aardvark'));
 
-    describe('OtisCtrl', function () {
+    describe('AardvarkCtrl', function () {
         var rootScope, scope, ctrl, $httpBackend, browser, location, controllerCreator;
 
         beforeEach(inject(function ($rootScope, _$httpBackend_, $browser, $location, $controller) {
             $httpBackend = _$httpBackend_;
-            $httpBackend.expectGET('/otis/config').respond({key: "value"});
+            $httpBackend.expectGET('/aardvark/config').respond({key: "value"});
             browser = $browser;
             location = $location;
             controllerCreator = $controller;
@@ -26,7 +26,7 @@ describe('Otis controllers', function () {
             // hmm
             rootScope = $rootScope;
             scope = $rootScope.$new();
-            ctrl = $controller('OtisCtrl', {$scope: scope, $rootScope: rootScope});
+            ctrl = $controller('AardvarkCtrl', {$scope: scope, $rootScope: rootScope});
         }));
 
 
@@ -56,7 +56,7 @@ describe('Otis controllers', function () {
             });
 
             // we should get a second get call when we ask the config to update
-            $httpBackend.expectGET('/otis/config').respond({key: "value"});
+            $httpBackend.expectGET('/aardvark/config').respond({key: "value"});
             rootScope.updateConfig();
             $httpBackend.flush();
             expect(configReceived).toEqualData(true);
@@ -90,7 +90,7 @@ describe('Otis controllers', function () {
             // recreate the controller now we've changed the hash
             location.hash(encodeURI('{"metrics":[{"id":"1","name": "fred"}]}'));
 //            browser.poll();
-            ctrl = controllerCreator('OtisCtrl', {$scope: scope, $rootScope: rootScope});
+            ctrl = controllerCreator('AardvarkCtrl', {$scope: scope, $rootScope: rootScope});
 
             expect(rootScope.model).toEqualData(
                 { metrics : [ { id : '1', name : 'fred' } ] }

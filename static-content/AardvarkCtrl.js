@@ -2,12 +2,12 @@
  * Responsible for the main app, providing config and model<-> hash
  * functionality for the other controllers
  */
-otis.directive('otisEnter', function() {
+aardvark.directive('aardvarkEnter', function() {
         return function(scope, element, attrs) {
             element.bind("keydown keypress", function (event) {
                if (event.which == 13) {
                    scope.$apply(function() {
-                       scope.$eval(attrs.otisEnter);
+                       scope.$eval(attrs.aardvarkEnter);
                    })
 
                    event.preventDefault();
@@ -15,18 +15,18 @@ otis.directive('otisEnter', function() {
             });
         }
     })
-    .directive('otisLoad', function() {
+    .directive('aardvarkLoad', function() {
         return function(scope, element, attrs) {
             element.bind("load", function (event) {
                scope.$apply(function() {
-                   scope.$eval(attrs.otisLoad);
+                   scope.$eval(attrs.aardvarkLoad);
                })
 
                event.preventDefault();
             });
         }
     })
-    .controller('OtisCtrl', [ '$rootScope', '$http', '$location', function OtisCtrl($rootScope, $http, $location) {
+    .controller('AardvarkCtrl', [ '$rootScope', '$http', '$location', function AardvarkCtrl($rootScope, $http, $location) {
     /*
      * Model persistence - ensures that persistent data is saved to the hash whilst leaving
      * controllers free to litter their own scope with volatile data. Controllers are responsible
@@ -79,7 +79,7 @@ otis.directive('otisEnter', function() {
 
 
     $rootScope.updateConfig = function() {
-        $http.get('/otis/config').success(function(json) {
+        $http.get('/aardvark/config').success(function(json) {
             $rootScope.config = json;
             if (json.devMode && $rootScope.graphTypes.indexOf("debug") < 0) {
                 $rootScope.graphTypes.splice(0, 0, "debug");

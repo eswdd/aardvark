@@ -1,7 +1,7 @@
 'use strict';
 
 /* jasmine specs for controllers go here */
-describe('Otis controllers', function () {
+describe('Aardvark controllers', function () {
 
     beforeEach(function () {
         this.addMatchers({
@@ -11,7 +11,7 @@ describe('Otis controllers', function () {
         });
     });
 
-    beforeEach(module('Otis'));
+    beforeEach(module('Aardvark'));
 
     describe('MetricControlCtrl', function() {
         var rootScope, scope, ctrl, $httpBackend, controllerCreator;
@@ -96,7 +96,7 @@ describe('Otis controllers', function () {
                 key2: [ "value3" ]
             };
 
-            $httpBackend.expectGET('/otis/tags?metric=name.baldrick').respond(response);
+            $httpBackend.expectGET('/aardvark/tags?metric=name.baldrick').respond(response);
 
             scope.nodeSelectedForAddition(node, true);
             $httpBackend.flush();
@@ -351,7 +351,7 @@ describe('Otis controllers', function () {
                 tag3: [ "value"]
             };
 
-            $httpBackend.expectGET('/otis/tags?metric=some.metric.name').respond(response);
+            $httpBackend.expectGET('/aardvark/tags?metric=some.metric.name').respond(response);
 
             scope.nodeSelectedForEditing();
             $httpBackend.flush();

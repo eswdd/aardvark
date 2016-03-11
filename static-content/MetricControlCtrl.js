@@ -1,9 +1,9 @@
 /*
  * Used to render the tag value rows in the metrics control panel.
  */
-otis.directive('tagSelection', function() {
+aardvark.directive('tagSelection', function() {
     return {
-        template: '<div mass-autocomplete><input type="text" ng-model="tag[tagk]" mass-autocomplete-item="tagOptions[tagk]" size="15" otis-enter="addOrSaveMetric()" /> {{tagValuesMatchCount(tagk)}}</div>'
+        template: '<div mass-autocomplete><input type="text" ng-model="tag[tagk]" mass-autocomplete-item="tagOptions[tagk]" size="15" aardvark-enter="addOrSaveMetric()" /> {{tagValuesMatchCount(tagk)}}</div>'
     }
 })
 /*
@@ -301,7 +301,7 @@ otis.directive('tagSelection', function() {
     };
 
     $scope.metricSelected = function(metricName, newMetric) {
-        $http.get("/otis/tags?metric="+metricName).success(function (json) {
+        $http.get("/aardvark/tags?metric="+metricName).success(function (json) {
             var tagNames = [];
 
             for (var key in json) {
