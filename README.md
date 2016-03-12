@@ -32,7 +32,7 @@ Getting started
 Why the name?
 -------------
 
-It was originally called Aardvark (from <u>O</u>pen<u>T</u>SDB V<u>is</u>ualiser). Anyone growing up in the UK in the 90's
+It was originally called Otis (from __O__pen__T__SDB V__is__ualiser). Anyone growing up in the UK in the 90's
 should be well aware of [https://en.wikipedia.org/wiki/Aardvark_the_Aardvark](Aardvark the Aardvark).
 
 Project info
