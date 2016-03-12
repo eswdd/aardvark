@@ -29,7 +29,7 @@
     "pretest-continuous": "npm install",
     "pretest": "npm install",
     "test-continuous": "karma start test/karma.conf.js",
-    "test-coverage": "karma start test/karma.conf.coverage.js  --single-run",
+    "test-coverage": "karma start test/karma.coverage.conf.js  --single-run",
     "test": "karma start test/karma.conf.js  --single-run"
   },
   "dependencies": {
