@@ -110,7 +110,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOv
     }
 
 // Helper method for parsing opentsdb's json response
-    $scope.cubism_opentsdbParse = function(json, start, step, interpolate, squashNegatives) {
+    $scope.cubism_parser = function(json, start, step, stop, interpolate, squashNegatives) {
         // no data
         if (json.length == 0) {
             return [[]];
@@ -119,54 +119,46 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOv
             if (ts.dps.length == 0) {
                 return [];
             }
-            if (interpolate) {
-                var firstTime = ts.dps[0][0];
-                var ret = [];
-                for (var v=start; v<firstTime; v+=step) {
-                    ret.push(null);
+            var firstTime = ts.dps[0][0];
+            var ret = [];
+            for (var v=start; v<firstTime; v+=step) {
+                ret.push(null);
+            }
+            var lastValue;
+            var lastValueTime;
+            var nextIndex = 0;
+            var startFrom = Math.max(firstTime, start);
+            for (var v=startFrom; nextIndex<ts.dps.length && v<=stop; v+=step) {
+                while (nextIndex < ts.dps.length && ts.dps[nextIndex][0] < v) {
+                    nextIndex++;
                 }
-                var lastValue;
-                var lastValueTime;
-                var nextIndex = 0;
-                var loopCount = 0;
-//                var loopLimit = 720; // max 720 points - just in case we have some bugs!
-                for (var v=firstTime; nextIndex<ts.dps.length; v+=step) {
-//                    if (loopCount++>loopLimit) break;
-                    if (ts.dps[nextIndex][0] == v) {
-                        lastValue = ts.dps[nextIndex][1];
-                        lastValueTime = ts.dps[nextIndex][0];
-                        ret.push(squashNegatives && lastValue < 0 ? 0 : lastValue);
-                        nextIndex++;
-                        if (nextIndex>=ts.dps.length) {
-                            break;
-                        }
+                if (ts.dps[nextIndex][0] == v) {
+                    lastValue = ts.dps[nextIndex][1];
+                    lastValueTime = ts.dps[nextIndex][0];
+                    ret.push(squashNegatives && lastValue < 0 ? 0 : lastValue);
+                    nextIndex++;
+                    if (nextIndex>=ts.dps.length) {
+                        break;
                     }
-                    else {
-                        // interpolate
+                }
+                else if (ts.dps[nextIndex][0] > v) {
+                    // interpolate
+                    if (interpolate) {
                         var nextValue = ts.dps[nextIndex][1];
                         var nextTime = ts.dps[nextIndex][0];
                         var timeDiffLastToNext = nextTime - lastValueTime;
                         var timeDiffLastToNow = v - lastValueTime;
-                        var value = nextValue + ((nextValue - lastValue) * (timeDiffLastToNow / timeDiffLastToNext));
-                        ret.push(squashNegatives && value < 0 ? 0 : value)
+                        var value = lastValue + ((nextValue - lastValue) * (timeDiffLastToNow / timeDiffLastToNext));
+                        ret.push(squashNegatives && value < 0 ? 0 : value);
+                    }
+                    else {
+                        ret.push(null);
                     }
                 }
-                return ret;
             }
-            else {
-                if (squashNegatives) {
-                    return ts.dps.map(function (array) {
-                        return array[1] < 0 ? 0 : array[1];
-                    });
-                }
-                else {
-                    return ts.dps.map(function (array) {
-                        return array[1];
-                    });
-                }
-            }
+            return ret;
         });
-    }
+    };
 
     $scope.tsdb_queryString = function(global, graph, metrics, perLineFn) {
 
@@ -174,11 +166,11 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOv
         // validation
         if (fromTimestamp == null || fromTimestamp == "") {
             $scope.renderErrors[graph.id] = "No start date specified";
-            return;
+            return "";
         }
         if (metrics == null || metrics.length == 0) {
             $scope.renderErrors[graph.id] = "No metrics specified";
-            return;
+            return "";
         }
 
         // url construction
@@ -274,14 +266,22 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOv
         $scope.renderedContent[graph.id] = txt;
     };
     $scope.renderers["gnuplot"] = function(global, graph, metrics) {
-//        $scope.renderedContent[graph.id] = { src: "", width: 0, height: 0 };
+        if ($scope.renderedContent[graph.id] == null) {
+            $scope.renderedContent[graph.id] = { src: "", width: 0, height: 0 };
+        }
         $scope.renderMessages[graph.id] = "Loading...";
 
 
         var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/q";
-        url += $scope.tsdb_queryString(global, graph, metrics, function(metric) {
+        var qs = $scope.tsdb_queryString(global, graph, metrics, function(metric) {
             return "&o=axis+"+metric.graphOptions.axis;
         });
+
+        if (qs == "") {
+            return;
+        }
+
+        url += qs;
 
         var usingLeftAxis = false;
         var usingRightAxis = false;
@@ -428,7 +428,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOv
             var interpolate = graph.horizon && graph.horizon.interpolateGaps;
             var squash = graph.horizon && graph.horizon.squashNegatives;
 
-            var parsed = $scope.cubism_opentsdbParse(json, start, stepSize, interpolate, squash); // array response
+            var parsed = $scope.cubism_parser(json, start, stepSize, stop, interpolate, squash); // array response
             // construct cMetrics
             var cMetrics = [];
 
@@ -554,9 +554,11 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOv
     $rootScope.renderGraphs = function() {
         // todo: could be cleverer about clearing in case some graphs haven't changed
         // ie track ids found and delete others
+        $scope.clearGraphRenderListeners();
         $scope.renderedContent = {};
         $scope.renderErrors = {};
         $scope.renderWarnings = {};
+        $scope.renderMessages = {};
         var global = $rootScope.model.global || {};
         for (var i=0; i<$rootScope.model.graphs.length; i++) {
             var graph = $rootScope.model.graphs[i];

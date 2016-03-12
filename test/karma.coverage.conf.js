@@ -23,7 +23,7 @@ module.exports = function (config) {
 
         autoWatch: true,
 
-        reporters: ['mocha'],
+        reporters: ['mocha','coverage'],
 
         frameworks: ['jasmine'],
 
@@ -31,14 +31,26 @@ module.exports = function (config) {
 
         plugins: [
             'karma-chrome-launcher',
+            'karma-coverage',
             'karma-firefox-launcher',
             'karma-jasmine',
             'karma-mocha-reporter'
         ],
 
+        preprocessors: { 'static-content/*Ctrl.js': ['coverage'] },
+
         junitReporter: {
             outputFile: 'test_out/unit.xml',
             suite: 'unit'
+        },
+
+        coverageReporter: {
+            // specify a common output directory
+            dir: 'coverage',
+            reporters: [
+                // reporters not supporting the `file` property
+                { type: 'lcov', subdir: 'lcov' }
+            ]
         }
 
     });

@@ -28,8 +28,8 @@
     "start": "node aardvark.js",
     "pretest-continuous": "npm install",
     "pretest": "npm install",
-    "test-debug": "karma start test/karma.conf.js --debug",
     "test-continuous": "karma start test/karma.conf.js",
+    "test-coverage": "karma start test/karma.conf.coverage.js  --single-run",
     "test": "karma start test/karma.conf.js  --single-run"
   },
   "dependencies": {

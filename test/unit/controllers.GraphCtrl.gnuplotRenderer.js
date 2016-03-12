@@ -39,6 +39,11 @@ describe('Aardvark controllers', function () {
                 metrics: []
             }
 
+            rootScope.config = {
+                tsdbHost: "tsdb",
+                tsdbPort: 4242
+            }
+
             rootScope.formEncode = function(val) {
                 var ret = val.replace(" ","+");
                 if (ret != val) {
@@ -95,7 +100,7 @@ describe('Aardvark controllers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, graphOptions: { axis: "fred" }};
-            var metrics = [ { id: "123", graphOptions: {} } ];
+            var metrics = [ { id: "123", graphOptions: {}, tags: [] } ];
 
             scope.renderers.gnuplot(global, graph, metrics);
 
