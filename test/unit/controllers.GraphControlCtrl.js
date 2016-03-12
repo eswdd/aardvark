@@ -70,7 +70,6 @@ describe('Aardvark controllers', function () {
                     id: scope.lastGraphId+"",
                     title: "Graph 1",
                     type: null,
-                    showTitle: true,
                     graphWidth: 0,
                     graphHeight: 0,
                     gnuplot: {
@@ -96,7 +95,6 @@ describe('Aardvark controllers', function () {
                     id: scope.lastGraphId+"",
                     title: "Graph 1",
                     type: "unittest1",
-                    showTitle: true,
                     graphWidth: 0,
                     graphHeight: 0,
                     gnuplot: {
@@ -119,8 +117,7 @@ describe('Aardvark controllers', function () {
                 {
                     id: "1234",
                     title: "Graph 1",
-                    type: null,
-                    showTitle: true
+                    type: null
                 }
             ];
 
@@ -140,7 +137,6 @@ describe('Aardvark controllers', function () {
                     id: firstId,
                     title: "Graph 1",
                     type: null,
-                    showTitle: true,
                     gnuplot: {
                         yAxisRange: "[0:]",
                         y2AxisRange: "[0:]",
@@ -160,7 +156,6 @@ describe('Aardvark controllers', function () {
                     id: firstId,
                     title: "Graph 1",
                     type: null,
-                    showTitle: true,
                     gnuplot: {
                         yAxisRange: "[0:]",
                         y2AxisRange: "[0:]",
@@ -174,7 +169,6 @@ describe('Aardvark controllers', function () {
                     id: secondId,
                     title: "Graph 2",
                     type: null,
-                    showTitle: true,
                     gnuplot: {
                         yAxisRange: "[0:]",
                         y2AxisRange: "[0:]",
@@ -198,7 +192,6 @@ describe('Aardvark controllers', function () {
                     id: firstId,
                     title: "Graph 1",
                     type: "unittest1",
-                    showTitle: true,
                     gnuplot: {
                         yAxisRange: "[0:]",
                         y2AxisRange: "[0:]",
@@ -218,7 +211,6 @@ describe('Aardvark controllers', function () {
                     id: firstId,
                     title: "Graph 1",
                     type: "unittest1",
-                    showTitle: true,
                     gnuplot: {
                         yAxisRange: "[0:]",
                         y2AxisRange: "[0:]",
@@ -232,7 +224,6 @@ describe('Aardvark controllers', function () {
                     id: secondId,
                     title: "Graph 2",
                     type: "unittest1",
-                    showTitle: true,
                     gnuplot: {
                         yAxisRange: "[0:]",
                         y2AxisRange: "[0:]",

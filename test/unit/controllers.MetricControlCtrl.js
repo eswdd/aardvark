@@ -310,8 +310,7 @@ describe('Aardvark controllers', function () {
                     {
                         id: "abc",
                         type: "debug",
-                        title: "Title1",
-                        showTitle: true
+                        title: "Title1"
                     }
                 ],
                 metrics: [

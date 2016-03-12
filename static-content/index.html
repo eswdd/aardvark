@@ -282,8 +282,9 @@
                          bs-loading-overlay
                          bs-loading-overlay-reference-id="graphOverlay_{{graph.id}}"
                          bs-loading-overlay-template-url="loading-overlay-template.html">
-                        <div class="graph-title" ng-show="graph.showTitle">
-                            {{graph.title}}
+                        <div class="graph-title">
+                            <span>{{graph.title}}</span>
+                            <span ng-show="renderMessages[graph.id] != null && renderMessages[graph.id] != ''"> - {{renderMessages[graph.id]}}</span>
                         </div>
                         <div ng-show="renderErrors[graph.id]!=null">
                             <span style="color: red">{{renderErrors[graph.id]}}</span>
@@ -299,8 +300,8 @@
                             <!--<div id="gnuplotDiv_{{graph.id}}" ng-show="graph.type == 'gnuplot'">-->
                                 <!--<pre>{{renderedContent[graph.id]}}</pre>-->
                             <!--</div>-->
-                            <img id="gnuplotImg_{{graph.id}}" ng-src="{{renderedContent[graph.id].src}}" aardvark-load="hideOverlay('graphOverlay_{{graph.id}}')" ng-show="graph.type == 'gnuplot'" width="{{renderedContent[graph.id].width}}" height="{{renderedContent[graph.id].height}}" />
-                            <div id="horizonDiv_{{graph.id}}" ng-show="graph.type == 'horizon' && !hiddenElement('horizonDiv_'+graph.id)">
+                            <img id="gnuplotImg_{{graph.id}}" ng-src="{{renderedContent[graph.id].src}}" aardvark-load="renderMessages[graph.id] = ''; graphRendered(graph.id);" ng-show="graph.type == 'gnuplot'" width="{{renderedContent[graph.id].width}}" height="{{renderedContent[graph.id].height}}" />
+                            <div id="horizonDiv_{{graph.id}}" ng-show="graph.type == 'horizon'">
                             </div>
                         </div>
                     </div>

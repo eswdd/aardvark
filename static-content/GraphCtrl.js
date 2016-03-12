@@ -5,9 +5,11 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOv
     $scope.renderedContent = {};
     $scope.renderErrors = {};
     $scope.renderWarnings = {};
+    $scope.renderMessages = {};
     $scope.imageRenderCount = 0;
     $scope.lastId = 0;
     $scope.hiddenElements = {};
+    $scope.renderListeners = {};
 
     $scope.nextId = function() {
         var next = new Date().getTime();
@@ -17,31 +19,21 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOv
         $scope.lastId = next;
         return next + "";
     }
-    // loading overlays
-    $scope.showOverlay = function (referenceId) {
-//        console.log('showOverlay: '+referenceId);
-        bsLoadingOverlayService.start({
-            referenceId: referenceId
-        });
-    };
 
-    $scope.hideOverlay = function (referenceId) {
-//        console.log('hideOverlay: '+referenceId);
-        bsLoadingOverlayService.stop({
-            referenceId: referenceId
-        });
-    }
-
-    $scope.showElement = function (divId) {
-//        console.log("showElement: "+divId);
-        if ($scope.hiddenElements.hasOwnProperty(divId)) {
-            delete $scope.hiddenElements[divId];
+    $scope.graphRendered = function (graphId) {
+        for (var k in $scope.renderListeners) {
+            if ($scope.renderListeners.hasOwnProperty(k)) {
+                $scope.renderListeners[k](graphId);
+            }
         }
     }
 
-    $scope.hideElement = function (divId) {
-//        console.log("showElement: "+divId);
-        $scope.hiddenElements[divId] = true;
+    $scope.addGraphRenderListener = function(listenerId, listenerFn) {
+        $scope.renderListeners[listenerId] = listenerFn;
+    }
+
+    $scope.clearGraphRenderListeners = function() {
+        $scope.renderListeners = {};
     }
 
     $scope.hiddenElement = function (divId) {
@@ -116,259 +108,6 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOv
             return datum ? datum : new Date();
         }
     }
-    $scope.tsdb_distinctGraphLines = function(metric, fn) {
-        // returns a map of string to metric with tag set which represents a single line (fully defined tags only, tag omissions allowed to aggregate)
-        // string will be the metric name and interesting tags only (ie won't include aggregate tags)
-        var tagsAndValues = [];
-        var tagsToGetFromServer = [];
-        for (var i=0; i<metric.tags.length; i++) {
-            var tag = metric.tags[i];
-            var tagk = tag.name;
-            var tagv = tag.value;
-            if (tagv == null || tagv == undefined || tagv == "") {
-                continue;
-            }
-            if (tagv == "*") {
-                tagsToGetFromServer.push(tagk);
-            }
-            else if (tagv.indexOf("|") >= 0) {
-                tagsAndValues.push({tagk: tagk, tagvs: tagv.split("|")});
-            }
-            else {
-                tagsAndValues.push({tagk: tagk, tagvs: [tagv]});
-            }
-        }
-
-
-        var iterateTagSets = function(metric, tagsAndValues, tagMap, index, lineMap) {
-            // and now call the fn
-            if (index >= tagsAndValues.length) {
-                var tagsArg = {};
-                var tagString = "{";
-                var sep = "";
-                for (var tagk in tagMap) {
-                    if (tagMap.hasOwnProperty(tagk)) {
-                        var tagv = tagMap[tagk];
-                        tagsArg[tagk] = tagv;
-                        tagString += sep + tagk + "=" + tagv;
-                        sep=",";
-                    }
-                }
-                tagString += "}";
-                if (tagString == "{}") {
-                    tagString = "";
-                }
-                lineMap[metric.name+tagString] = tagsArg;
-                return;
-            }
-
-            var tagAndValues = tagsAndValues[index];
-            for (var v=0; v<tagAndValues.tagvs.length; v++) {
-                var tagv = tagAndValues.tagvs[v];
-                tagMap[tagAndValues.tagk] = tagv;
-                iterateTagSets(metric, tagsAndValues, tagMap, index+1, lineMap);
-                tagMap[tagAndValues.tagk] = null;
-            }
-        }
-
-        var httpCallback = function(json, tagsToFill, metric, tagsAndValues, lineMap) {
-            // fill in blanks
-            if (tagsToFill.length != 0) {
-                for (var t=0; t<tagsToFill.length; t++) {
-                    var tagk = tagsToFill[t];
-                    tagsAndValues.push({tagk: tagk, tagvs: json[tagk]});
-                }
-            }
-
-            // now we can safely construct the array
-            iterateTagSets(metric, tagsAndValues, {}, 0, lineMap);
-        }
-
-        if (tagsToGetFromServer.length > 0) {
-            $http.get("/aardvark/tags?metric="+metric.name)
-                .success(function (json) {
-                    var lineMap = {};
-                    httpCallback(json, tagsToGetFromServer, metric, tagsAndValues, lineMap);
-                    for (var key in lineMap) {
-                        if (lineMap.hasOwnProperty(key)) {
-                            fn(lineMap);
-                            return;
-                        }
-                    }
-                    // no tag sets - shouldn't get here
-                    var ret = {};
-                    ret[metric.name] = {};
-                    fn(ret);
-                })
-                .error(function (arg) {
-                    console.log("error in http call: "+arg);
-                    // default response
-                    var ret = {};
-                    ret[metric.name] = {};
-                    fn(ret);
-                });
-        }
-        else {
-            var lineMap = {};
-            iterateTagSets(metric, tagsAndValues, {}, 0, lineMap);
-            fn(lineMap);
-        }
-    }
-    $scope.cubism_parser = function(json, start, step, stop, interpolate, squashNegatives) {
-        // no data
-        if (json.length == 0) {
-            return [[]];
-        }
-        return json.map(function (ts) {
-            if (ts.dps.length == 0) {
-                return [];
-            }
-            var firstTime = ts.dps[0][0];
-            var ret = [];
-            for (var v=start; v<firstTime; v+=step) {
-                ret.push(null);
-            }
-            var lastValue;
-            var lastValueTime;
-            var nextIndex = 0;
-            var startFrom = Math.max(firstTime, start);
-            for (var v=startFrom; nextIndex<ts.dps.length && v<=stop; v+=step) {
-                while (nextIndex < ts.dps.length && ts.dps[nextIndex][0] < v) {
-                    nextIndex++;
-                }
-                if (ts.dps[nextIndex][0] == v) {
-                    lastValue = ts.dps[nextIndex][1];
-                    lastValueTime = ts.dps[nextIndex][0];
-                    ret.push(squashNegatives && lastValue < 0 ? 0 : lastValue);
-                    nextIndex++;
-                    if (nextIndex>=ts.dps.length) {
-                        break;
-                    }
-                }
-                else if (ts.dps[nextIndex][0] > v) {
-                    // interpolate
-                    if (interpolate) {
-                        var nextValue = ts.dps[nextIndex][1];
-                        var nextTime = ts.dps[nextIndex][0];
-                        var timeDiffLastToNext = nextTime - lastValueTime;
-                        var timeDiffLastToNow = v - lastValueTime;
-                        var value = lastValue + ((nextValue - lastValue) * (timeDiffLastToNow / timeDiffLastToNext));
-                        ret.push(squashNegatives && value < 0 ? 0 : value);
-                    }
-                    else {
-                        ret.push(null);
-                    }
-                }
-            }
-            return ret;
-        });
-    };
-
-
-    $scope.cubism_opentsdb = function (context, address) {
-        if (!arguments.length) {
-            address = "";
-        }
-        var source = {};
-
-        source.metric = function (metric, rateString, tagMap, name) {
-            var aggregator = "sum";
-            var downsampler = "avg";
-            var interpolate = false;
-            var squashNegatives = false;
-            var id = $scope.nextId();
-
-            var ret = context.metric(function (start, stop, step, callback) {
-                // m=<aggregator>:[rate[{counter[,<counter_max>[,<reset_value>]]]}:][<down_sampler>:]<metric_name>[{<tag_name1>=<grouping filter>[,...<tag_nameN>=<grouping_filter>]}][{<tag_name1>=<non grouping filter>[,...<tag_nameN>=<non_grouping_filter>]}]
-                var target = aggregator + (rateString ? ":" + rateString : "");
-
-//            if (step !== 1e4) {
-                target += ":" + (!(step % 36e5) ? step / 36e5 + "h" : !(step % 6e4) ? step / 6e4 + "m" : step / 1e3 + "s") + "-" + downsampler;
-//            }
-
-                target += ":" + metric;
-                if (tagMap) {
-                    target += "{";
-                    var sep = "";
-                    for (var tagk in tagMap) {
-                        if (tagMap.hasOwnProperty(tagk)) {
-                            target += sep + tagk + "=" + tagMap[tagk];
-                            sep = ",";
-                        }
-                    }
-                    target += "}";
-                }
-
-                var url = address + "/api/query"
-                    + "?m=" + encodeURIComponent(target)
-                    + "&start=" + $scope.cubism_opentsdbFormatDate(start)
-                    + "&end=" + $scope.cubism_opentsdbFormatDate(stop)
-                    + "&ms=true"
-                    + "&global_annotations=true"
-                    + "&arrays=true";
-
-                d3.json(url, function (json) {
-                    if (!json) {
-                        return callback(new Error("unable to load data"));
-                    }
-                    var parsed = $scope.cubism_opentsdbParse(json, start, step, interpolate, squashNegatives); // array response
-                    callback(null, parsed[0]);
-                    console.log("hideOverlay(horizonGraph_"+id+")");
-                    $scope.hideOverlay("horizonGraph_"+id);
-                });
-            }, name);
-
-            ret.aggregate = function (_) {
-                aggregator = _;
-                return ret;
-            };
-
-            ret.downsample = function (_) {
-                downsampler = _;
-                return ret;
-            };
-
-            ret.interpolate = function (_) {
-                interpolate = _;
-                return ret;
-            }
-
-            ret.squashNegatives = function(_) {
-                squashNegatives = _;
-                return ret;
-            }
-
-            ret.id = function() {
-                return id;
-            }
-
-            return ret;
-        }
-
-        source.find = function (pattern, callback) {
-            d3.json(address + "/api/suggest?type=metrics&max=1000"
-                + "&q=" + encodeURIComponent(pattern), function (result) {
-                if (!result) {
-                    return callback(new Error("unable to find metrics"));
-                }
-                callback(null, result.metrics.map(function (d) {
-                    return d;
-                }));
-            });
-        };
-
-        // Returns the tsdb address.
-        source.toString = function () {
-            return host;
-        };
-
-        return source;
-    };
-
-// Opentsdb understands seconds since UNIX epoch.
-    $scope.cubism_opentsdbFormatDate = function(time) {
-        return Math.floor(time / 1000);
-    }
 
 // Helper method for parsing opentsdb's json response
     $scope.cubism_opentsdbParse = function(json, start, step, interpolate, squashNegatives) {
@@ -429,36 +168,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOv
         });
     }
 
-    // pre-defined in unit tests
-    if (!$scope.renderers) {
-        $scope.renderers = {};
-    }
-    $scope.renderers["debug"] = function(global, graph, metrics) {
-        var lineSep = "";
-        var txt = "";
-        for (var i=0; i<metrics.length; i++) {
-            var m = metrics[i];
-            txt += lineSep + "["+i+"] " + m.id + ": " + m.name;
-            lineSep = "\n";
-            var sep = " {";
-            for (var t=0; t< m.tags.length; t++) {
-                var tag = m.tags[t];
-                if (tag.value != '') {
-                    txt += sep + " " + tag.name + "='" + tag.value + "'";
-                    sep = ",";
-                }
-            }
-            if (sep != " {") {
-                txt += " }";
-            }
-            if (metrics[i].graphOptions.axis == "x1y2") {
-                txt += " [rightAxis]";
-            }
-        }
-        $scope.renderedContent[graph.id] = txt;
-    };
-    $scope.renderers["gnuplot"] = function(global, graph, metrics) {
-        $scope.renderedContent[graph.id] = { src: "", width: 0, height: 0 };
+    $scope.tsdb_queryString = function(global, graph, metrics, perLineFn) {
 
         var fromTimestamp = $scope.tsdb_fromTimestampAsTsdbString(global);
         // validation
@@ -470,23 +180,9 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOv
             $scope.renderErrors[graph.id] = "No metrics specified";
             return;
         }
-        var usingLeftAxis = false;
-        var usingRightAxis = false;
-        for (var i=0; i<metrics.length; i++) {
-            if (metrics[i].graphOptions.axis == "x1y1") {
-                usingLeftAxis = true;
-            }
-            else if (metrics[i].graphOptions.axis == "x1y2") {
-                usingRightAxis = true;
-            }
-            else {
-                $scope.renderErrors[graph.id] = "Invalid axis specified";
-                return;
-            }
-        }
 
         // url construction
-        var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/q";
+        var url = "";
 
         url += "?start=" + fromTimestamp;
         if (global.autoReload) {
@@ -539,9 +235,67 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOv
                 url += "}";
             }
 
-            url += "&o=axis+"+options.axis;
+            if (perLineFn) {
+                url += perLineFn(metric)
+            }
 
             // ready for next metric
+        }
+
+        return url;
+    }
+
+    // pre-defined in unit tests
+    if (!$scope.renderers) {
+        $scope.renderers = {};
+    }
+    $scope.renderers["debug"] = function(global, graph, metrics) {
+        var lineSep = "";
+        var txt = "";
+        for (var i=0; i<metrics.length; i++) {
+            var m = metrics[i];
+            txt += lineSep + "["+i+"] " + m.id + ": " + m.name;
+            lineSep = "\n";
+            var sep = " {";
+            for (var t=0; t< m.tags.length; t++) {
+                var tag = m.tags[t];
+                if (tag.value != '') {
+                    txt += sep + " " + tag.name + "='" + tag.value + "'";
+                    sep = ",";
+                }
+            }
+            if (sep != " {") {
+                txt += " }";
+            }
+            if (metrics[i].graphOptions.axis == "x1y2") {
+                txt += " [rightAxis]";
+            }
+        }
+        $scope.renderedContent[graph.id] = txt;
+    };
+    $scope.renderers["gnuplot"] = function(global, graph, metrics) {
+//        $scope.renderedContent[graph.id] = { src: "", width: 0, height: 0 };
+        $scope.renderMessages[graph.id] = "Loading...";
+
+
+        var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/q";
+        url += $scope.tsdb_queryString(global, graph, metrics, function(metric) {
+            return "&o=axis+"+metric.graphOptions.axis;
+        });
+
+        var usingLeftAxis = false;
+        var usingRightAxis = false;
+        for (var i=0; i<metrics.length; i++) {
+            if (metrics[i].graphOptions.axis == "x1y1") {
+                usingLeftAxis = true;
+            }
+            else if (metrics[i].graphOptions.axis == "x1y2") {
+                usingRightAxis = true;
+            }
+            else {
+                $scope.renderErrors[graph.id] = "Invalid axis specified";
+                return;
+            }
         }
 
         if (usingLeftAxis) {
@@ -609,10 +363,10 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOv
 
         url += "&wxh="+width+"x"+height;
 
-        $scope.showOverlay("graphOverlay_"+graph.id);
         $scope.renderedContent[graph.id] = { src: url, width: width, height: height };
     };
     $scope.renderers["horizon"] = function(global, graph, metrics) {
+        $scope.renderMessages[graph.id] = "Loading...";
         var divSelector = "#horizonDiv_"+graph.id;
 
         var s = 1000;
@@ -626,15 +380,6 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOv
             steps.push(i*w);
         }
 
-
-        // todo: clean out old stuff
-        // d3.select(divSelector)
-
-//        var diff = 800*86400000;
-//        console.log("diff="+diff);
-
-//    console.log("width="+(86400000*800));
-
         // cubism plots a pixel per step, so we need to calculate step size (we ignore downsampling time measure)
         var width = Math.floor(graph.graphWidth);
         var height = Math.floor(graph.graphHeight);
@@ -643,7 +388,6 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOv
         var diff = new Date() - start.getTime();
         var timeWidth = stop.getTime() - start.getTime();
         var rawStepSize = timeWidth / width;
-        //console.log("raw step = "+rawStepSize);
         var stepSize = steps[0];
         for (var i=0; i<steps.length-1; i++) {
             //console.log("considering "+steps[i]+" < " + rawStepSize + " <= "+steps[i+1]);
@@ -656,272 +400,155 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOv
         // now recalculate width so we get the time range requested
         width = Math.ceil(timeWidth / stepSize);
 
-        //console.log("step = "+stepSize);
+        // construct the query string for these metrics, when we have a response, then use that to construct
+        //    constant metrics (data already loaded) for time series which are returned.
+
+        var fromTimestamp = $scope.tsdb_fromTimestampAsTsdbString(global);
+        // validation
+        if (fromTimestamp == null || fromTimestamp == "") {
+            $scope.renderErrors[graph.id] = "No start date specified";
+            return;
+        }
+        if (metrics == null || metrics.length == 0) {
+            $scope.renderErrors[graph.id] = "No metrics specified";
+            return;
+        }
+
+        // url construction
+        var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/query";
+
+        url += $scope.tsdb_queryString(global, graph, metrics);
+
+        url += "&ms=true&arrays=true";
+
+        // now we have the url, so call it!
+        $http.get(url).success(function (json) {
+            // now we have an array of lines, so let's convert them to metrics
+
+            var interpolate = graph.horizon && graph.horizon.interpolateGaps;
+            var squash = graph.horizon && graph.horizon.squashNegatives;
+
+            var parsed = $scope.cubism_opentsdbParse(json, start, stepSize, interpolate, squash); // array response
+            // construct cMetrics
+            var cMetrics = [];
+
+            var context = cubism.context()
+                .serverDelay(diff)
+                .step(stepSize)
+                .size(width)
+                .stop();
+
+            var addMetric = function(cMetrics, metricData, name)
+            {
+                cMetrics.push(context.metric(function (start, stop, step, callback) {
+                    callback(null, metricData);
+                }, name));
+            }
+
+            for (var i=0; i<parsed.length; i++) {
+                var name = json[i].metric;
+                var tagNames = [];
+                for (var tk in json[i].tags) {
+                    if (json[i].tags.hasOwnProperty(tk)) {
+                        tagNames.push(tk);
+                    }
+                }
+                if (tagNames.length > 0) {
+                    name += "{";
+                    tagNames.sort();
+                    for (var tk = 0; tk < tagNames.length; tk++) {
+                        name += tagNames[tk] + "=" + json[i].tags[tagNames[tk]];
+                    }
+                    name += "}";
+                }
+                addMetric(cMetrics, parsed[i], name);
+            }
 
 
-        // remove old horizon charts
-        d3.select(divSelector)
-            .selectAll(".horizon")
-            .remove();
-        // remove everything else
-        d3.select(divSelector)
-            .selectAll(".axis")
-            .remove();
-        d3.select(divSelector)
-            .selectAll(".rule")
-            .remove();
-        d3.select(divSelector)
-            .selectAll(".value")
-            .remove();
+            // remove old horizon charts
+            d3.select(divSelector)
+                .selectAll(".horizon")
+                .remove();
+            // remove everything else
+            d3.select(divSelector)
+                .selectAll(".axis")
+                .remove();
+            d3.select(divSelector)
+                .selectAll(".rule")
+                .remove();
+            d3.select(divSelector)
+                .selectAll(".value")
+                .remove();
 
+            var cubism_axisFormatSeconds = d3.time.format("%H:%M:%S"),
+                cubism_axisFormatMinutes = d3.time.format("%H:%M"),
+                cubism_axisFormatDays = d3.time.format("%B %d");
 
-        var context = cubism.context()
-            .serverDelay(diff)
-            .step(stepSize)
-            .size(width)
-            .stop();
-        var tsdb = $scope.cubism_opentsdb(context, "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort);
+            var axisFormat = context.step() < 6e4 ? cubism_axisFormatSeconds
+                : context.step() < 864e5 ? cubism_axisFormatMinutes
+                : cubism_axisFormatDays;
 
+            d3.select(divSelector).selectAll(".axis")
+                .data(["top", "bottom"])
+                .enter().append("div")
+                .attr("id", function(d) { return "horizonAxis_" + d + "_" + graph.id; })
+                .attr("class", function(d) { return d + " axis"; })
+                .each(function(d) { d3.select(this).call(context.axis().focusFormat(axisFormat).ticks(12).orient(d)); });
 
-        var cubism_axisFormatSeconds = d3.time.format("%H:%M:%S"),
-            cubism_axisFormatMinutes = d3.time.format("%H:%M"),
-            cubism_axisFormatDays = d3.time.format("%B %d");
+            context.on("focus", function(i) {
+                d3.selectAll(".value").style("right", "10px");
+            });
 
-        var axisFormat = context.step() < 6e4 ? cubism_axisFormatSeconds
-            : context.step() < 864e5 ? cubism_axisFormatMinutes
-            : cubism_axisFormatDays;
+            var topAxisBox = d3.select("#horizonAxis_top_"+graph.id).node().getBoundingClientRect();
+            var bottomAxisBox = d3.select("#horizonAxis_bottom_"+graph.id).node().getBoundingClientRect();
 
-        d3.select(divSelector).selectAll(".axis")
-            .data(["top", "bottom"])
-            .enter().append("div")
-            .attr("id", function(d) { return "horizonAxis_" + d + "_" + graph.id; })
-            .attr("class", function(d) { return d + " axis"; })
-            .each(function(d) { d3.select(this).call(context.axis().focusFormat(axisFormat).ticks(12).orient(d)); });
+            var topAxisHeight = topAxisBox.height;
+            var bottomAxisHeight = bottomAxisBox.height;
+            var totalAxesHeight = topAxisHeight + bottomAxisHeight;
 
-        context.on("focus", function(i) {
-            d3.selectAll(".value").style("right", "10px");
+            var minLineHeight = 25;
+            var maxLineHeight = 60;
+
+            var perLineHeight = ((height - totalAxesHeight)/cMetrics.length)-2;
+            perLineHeight = Math.min(Math.max(perLineHeight,minLineHeight),maxLineHeight);
+            d3.select(divSelector).selectAll(".horizon")
+                .data(cMetrics)
+                .enter().insert("div", ".bottom")
+                .attr("class", "horizon")
+                .call(context.horizon().height(perLineHeight));
+
+            // now we can add rule safely as we know height as well
+            d3.select(divSelector).append("div")
+                .attr("class", "rule")
+                .attr("id","horizonRule_"+graph.id)
+                .call(context.rule());
+
+            var resizeFocusRule = function() {
+                var graphPanelBox = d3.select("#scrollable-graph-panel").node().getBoundingClientRect();
+                var topAxisBox = d3.select("#horizonAxis_top_"+graph.id).node().getBoundingClientRect();
+                // top needs to be relative to this panel, not whole window
+                var ruleTop = topAxisBox.top - graphPanelBox.top;
+                var ruleHeight = totalAxesHeight + (perLineHeight * cMetrics.length);
+                // and now we just go find the rule we added and set the top/height
+                d3.select("#horizonRule_"+graph.id).select(".line").style("top", ruleTop+"px").style("height",ruleHeight+"px").style("bottom",null);
+            }
+
+            resizeFocusRule();
+
+            $scope.addGraphRenderListener(function (graphId) {
+                if (graphId != graph.id) {
+                    resizeFocusRule();
+                }
+            });
+
+            $scope.renderMessages[graph.id] = "";
+            $scope.graphRendered(graph.id);
+            return;
+        })
+        .error(function (arg) {
+            $scope.renderMessages[graph.id] = "Error loading data: "+arg;
+            return;
         });
-
-        var cMetrics = [];
-
-        var allInOne = true;
-        if (allInOne) {
-            $scope.hideElement("horizonDiv_"+graph.id);
-            $scope.showOverlay("graphOverlay_"+graph.id);
-            // construct the query string for these metrics, when we have a response, then use that to construct
-            //    constant metrics (data already loaded) for time series which are returned.
-            // todo: shareable function
-
-            var fromTimestamp = $scope.tsdb_fromTimestampAsTsdbString(global);
-            // validation
-            if (fromTimestamp == null || fromTimestamp == "") {
-                $scope.renderErrors[graph.id] = "No start date specified";
-                return;
-            }
-            if (metrics == null || metrics.length == 0) {
-                $scope.renderErrors[graph.id] = "No metrics specified";
-                return;
-            }
-
-            // url construction
-            var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/query";
-            url += "?start=" + fromTimestamp;
-            if (global.autoReload) {
-                // todo: do we need to do a conversion to utc?
-                var now = new Date();
-                var y = now.getFullYear();
-                var mo = now.getMonth()+1;
-                var d = now.getDate();
-                var h = now.getHours();
-                var mi = now.getMinutes();
-                var s = now.getSeconds();
-                url += "&end="+y+"/"+(mo<10?("0"+mo):mo)+"/"+(d<10?("0"+d):d)+"-"+(h<10?("0"+h):h)+":"+(mi<10?("0"+mi):mi)+":"+(s<10?("0"+s):s);
-            }
-            else {
-                var toString = $scope.tsdb_toTimestampAsTsdbString(global);
-                if (toString != null) {
-                    url += "&end=" + toString;
-                }
-                else {
-                    url += "&ignore="+(++$scope.imageRenderCount);
-                }
-            }
-
-
-            for (var i=0; i<metrics.length; i++) {
-                // agg:[interval-agg:][rate[{counter[,max[,reset]]}:]metric[{tag=value,...}]
-                var metric = metrics[i];
-                var options = metric.graphOptions;
-                url += "&m=" + options.aggregator + ":";
-                if (options.downsample) {
-                    url += options.downsampleTo + "-" + options.downsampleBy + ":";
-                }
-                if (options.rate) {
-                    url += $scope.tsdb_rateString(options) + ":";
-                }
-                else if (options.rateCounter) {
-                    // todo: warnings should be appended..
-                    $scope.renderWarnings[graph.id] = "You have specified a rate counter without a rate, ignoring";
-                }
-                url += metric.name;
-                var sep = "{";
-                for (var t=0; t<metric.tags.length; t++) {
-                    var tag = metric.tags[t];
-                    if (tag.value != "") {
-                        url += sep + tag.name + "=" + tag.value;
-                        sep = ",";
-                    }
-                }
-                if (sep == ",") {
-                    url += "}";
-                }
-                // ready for next metric
-            }
-
-            url += "&ms=true&arrays=true";
-
-            // now we have the url, so call it!
-            $http.get(url)
-                .success(function (json) {
-                    // now we have an array of lines, so let's convert them to metrics
-
-                    var interpolate = graph.horizon && graph.horizon.interpolateGaps;
-                    var squash = graph.horizon && graph.horizon.squashNegatives;
-
-                    var parsed = $scope.cubism_opentsdbParse(json, start, stepSize, interpolate, squash); // array response
-                    // construct cMetrics
-
-                    var addMetric = function(cMetrics, metricData, name)
-                    {
-                        cMetrics.push(context.metric(function (start, stop, step, callback) {
-                            callback(null, metricData);
-                        }, name));
-                    }
-
-                    for (var i=0; i<parsed.length; i++) {
-                        var name = json[i].metric;
-                        var tagNames = [];
-                        for (var tk in json[i].tags) {
-                            if (json[i].tags.hasOwnProperty(tk)) {
-                                tagNames.push(tk);
-                            }
-                        }
-                        if (tagNames.length > 0) {
-                            name += "{";
-                            tagNames.sort();
-                            for (var tk = 0; tk < tagNames.length; tk++) {
-                                name += tagNames[tk] + "=" + json[i].tags[tagNames[tk]];
-                            }
-                            name += "}";
-                        }
-                        addMetric(cMetrics, parsed[i], name);
-                    }
-
-
-                    var graphPanelBox = d3.select("#scrollable-graph-panel").node().getBoundingClientRect();
-                    var topAxisBox = d3.select("#horizonAxis_top_"+graph.id).node().getBoundingClientRect();
-                    var bottomAxisBox = d3.select("#horizonAxis_bottom_"+graph.id).node().getBoundingClientRect();
-
-                    var topAxisHeight = topAxisBox.height;
-                    var bottomAxisHeight = bottomAxisBox.height;
-                    var totalAxesHeight = topAxisHeight + bottomAxisHeight;
-
-                    var minLineHeight = 25;
-                    var maxLineHeight = 60;
-
-                    var perLineHeight = ((height - totalAxesHeight)/cMetrics.length)-2;
-                    perLineHeight = Math.min(Math.max(perLineHeight,minLineHeight),maxLineHeight);
-                    d3.select(divSelector).selectAll(".horizon")
-                        .data(cMetrics)
-                        .enter().insert("div", ".bottom")
-                        .attr("class", "horizon")
-                        .call(context.horizon().height(perLineHeight));
-
-                    // top needs to be relative to this panel, not whole window
-                    var ruleTop = topAxisBox.top - graphPanelBox.top;
-                    var ruleHeight = totalAxesHeight + (perLineHeight * cMetrics.length);
-                    // now we can add rule safely as we know height as well
-                    d3.select(divSelector).append("div")
-                        .attr("class", "rule")
-                        .attr("id","horizonRule_"+graph.id)
-                        .call(context.rule());
-                    // and now we just go find the rule we added and set the top/height
-                    d3.select("#horizonRule_"+graph.id).select(".line").style("top", ruleTop+"px").style("height",ruleHeight+"px").style("bottom",null);
-
-                    $scope.hideOverlay("graphOverlay_"+graph.id);
-                    $scope.showElement("horizonDiv_"+graph.id);
-                    return;
-                })
-                .error(function (arg) {
-                    console.log("error in http call: "+arg);
-                    return;
-                });
-
-        }
-        else {
-            function buildMetrics(metrics, index, cMetrics) {
-                var interpolate = graph.horizon && graph.horizon.interpolateGaps;
-                var squash = graph.horizon && graph.horizon.squashNegatives;
-
-                if (index >= metrics.length) {
-
-                    var graphPanelBox = d3.select("#scrollable-graph-panel").node().getBoundingClientRect();
-                    var topAxisBox = d3.select("#horizonAxis_top_"+graph.id).node().getBoundingClientRect();
-                    var bottomAxisBox = d3.select("#horizonAxis_bottom_"+graph.id).node().getBoundingClientRect();
-
-                    var topAxisHeight = topAxisBox.height;
-                    var bottomAxisHeight = bottomAxisBox.height;
-                    var totalAxesHeight = topAxisHeight + bottomAxisHeight;
-
-                    var minLineHeight = 25;
-                    var maxLineHeight = 60;
-
-                    var perLineHeight = ((height - totalAxesHeight)/cMetrics.length)-2;
-                    perLineHeight = Math.min(Math.max(perLineHeight,minLineHeight),maxLineHeight);
-                    d3.select(divSelector).selectAll(".horizon")
-                        .data(cMetrics)
-                        .enter().insert("div", ".bottom")
-                        .attr("class", "horizon")
-                        .attr("bs-loading-overlay", "")
-                        .attr("bs-loading-overlay-reference-id", function(m) {return "horizonGraph_"+m.id();})
-                        .attr("bs-loading-overlay-template-url", "loading-overlay-template.html")
-                        .call(context.horizon().height(perLineHeight));
-
-                    for (var m=0; m<cMetrics.length; m++) {
-                        console.log("showOverlay(horizonGraph_"+cMetrics[m].id()+")");
-                        $scope.showOverlay("horizonGraph_"+cMetrics[m].id());
-                    }
-
-                    // top needs to be relative to this panel, not whole window
-                    var ruleTop = topAxisBox.top - graphPanelBox.top;
-                    var ruleHeight = totalAxesHeight + (perLineHeight * cMetrics.length);
-                    // now we can add rule safely as we know height as well
-                    d3.select(divSelector).append("div")
-                        .attr("class", "rule")
-                        .attr("id","horizonRule_"+graph.id)
-                        .call(context.rule());
-                    // and now we just go find the rule we added and set the top/height
-                    d3.select("#horizonRule_"+graph.id).select(".line").style("top", ruleTop+"px").style("height",ruleHeight+"px").style("bottom",null);
-                    return;
-                }
-
-                $scope.tsdb_distinctGraphLines(metrics[index], function(graphLines) {
-                    for (var lineKey in graphLines) {
-                        if (graphLines.hasOwnProperty(lineKey)) {
-                            var rateString = metrics[index].graphOptions.rate ? $scope.tsdb_rateString(metrics[index].graphOptions) : "";
-                            var m = tsdb.metric(metrics[index].name, rateString, graphLines[lineKey], lineKey)
-                                        .interpolate(interpolate)
-                                        .squashNegatives(squash);
-                            cMetrics.push(m);
-                        }
-                    }
-
-                    buildMetrics(metrics, index+1, cMetrics);
-                });
-            }
-
-            buildMetrics(metrics, 0, cMetrics);
-        }
     };
 
     $rootScope.renderGraphs = function() {
