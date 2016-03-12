@@ -23,7 +23,6 @@
     "angular-ui-layout": "~1.0.5",
     "bootstrap": "3.3.0",
     "angular-mass-autocomplete": "~0.2.2",
-    "angular-loading-overlay": "~0.3.1",
     "d3": "~3.5.12",
     "cubism": "https://github.com/square/cubism.git#~1.6.0",
     "moment": "~2.11.2"
