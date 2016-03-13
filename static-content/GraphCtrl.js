@@ -1,7 +1,7 @@
 /*
  * Graph rendering
  */
-aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOverlayService', function GraphCtrl($scope, $rootScope, $http, bsLoadingOverlayService) {
+aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCtrl($scope, $rootScope, $http) {
     $scope.renderedContent = {};
     $scope.renderErrors = {};
     $scope.renderWarnings = {};
@@ -23,7 +23,10 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', 'bsLoadingOv
     $scope.graphRendered = function (graphId) {
         for (var k in $scope.renderListeners) {
             if ($scope.renderListeners.hasOwnProperty(k)) {
-                $scope.renderListeners[k](graphId);
+                var fn = $scope.renderListeners[k];
+                if (fn != null && typeof fn == "function") {
+                    fn(graphId);
+                }
             }
         }
     }
