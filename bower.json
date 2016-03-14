@@ -25,7 +25,9 @@
     "angular-mass-autocomplete": "~0.2.2",
     "d3": "~3.5.12",
     "cubism": "https://github.com/square/cubism.git#~1.6.0",
-    "moment": "~2.11.2"
+    "moment": "~2.11.2",
+    "nvd3": "~1.8.2",
+    "dygraphs":"~1.1.1"
   },
   "resolutions": {
     "angular": "1.3.20"

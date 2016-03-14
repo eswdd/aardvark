@@ -75,7 +75,7 @@ aardvark.directive('aardvarkEnter', function() {
     }
 
     $rootScope.config = null;
-    $rootScope.graphTypes = [ "gnuplot", "horizon" ];
+    $rootScope.graphTypes = [ "gnuplot", "horizon", "dygraph" ];
 
 
     $rootScope.updateConfig = function() {

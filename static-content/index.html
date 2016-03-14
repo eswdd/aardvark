@@ -17,6 +17,8 @@
     <script type="application/javascript" src="../bower_components/d3/d3.js"></script>
     <script type="application/javascript" src="../bower_components/cubism/cubism.v1.js"></script>
     <script type="application/javascript" src="../bower_components/nvd3/build/nv.d3.js"></script>
+    <!--<script type="application/javascript" src="../bower_components/jquery/dist/jquery.js"></script>-->
+    <script type="application/javascript" src="../bower_components/dygraphs/dygraph-combined-dev.js"></script>
     <!-- Angular CSS - keep order in here same as deps in aardvark-client.js -->
     <link rel="stylesheet" type="text/css" href="../bower_components/bootstrap-css-only/css/bootstrap.css">
     <link rel="stylesheet" type="text/css" href="../bower_components/bootstrap-css-only/css/bootstrap-theme.css">
@@ -301,9 +303,9 @@
                             <!--<div id="gnuplotDiv_{{graph.id}}" ng-show="graph.type == 'gnuplot'">-->
                                 <!--<pre>{{renderedContent[graph.id]}}</pre>-->
                             <!--</div>-->
-                            <img id="gnuplotImg_{{graph.id}}" ng-src="{{renderedContent[graph.id].src}}" aardvark-load="renderMessages[graph.id] = ''; graphRendered(graph.id);" ng-show="graph.type == 'gnuplot'" width="{{renderedContent[graph.id].width}}" height="{{renderedContent[graph.id].height}}" />
-                            <div id="horizonDiv_{{graph.id}}" ng-show="graph.type == 'horizon'">
-                            </div>
+                            <img id="gnuplotImg_{{graph.id}}" ng-show="graph.type == 'gnuplot'" ng-src="{{renderedContent[graph.id].src}}" aardvark-load="renderMessages[graph.id] = ''; graphRendered(graph.id);" width="{{renderedContent[graph.id].width}}" height="{{renderedContent[graph.id].height}}" />
+                            <div id="horizonDiv_{{graph.id}}" ng-show="graph.type == 'horizon'"></div>
+                            <div id="dygraphDiv_{{graph.id}}" ng-show="graph.type == 'dygraph'" style="background-color: white"></div>
                         </div>
                     </div>
                 </div>

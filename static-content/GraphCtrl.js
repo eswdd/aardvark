@@ -240,6 +240,25 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         return url;
     }
 
+    $scope.timeSeriesName = function(metric) {
+        var name = metric.metric;
+        var tagNames = [];
+        for (var tk in metric.tags) {
+            if (metric.tags.hasOwnProperty(tk)) {
+                tagNames.push(tk);
+            }
+        }
+        if (tagNames.length > 0) {
+            name += "{";
+            tagNames.sort();
+            for (var tk = 0; tk < tagNames.length; tk++) {
+                name += tagNames[tk] + "=" + metric.tags[tagNames[tk]];
+            }
+            name += "}";
+        }
+        return name;
+    }
+
     // pre-defined in unit tests
     if (!$scope.renderers) {
         $scope.renderers = {};
@@ -448,22 +467,10 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 }, name));
             }
 
+
+
             for (var i=0; i<parsed.length; i++) {
-                var name = json[i].metric;
-                var tagNames = [];
-                for (var tk in json[i].tags) {
-                    if (json[i].tags.hasOwnProperty(tk)) {
-                        tagNames.push(tk);
-                    }
-                }
-                if (tagNames.length > 0) {
-                    name += "{";
-                    tagNames.sort();
-                    for (var tk = 0; tk < tagNames.length; tk++) {
-                        name += tagNames[tk] + "=" + json[i].tags[tagNames[tk]];
-                    }
-                    name += "}";
-                }
+                var name = $scope.timeSeriesName(json[i]);
                 addMetric(cMetrics, parsed[i], name);
             }
 
@@ -543,6 +550,107 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                     resizeFocusRule();
                 }
             });
+
+            $scope.renderMessages[graph.id] = "";
+            $scope.graphRendered(graph.id);
+            return;
+        })
+        .error(function (arg) {
+            $scope.renderMessages[graph.id] = "Error loading data: "+arg;
+            return;
+        });
+    };
+    $scope.renderers["dygraph"] = function(global, graph, metrics) {
+        $scope.renderMessages[graph.id] = "Loading...";
+
+        var fromTimestamp = $scope.tsdb_fromTimestampAsTsdbString(global);
+        // validation
+        if (fromTimestamp == null || fromTimestamp == "") {
+            $scope.renderErrors[graph.id] = "No start date specified";
+            return;
+        }
+        if (metrics == null || metrics.length == 0) {
+            $scope.renderErrors[graph.id] = "No metrics specified";
+            return;
+        }
+
+        // url construction
+        var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/query";
+
+        url += $scope.tsdb_queryString(global, graph, metrics);
+
+        url += "&ms=true&arrays=true";
+
+        // now we have the url, so call it!
+        $http.get(url).success(function (json) {
+
+            var width = Math.floor(graph.graphWidth);
+            var height = Math.floor(graph.graphHeight);
+
+            var graphData = [];
+            var minTime = json[0].dps[0][0];
+            var maxTime = json[0].dps[json[0].dps.length-1][0];
+            for (var s=1; s<json.length; s++) {
+                minTime = Math.min(minTime, json[s].dps[0][0]);
+                maxTime = Math.max(maxTime, json[s].dps[json[s].dps.length-1][0]);
+            }
+            var indices = new Array(json.length);
+            for (var s=0; s<json.length; s++) {
+                indices[s] = 0;
+            }
+            for (var t=minTime; t<=maxTime; ) {
+                console.log("t = "+t);
+                var row = [new Date(t)];
+                var nextTime = maxTime + 1; // break condition
+                for (var s=0; s<json.length; s++) {
+                    if (indices[s] >= json[s].dps.length) {
+                        row.push(null);
+                    }
+                    else if (json[s].dps[indices[s]][0] == t) {
+                        row.push(json[s].dps[indices[s]][1]);
+                        indices[s]++;
+                        if (indices[s] < json[s].dps.length) {
+                            nextTime = Math.min(nextTime, json[s].dps[indices[s]][0]);
+                        }
+                    }
+                    else {
+                        row.push(null);
+                    }
+                }
+                graphData.push(row);
+                t = nextTime;
+            }
+
+
+
+            var labels = ["x"];
+            for (var t=0; t<json.length; t++) {
+                var name = $scope.timeSeriesName(json[t]);
+                labels.push(name);
+            }
+;
+            var config = {
+                labels: labels,
+                width: width,
+                height: height,
+                legend: "always",
+                drawGapEdgePoints: true
+            };
+
+            var g = new Dygraph(
+
+                // containing div
+                document.getElementById("dygraphDiv_"+graph.id),
+
+                // CSV or path to a CSV file.
+                graphData,
+
+                config
+
+            );
+
+            // g.destroy()
+
 
             $scope.renderMessages[graph.id] = "";
             $scope.graphRendered(graph.id);
