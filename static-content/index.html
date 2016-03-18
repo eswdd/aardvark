@@ -256,19 +256,57 @@
                                     </div>
                                     <div ng-show="graph.type == 'horizon'">
                                         <div>
-                                            <label for="interpolateGaps">Interpolate gaps?</label>
-                                            <input type="checkbox" id="interpolateGaps" ng-model="graph.horizon.interpolateGaps" aardvark-enter="renderGraphs()" />
+                                            <input type="checkbox" id="interpolateGapsHorizon" ng-model="graph.horizon.interpolateGaps" aardvark-enter="renderGraphs()" />
+                                            <label for="interpolateGapsHorizon">Interpolate gaps?</label>
                                         </div>
                                         <div>
-                                            <label for="interpolateGaps">Squash -ve y?</label>
-                                            <input type="checkbox" id="squashNegative" ng-model="graph.horizon.squashNegative" aardvark-enter="renderGraphs()" />
+                                            <input type="checkbox" id="squashNegativeHorizon" ng-model="graph.horizon.squashNegative" aardvark-enter="renderGraphs()" />
+                                            <label for="squashNegativeHorizon">Squash -ve y?</label>
                                         </div>
                                     </div>
-                                    <!--div ng-show="graph.type == 'dygraph'">
-                                        dygraph controls<br/>
-                                        <input type="checkbox" ng-model="graph.dygraph.highlightLines"/> Highlight lines
-                                    </div-->
-
+                                    <div ng-show="graph.type == 'dygraph'">
+                                        <div>
+                                            Rendering
+                                        </div>
+                                        <div>
+                                            <input type="checkbox" id="interpolateGapsDygraph" ng-model="graph.dygraph.interpolateGaps" aardvark-enter="renderGraphs()" />
+                                            <label for="interpolateGapsDygraph">Interpolate gaps?</label>
+                                        </div>
+                                        <div>
+                                            <input type="checkbox" id="highlightLinesDygraph" ng-model="graph.dygraph.highlightLines" aardvark-enter="renderGraphs()" />
+                                            <label for="highlightLinesDygraph">Highlight lines?</label>
+                                        </div>
+                                        <div>
+                                            <input type="checkbox" id="stackedLinesDygraph" ng-model="graph.dygraph.stackedLines" aardvark-enter="renderGraphs()" />
+                                            <label for="stackedLinesDygraph">Stacked lines?</label>
+                                        </div>
+                                        <div>
+                                            <input type="checkbox" id="squashNegativeDygraph" ng-model="graph.dygraph.squashNegative" aardvark-enter="renderGraphs()" />
+                                            <label for="squashNegativeDygraph">Squash -ve y?</label>
+                                        </div>
+                                        <div>
+                                            <input type="checkbox" id="ylogDygraph" ng-model="graph.dygraph.ylog" aardvark-enter="renderGraphs()" />
+                                            <label for="ylogDygraph">Logarithmic y-axis?</label>
+                                        </div>
+                                        <!--div>
+                                            Annotations
+                                        </div>
+                                        <div>
+                                            <input type="checkbox" id="annotationsDygraph" ng-model="graph.dygraph.annotations" aardvark-enter="renderGraphs()" />
+                                            <label for="annotationsDygraph">Annotations?</label>
+                                        </div>
+                                        <div>
+                                            <input type="checkbox" id="globalAnnotationsDygraph" ng-model="graph.dygraph.globalAnnotations" aardvark-enter="renderGraphs()" />
+                                            <label for="globalAnnotationsDygraph">Global annotations?</label>
+                                        </div-->
+                                        <div>
+                                            Specials
+                                        </div>
+                                        <div>
+                                            <input type="checkbox" id="meanAdjustedDygraph" ng-model="graph.dygraph.meanAdjusted" aardvark-enter="renderGraphs()" />
+                                            <label for="meanAdjustedDygraph">Mean adjusted?</label>
+                                        </div>
+                                    </div>
                                 </uib-accordion-group>
                             </uib-accordion>
                         </div>

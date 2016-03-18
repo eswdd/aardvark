@@ -154,6 +154,17 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', function Graph
                 keyAlignment: "columnar",
                 keyLocation: "top left",
                 keyBox: true
+            },
+            // horizon defaults
+            horizon: {
+                interpolateGaps: true,
+                squashNegative: true
+            },
+            // dygraph defaults
+            dygraph: {
+                interpolateGaps: true,
+                highlightLines: true,
+                annotations: true
             }
         });
         $scope.showEdit[id] = true;

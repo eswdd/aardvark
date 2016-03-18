@@ -10,6 +10,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
     $scope.lastId = 0;
     $scope.hiddenElements = {};
     $scope.renderListeners = {};
+    $scope.dygraphs = {};
 
     $scope.nextId = function() {
         var next = new Date().getTime();
@@ -573,11 +574,25 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             $scope.renderErrors[graph.id] = "No metrics specified";
             return;
         }
+        
+        var dygraphOptions = graph.dygraph;
+        if (!dygraphOptions) {
+            dygraphOptions = {};
+        }
 
         // url construction
         var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/query";
 
         url += $scope.tsdb_queryString(global, graph, metrics);
+        
+        if (dygraphOptions.annotations || dygraphOptions.globalAnnotations) {
+            if (dygraphOptions.globalAnnotations) {
+                url += "&global_annotations=true";
+            }
+        }
+        else {
+            url += "&no_annotations=true";
+        }
 
         url += "&ms=true&arrays=true";
 
@@ -602,20 +617,36 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 console.log("t = "+t);
                 var row = [new Date(t)];
                 var nextTime = maxTime + 1; // break condition
+                var sum = 0; // for mean adjusted graphs
                 for (var s=0; s<json.length; s++) {
                     if (indices[s] >= json[s].dps.length) {
                         row.push(null);
                     }
                     else if (json[s].dps[indices[s]][0] == t) {
-                        row.push(json[s].dps[indices[s]][1]);
+                        var val = json[s].dps[indices[s]][1];
+                        if (dygraphOptions.squashNegative && val < 0) {
+                            val = 0;
+                        }
+                        row.push(val);
                         indices[s]++;
                         if (indices[s] < json[s].dps.length) {
                             nextTime = Math.min(nextTime, json[s].dps[indices[s]][0]);
+                        }
+                        if (dygraphOptions.meanAdjusted) {
+                            sum += val;
                         }
                     }
                     else {
                         row.push(null);
                     }
+                }
+                if (dygraphOptions.meanAdjusted) {
+                    var mean = sum / json.length;
+                    for (var s=0; s<json.length; s++) {
+                        if (row[s+1]!=null && !isNaN(row[s+1])) {
+                            row[s+1] -= mean;
+                        }
+                    } 
                 }
                 graphData.push(row);
                 t = nextTime;
@@ -634,24 +665,63 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 width: width,
                 height: height,
                 legend: "always",
-                drawGapEdgePoints: true
+                logscale: dygraphOptions.ylog,
+                stackedGraph: dygraphOptions.stackedLines,
+                connectSeparatedPoints: dygraphOptions.interpolateGaps,
+                drawGapEdgePoints: true,
+                axisLabelFontSize: 9,
+                labelsDivStyles: { fontSize: 9, textAlign: 'right' },
+                labelsSeparateLines: true,
+                labelsDivWidth: 1000,
+                axes: {
+                    y: {
+                        valueFormatter: function(y) {
+                            if (isNaN(y) || y < 1000) {
+                                return "" + y;
+                            }
+                            return y.toString().replace(/\B(?=(?:\d{3})+(?!\d))/g, ",")
+                        },
+                        axisLabelFormatter: function(y) {
+                            if (isNaN(y) || y < 1000) {
+                                return "" + Dygraph.round_(y, 3);
+                            }
+                            return y.toString().replace(/\B(?=(?:\d{3})+(?!\d))/g, ",")
+                        }
+                    }
+                }
             };
+            if (dygraphOptions.highlightLines) {
+                config.highlightSeriesOpts = {
+                    strokeWidth: 3,
+                    strokeBorderWidth: 1,
+                    highlightCircleSize: 5
+                };
+                /*
+                 config.highlightCallback = function(event, x, points, row, seriesName) {
+                    if (labelsDiv) { // todo: what is labelsDiv?
+                        //find the y val
+                        var yval = '';
+                        for (var i=0;i<points.length;i++) {
+                            if (points[i].name==seriesName) {
+                                yval = points[i].yval;
+                                break;
+                            }
+                        }
+                        labelsDiv.innerHTML = "<span><b>" + seriesName + "</b>" + " "
+                            + Dygraph.hmsString_(x) + ", " + yval + "</span>";
+                    }
+                }*/
+
+            }
 
             var g = new Dygraph(
-
                 // containing div
                 document.getElementById("dygraphDiv_"+graph.id),
-
-                // CSV or path to a CSV file.
                 graphData,
-
                 config
-
             );
 
-            // g.destroy()
-
-
+            $scope.dygraphs[graph.id] = g;
             $scope.renderMessages[graph.id] = "";
             $scope.graphRendered(graph.id);
             return;
@@ -666,6 +736,10 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         // todo: could be cleverer about clearing in case some graphs haven't changed
         // ie track ids found and delete others
         $scope.clearGraphRenderListeners();
+        for (var graphId in $scope.dygraphs) {
+            $scope.dygraphs[graphId].destroy();
+        }
+        $scope.dygraphs = {};
         $scope.renderedContent = {};
         $scope.renderErrors = {};
         $scope.renderWarnings = {};
