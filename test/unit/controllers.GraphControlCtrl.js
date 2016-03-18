@@ -11,7 +11,7 @@ describe('Aardvark controllers', function () {
                         var passed = angular.equals(actual, expected);
                         return {
                             pass: passed,
-                            message: 'Expected ' + actual + (passed ? '' : ' not') + ' to equal ' + expected
+                            message: 'Expected ' + JSON.stringify(actual) + ' to equal ' + JSON.stringify(expected)
                         };
                     }
                 };
@@ -87,6 +87,15 @@ describe('Aardvark controllers', function () {
                         keyAlignment: "columnar",
                         keyLocation: "top left",
                         keyBox: true
+                    },
+                    horizon: {
+                        interpolateGaps: true,
+                        squashNegative: true
+                    },
+                    dygraph: {
+                        interpolateGaps: true,
+                        highlightLines: true,
+                        annotations: true
                     }
                 }
             ]);
@@ -112,6 +121,15 @@ describe('Aardvark controllers', function () {
                         keyAlignment: "columnar",
                         keyLocation: "top left",
                         keyBox: true
+                    },
+                    horizon: {
+                        interpolateGaps: true,
+                        squashNegative: true
+                    },
+                    dygraph: {
+                        interpolateGaps: true,
+                        highlightLines: true,
+                        annotations: true
                     }
                 }
             ]);
@@ -152,6 +170,15 @@ describe('Aardvark controllers', function () {
                         keyAlignment: "columnar",
                         keyLocation: "top left",
                         keyBox: true
+                    },
+                    horizon: {
+                        interpolateGaps: true,
+                        squashNegative: true
+                    },
+                    dygraph: {
+                        interpolateGaps: true,
+                        highlightLines: true,
+                        annotations: true
                     }
                 }
             ]);
@@ -171,6 +198,15 @@ describe('Aardvark controllers', function () {
                         keyAlignment: "columnar",
                         keyLocation: "top left",
                         keyBox: true
+                    },
+                    horizon: {
+                        interpolateGaps: true,
+                        squashNegative: true
+                    },
+                    dygraph: {
+                        interpolateGaps: true,
+                        highlightLines: true,
+                        annotations: true
                     }
                 },
                 {
@@ -184,6 +220,15 @@ describe('Aardvark controllers', function () {
                         keyAlignment: "columnar",
                         keyLocation: "top left",
                         keyBox: true
+                    },
+                    horizon: {
+                        interpolateGaps: true,
+                        squashNegative: true
+                    },
+                    dygraph: {
+                        interpolateGaps: true,
+                        highlightLines: true,
+                        annotations: true
                     }
                 }
             ]);
@@ -207,6 +252,15 @@ describe('Aardvark controllers', function () {
                         keyAlignment: "columnar",
                         keyLocation: "top left",
                         keyBox: true
+                    },
+                    horizon: {
+                        interpolateGaps: true,
+                        squashNegative: true
+                    },
+                    dygraph: {
+                        interpolateGaps: true,
+                        highlightLines: true,
+                        annotations: true
                     }
                 }
             ]);
@@ -226,6 +280,15 @@ describe('Aardvark controllers', function () {
                         keyAlignment: "columnar",
                         keyLocation: "top left",
                         keyBox: true
+                    },
+                    horizon: {
+                        interpolateGaps: true,
+                        squashNegative: true
+                    },
+                    dygraph: {
+                        interpolateGaps: true,
+                        highlightLines: true,
+                        annotations: true
                     }
                 },
                 {
@@ -239,6 +302,15 @@ describe('Aardvark controllers', function () {
                         keyAlignment: "columnar",
                         keyLocation: "top left",
                         keyBox: true
+                    },
+                    horizon: {
+                        interpolateGaps: true,
+                        squashNegative: true
+                    },
+                    dygraph: {
+                        interpolateGaps: true,
+                        highlightLines: true,
+                        annotations: true
                     }
                 }
             ]);
