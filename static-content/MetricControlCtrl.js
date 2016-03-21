@@ -214,7 +214,7 @@ aardvark.directive('tagSelection', function() {
     $scope.deleteMetric = function() {
         for (var i=0; i<$rootScope.model.metrics.length; i++) {
             if ($rootScope.model.metrics[i].id == $scope.selectedMetricId) {
-                $rootScope.model.metrics.splice(i);
+                $rootScope.model.metrics.splice(i,1);
                 $rootScope.saveModel(true);
                 $scope.clearMetric();
                 return;

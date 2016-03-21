@@ -571,6 +571,130 @@ describe('Aardvark controllers', function () {
             );
         });
 
+        it('should only delete the selected metric when a user clicks delete from an existing metric being edited', function() {
+            rootScope.model = {
+                graphs: [],
+                    metrics: [
+                    {
+                        id: "123",
+                        name: 'some.metric.name',
+                        tags: [
+                            {
+                                name: "tag1",
+                                value: "abc"
+                            },
+                            {
+                                name: "tag2",
+                                value: "zab"
+                            },
+                            {
+                                name: "tag3",
+                                value: ""
+                            }
+                        ],
+                        graphOptions: {
+                            graphId: 'abc',
+                            rate: true,
+                            downsample: false,
+                            downsampleBy: ''
+                        }
+                    },
+                    {
+                        id: "456",
+                        name: 'some.metric.name',
+                        tags: [
+                            {
+                                name: "tag1",
+                                value: "abc"
+                            },
+                            {
+                                name: "tag2",
+                                value: "zab"
+                            },
+                            {
+                                name: "tag3",
+                                value: ""
+                            }
+                        ],
+                        graphOptions: {
+                            graphId: 'abc',
+                            rate: true,
+                            downsample: false,
+                            downsampleBy: ''
+                        }
+                    }
+                ]
+                };
+
+            scope.tagNames = ["tag1","tag2","tag3"];
+            scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
+            scope.selectedMetricId = "123";
+            scope.selectedTreeNode = "mock-node";
+            scope.aggregator = 'zimsum';
+            scope.rightAxis = false;
+            scope.rate = false;
+            scope.rateCounter = false;
+            scope.rateCounterMax = '123';
+            scope.rateCounterReset = '456';
+            scope.downsample = true;
+            scope.downsampleTo = "10m";
+            scope.downsampleBy = "sum";
+
+            scope.deleteMetric();
+
+            expect(saveModelCalled).toEqualData(true);
+            expect(scope.tagNames).toEqualData([]);
+            expect(scope.tag).toEqualData({});
+            expect(scope.selectedMetricId).toEqualData('0');
+            expect(scope.selectedMetric).toEqualData('');
+            expect(scope.aggregator).toEqualData('sum');
+            expect(scope.rightAxis).toEqualData(false);
+            expect(scope.rate).toEqualData(false);
+            expect(scope.rateCounter).toEqualData(false);
+            expect(scope.rateCounterMax).toEqualData('');
+            expect(scope.rateCounterReset).toEqualData('');
+            expect(scope.downsample).toEqualData(false);
+            expect(scope.downsampleBy).toEqualData('avg');
+            expect(scope.downsampleTo).toEqualData('');
+            expect(scope.nodeSelectionDisabled).toEqualData(false);
+            expect(scope.selectedTreeNode).toEqualData(undefined);
+            expect(scope.clearButtonEnabled()).toEqualData(false);
+            expect(scope.addButtonVisible()).toEqualData(false);
+            expect(scope.deleteButtonVisible()).toEqualData(false);
+            expect(scope.saveButtonVisible()).toEqualData(false);
+
+            expect(rootScope.model).toEqualData(
+                {
+                    graphs: [],
+                    metrics: [
+                        {
+                            id: "456",
+                            name: 'some.metric.name',
+                            tags: [
+                                {
+                                    name: "tag1",
+                                    value: "abc"
+                                },
+                                {
+                                    name: "tag2",
+                                    value: "zab"
+                                },
+                                {
+                                    name: "tag3",
+                                    value: ""
+                                }
+                            ],
+                            graphOptions: {
+                                graphId: 'abc',
+                                rate: true,
+                                downsample: false,
+                                downsampleBy: ''
+                            }
+                        }]
+                }
+            );
+        });
+
         it('should clear the form when a user cancels editing an existing metric', function() {
             scope.tagNames = ["tag1","tag2","tag3"];
             scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
