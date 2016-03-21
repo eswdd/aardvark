@@ -312,6 +312,12 @@
                                             <label for="meanAdjustedDygraph">Mean adjusted?</label>
                                         </div>
                                     </div>
+                                    <div ng-show="graph.type == 'scatter'">
+                                        <div>
+                                            <input type="checkbox" id="excludeNegativeDygraph" ng-model="graph.scatter.excludeNegative" aardvark-enter="renderGraphs()" />
+                                            <label for="excludeNegativeDygraph">Exclude negative values?</label>
+                                        </div>
+                                    </div>
                                 </uib-accordion-group>
                             </uib-accordion>
                         </div>

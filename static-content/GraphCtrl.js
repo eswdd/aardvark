@@ -815,6 +815,11 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             $scope.renderErrors[graph.id] = "Require exactly 2 metrics, currently have "+metrics.length;
             return;
         }
+
+        var scatterOptions = graph.scatter;
+        if (!scatterOptions) {
+            scatterOptions = {};
+        }
         
         $scope.renderMessages[graph.id] = "Loading...";
 
@@ -847,6 +852,9 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             var data = [];
             for (var t in xSeries.dps) {
                 if (xSeries.dps.hasOwnProperty(t) && ySeries.dps.hasOwnProperty(t)) {
+                    if (scatterOptions.excludeNegative && (xSeries.dps[t] < 0 || ySeries.dps[t] < 0)) {
+                        continue;
+                    }
                     data.push([xSeries.dps[t], ySeries.dps[t]]);
                 }
             }
