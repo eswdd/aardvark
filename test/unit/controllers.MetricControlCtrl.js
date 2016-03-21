@@ -221,7 +221,10 @@ describe('Aardvark controllers', function () {
                         rateCounterReset: '1',
                         downsample: true,
                         downsampleBy: 'zimsum',
-                        downsampleTo: '10m'
+                        downsampleTo: '10m',
+                        scatter: {
+                            axis: ''
+                        }
                     }
                 }
             ]);
@@ -304,7 +307,10 @@ describe('Aardvark controllers', function () {
                         rateCounterReset: '',
                         downsample: false,
                         downsampleBy: 'avg',
-                        downsampleTo: ''
+                        downsampleTo: '',
+                        scatter: {
+                            axis: ''
+                        }
                     }
                 }
             ]);
@@ -343,7 +349,10 @@ describe('Aardvark controllers', function () {
                             graphId: 'abc',
                             rate: true,
                             downsample: true,
-                            downsampleBy: '10m'
+                            downsampleBy: '10m',
+                            scatter: {
+                                axis: ''
+                            }
                         }
                     }
                 ]
@@ -401,7 +410,10 @@ describe('Aardvark controllers', function () {
                             graphId: 'abc',
                             rate: true,
                             downsample: false,
-                            downsampleBy: ''
+                            downsampleBy: '',
+                            scatter: {
+                                axis: ''
+                            }
                         }
                     }
                 ]
@@ -472,7 +484,10 @@ describe('Aardvark controllers', function () {
                                 rateCounterReset: '456',
                                 downsample: true,
                                 downsampleBy: 'sum',
-                                downsampleTo: '10m'
+                                downsampleTo: '10m',
+                                scatter: {
+                                    axis: ''
+                                }
                             }
                         }
                     ]
