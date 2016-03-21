@@ -259,6 +259,16 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         }
         return name;
     }
+    $scope.dygraph_render = function(divId, graphId, data, config) {
+        var g = new Dygraph(
+            // containing div
+            document.getElementById(divId),
+            data,
+            config
+        );
+
+        $scope.dygraphs[graphId] = g;
+    }
 
     // pre-defined in unit tests
     if (!$scope.renderers) {
@@ -562,8 +572,6 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         });
     };
     $scope.renderers["dygraph"] = function(global, graph, metrics) {
-        $scope.renderMessages[graph.id] = "Loading...";
-
         var fromTimestamp = $scope.tsdb_fromTimestampAsTsdbString(global);
         // validation
         if (fromTimestamp == null || fromTimestamp == "") {
@@ -574,6 +582,8 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             $scope.renderErrors[graph.id] = "No metrics specified";
             return;
         }
+
+        $scope.renderMessages[graph.id] = "Loading...";
         
         var dygraphOptions = graph.dygraph;
         if (!dygraphOptions) {
@@ -613,6 +623,70 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             for (var s=0; s<json.length; s++) {
                 indices[s] = 0;
             }
+
+            var labels = ["x"];
+            for (var t=0; t<json.length; t++) {
+                var name = $scope.timeSeriesName(json[t]);
+                labels.push(name);
+            }
+            
+            var scaleFactors = new Array(json.length);
+            if (dygraphOptions.autoScale) {
+                var maxValues = new Array(json.length);
+                for (var s=0; s<json.length; s++) {
+                    scaleFactors[s] = 1;
+                    var max = 0;
+                    var min = Number.MAX_VALUE;
+                    for (var p=0; p<json[s].dps.length; p++) {
+                        max = Math.max(max, json[s].dps[p][1]);
+                    }
+                    if (!dygraphOptions.squashNegative && min < 0) {
+                        max = Math.max(max, Math.abs(min));
+                    }
+                    maxValues[s] = max;
+                }
+
+                // loops through to update the maxs array based on base metric name...
+                // this is so we scale same base metric to same scale
+                var checkedMetrics = new Array();
+                for (var s=0; s<json.length; s++) {
+                    var metricName = json[s].metric;
+                    if (checkedMetrics.indexOf(metricName) == -1) {
+                        checkedMetrics.push(metricName);
+                        // find the max value for all instances of this metric name
+                        var maxThisMetric = maxValues[s];
+                        for (var k=s+1; k<json.length; k++) {
+                            if (json[k].metric == metricName) {
+                                maxThisMetric = Math.max(maxThisMetric, maxValues[k]);
+                            }
+                        }
+                        // set the global max as the max for each instance of this metric name
+                        for (var k=s; k<json.length; k++) {
+                            if (json[k].metric == metricName) {
+                                maxValues[k] = maxThisMetric;
+                            }
+                        }
+                    }
+                }
+
+
+
+                var maxl = 0;
+                for (var s=0; s<maxValues.length; s++) {
+                    maxValues[s] = parseInt(Math.log(maxValues[s])/Math.log(10));
+                    if (maxValues[s]>maxl) {
+                        maxl = maxValues[s];
+                    }
+                }
+
+                for (var s=0;s<json.length;s++) {
+                    var l = maxl - maxValues[s];
+                    if (l>0) {
+                        scaleFactors[s] = Math.pow(10, l);
+                        labels[s] = scaleFactors[s]+"x "+labels[s];
+                    }
+                }
+            }
             for (var t=minTime; t<=maxTime; ) {
                 console.log("t = "+t);
                 var row = [new Date(t)];
@@ -648,18 +722,19 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                         }
                     } 
                 }
+                if (dygraphOptions.autoScale) {
+                    for (var s=0; s<json.length; s++) {
+                        if (row[s+1]!=null && !isNaN(row[s+1])) {
+                            row[s+1] *= scaleFactors[s];
+                        }
+                    }
+                    
+                }
                 graphData.push(row);
                 t = nextTime;
             }
-
-
-
-            var labels = ["x"];
-            for (var t=0; t<json.length; t++) {
-                var name = $scope.timeSeriesName(json[t]);
-                labels.push(name);
-            }
-;
+            
+            var labelsDiv = document.getElementById("dygraphLegend_"+graph.id);
             var config = {
                 labels: labels,
                 width: width,
@@ -672,6 +747,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 axisLabelFontSize: 9,
                 labelsDivStyles: { fontSize: 9, textAlign: 'right' },
                 labelsSeparateLines: true,
+                labelsDiv: labelsDiv,
                 labelsDivWidth: 1000,
                 axes: {
                     y: {
@@ -696,9 +772,8 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                     strokeBorderWidth: 1,
                     highlightCircleSize: 5
                 };
-                /*
                  config.highlightCallback = function(event, x, points, row, seriesName) {
-                    if (labelsDiv) { // todo: what is labelsDiv?
+                    if (labelsDiv) {
                         //find the y val
                         var yval = '';
                         for (var i=0;i<points.length;i++) {
@@ -710,18 +785,97 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                         labelsDiv.innerHTML = "<span><b>" + seriesName + "</b>" + " "
                             + Dygraph.hmsString_(x) + ", " + yval + "</span>";
                     }
-                }*/
+                }
 
             }
 
-            var g = new Dygraph(
-                // containing div
-                document.getElementById("dygraphDiv_"+graph.id),
-                graphData,
-                config
-            );
+            $scope.dygraph_render("dygraphDiv_"+graph.id, graph.id, graphData, config);
+            
+            $scope.renderMessages[graph.id] = "";
+            $scope.graphRendered(graph.id);
+            return;
+        })
+        .error(function (arg) {
+            $scope.renderMessages[graph.id] = "Error loading data: "+arg;
+            return;
+        });
+    };
+    $scope.renderers["scatter"] = function(global, graph, metrics) {
+        var fromTimestamp = $scope.tsdb_fromTimestampAsTsdbString(global);
+        // validation
+        if (fromTimestamp == null || fromTimestamp == "") {
+            $scope.renderErrors[graph.id] = "No start date specified";
+            return;
+        }
+        if (metrics == null || metrics.length == 0) {
+            $scope.renderErrors[graph.id] = "No metrics specified";
+            return;
+        }
+        if (metrics.length != 2) {
+            $scope.renderErrors[graph.id] = "Require exactly 2 metrics, currently have "+metrics.length;
+            return;
+        }
+        
+        $scope.renderMessages[graph.id] = "Loading...";
 
-            $scope.dygraphs[graph.id] = g;
+        // url construction
+        var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/query";
+
+        url += $scope.tsdb_queryString(global, graph, metrics);
+
+        url += "&ms=true";
+
+        // now we have the url, so call it!
+        $http.get(url).success(function (json) {
+            if (json.length != 2) {
+                $scope.renderErrors[graph.id] = "TSDB results doesn't contain exactly 2 metrics, was "+json.length;
+                $scope.renderMessages[graph.id] = "";
+                return;
+            }
+            
+            var xSeries;
+            var ySeries;
+            if (metrics[0].graphOptions.scatter.axis == "x") {
+                xSeries = json[0];
+                ySeries = json[1];
+            }
+            else {
+                xSeries = json[1];
+                ySeries = json[0];
+            }
+            
+            var data = [];
+            for (var t in xSeries.dps) {
+                if (xSeries.dps.hasOwnProperty(t) && ySeries.dps.hasOwnProperty(t)) {
+                    data.push([xSeries.dps[t], ySeries.dps[t]]);
+                }
+            }
+            data.sort(function (a,b) {
+                return a[0] - b[0];
+            });
+            
+            var labels = ["x", $scope.timeSeriesName(xSeries) + " (x) vs " + $scope.timeSeriesName(ySeries) + " (y)"];
+            var labelsDiv = document.getElementById("scatterLegend_"+graph.id);
+            
+            var width = Math.floor(graph.graphWidth);
+            var height = Math.floor(graph.graphHeight);
+            var config = {
+                labels: labels,
+                width: width,
+                height: height,
+                legend: "always",
+                drawPoints: true,
+                strokeWidth: 0.0,
+//                logscale: scatterOptions.ylog,
+                axisLabelFontSize: 9,
+                labelsDivStyles: { fontSize: 9, textAlign: 'right' },
+                labelsSeparateLines: true,
+                labelsDiv: labelsDiv,
+                labelsDivWidth: 1000
+            };
+
+            $scope.dygraph_render("scatterDiv_"+graph.id, graph.id, data, config);
+
             $scope.renderMessages[graph.id] = "";
             $scope.graphRendered(graph.id);
             return;
@@ -737,7 +891,9 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         // ie track ids found and delete others
         $scope.clearGraphRenderListeners();
         for (var graphId in $scope.dygraphs) {
-            $scope.dygraphs[graphId].destroy();
+            if ($scope.dygraphs.hasOwnProperty(graphId)) {
+                $scope.dygraphs[graphId].destroy();
+            }
         }
         $scope.dygraphs = {};
         $scope.renderedContent = {};

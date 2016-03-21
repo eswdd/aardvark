@@ -40,6 +40,7 @@ aardvark.directive('tagSelection', function() {
     $scope.downsample = false;
     $scope.downsampleBy = "avg";
     $scope.downsampleTo = "";
+    $scope.scatterAxis = "";
 
 
     $scope.addButtonVisible = function() {
@@ -144,6 +145,7 @@ aardvark.directive('tagSelection', function() {
             $scope.downsample = metric.graphOptions.downsample;
             $scope.downsampleBy = metric.graphOptions.downsampleBy;
             $scope.downsampleTo = metric.graphOptions.downsampleTo;
+            $scope.scatterAxis = metric.graphOptions.scatter.axis;
         }
 
     }
@@ -246,7 +248,10 @@ aardvark.directive('tagSelection', function() {
             axis: $scope.rightAxis ? "x1y2" : "x1y1",
             downsample: $scope.downsample,
             downsampleBy: $scope.downsampleBy,
-            downsampleTo: $scope.downsampleTo
+            downsampleTo: $scope.downsampleTo,
+            scatter: {
+                axis: $scope.scatterAxis
+            }
         };
         $rootScope.saveModel(true);
         $scope.selectedMetric = "";
@@ -347,6 +352,7 @@ aardvark.directive('tagSelection', function() {
         $scope.downsample = false;
         $scope.downsampleBy = "avg";
         $scope.downsampleTo = "";
+        $scope.scatterAxis = "";
         $scope.rightAxis = false;
         $scope.aggregator = "sum";
         $scope.nodeSelectionDisabled = false;

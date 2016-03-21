@@ -35,6 +35,7 @@
     <!-- App CSS -->
     <link rel="stylesheet" href="aardvark.css">
     <link rel="stylesheet" href="aardvark_horizon.css">
+    <link rel="stylesheet" href="aardvark_dygraph.css">
 </head>
 
 <body ng-controller="AardvarkCtrl">
@@ -285,6 +286,10 @@
                                             <label for="squashNegativeDygraph">Squash -ve y?</label>
                                         </div>
                                         <div>
+                                            <input type="checkbox" id="autoScaleDygraph" ng-model="graph.dygraph.autoScale" aardvark-enter="renderGraphs()" />
+                                            <label for="autoScaleDygraph">Auto scale?</label>
+                                        </div>
+                                        <div>
                                             <input type="checkbox" id="ylogDygraph" ng-model="graph.dygraph.ylog" aardvark-enter="renderGraphs()" />
                                             <label for="ylogDygraph">Logarithmic y-axis?</label>
                                         </div>
@@ -343,7 +348,10 @@
                             <!--</div>-->
                             <img id="gnuplotImg_{{graph.id}}" ng-show="graph.type == 'gnuplot'" ng-src="{{renderedContent[graph.id].src}}" aardvark-load="renderMessages[graph.id] = ''; graphRendered(graph.id);" width="{{renderedContent[graph.id].width}}" height="{{renderedContent[graph.id].height}}" />
                             <div id="horizonDiv_{{graph.id}}" ng-show="graph.type == 'horizon'"></div>
+                            <div id="dygraphLegend_{{graph.id}}" ng-show="graph.type == 'dygraph'" style="position: absolute; z-index: 10; top: 20px; left: 100px; line-height: normal; text-align: left; overflow: hidden; background: rgba(255,255,255,0);" class="dygraph-legend"></div>
                             <div id="dygraphDiv_{{graph.id}}" ng-show="graph.type == 'dygraph'" style="background-color: white"></div>
+                            <div id="scatterLegend_{{graph.id}}" ng-show="graph.type == 'scatter'" style="position: absolute; z-index: 10; top: 20px; left: 100px; line-height: normal; text-align: left; overflow: hidden; background: rgba(255,255,255,0);" class="dygraph-legend"></div>
+                            <div id="scatterDiv_{{graph.id}}" ng-show="graph.type == 'scatter'" style="background-color: white"></div>
                         </div>
                     </div>
                 </div>
@@ -448,6 +456,13 @@
                                     <td><div tag-selection></div></td>
                                 </tr>
                             </table>
+                        </div>
+                        <div ng-show="graph.type == 'scatter'">
+                            <label for="metricControl_scatter_axis">Axis</label>
+                            <select id="metricControl_scatter_axis" ng-model="scatterAxis" aardvark-enter="addOrSaveMetric()">
+                                <option>x</option>
+                                <option>y</option>
+                            </select>
                         </div>
                         <input type="button" value="Cancel" ng-click="clearMetric()" ng-disabled="!clearButtonEnabled()">
                         <input type="button" value="Add" ng-click="addMetric()" ng-show="addButtonVisible()">
