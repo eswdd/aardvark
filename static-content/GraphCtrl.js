@@ -683,12 +683,11 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                     var l = maxl - maxValues[s];
                     if (l>0) {
                         scaleFactors[s] = Math.pow(10, l);
-                        labels[s] = scaleFactors[s]+"x "+labels[s];
+                        labels[s+1] = scaleFactors[s]+"x "+labels[s+1];
                     }
                 }
             }
             for (var t=minTime; t<=maxTime; ) {
-                console.log("t = "+t);
                 var row = [new Date(t)];
                 var nextTime = maxTime + 1; // break condition
                 var sum = 0; // for mean adjusted graphs
@@ -728,7 +727,6 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                             row[s+1] *= scaleFactors[s];
                         }
                     }
-                    
                 }
                 graphData.push(row);
                 t = nextTime;
