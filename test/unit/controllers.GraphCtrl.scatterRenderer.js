@@ -412,10 +412,103 @@ describe('Aardvark controllers', function () {
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
+
+        it('should show a render errror with scatter when TSDB response contains more than 2 time series', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
+
+            var global = { relativePeriod: "1d", autoReload: false };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, scatter: {excludeNegative:true}};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } },
+                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } } ];
+
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true').respond([
+                {
+                    metric: "metric1", tags: {}, dps:{
+                        1234567811000: 11,
+                        1234567812000: -21,
+                        1234567813000: 31,
+                        1234567814000: 41,
+                        1234567815000: 51
+                    }
+                },
+                {
+                    metric: "metric2", tags: {}, dps:{
+                        1234567811000: 10,
+                        1234567812000: 20,
+                        1234567813000: 30,
+                        1234567814000: -40,
+                        1234567815000: 50
+                    }
+                },
+                {
+                    metric: "metric3", tags: {}, dps:{
+                        1234567811000: 10,
+                        1234567812000: 20,
+                        1234567813000: 30,
+                        1234567814000: -40,
+                        1234567815000: 50
+                    }
+                }
+            ]);
+
+            scope.renderers.scatter(global, graph, metrics);
+
+
+            $httpBackend.flush();
+
+            expect(scope.renderErrors).toEqualData({abc: "TSDB results doesn't contain exactly 2 metrics, was 3"});
+            expect(scope.renderMessages).toEqualData({abc:""});
+            expect(scope.renderWarnings).toEqualData({});
+            
+            expect(renderDivId).toEqualData(null);
+            expect(renderGraphId).toEqualData(null);
+            expect(renderData).toEqualData(null);
+            expect(renderConfig).toEqualData(null);
+        });
+
+        it('should show a render errror with scatter when TSDB response contains less than 2 time series', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
+
+            var global = { relativePeriod: "1d", autoReload: false };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, scatter: {excludeNegative:true}};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } },
+                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } } ];
+
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true').respond([
+                {
+                    metric: "metric1", tags: {}, dps:{
+                        1234567811000: 11,
+                        1234567812000: -21,
+                        1234567813000: 31,
+                        1234567814000: 41,
+                        1234567815000: 51
+                    }
+                }
+            ]);
+
+            scope.renderers.scatter(global, graph, metrics);
+
+
+            $httpBackend.flush();
+
+            expect(scope.renderErrors).toEqualData({abc: "TSDB results doesn't contain exactly 2 metrics, was 1"});
+            expect(scope.renderMessages).toEqualData({abc:""});
+            expect(scope.renderWarnings).toEqualData({});
+            
+            expect(renderDivId).toEqualData(null);
+            expect(renderGraphId).toEqualData(null);
+            expect(renderData).toEqualData(null);
+            expect(renderConfig).toEqualData(null);
+        });
     });
     
     // todo: http error
     // todo: axis specification where both == x or both == y (error)
-    // todo: response contains > 2 metrics
 });
 
