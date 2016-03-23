@@ -282,16 +282,19 @@
                                             <label for="stackedLinesDygraph">Stacked lines?</label>
                                         </div>
                                         <div>
-                                            <input type="checkbox" id="squashNegativeDygraph" ng-model="graph.dygraph.squashNegative" aardvark-enter="renderGraphs()" />
-                                            <label for="squashNegativeDygraph">Squash -ve y?</label>
+                                            y-Axis Control
                                         </div>
                                         <div>
-                                            <input type="checkbox" id="autoScaleDygraph" ng-model="graph.dygraph.autoScale" aardvark-enter="renderGraphs()" />
+                                            <input type="checkbox" id="squashNegativeDygraph" ng-model="graph.dygraph.squashNegative" ng-disabled="graph.dygraph.meanAdjusted" aardvark-enter="renderGraphs()" />
+                                            <label for="squashNegativeDygraph">Squash -ve?</label>
+                                        </div>
+                                        <div>
+                                            <input type="checkbox" id="autoScaleDygraph" ng-model="graph.dygraph.autoScale" ng-disabled="graph.dygraph.ylog" aardvark-enter="renderGraphs()" />
                                             <label for="autoScaleDygraph">Auto scale?</label>
                                         </div>
                                         <div>
-                                            <input type="checkbox" id="ylogDygraph" ng-model="graph.dygraph.ylog" aardvark-enter="renderGraphs()" />
-                                            <label for="ylogDygraph">Logarithmic y-axis?</label>
+                                            <input type="checkbox" id="ylogDygraph" ng-model="graph.dygraph.ylog" ng-disabled="graph.dygraph.autoScale" aardvark-enter="renderGraphs()" />
+                                            <label for="ylogDygraph">Logarithmic?</label>
                                         </div>
                                         <!--div>
                                             Annotations
@@ -308,7 +311,7 @@
                                             Specials
                                         </div>
                                         <div>
-                                            <input type="checkbox" id="meanAdjustedDygraph" ng-model="graph.dygraph.meanAdjusted" aardvark-enter="renderGraphs()" />
+                                            <input type="checkbox" id="meanAdjustedDygraph" ng-model="graph.dygraph.meanAdjusted" ng-disabled="graph.dygraph.squashNegative" aardvark-enter="renderGraphs()" />
                                             <label for="meanAdjustedDygraph">Mean adjusted?</label>
                                         </div>
                                     </div>

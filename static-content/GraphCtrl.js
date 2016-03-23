@@ -639,6 +639,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                     var min = Number.MAX_VALUE;
                     for (var p=0; p<json[s].dps.length; p++) {
                         max = Math.max(max, json[s].dps[p][1]);
+                        min = Math.min(min, json[s].dps[p][1]);
                     }
                     if (!dygraphOptions.squashNegative && min < 0) {
                         max = Math.max(max, Math.abs(min));
@@ -826,7 +827,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
 
         url += $scope.tsdb_queryString(global, graph, metrics);
 
-        url += "&ms=true";
+        url += "&no_annotations=true&ms=true";
 
         // now we have the url, so call it!
         $http.get(url).success(function (json) {
@@ -838,13 +839,18 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             
             var xSeries;
             var ySeries;
-            if (metrics[0].graphOptions.scatter.axis == "x") {
+            if (metrics[0].graphOptions.scatter.axis == "y" || metrics[1].graphOptions.scatter.axis == "x") {
+                xSeries = json[1];
+                ySeries = json[0];
+            }
+            else if (metrics[0].graphOptions.scatter.axis == "x" || metrics[1].graphOptions.scatter.axis == "y") {
                 xSeries = json[0];
                 ySeries = json[1];
             }
+            // by default first metric is x
             else {
-                xSeries = json[1];
-                ySeries = json[0];
+                xSeries = json[0];
+                ySeries = json[1];
             }
             
             var data = [];
