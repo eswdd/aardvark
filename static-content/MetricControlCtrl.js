@@ -306,11 +306,32 @@ aardvark.directive('tagSelection', function() {
     };
 
     $scope.metricSelected = function(metricName, newMetric) {
-        $http.get("/aardvark/tags?metric="+metricName).success(function (json) {
-            var tagNames = [];
+        var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/search/lookup";
+        var requestJson = {"metric": metricName, "limit": 100000, "useMeta": true}; // todo: useMeta should be based on tsdb config
+        var postData = JSON.stringify(requestJson);
+        $http.post(url, postData).success(function (data) {
+            var tagValues = {};
 
-            for (var key in json) {
-                if (json.hasOwnProperty(key)) {
+//            var tsdbResponse = JSON.parse(data);
+            var tsdbResponse = data;
+            var results = tsdbResponse.results;
+            for (var i=0; i<results.length; i++) {
+                var ts = results[i];
+                for (var tagk in ts.tags) {
+                    if (ts.tags.hasOwnProperty(tagk)) {
+                        if (!(tagk in tagValues)) {
+                            tagValues[tagk] = [];
+                        }
+                        if (tagValues[tagk].indexOf(ts.tags[tagk]) < 0) {
+                            tagValues[tagk].push(ts.tags[tagk]);
+                        }
+                    }
+                }
+            }
+            var tagNames = [];
+            
+            for (var key in tagValues) {
+                if (tagValues.hasOwnProperty(key)) {
                     tagNames.push(key);
                 }
             }
@@ -331,7 +352,8 @@ aardvark.directive('tagSelection', function() {
                 fn(tagNames[i]);
             }
             $scope.tagNames = tagNames;
-            $scope.tagValues = json;
+            $scope.tagValues = tagValues;
+            
         });
     };
 
