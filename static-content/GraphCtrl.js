@@ -68,7 +68,11 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
     }
     $scope.tsdb_fromTimestampAsTsdbString = function(global) {
         if (global.absoluteTimeSpecification) {
-            return global.fromDate+" "+global.fromTime;
+            // some browsers don't support date and time input types
+            // moment will take Date and string inputs.. woot
+            var date = typeof global.fromDate == "string" ? moment(global.fromDate, "YYYY/MM/DD") : moment(global.fromDate);
+            var time = typeof global.fromTime == "string" ? moment(global.fromTime, "HH:mm:ss") : moment(global.fromTime);
+            return date.format("YYYY/MM/DD") + " " + time.format("HH:mm:ss");
         }
         else {
             if (global.relativePeriod == null || global.relativePeriod == "") {
@@ -79,7 +83,11 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
     }
     $scope.tsdb_toTimestampAsTsdbString = function(global) {
         if (global.absoluteTimeSpecification) {
-            return global.toDate+" "+global.toTime;
+            // some browsers don't support date and time input types
+            // moment will take Date and string inputs.. woot
+            var date = typeof global.toDate == "string" ? moment(global.toDate, "YYYY/MM/DD") : moment(global.toDate);
+            var time = typeof global.toTime == "string" ? moment(global.toTime, "HH:mm:ss") : moment(global.toTime);
+            return date.format("YYYY/MM/DD") + " " + time.format("HH:mm:ss");
         }
         else {
             return null;
@@ -87,8 +95,12 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
     }
     $scope.tsdb_fromTimestampAsDate = function(global, datum) {
         if (global.absoluteTimeSpecification) {
-            return moment(global.fromDate+" "+global.fromTime,
-                "YYYY/MM/DD HH:mm:ss").toDate();
+            // some browsers don't support date and time input types
+            // moment will take Date and string inputs.. woot
+            var date = typeof global.fromDate == "string" ? moment(global.fromDate, "YYYY/MM/DD") : moment(global.fromDate);
+            var time = typeof global.fromTime == "string" ? moment(global.fromTime, "HH:mm:ss") : moment(global.fromTime);
+            var dateTime = date.format("YYYY/MM/DD") + " " + time.format("HH:mm:ss");
+            return moment(dateTime, "YYYY/MM/DD HH:mm:ss").toDate();
         }
         else {
             if (global.relativePeriod == null || global.relativePeriod == "") {
@@ -105,8 +117,12 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
     }
     $scope.tsdb_toTimestampAsDate = function(global, datum) {
         if (global.absoluteTimeSpecification) {
-            return moment(global.toDate+" "+global.toTime,
-                "YYYY/MM/DD HH:mm:ss").toDate();
+            // some browsers don't support date and time input types
+            // moment will take Date and string inputs.. woot
+            var date = typeof global.toDate == "string" ? moment(global.toDate, "YYYY/MM/DD") : moment(global.toDate);
+            var time = typeof global.toTime == "string" ? moment(global.toTime, "HH:mm:ss") : moment(global.toTime);
+            var dateTime = date.format("YYYY/MM/DD") + " " + time.format("HH:mm:ss");
+            return moment(dateTime, "YYYY/MM/DD HH:mm:ss").toDate();
         }
         else {
             return datum ? datum : new Date();
