@@ -750,12 +750,16 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             }
 
             var positionLegend = function() {
-                var graphPanelBox = d3.select("#scrollable-graph-panel").node().getBoundingClientRect();
-                var graphBox = d3.select("#dygraphDiv_"+graph.id).node().getBoundingClientRect();
-                // top needs to be relative to this panel, not whole window
-                var legendTop = graphBox.top - graphPanelBox.top;
-                // and now we just go find the rule we added and set the top/height
-                d3.select("#dygraphLegend_"+graph.id).style("top", legendTop+"px");
+                var container = d3.select("#scrollable-graph-panel").node();
+                // null in unt tests
+                if (container != null) {
+                    var graphPanelBox = container.getBoundingClientRect();
+                    var graphBox = d3.select("#dygraphDiv_"+graph.id).node().getBoundingClientRect();
+                    // top needs to be relative to this panel, not whole window
+                    var legendTop = graphBox.top - graphPanelBox.top;
+                    // and now we just go find the rule we added and set the top/height
+                    d3.select("#dygraphLegend_"+graph.id).style("top", legendTop+"px");
+                }
             }
 
             positionLegend();

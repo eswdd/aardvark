@@ -98,13 +98,37 @@ describe('Aardvark controllers', function () {
 
         it('should correctly process a selected node in the tree', function() {
             var node = {id: "name.baldrick", name: "baldrick", isMetric: true, children: []};
+            
+            rootScope.config = { tsdbHost: "tsdb", tsdbPort: 4242 };
 
             var response = {
-                key1: [ "value1", "value2" ],
-                key2: [ "value3" ]
+                "type":"LOOKUP",
+                "metric":"name.baldrick",
+                "limit":100000,
+                "time":1,
+                "results":[
+                    {
+                        "metric":"name.baldrick",
+                        "tags":{
+                            "key1":"value1",
+                            "key2":"value3"
+                        },
+                        "tsuid":"000006000001000009"
+                    },
+                    {
+                        "metric":"name.baldrick",
+                        "tags":{
+                            "key1":"value2",
+                            "key2":"value3"
+                        },
+                        "tsuid":"00000600000100000a"
+                    }
+                ],
+                "startIndex":0,
+                "totalResults":2
             };
 
-            $httpBackend.expectGET('/aardvark/tags?metric=name.baldrick').respond(response);
+            $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', '{"metric":"name.baldrick","limit":100000,"useMeta":true}').respond(response);
 
             scope.nodeSelectedForAddition(node, true);
             $httpBackend.flush();
@@ -115,7 +139,10 @@ describe('Aardvark controllers', function () {
             expect(scope.deleteButtonVisible()).toEqualData(false);
             expect(scope.selectedMetric).toEqualData("name.baldrick");
             expect(scope.tagNames).toEqualData(["key1","key2"]);
-            expect(scope.tagValues).toEqualData(response);
+            expect(scope.tagValues).toEqualData({
+                key1: [ "value1", "value2" ],
+                key2: [ "value3" ]
+            });
             expect(scope.nodeSelectionDisabled).toEqualData(true);
 
             // tag options are a little more complex
@@ -319,6 +346,7 @@ describe('Aardvark controllers', function () {
         });
 
         it('should populate the metric form when an existing metric is selected', function() {
+            rootScope.config = { tsdbHost: "tsdb", tsdbPort: 4242 };
             rootScope.model = {
                 graphs: [
                     {
@@ -362,12 +390,36 @@ describe('Aardvark controllers', function () {
 
 
             var response = {
-                tag1: [ "value1", "value2" ],
-                tag2: [ "value3" ],
-                tag3: [ "value"]
+                "type":"LOOKUP",
+                "metric":"some.metric.name",
+                "limit":100000,
+                "time":1,
+                "results":[
+                    {
+                        "metric":"some.metric.name",
+                        "tags":{
+                            "tag1":"value1",
+                            "tag2":"value3",
+                            "tag3":"value"
+                        },
+                        "tsuid":"000006000001000009"
+                    },
+                    {
+                        "metric":"some.metric.name",
+                        "tags":{
+                            "tag1":"value2",
+                            "tag2":"value3",
+                            "tag3":"value"
+                        },
+                        "tsuid":"00000600000100000a"
+                    }
+                ],
+                "startIndex":0,
+                "totalResults":2
             };
 
-            $httpBackend.expectGET('/aardvark/tags?metric=some.metric.name').respond(response);
+            // todo: check correct metric name requested
+            $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', '{"metric":"some.metric.name","limit":100000,"useMeta":true}').respond(response);
 
             scope.nodeSelectedForEditing();
             $httpBackend.flush();
