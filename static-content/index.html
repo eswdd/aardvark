@@ -60,10 +60,10 @@
                                     <input type="checkbox" id="autoReloadId" ng-model="autoReload" aardvark-enter="renderGraphs()">
                                     <label for="autoReloadId">Auto reload</label>
                                 </div>
-                                <div ng-show="autoReload">
+                                <!--div ng-show="autoReload">
                                     <input type="text" size="2" id="autoReloadPeriodId" ng-model="autoReloadPeriod" aardvark-enter="renderGraphs()" />
                                     <label for="autoReloadPeriodId">seconds</label>
-                                </div>
+                                </div-->
                                 <div ng-show="!absoluteTimeSpecification">
                                     <label for="relativePeriodId">Previous</label><br/>
                                     <input type="text" size="10" id="relativePeriodId" ng-model="relativePeriod" ng-required aardvark-enter="renderGraphs()" />
