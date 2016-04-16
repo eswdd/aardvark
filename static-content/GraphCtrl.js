@@ -268,8 +268,10 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         if (tagNames.length > 0) {
             name += "{";
             tagNames.sort();
+            var sep = "";
             for (var tk = 0; tk < tagNames.length; tk++) {
-                name += tagNames[tk] + "=" + metric.tags[tagNames[tk]];
+                name += sep + tagNames[tk] + "=" + metric.tags[tagNames[tk]];
+                sep = ",";
             }
             name += "}";
         }
