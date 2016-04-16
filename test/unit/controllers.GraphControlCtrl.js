@@ -95,7 +95,17 @@ describe('Aardvark controllers', function () {
                     dygraph: {
                         interpolateGaps: true,
                         highlightLines: true,
-                        annotations: true
+                        annotations: true,
+                        countFilter: {
+                            end: "top",
+                            count: "",
+                            measure: "mean"
+                        },
+                        valueFilter: {
+                            lowerBound: "",
+                            measure: "any",
+                            upperBound: ""
+                        }
                     }
                 }
             ]);
@@ -129,7 +139,17 @@ describe('Aardvark controllers', function () {
                     dygraph: {
                         interpolateGaps: true,
                         highlightLines: true,
-                        annotations: true
+                        annotations: true,
+                        countFilter: {
+                            end: "top",
+                            count: "",
+                            measure: "mean"
+                        },
+                        valueFilter: {
+                            lowerBound: "",
+                            measure: "any",
+                            upperBound: ""
+                        }
                     }
                 }
             ]);
@@ -178,7 +198,17 @@ describe('Aardvark controllers', function () {
                     dygraph: {
                         interpolateGaps: true,
                         highlightLines: true,
-                        annotations: true
+                        annotations: true,
+                        countFilter: {
+                            end: "top",
+                            count: "",
+                            measure: "mean"
+                        },
+                        valueFilter: {
+                            lowerBound: "",
+                            measure: "any",
+                            upperBound: ""
+                        }
                     }
                 }
             ]);
@@ -206,7 +236,17 @@ describe('Aardvark controllers', function () {
                     dygraph: {
                         interpolateGaps: true,
                         highlightLines: true,
-                        annotations: true
+                        annotations: true,
+                        countFilter: {
+                            end: "top",
+                            count: "",
+                            measure: "mean"
+                        },
+                        valueFilter: {
+                            lowerBound: "",
+                            measure: "any",
+                            upperBound: ""
+                        }
                     }
                 },
                 {
@@ -228,7 +268,17 @@ describe('Aardvark controllers', function () {
                     dygraph: {
                         interpolateGaps: true,
                         highlightLines: true,
-                        annotations: true
+                        annotations: true,
+                        countFilter: {
+                            end: "top",
+                            count: "",
+                            measure: "mean"
+                        },
+                        valueFilter: {
+                            lowerBound: "",
+                            measure: "any",
+                            upperBound: ""
+                        }
                     }
                 }
             ]);
@@ -260,7 +310,17 @@ describe('Aardvark controllers', function () {
                     dygraph: {
                         interpolateGaps: true,
                         highlightLines: true,
-                        annotations: true
+                        annotations: true,
+                        countFilter: {
+                            end: "top",
+                            count: "",
+                            measure: "mean"
+                        },
+                        valueFilter: {
+                            lowerBound: "",
+                            measure: "any",
+                            upperBound: ""
+                        }
                     }
                 }
             ]);
@@ -288,7 +348,17 @@ describe('Aardvark controllers', function () {
                     dygraph: {
                         interpolateGaps: true,
                         highlightLines: true,
-                        annotations: true
+                        annotations: true,
+                        countFilter: {
+                            end: "top",
+                            count: "",
+                            measure: "mean"
+                        },
+                        valueFilter: {
+                            lowerBound: "",
+                            measure: "any",
+                            upperBound: ""
+                        }
                     }
                 },
                 {
@@ -310,7 +380,17 @@ describe('Aardvark controllers', function () {
                     dygraph: {
                         interpolateGaps: true,
                         highlightLines: true,
-                        annotations: true
+                        annotations: true,
+                        countFilter: {
+                            end: "top",
+                            count: "",
+                            measure: "mean"
+                        },
+                        valueFilter: {
+                            lowerBound: "",
+                            measure: "any",
+                            upperBound: ""
+                        }
                     }
                 }
             ]);

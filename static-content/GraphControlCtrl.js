@@ -164,7 +164,17 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', function Graph
             dygraph: {
                 interpolateGaps: true,
                 highlightLines: true,
-                annotations: true
+                annotations: true,
+                countFilter: {
+                    end: "top",
+                    count: "",
+                    measure: "mean"
+                },
+                valueFilter: {
+                    lowerBound: "",
+                    measure: "any",
+                    upperBound: ""
+                }
             }
         });
         $scope.showEdit[id] = true;

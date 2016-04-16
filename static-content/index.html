@@ -266,7 +266,7 @@
                                         </div>
                                     </div>
                                     <div ng-show="graph.type == 'dygraph'">
-                                        <div>
+                                        <div style="text-decoration: underline; font-weight: 800">
                                             Rendering
                                         </div>
                                         <div>
@@ -281,7 +281,7 @@
                                             <input type="checkbox" id="stackedLinesDygraph" ng-model="graph.dygraph.stackedLines" aardvark-enter="renderGraphs()" />
                                             <label for="stackedLinesDygraph">Stacked lines?</label>
                                         </div>
-                                        <div>
+                                        <div style="text-decoration: underline; font-weight: 800">
                                             y-Axis Control
                                         </div>
                                         <div>
@@ -296,7 +296,7 @@
                                             <input type="checkbox" id="ylogDygraph" ng-model="graph.dygraph.ylog" ng-disabled="graph.dygraph.autoScale" aardvark-enter="renderGraphs()" />
                                             <label for="ylogDygraph">Logarithmic?</label>
                                         </div>
-                                        <!--div>
+                                        <!--div style="text-decoration: underline; font-weight: 800">
                                             Annotations
                                         </div>
                                         <div>
@@ -307,7 +307,37 @@
                                             <input type="checkbox" id="globalAnnotationsDygraph" ng-model="graph.dygraph.globalAnnotations" aardvark-enter="renderGraphs()" />
                                             <label for="globalAnnotationsDygraph">Global annotations?</label>
                                         </div-->
+                                        <div style="text-decoration: underline; font-weight: 800">
+                                            Filtering
+                                        </div>
                                         <div>
+                                            Show only 
+                                            <select ng-model="graph.dygraph.countFilter.end" aardvark-enter="renderGraphs()">
+                                                <option>top</option>
+                                                <option>bottom</option>
+                                            </select>
+                                            <input type="text" size="2" ng-model="graph.dygraph.countFilter.count" aardvark-enter="renderGraphs()" />
+                                            lines by
+                                            <select ng-model="graph.dygraph.countFilter.measure" aardvark-enter="renderGraphs()">
+                                                <option>min</option>
+                                                <option>mean</option>
+                                                <option>max</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            Show only lines which have
+                                            <input type="text" size="2" ng-model="graph.dygraph.valueFilter.lowerBound" aardvark-enter="renderGraphs()" />
+                                            &lt;=
+                                            <select ng-model="graph.dygraph.valueFilter.measure" aardvark-enter="renderGraphs()">
+                                                <option>any</option>
+                                                <option>min</option>
+                                                <option>mean</option>
+                                                <option>max</option>
+                                            </select>
+                                            value &lt;=
+                                            <input type="text" size="2" ng-model="graph.dygraph.valueFilter.upperBound" aardvark-enter="renderGraphs()" />
+                                        </div>
+                                        <div style="text-decoration: underline; font-weight: 800">
                                             Specials
                                         </div>
                                         <div>

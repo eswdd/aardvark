@@ -598,13 +598,25 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             $scope.renderErrors[graph.id] = "No metrics specified";
             return;
         }
-
-        $scope.renderMessages[graph.id] = "Loading...";
         
         var dygraphOptions = graph.dygraph;
         if (!dygraphOptions) {
             dygraphOptions = {};
         }
+
+        if (dygraphOptions.countFilter != null && dygraphOptions.countFilter.count < 1) {
+            $scope.renderErrors[graph.id] = "Minimum count for filtering is 1";
+            return;
+        }
+        if (dygraphOptions.valueFilter != null && dygraphOptions.valueFilter.lowerBound != "" && dygraphOptions.valueFilter.upperBound != "" && dygraphOptions.valueFilter.lowerBound > dygraphOptions.valueFilter.upperBound) {
+            $scope.renderErrors[graph.id] = "Upper bound on value filter is less than lower bound";
+            return;
+        }
+        if (dygraphOptions.valueFilter != null && dygraphOptions.valueFilter.lowerBound != "" && dygraphOptions.valueFilter.upperBound != "" && dygraphOptions.valueFilter.lowerBound == dygraphOptions.valueFilter.upperBound) {
+            $scope.renderWarnings[graph.id] = "Lower bound on value filter is same as upper bound";
+        }
+
+        $scope.renderMessages[graph.id] = "Loading...";
 
         // url construction
         var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/query";
@@ -624,11 +636,149 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
 
         // now we have the url, so call it!
         $http.get(url).success(function (json) {
+            
+            if (!json || json.length == 0) {
+                $scope.renderErrors[graph.id] = "Empty response from TSDB";
+                $scope.renderMessages[graph.id] = "";
+                return;
+            }
 
             var width = Math.floor(graph.graphWidth);
             var height = Math.floor(graph.graphHeight);
 
             var graphData = [];
+            
+            // filtering
+            var measured = null;
+            if (dygraphOptions.countFilter != null && dygraphOptions.countFilter.count != "" && dygraphOptions.countFilter.count < json.length) {
+                measured = new Array(json.length);
+                var sorted = new Array(json.length);
+                for (var i=0; i<json.length; i++) {
+                    switch (dygraphOptions.countFilter.measure) {
+                        case "mean":
+                            measured[i] = 0;
+                            for (var p=0; p<json[i].dps.length; p++) {
+                                measured[i] +=  json[i].dps[p][1];
+                            }
+                            measured[i] /= json[i].dps.length;
+                            break;
+                        case "min":
+                            measured[i] = Number.MAX_VALUE;
+                            for (var p=0; p<json[i].dps.length; p++) {
+                                measured[i] = Math.min(measured[i], json[i].dps[p][1]);
+                            }
+                            break;
+                        case "max":
+                            measured[i] = Number.MIN_VALUE;
+                            for (var p=0; p<json[i].dps.length; p++) {
+                                measured[i] = Math.max(measured[i], json[i].dps[p][1]);
+                            }
+                            break;
+                    }
+                    sorted[i] = measured[i];
+                }
+                // increasing order
+                sorted.sort();
+                if (dygraphOptions.countFilter.end == "top") {
+                    var thresholdIndex1 = json.length - dygraphOptions.countFilter.count;
+                    var threshold1 = sorted[thresholdIndex1];
+                    for (var i=json.length-1; i>=0; i--) {
+                        if (measured[i] < threshold1) {
+                            json.splice(i,1);
+                            measured.splice(i,1);
+                        }
+                    }
+                }
+                else if (dygraphOptions.countFilter.end == "bottom") {
+                    var thresholdIndex2 = dygraphOptions.countFilter.count - 1;
+                    var threshold2 = sorted[thresholdIndex2];
+                    for (var i=json.length-1; i>=0; i--) {
+                        if (measured[i] > threshold2) {
+                            json.splice(i,1);
+                            measured.splice(i,1);
+                        }
+                    }
+                }
+            }
+            if (dygraphOptions.valueFilter != null && (dygraphOptions.valueFilter.lowerBound != "" || dygraphOptions.valueFilter.upperBound != "")) {
+                if ((dygraphOptions.countFilter && dygraphOptions.valueFilter.measure != dygraphOptions.countFilter.measure) || measured == null) {
+                    measured = new Array(json.length);
+                    for (var i=0; i<json.length; i++) {
+                        switch (dygraphOptions.valueFilter.measure) {
+                            case "mean":
+                                measured[i] = 0;
+                                for (var p=0; p<json[i].dps.length; p++) {
+                                    measured[i] +=  json[i].dps[p][1];
+                                }
+                                measured[i] /= json[i].dps.length;
+                                break;
+                            case "min":
+                                measured[i] = Number.MAX_VALUE;
+                                for (var p=0; p<json[i].dps.length; p++) {
+                                    measured[i] = Math.min(measured[i], json[i].dps[p][1]);
+                                }
+                                break;
+                            case "max":
+                                measured[i] = Number.MIN_VALUE;
+                                for (var p=0; p<json[i].dps.length; p++) {
+                                    measured[i] = Math.max(measured[i], json[i].dps[p][1]);
+                                }
+                                break;
+                        }
+                    }
+                }
+                var include = new Array(json.length);
+                for (var i=json.length-1; i>=0; i--) {
+                    include[i] = true;
+                    switch (dygraphOptions.valueFilter.measure) {
+                        case "mean":
+                        case "min":
+                        case "max":
+                            if (dygraphOptions.valueFilter.lowerBound != "") {
+                                if (measured[i] < dygraphOptions.valueFilter.lowerBound) {
+                                    include[i] = false;
+                                }
+                            }
+                            if (dygraphOptions.valueFilter.upperBound != "") {
+                                if (measured[i] > dygraphOptions.valueFilter.upperBound) {
+                                    include[i] = false;
+                                }
+                            }
+                            break;
+                        case "any":
+                            include[i] = false;
+                            for (var p=0; p<json[i].dps.length; p++) {
+                                var includePoint = true;
+                                if (dygraphOptions.valueFilter.lowerBound != "") {
+                                    if (json[i].dps[p][1] < dygraphOptions.valueFilter.lowerBound) {
+                                        includePoint = false;
+                                    }
+                                }
+                                if (dygraphOptions.valueFilter.upperBound != "") {
+                                    if (json[i].dps[p][1] > dygraphOptions.valueFilter.upperBound) {
+                                        includePoint = false;
+                                    }
+                                }
+                                if (includePoint) {
+                                    include[i] = true;
+                                    break;
+                                }
+                                
+                            }
+                    }
+                    if (!include[i]) {
+                        json.splice(i,1);
+                        measured.splice(i,1);
+                    }
+                }
+            }
+            
+            if (json.length == 0) {
+                $scope.renderErrors[graph.id] = "Value filtering excluded all time series";
+                $scope.renderMessages[graph.id] = "";
+                return;
+            }
+            
             var minTime = json[0].dps[0][0];
             var maxTime = json[0].dps[json[0].dps.length-1][0];
             for (var s=1; s<json.length; s++) {

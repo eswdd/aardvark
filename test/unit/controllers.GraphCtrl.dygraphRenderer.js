@@ -112,6 +112,48 @@ describe('Aardvark controllers', function () {
             expect(scope.renderErrors).toEqualData({abc:"No metrics specified"});
             expect(scope.renderWarnings).toEqualData({});
         });
+
+        it('should report an error when trying to render with dygraph and count filtering of < 1 item', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+
+            var global = { relativePeriod: "1d", autoReload: false };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { countFilter: { count: 0, measure: "max", end: "top" }}};
+            var metrics = [{ id: "123", name: "metric1", tags: [{name: "host", value: "host1"}], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+
+            scope.renderers.dygraph(global, graph, metrics);
+
+            expect(renderDivId).toEqualData(null);
+            expect(renderGraphId).toEqualData(null);
+            expect(renderData).toEqualData(null);
+            expect(renderConfig).toEqualData(null);
+            expect(scope.renderErrors).toEqualData({abc:"Minimum count for filtering is 1"});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
+        it('should report an error when the http response is empty', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+
+            var global = { relativePeriod: "1d", autoReload: false };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
+            var metrics = [ { id: "123", name: "metric1", tags: [{name: "host", value: "host1"}], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1{host=host1}&no_annotations=true&ms=true&arrays=true').respond([]);
+
+            scope.renderers.dygraph(global, graph, metrics);
+
+            $httpBackend.flush();
+
+            expect(renderDivId).toEqualData(null);
+            expect(renderGraphId).toEqualData(null);
+            expect(renderData).toEqualData(null);
+            expect(renderConfig).toEqualData(null);
+            expect(scope.renderErrors).toEqualData({abc:"Empty response from TSDB"});
+            expect(scope.renderWarnings).toEqualData({});
+        });
         
         it('should render with dygraph with a relative start time', function() {
             scope.renderedContent = {};
@@ -756,7 +798,7 @@ describe('Aardvark controllers', function () {
             expect(scope.renderWarnings).toEqualData({});
         });
 
-        it('should render with dygraph with auto scaling taking acount of negative squashing', function() {
+        it('should render with dygraph with auto scaling taking account of negative squashing', function() {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
@@ -814,6 +856,370 @@ describe('Aardvark controllers', function () {
             });
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
+        });
+        
+        var testFiltering = function(dygraphOptions, metricDps, expectedMetrics, expectedWarnings, expectedErrors) {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
+
+            var global = { relativePeriod: "1d", autoReload: false };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: dygraphOptions };
+            var metrics = [
+                { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "125", name: "metric3", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "126", name: "metric4", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }
+            ];
+        
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&m=sum:metric3&m=sum:metric4&no_annotations=true&ms=true&arrays=true').respond(
+            [
+                {
+                    metric: "metric1", tags: {}, dps:[
+                    [1234567811000, metricDps.metric1[0]],
+                    [1234567812000, metricDps.metric1[1]],
+                    [1234567813000, metricDps.metric1[2]]
+                ]
+                },{
+                metric: "metric2", tags: {}, dps:[
+                    [1234567811000, metricDps.metric2[0]],
+                    [1234567812000, metricDps.metric2[1]],
+                    [1234567813000, metricDps.metric2[2]]
+                ]
+                },{
+                    metric: "metric3", tags: {}, dps:[
+                        [1234567811000, metricDps.metric3[0]],
+                        [1234567812000, metricDps.metric3[1]],
+                        [1234567813000, metricDps.metric3[2]]
+                    ]
+                },{
+                    metric: "metric4", tags: {}, dps:[
+                        [1234567811000, metricDps.metric4[0]],
+                        [1234567812000, metricDps.metric4[1]],
+                        [1234567813000, metricDps.metric4[2]]
+                    ]
+                }
+            ]);
+
+            scope.renderers.dygraph(global, graph, metrics);
+    
+            $httpBackend.flush();
+    
+            if (!expectedErrors) {
+                expect(renderDivId).toEqualData("dygraphDiv_abc");
+                expect(renderGraphId).toEqualData("abc");
+            
+                var expectedData = [
+                    [new Date(1234567811000)],
+                    [new Date(1234567812000)],
+                    [new Date(1234567813000)]
+                ];
+                var expectedLabels = ["x"];
+                for (var i=0; i<expectedMetrics.length; i++) {
+                    var m = expectedMetrics[i];
+                    expectedLabels.push(m);
+                    expectedData[0].push(metricDps[m][0]);
+                    expectedData[1].push(metricDps[m][1]);
+                    expectedData[2].push(metricDps[m][2]);
+                }
+    
+                expect(renderConfig.labels).toEqualData(expectedLabels);
+                expect(renderData).toEqualData(expectedData);
+            }
+            
+            expect(scope.renderErrors).toEqualData(expectedErrors || {});
+            expect(scope.renderWarnings).toEqualData(expectedWarnings || {});
+        }
+
+        it('should render with dygraph with top n filtering based on min', function() {
+            testFiltering(
+                { countFilter: {count: 2, measure: "min", end: "top"}},
+                {
+                    metric1: [10,20,30],
+                    metric2: [20,30,40],
+                    metric3: [30,40,50],
+                    metric4: [40,50,60]
+                },
+                [ "metric3", "metric4" ]
+            );
+        });
+        
+        it('should render with dygraph with top n filtering based on max', function() {
+            testFiltering(
+                { countFilter: {count: 2, measure: "max", end: "top"}},
+                {
+                    metric1: [10,20,70],
+                    metric2: [20,30,40],
+                    metric3: [30,40,50],
+                    metric4: [40,50,60]
+                },
+                [ "metric1", "metric4" ]
+            );
+        });
+        it('should render with dygraph with top n filtering based on mean', function() {
+            testFiltering(
+                { countFilter: {count: 2, measure: "mean", end: "top"}},
+                {
+                    metric1: [10,20,70],
+                    metric2: [10,30,70],
+                    metric3: [10,40,70],
+                    metric4: [10,20,70]
+                },
+                [ "metric2", "metric3" ]
+            );
+        });
+        it('should render with dygraph with bottom n filtering based on min', function() {
+            testFiltering(
+                { countFilter: {count: 2, measure: "min", end: "bottom"}},
+                {
+                    metric1: [10,20,30],
+                    metric2: [20,30,40],
+                    metric3: [30,40,50],
+                    metric4: [40,50,60]
+                },
+                [ "metric1", "metric2" ]
+            );
+        });
+        it('should render with dygraph with bottom n filtering based on mean', function() {
+            testFiltering(
+                { countFilter: {count: 2, measure: "mean", end: "bottom"}},
+                {
+                    metric1: [10,20,70],
+                    metric2: [10,30,70],
+                    metric3: [10,40,70],
+                    metric4: [10,20,70]
+                },
+                [ "metric1", "metric4" ]
+            );
+        });
+        it('should render with dygraph with bottom n filtering based on max', function() {
+            testFiltering(
+                { countFilter: {count: 2, measure: "max", end: "bottom"}},
+                {
+                    metric1: [10,20,70],
+                    metric2: [20,30,40],
+                    metric3: [30,40,50],
+                    metric4: [40,50,60]
+                },
+                [ "metric2", "metric3" ]
+            );
+        });
+        it('should render with dygraph with top n filtering where nth values are equal', function() {
+            testFiltering(
+                { countFilter: {count: 2, measure: "min", end: "top"}},
+                {
+                    metric1: [30,50,30],
+                    metric2: [20,30,40],
+                    metric3: [30,40,50],
+                    metric4: [40,50,60]
+                },
+                [ "metric1", "metric3", "metric4" ]
+            );
+        });
+        it('should render with dygraph with bottom n filtering where nth values are equal', function() {
+            testFiltering(
+                { countFilter: {count: 2, measure: "max", end: "bottom"}},
+                {
+                    metric1: [10,20,70],
+                    metric2: [20,30,40],
+                    metric3: [30,40,50],
+                    metric4: [40,50,50]
+                },
+                [ "metric2", "metric3", "metric4" ]
+            );
+        });
+
+        it('should render with dygraph with bounded filter based on min(value) >= v', function() {
+            testFiltering(
+                { valueFilter: {lowerBound: 25, measure: "min", upperBound: ""}},
+                {
+                    metric1: [10,20,70],
+                    metric2: [20,30,40],
+                    metric3: [30,40,50],
+                    metric4: [40,50,50]
+                },
+                [ "metric3", "metric4" ]
+            );
+        });
+        it('should render with dygraph with bounded filter based on mean(value) >= v', function() {
+            testFiltering(
+                { valueFilter: {lowerBound: 31, measure: "mean", upperBound: ""}},
+                {
+                    metric1: [10,20,70],
+                    metric2: [20,30,40],
+                    metric3: [30,40,50],
+                    metric4: [40,50,50]
+                },
+                [ "metric1", "metric3", "metric4" ]
+            );
+        });
+        it('should render with dygraph with bounded filter based on max(value) >= v', function() {
+            testFiltering(
+                { valueFilter: {lowerBound: 60, measure: "max", upperBound: ""}},
+                {
+                    metric1: [10,20,70],
+                    metric2: [20,30,40],
+                    metric3: [30,40,50],
+                    metric4: [40,50,50]
+                },
+                [ "metric1" ]
+            );
+        });
+        it('should render with dygraph with bounded filter based on any(value) >= v', function() {
+            testFiltering(
+                { valueFilter: {lowerBound: 42, measure: "any", upperBound: ""}},
+                {
+                    metric1: [10,20,70],
+                    metric2: [20,30,40],
+                    metric3: [30,40,50],
+                    metric4: [40,50,50]
+                },
+                [ "metric1", "metric3", "metric4" ]
+            );
+        });
+        it('should render with dygraph with bounded filter based on min(value) <= v', function() {
+            testFiltering(
+                { valueFilter: {lowerBound: "", measure: "min", upperBound: 25}},
+                {
+                    metric1: [10,20,70],
+                    metric2: [20,30,40],
+                    metric3: [30,40,50],
+                    metric4: [40,50,50]
+                },
+                [ "metric1", "metric2" ]
+            );
+        });
+        it('should render with dygraph with bounded filter based on mean(value) <= v', function() {
+            testFiltering(
+                { valueFilter: {lowerBound: "", measure: "mean", upperBound: "42"}},
+                {
+                    metric1: [10,20,70],
+                    metric2: [20,30,40],
+                    metric3: [30,40,50],
+                    metric4: [40,50,50]
+                },
+                [ "metric1", "metric2", "metric3" ]
+            );
+        });
+        it('should render with dygraph with bounded filter based on max(value) <= v', function() {
+            testFiltering(
+                { valueFilter: {lowerBound: "", measure: "max", upperBound: "52"}},
+                {
+                    metric1: [10,20,70],
+                    metric2: [20,30,40],
+                    metric3: [30,40,50],
+                    metric4: [40,50,50]
+                },
+                [ "metric2", "metric3", "metric4" ]
+            );
+        });
+        it('should render with dygraph with bounded filter based on any(value) <= v', function() {
+            testFiltering(
+                { valueFilter: {lowerBound: "", measure: "any", upperBound: 25}},
+                {
+                    metric1: [10,20,70],
+                    metric2: [20,30,40],
+                    metric3: [30,40,50],
+                    metric4: [40,50,50]
+                },
+                [ "metric1", "metric2" ]
+            );
+        });
+        
+        it('should render with dygraph with bounded filter based on min(value) <= v <= min(value)', function() {
+            testFiltering(
+                { valueFilter: {lowerBound: "18", measure: "min", upperBound: "22"}},
+                {
+                    metric1: [10,20,70],
+                    metric2: [20,30,40],
+                    metric3: [30,40,50],
+                    metric4: [40,50,50]
+                },
+                [ "metric2" ]
+            );
+        });
+        it('should render with dygraph with bounded filter based on mean(value) <= v <= mean(value)', function() {
+            testFiltering(
+                { valueFilter: {lowerBound: "30", measure: "mean", upperBound: "35"}},
+                {
+                    metric1: [10,20,70],
+                    metric2: [20,30,40],
+                    metric3: [30,40,50],
+                    metric4: [40,50,50]
+                },
+                [ "metric1", "metric2" ]
+            );
+        });
+        it('should render with dygraph with bounded filter based on max(value) <= v <= max(value)', function() {
+            testFiltering(
+                { valueFilter: {lowerBound: "69", measure: "max", upperBound: "72"}},
+                {
+                    metric1: [10,20,70],
+                    metric2: [20,30,40],
+                    metric3: [30,40,50],
+                    metric4: [40,50,50]
+                },
+                [ "metric1" ]
+            );
+        });
+        it('should render with dygraph with bounded filter based on any(value) <= v <= any(value)', function() {
+            testFiltering(
+                { valueFilter: {lowerBound: "29", measure: "any", upperBound: "32"}},
+                {
+                    metric1: [10,20,70],
+                    metric2: [20,30,40],
+                    metric3: [30,40,50],
+                    metric4: [40,50,50]
+                },
+                [ "metric2", "metric3" ]
+            );
+        });
+
+        it('should show an error when value filtering removes all time series', function() {
+            testFiltering(
+                { valueFilter: {lowerBound: "80", measure: "any", upperBound: "90"}},
+                {
+                    metric1: [10,20,70],
+                    metric2: [20,30,40],
+                    metric3: [30,40,50],
+                    metric4: [40,50,50]
+                },
+                [],
+                {},
+                {abc: "Value filtering excluded all time series"}
+            );
+        });
+        it('should show an error when lower bound > upper bound', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+
+            var global = { relativePeriod: "1d", autoReload: false };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { valueFilter: { lowerBound: 100, measure: "max", upperBound: "80" }}};
+            var metrics = [{ id: "123", name: "metric1", tags: [{name: "host", value: "host1"}], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+
+            scope.renderers.dygraph(global, graph, metrics);
+
+            expect(renderDivId).toEqualData(null);
+            expect(renderGraphId).toEqualData(null);
+            expect(renderData).toEqualData(null);
+            expect(renderConfig).toEqualData(null);
+            expect(scope.renderErrors).toEqualData({abc:"Upper bound on value filter is less than lower bound"});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+        it('should show a warning when lower bound == upper bound', function() {
+            testFiltering(
+                { valueFilter: {lowerBound: "20", measure: "any", upperBound: "20"}},
+                {
+                    metric1: [10,20,70],
+                    metric2: [20,30,40],
+                    metric3: [30,40,50],
+                    metric4: [40,50,50]
+                },
+                [ "metric1", "metric2" ],
+                {abc: "Lower bound on value filter is same as upper bound"}
+            );
         });
 
         // todo: http error
