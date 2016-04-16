@@ -209,8 +209,9 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', function Graph
         // simple for now - this would have to change if we do dashboarding
         var boundingBox = document.getElementById("graph-panel");
         if (boundingBox != null) {
-            width = boundingBox.clientWidth-4;
-            height = boundingBox.clientHeight-($scope.graphs.length*20); // for titles
+            // extra 20px off in both dirs to account for scroll bars
+            width = boundingBox.clientWidth-24;
+            height = boundingBox.clientHeight-($scope.graphs.length*20)-20; // for titles
         }
         var eachHeight = 0;
         if ($scope.autoGraphHeight) {
