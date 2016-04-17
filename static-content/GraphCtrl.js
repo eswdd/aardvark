@@ -1054,6 +1054,21 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             data.sort(function (a,b) {
                 return a[0] - b[0];
             });
+
+            var positionLegend = function() {
+                var container = d3.select("#scrollable-graph-panel").node();
+                // null in unt tests
+                if (container != null) {
+                    var graphPanelBox = container.getBoundingClientRect();
+                    var graphBox = d3.select("#scatterDiv_"+graph.id).node().getBoundingClientRect();
+                    // top needs to be relative to this panel, not whole window
+                    var legendTop = graphBox.top - graphPanelBox.top;
+                    // and now we just go find the rule we added and set the top/height
+                    d3.select("#scatterLegend_"+graph.id).style("top", legendTop+"px");
+                }
+            }
+
+            positionLegend();
             
             var labels = ["x", $scope.timeSeriesName(xSeries) + " (x) vs " + $scope.timeSeriesName(ySeries) + " (y)"];
             var labelsDiv = document.getElementById("scatterLegend_"+graph.id);
