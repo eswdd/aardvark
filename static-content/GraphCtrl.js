@@ -12,15 +12,6 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
     $scope.renderListeners = {};
     $scope.dygraphs = {};
 
-    $scope.nextId = function() {
-        var next = new Date().getTime();
-        if (next <= $scope.lastId) {
-            next = $scope.lastId+1;
-        }
-        $scope.lastId = next;
-        return next + "";
-    }
-
     $scope.graphRendered = function (graphId) {
         for (var k in $scope.renderListeners) {
             if ($scope.renderListeners.hasOwnProperty(k)) {
