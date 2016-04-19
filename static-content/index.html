@@ -84,7 +84,7 @@
                                 </div>
                                 <div ng-show="!autoReload && absoluteTimeSpecification">
                                     <label for="toDateId">To</label>
-                                    <button ng-click="now()">Now</button>
+                                    <button ng-click="now()" disabled="disabled">Now</button>
                                 </div>
                                 <div ng-show="!autoReload && absoluteTimeSpecification">
                                     <input type="date" size="10" id="toDateId" ng-model="toDate" ng-required aardvark-enter="renderGraphs()" />
