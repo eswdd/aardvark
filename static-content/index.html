@@ -41,9 +41,18 @@
 <body ng-controller="AardvarkCtrl">
 
 <div ui-layout>
-    <div ui-layout-container class="top-panel" size="60px">
-        <p><b>Aardvark - An OpenTSDB Visualiser</b></p>
-        <p style="text-align: right"><!--button ng-click="undoAll()">Undo</button--><button ng-click="clearAll()">Reset</button></p>
+    <div ui-layout-container class="top-panel" size="32px">
+        <table border="0">
+            <tr>
+                <td>&nbsp;</td>
+                <td width="100%" align="center">
+                    <b>Aardvark - An OpenTSDB Visualiser</b>
+                </td>
+                <td align="right" style="padding: 5px">
+                    <!--button ng-click="undoAll()">Undo</button--><button ng-click="clearAll()">Reset</button>
+                </td>
+            </tr>
+        </table>
     </div>
 
     <div ui-layout-container>
@@ -402,6 +411,7 @@
                             <input type="button" value="+" ng-click="expandAll()" ng-show="expandAllVisible()">
                             <input type="button" value="-" ng-click="collapseAll()">
                             <input type="button" value="F" ng-click="showHideFilterInput()">
+                            <input type="button" value="R" ng-click="updateTree()">
                         </div>
                         <div ng-show="showFilterInput">
                             <input type="text" ng-model="filter">
