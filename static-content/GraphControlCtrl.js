@@ -47,15 +47,13 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', function Graph
     // style
 //    $scope.gnuplot.lineSmoothing = false;
 
-    // todo: m1: implement this properly, with correct formatting
     $scope.now = function() {
         if ($scope.autoReload) {
             $scope.renderGraphs();
         }
         else {
-            // todo: proper formatting
-            $scope.toDate = new Date().toString();
-            $scope.toTime = new Date().toString();
+            $scope.toDate = moment(new Date()).format("YYYY/MM/DD");
+            $scope.toTime = moment(new Date()).format("HH:mm:ss");
         }
     }
 
