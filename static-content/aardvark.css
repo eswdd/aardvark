@@ -20,6 +20,10 @@
     padding: 0;
 }
 
+.btn-xs .badge {
+    margin-bottom: 2px;
+}
+
 .glyphicon-chevron-left,
 .glyphicon-chevron-right,
 .glyphicon-chevron-up,
