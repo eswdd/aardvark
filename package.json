@@ -1,5 +1,5 @@
 {
-  "version": "1.2.0",
+  "version": "1.2.1",
   "name": "aardvark",
   "description": "An OpenTSDB Visualiser",
   "repository": "https://github.com/eswdd/aardvark",
