@@ -597,7 +597,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             dygraphOptions = {};
         }
 
-        if (dygraphOptions.countFilter != null && dygraphOptions.countFilter.count < 1) {
+        if (dygraphOptions.countFilter != null && dygraphOptions.countFilter.count != "" && dygraphOptions.countFilter.count < 1) {
             $scope.renderErrors[graph.id] = "Minimum count for filtering is 1";
             return;
         }

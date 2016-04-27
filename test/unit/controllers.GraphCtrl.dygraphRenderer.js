@@ -932,6 +932,60 @@ describe('Aardvark controllers', function () {
             expect(scope.renderWarnings).toEqualData(expectedWarnings || {});
         }
 
+        it('should render with dygraph with filtering count set to empty string', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
+
+            var global = { relativePeriod: "1d", autoReload: false };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { countFilter: {count: "", measure: "min", end: "top"} } };
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true').respond([{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 10],
+                [1234567812000, 20],
+                [1234567813000, 30],
+                [1234567814000, 40],
+                [1234567815000, 50]
+            ]}]);
+
+            scope.renderers.dygraph(global, graph, metrics);
+
+
+            $httpBackend.flush();
+
+            expect(renderDivId).toEqualData("dygraphDiv_abc");
+            expect(renderGraphId).toEqualData("abc");
+            expect(renderData).toEqualData([
+                [new Date(1234567811000), 10],
+                [new Date(1234567812000), 20],
+                [new Date(1234567813000), 30],
+                [new Date(1234567814000), 40],
+                [new Date(1234567815000), 50]
+            ]);
+            expect(renderConfig).toEqualData({
+                labels: ["x", "metric1"],
+                width: 0,
+                height: 0,
+                legend: "always",
+                drawGapEdgePoints: true,
+                axisLabelFontSize: 9,
+                labelsDivStyles: {
+                    fontSize: 9,
+                    textAlign: "right"
+                },
+                labelsSeparateLines: true,
+                labelsDiv: null,
+                labelsDivWidth: 1000,
+                axes:{
+                    y:{}
+                }
+            });
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
         it('should render with dygraph with top n filtering based on min', function() {
             testFiltering(
                 { countFilter: {count: 2, measure: "min", end: "top"}},
