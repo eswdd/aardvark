@@ -63,3 +63,12 @@
 .label {
     font-weight: normal;
 }
+
+.tooltip {
+    z-index: 2000;
+}
+
+.form-control-xs {
+    height: 22px;
+    padding: 3px 6px;
+}

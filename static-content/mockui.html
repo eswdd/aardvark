@@ -22,6 +22,18 @@
     <script type="text/javascript">
         var mockui = angular.module('MockUi', ['ui.layout','ui.bootstrap','treeControl','ngSanitize']);
 
+        mockui.directive('aaCollapsiblePanel', function() {
+                    return {
+                        restrict: 'E',
+                        transclude: true,
+                        scope: {
+                            toggleTitle: '@title',
+                            isCollapsed: '@initialCollapsed'
+                        },
+                        templateUrl: 'aardvark-collapsible-panel.html'
+                    };
+                });
+
         mockui
                 .controller('MockUiCtrl', [ '$rootScope', '$http', '$location', function MockUiCtrl($rootScope, $http, $location) {
                     /*
@@ -34,11 +46,252 @@
                         graphs: []
                     };
                     
+                    $rootScope.config = {
+                        tsdbHost: "localhost",
+                        tsdbPort: 8000
+                    }
+                    
                     $rootScope.absoluteTimeSpecification = false;
-                    $rootScope.isCollapsed1 = true;
-                    $rootScope.isCollapsed2 = true;
+
+                    $rootScope.showTreeFilter = false;
+                    $rootScope.allParentNodes = [];
+                    $rootScope.showFilterInput = false;
+                    $rootScope.selectedTreeNode = undefined;
+                    $rootScope.selectedMetric = "";
+                    $rootScope.filter = "";
+                    $rootScope.expandedNodes = [];
+                    $rootScope.tag = {};
+                    $rootScope.tags = [];
+                    $rootScope.tagOptions = {};
+                    $rootScope.tagNames = [];
+                    $rootScope.tagValues = {};
+                    $rootScope.lastId = 0;
+                    $rootScope.selectedMetricId = 0;
+                    $rootScope.nodeSelectionDisabled = false;
+
+                    $rootScope.graphId = "0";
+                    $rootScope.aggregator = "sum";
+                    $rootScope.rightAxis = false;
+                    $rootScope.rate = false;
+                    $rootScope.rateCounter = false;
+                    $rootScope.rateCounterMax = "";
+                    $rootScope.rateCounterReset = "";
+                    $rootScope.downsample = false;
+                    $rootScope.downsampleBy = "avg";
+                    $rootScope.downsampleTo = "";
+                    $rootScope.scatterAxis = "";
+
+                    $rootScope.hideDialog = function (message) {
+                        $rootScope.message = message;
+                        $rootScope.dialogIsHidden = true;
+                        $timeout(function () {
+                            $rootScope.message = '';
+                            $rootScope.dialogIsHidden = false;
+                        }, 2000);
+                    };
+
+                    $rootScope.nextId = function() {
+                        var next = 0;
+                        if (next <= $rootScope.lastId) {
+                            next = $rootScope.lastId+1;
+                        }
+                        $rootScope.lastId = next;
+                        return next + "";
+                    }
+                    
+                    $rootScope.addTagRow = function(tagk) {
+                        $rootScope.tags.push({id:$rootScope.nextId(),name:tagk,value:"",groupBy:true});
+                    }
+                    
+                    $rootScope.deleteTagRow = function(id) {
+                        var index = -1;
+                        for (var i=0; i<$rootScope.tags.length; i++) {
+                            if ($rootScope.tags[i].id == id) {
+                                index = i;
+                                break;
+                            }
+                        }
+                        if (index != -1) {
+                            $rootScope.tags.splice(index, 1);
+                        }
+                    }
+
+
+                    $rootScope.updateTree = function() {
+                        $http.get('http://'+$rootScope.config.tsdbHost+':'+$rootScope.config.tsdbPort+'/api/suggest?type=metrics&max=1000000').success(function(json) {
+                            // right we need to build our tree, we have an array of name, we need to split by "."
+
+                            var roots = [];
+                            var nodes = {};
+                            var allNodes = [];
+                            var parentNodes = [];
+
+                            for (var i = 0; i < json.length; i++) {
+                                var path = json[i].split(".");
+                                var parent = roots;
+                                var id = "";
+                                for (var j = 0; j < path.length; j++) {
+                                    if (j > 0) {
+                                        id += ".";
+                                    }
+                                    id += path[j];
+                                    var node = nodes[id];
+                                    if (!node) {
+                                        node = {id: id, name:path[j], isMetric:false, children: []};
+                                        if (parent == roots) {
+                                            parent.push(node);
+                                        }
+                                        else {
+                                            parent.children.push(node);
+                                        }
+                                        nodes[id] = node;
+                                        allNodes.push(node);
+                                    }
+                                    parent = node;
+                                }
+                                parent.isMetric = true;
+                            }
+
+                            $rootScope.dataForTheTree = roots;
+                            for (var k=0; k<allNodes.length; k++) {
+                                if (allNodes[k].children.length > 0) {
+                                    parentNodes.push(allNodes[k]);
+                                }
+                            }
+                            $rootScope.allParentNodes = parentNodes;
+                        });
+                    };
+
+
+                    $rootScope.showHideFilterInput = function() {
+                        if ($rootScope.showFilterInput) {
+                            $rootScope.clearFilterInput();
+                        }
+                        $rootScope.showFilterInput = !$rootScope.showFilterInput;
+                    }
+
+                    $rootScope.clearFilterInput = function() {
+                        $rootScope.filter = '';
+                    }
+
+
+                    $rootScope.collapseAll = function() {
+                        $rootScope.expandedNodes = [];
+                    };
+
+                    $rootScope.expandAll = function() {
+                        $rootScope.expandedNodes = $rootScope.allParentNodes;
+                    };
+
+                    $rootScope.nodeDecoration = function(node) {
+                        return node.isMetric ? "underline" : "none";
+                    };
+
+
+                    $rootScope.metricSelected = function(metricName, newMetric) {
+                        var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/search/lookup";
+                        var requestJson = {"metric": metricName, "limit": 100000, "useMeta": true}; // todo: useMeta should be based on tsdb config
+                        var postData = JSON.stringify(requestJson);
+                        $http.post(url, postData).success(function (data) {
+                            var tagValues = {};
+
+//            var tsdbResponse = JSON.parse(data);
+                            var tsdbResponse = data;
+                            var results = tsdbResponse.results;
+                            for (var i=0; i<results.length; i++) {
+                                var ts = results[i];
+                                for (var tagk in ts.tags) {
+                                    if (ts.tags.hasOwnProperty(tagk)) {
+                                        if (!(tagk in tagValues)) {
+                                            tagValues[tagk] = [];
+                                        }
+                                        if (tagValues[tagk].indexOf(ts.tags[tagk]) < 0) {
+                                            tagValues[tagk].push(ts.tags[tagk]);
+                                        }
+                                    }
+                                }
+                            }
+                            var tagNames = [];
+
+                            for (var key in tagValues) {
+                                if (tagValues.hasOwnProperty(key)) {
+                                    tagNames.push(key);
+                                }
+                            }
+
+                            // setup tagk options prior to making them available
+                            for (var i=0; i<tagNames.length; i++) {
+                                // nasty inner function to get around closure issues
+                                var fn = function(localKey) {
+                                    $rootScope.tagOptions[localKey] = {
+                                        suggest: function(term) {
+                                            return $rootScope.suggestTagValues(term, localKey);
+                                        }
+                                    };
+                                    if (newMetric) {
+                                        $rootScope.tag[localKey] = '';
+                                    }
+                                }
+                                fn(tagNames[i]);
+                            }
+                            $rootScope.tagNames = tagNames;
+                            $rootScope.tagValues = tagValues;
+
+                        });
+                    };
+
+                    $rootScope.nodeSelectedForAddition = function (node,selected) {
+                        var valid = selected && node.isMetric;
+                        $rootScope.selectedMetric = valid ? node.id : '';
+                        $rootScope.nodeSelectionDisabled = valid;
+                        if (valid) {
+                            $rootScope.selectedMetricId = "0";
+                            if ($rootScope.model.graphs.length == 1) {
+                                $rootScope.graphId = $rootScope.model.graphs[0].id;
+                            }
+                            else {
+                                $rootScope.graphId = "0";
+                            }
+                            $rootScope.metricSelected($rootScope.selectedMetric.trim(), true);
+                        }
+                        else {
+                            $rootScope.metricDeselected();
+                        }
+                    };
+                    $rootScope.metricDeselected = function() {
+                        $rootScope.tagOptions = {};
+                        $rootScope.tagValues = {};
+                        $rootScope.tagNames = [];
+                        $rootScope.tag = {};
+                        $rootScope.graphId = "0";
+                        $rootScope.selectedMetric = "";
+                        $rootScope.selectedMetricId = "0";
+                        $rootScope.rate = false;
+                        $rootScope.rateCounter = false;
+                        $rootScope.rateCounterMax = "";
+                        $rootScope.rateCounterReset = "";
+                        $rootScope.downsample = false;
+                        $rootScope.downsampleBy = "avg";
+                        $rootScope.downsampleTo = "";
+                        $rootScope.scatterAxis = "";
+                        $rootScope.rightAxis = false;
+                        $rootScope.aggregator = "sum";
+                        $rootScope.nodeSelectionDisabled = false;
+                    };
+
+
+                    $rootScope.open1 = function() {
+                        $rootScope.popup1.opened = true;
+                    };
+
+                    $rootScope.popup1 = {
+                        opened: false
+                    }
+                    
+                    $rootScope.updateTree();
                     
                 }]);
+
         
     </script>
     <!-- App CSS -->
@@ -71,57 +324,53 @@
                     <div ui-layout-container class="graph-control-panel">
                         <div style="overflow: auto; height: 100%; border-color: black; border-width: 1px; border-style: solid">
                             <!-- todo: m1: calendar controls incl date/time -->
-                            <div style="border: solid 1px black">
+                            <div>
                                 <div>
                                     <input type="checkbox" id="autoReloadId" ng-model="autoReload">
                                     <label for="autoReloadId">Auto reload</label>
                                 </div>
-                            </div>
-                            <div style="border: solid 1px black">
-                                <div>
-                                    <span>Time: </span>
-                                    <div class="btn-group">
-                                        <label class="btn btn-primary btn-xs" ng-model="absoluteTimeSpecification" uib-btn-radio="true">Absolute</label>
-                                        <label class="btn btn-primary btn-xs" ng-model="absoluteTimeSpecification" uib-btn-radio="false">Relative</label>
-                                    </div>
-                                </div>
-                                <div>
-                                    <button id="single-button" type="button" class="btn btn-primary btn-xs" uib-dropdown-toggle>
-                                        {{absoluteTimeSpecification?"Absolute Time":"Relative Time"}}<span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="single-button">
-                                        <li role="menuitem"><a href="#">Action</a></li>
-                                        <li role="menuitem"><a href="#">Another action</a></li>
-                                    </ul>
-                                </div>
-                                <div>
-                                    <button class="btn btn-primary btn-xs" ng-model="absoluteTimeSpecification" uib-btn-checkbox>
-                                        {{absoluteTimeSpecification?"Absolute Time":"Relative Time"}}</span>
-                                    </button>
-                                </div>
-                                <!--div ng-show="autoReload">
+                                <div ng-show="autoReload">
                                     <input type="text" size="2" id="autoReloadPeriodId" ng-model="autoReloadPeriod" />
                                     <label for="autoReloadPeriodId">seconds</label>
-                                </div-->
-                                <div ng-show="!absoluteTimeSpecification">
-                                    <label for="relativePeriodId">Previous</label><br/>
-                                    <input type="text" size="10" id="relativePeriodId" ng-model="relativePeriod" ng-required />
-                                </div>
-                                <div ng-show="absoluteTimeSpecification">
-                                    <label for="fromDateId">From</label><br/>
-                                    <input type="date" size="10" id="fromDateId" ng-model="fromDate" ng-required />
-                                    <input type="time" size="8" id="fromTimeId" ng-model="fromTime" ng-required />
-                                </div>
-                                <div ng-show="!autoReload && absoluteTimeSpecification">
-                                    <label for="toDateId">To</label>
-                                    <button class="btn btn-primary btn-xs">Now</button>
-                                </div>
-                                <div ng-show="!autoReload && absoluteTimeSpecification">
-                                    <input type="date" size="10" id="toDateId" ng-model="toDate" ng-required />
-                                    <input type="time" size="8" id="toTimeId" ng-model="toTime" ng-required />
                                 </div>
                             </div>
-                            <div style="border: solid 1px black" ng-show="graphs.length > 1">
+                            <aa-collapsible-panel title="Time">
+                                <div style="padding: 3px">
+                                    <div>
+                                        <span class="glyphicon glyphicon-time"></span>
+                                        <div class="btn-group">
+                                            <label class="btn btn-primary btn-xs" ng-model="absoluteTimeSpecification" uib-btn-radio="true">Absolute</label>
+                                            <label class="btn btn-primary btn-xs" ng-model="absoluteTimeSpecification" uib-btn-radio="false">Relative</label>
+                                        </div>
+                                    </div>
+                                    <div ng-show="!absoluteTimeSpecification">
+                                        <label for="relativePeriodId">Previous</label><br/>
+                                        <input type="text" size="10" id="relativePeriodId" ng-model="relativePeriod" ng-required />
+                                    </div>
+                                    <div ng-show="absoluteTimeSpecification">
+                                        <label for="fromDateId">From</label><br/>
+                                        <div >
+                                            <p class="input-group">
+                                                <input type="text" class="form-control form-control-xs" ng-required="true" uib-datepicker-popup="yyyy/MM/dd" ng-model="dt" is-open="popup1.opened" close-text="Close" datepicker-append-to-body="true" popup-placement="auto right" />
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn btn-default btn-xs" ng-click="open1()"><i class="glyphicon glyphicon-calendar"></i></button>
+                                                </span>
+                                            </p>
+                                        </div>
+                                        <input type="date" size="10" id="fromDateId" ng-model="fromDate" ng-required />
+                                        <input type="time" size="8" id="fromTimeId" ng-model="fromTime" ng-required />
+                                    </div>
+                                    <div ng-show="!autoReload && absoluteTimeSpecification">
+                                        <label for="toDateId">To</label>
+                                        <button class="btn btn-primary btn-xs">Now</button>
+                                    </div>
+                                    <div ng-show="!autoReload && absoluteTimeSpecification">
+                                        <input type="date" size="10" id="toDateId" ng-model="toDate" ng-required />
+                                        <input type="time" size="8" id="toTimeId" ng-model="toTime" ng-required />
+                                    </div>
+                                </div>
+                            </aa-collapsible-panel>
+                            <aa-collapsible-panel title="Graph sizing" initial-collapsed="false">
                                 <div>
                                     <label for="autoGraphHeight">Auto-height graphs</label>
                                     <input type="checkbox" id="autoGraphHeight" ng-model="autoGraphHeight">
@@ -134,73 +383,55 @@
                                     <label for="graphHeight">Fixed height (pixels)</label>
                                     <input type="text" id="graphHeight" ng-model="graphHeight">
                                 </div>
-                            </div>
+                            </aa-collapsible-panel>
                             <uib-accordion close-others="true">
-
-                                <div ng-show="showEdit[graph.id]">
+                                <aa-collapsible-panel title="Graph title & type" initial-collapsed="false">
                                     <input type="text" ng-model="graph.title" />
 
                                     <select ng-model="graph.type" ng-show="graphTypes.length > 1">
                                         <option ng-repeat="type in graphTypes">{{type}}</option>
                                     </select>
+                                </aa-collapsible-panel>
+                                <aa-collapsible-panel title="Rendering" initial-collapsed="false">
+                                    <div>
+                                        <input type="checkbox" id="interpolateGapsDygraph" ng-model="graph.dygraph.interpolateGaps" />
+                                        <label for="interpolateGapsDygraph" class="checkbox-label">Interpolate gaps?</label>
+                                    </div>
+                                    <div>
+                                        <input type="checkbox" id="highlightLinesDygraph" ng-model="graph.dygraph.highlightLines" />
+                                        <label for="highlightLinesDygraph" class="checkbox-label">Highlight lines?</label>
+                                    </div>
+                                    <div>
+                                        <input type="checkbox" id="stackedLinesDygraph" ng-model="graph.dygraph.stackedLines" />
+                                        <label for="stackedLinesDygraph" class="checkbox-label">Stacked lines?</label>
+                                    </div>
+                                </aa-collapsible-panel>
+                                <aa-collapsible-panel title="y-Axis Control" initial-collapsed="false">
+                                    <div>
+                                        <input type="checkbox" id="squashNegativeDygraph" ng-model="graph.dygraph.squashNegative" ng-disabled="graph.dygraph.meanAdjusted" />
+                                        <label for="squashNegativeDygraph" class="checkbox-label">Squash -ve?</label>
+                                    </div>
+                                    <div>
+                                        <input type="checkbox" id="autoScaleDygraph" ng-model="graph.dygraph.autoScale" ng-disabled="graph.dygraph.ylog" />
+                                        <label for="autoScaleDygraph" class="checkbox-label">Auto scale?</label>
+                                    </div>
+                                    <div>
+                                        <input type="checkbox" id="ylogDygraph" ng-model="graph.dygraph.ylog" ng-disabled="graph.dygraph.autoScale" />
+                                        <label for="ylogDygraph" class="checkbox-label">Logarithmic?</label>
+                                    </div>
+                                </aa-collapsible-panel>
+                                <!--div style="text-decoration: underline; font-weight: 800">
+                                    Annotations
                                 </div>
                                 <div>
-                                    <button ng-click="showEdit[graph.id] = !showEdit[graph.id]">Edit title/type</button> <button ng-click="deleteGraph(graph.id)">Delete</button>
+                                    <input type="checkbox" id="annotationsDygraph" ng-model="graph.dygraph.annotations" />
+                                    <label for="annotationsDygraph">Annotations?</label>
                                 </div>
-
-                                <div >
-                                    <div style="padding: 3px">
-                                        <div style="text-align: center">
-                                            <button style="width: 100%; text-align: left; border-bottom-left-radius: {{isCollapsed1?'3px':'0px'}}; border-bottom-right-radius: {{isCollapsed1?'3px':'0px'}}" class="btn btn-default btn-xs" ng-click="isCollapsed1 = !isCollapsed1"><span style="text-align: right" class="{{isCollapsed1?'glyphicon glyphicon-triangle-bottom':'glyphicon glyphicon-triangle-top'}}"></span>&nbsp;<span style="text-align: left">Rendering</span></button>
-                                        </div>
-                                        <div uib-collapse="isCollapsed1" style="padding: 2px; border-width: 0px 1px 1px 1px; border-style: solid; border-color: #eee">
-                                            <div>
-                                                <input type="checkbox" id="interpolateGapsDygraph" ng-model="graph.dygraph.interpolateGaps" />
-                                                <label for="interpolateGapsDygraph" class="checkbox-label">Interpolate gaps?</label>
-                                            </div>
-                                            <div>
-                                                <input type="checkbox" id="highlightLinesDygraph" ng-model="graph.dygraph.highlightLines" />
-                                                <label for="highlightLinesDygraph" class="checkbox-label">Highlight lines?</label>
-                                            </div>
-                                            <div>
-                                                <input type="checkbox" id="stackedLinesDygraph" ng-model="graph.dygraph.stackedLines" />
-                                                <label for="stackedLinesDygraph" class="checkbox-label">Stacked lines?</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div style="padding: 3px">
-                                        <div style="text-align: center">
-                                            <button style="width: 100%; text-align: left; border-bottom-left-radius: {{isCollapsed2?'3px':'0px'}}; border-bottom-right-radius: {{isCollapsed2?'3px':'0px'}}" class="btn btn-default btn-xs" ng-click="isCollapsed2 = !isCollapsed2"><span style="text-align: right" class="{{isCollapsed2?'glyphicon glyphicon-triangle-bottom':'glyphicon glyphicon-triangle-top'}}"></span>&nbsp;<span style="text-align: left">y-Axis Control</span></button>
-                                        </div>
-                                        <div uib-collapse="isCollapsed2" style="padding: 2px; border-width: 0px 1px 1px 1px; border-style: solid; border-color: #eee">
-                                            <div>
-                                                <input type="checkbox" id="squashNegativeDygraph" ng-model="graph.dygraph.squashNegative" ng-disabled="graph.dygraph.meanAdjusted" />
-                                                <label for="squashNegativeDygraph" class="checkbox-label">Squash -ve?</label>
-                                            </div>
-                                            <div>
-                                                <input type="checkbox" id="autoScaleDygraph" ng-model="graph.dygraph.autoScale" ng-disabled="graph.dygraph.ylog" />
-                                                <label for="autoScaleDygraph" class="checkbox-label">Auto scale?</label>
-                                            </div>
-                                            <div>
-                                                <input type="checkbox" id="ylogDygraph" ng-model="graph.dygraph.ylog" ng-disabled="graph.dygraph.autoScale" />
-                                                <label for="ylogDygraph" class="checkbox-label">Logarithmic?</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!--div style="text-decoration: underline; font-weight: 800">
-                                        Annotations
-                                    </div>
-                                    <div>
-                                        <input type="checkbox" id="annotationsDygraph" ng-model="graph.dygraph.annotations" />
-                                        <label for="annotationsDygraph">Annotations?</label>
-                                    </div>
-                                    <div>
-                                        <input type="checkbox" id="globalAnnotationsDygraph" ng-model="graph.dygraph.globalAnnotations" />
-                                        <label for="globalAnnotationsDygraph">Global annotations?</label>
-                                    </div-->
-                                    <div style="text-decoration: underline; font-weight: 800">
-                                        Filtering
-                                    </div>
+                                <div>
+                                    <input type="checkbox" id="globalAnnotationsDygraph" ng-model="graph.dygraph.globalAnnotations" />
+                                    <label for="globalAnnotationsDygraph">Global annotations?</label>
+                                </div-->
+                                <aa-collapsible-panel title="Filtering" initial-collapsed="false">
                                     <div>
                                         Show only 
                                         <select ng-model="graph.dygraph.countFilter.end">
@@ -228,20 +459,14 @@
                                         value &lt;=
                                         <input type="text" size="2" ng-model="graph.dygraph.valueFilter.upperBound" />
                                     </div>
-                                    <div style="text-decoration: underline; font-weight: 800">
-                                        Specials
-                                    </div>
+                                </aa-collapsible-panel>
+                                <aa-collapsible-panel title="Specials" initial-collapsed="false">
                                     <div>
                                         <input type="checkbox" id="meanAdjustedDygraph" ng-model="graph.dygraph.meanAdjusted" ng-disabled="graph.dygraph.squashNegative" />
                                         <label for="meanAdjustedDygraph">Mean adjusted?</label>
                                     </div>
-                                </div>
-                                <div ng-show="graph.type == 'scatter'">
-                                    <div>
-                                        <input type="checkbox" id="excludeNegativeDygraph" ng-model="graph.scatter.excludeNegative" />
-                                        <label for="excludeNegativeDygraph">Exclude negative values?</label>
-                                    </div>
-                                </div>
+                                </aa-collapsible-panel>
+                                <button class="btn btn-primary btn-xs" ng-click="deleteGraph(graph.id)">Delete</button>
                             </uib-accordion>
                         </div>
                     </div>
@@ -312,7 +537,7 @@
                             </select>
                         </div>
 
-                        <div style="border: 1px solid black; overflow: auto">
+                        <div style="border: 1px solid black; overflow: auto; height: auto; padding: 3px" >
                             <!-- todo: m1: start -> 1 graph -> add metric -> save -> delete graph -> save -> add graph -> save -> graph, edit metric -> no graph selection -->
                             <div  ng-show="model.graphs.length > 1">
                                 <label for="metricControl_editMetric_selectGraph">Graph</label>
@@ -370,20 +595,28 @@
                                 </select>
                                 <input type="text" ng-model="downsampleTo" ng-disabled="!downsample" />
                             </div>
+                            
+                            <div>
+                                <span ng-repeat="tagk in tagNames" style="padding-right: 3px"><button class="btn btn-primary btn-xs" ng-click="addTagRow(tagk)" tooltip-append-to-body="true" uib-tooltip="Add tag row: {{tagValues[tagk].length}} unique values">+ {{tagk}} <span class="badge">{{tagValues[tagk].length}}</span></button></span>
+                            </div>
+                            
+                            <div>
+                                <table cellspacing="3">
+                                    <tr ng-repeat="tag in tags track by tag.id">
+                                        <td><span class="glyphicon glyphicon-remove-circle" style="cursor: pointer; cursor: hand; padding-right: 3px" ng-click="deleteTagRow(tag.id)" tooltip-append-to-body="true" uib-tooltip="Remove row" tooltip-placement="right"></span></td>
+                                        <td style="padding-right: 3px"><span>{{tag.name}}</span></td>
+                                        <td style="width: 100%; padding-right: 3px"><input type="text" style="width: 100%" ng-model="tag.value"  /></td>
+                                        <td><input type="checkbox" ng-model="tag.groupBy"  tooltip-append-to-body="true" uib-tooltip="Group by" tooltip-placement="left" /></td>
+                                    </tr>
+                                </table>
+                            </div>
 
-                            <table>
+                            <!--table>
                                 <tr ng-repeat="tagk in tagNames">
                                     <td>{{tagk}}</td>
                                     <td><div tag-selection></div></td>
                                 </tr>
-                            </table>
-                        </div>
-                        <div ng-show="graph.type == 'scatter'">
-                            <label for="metricControl_scatter_axis">Axis</label>
-                            <select id="metricControl_scatter_axis" ng-model="scatterAxis">
-                                <option>x</option>
-                                <option>y</option>
-                            </select>
+                            </table-->
                         </div>
                         <input type="button" value="Cancel" ng-click="clearMetric()" ng-disabled="!clearButtonEnabled()">
                         <input type="button" value="Add" ng-click="addMetric()" ng-show="addButtonVisible()">

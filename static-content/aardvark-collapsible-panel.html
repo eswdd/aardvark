@@ -1,0 +1,8 @@
+<div style="padding: 3px">
+    <div style="text-align: center">
+        <button style="width: 100%; text-align: left; border-bottom-left-radius: {{isCollapsed?'3px':'0px'}}; border-bottom-right-radius: {{isCollapsed?'3px':'0px'}}" class="btn btn-default btn-xs" ng-click="isCollapsed = !isCollapsed"><span style="text-align: right" class="{{isCollapsed?'glyphicon glyphicon-triangle-bottom':'glyphicon glyphicon-triangle-top'}}"></span>&nbsp;<span style="text-align: left">{{toggleTitle}}</span></button>
+    </div>
+    <div uib-collapse="isCollapsed" style="padding: 2px; border-width: 0px 1px 1px 1px; border-style: solid; border-color: #eee; border-bottom-left-radius: {{isCollapsed?'0px':'3px'}}; border-bottom-right-radius: {{isCollapsed1?'0px':'3px'}}">
+        <div ng-transclude></div>
+    </div>
+</div>
