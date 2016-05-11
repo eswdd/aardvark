@@ -442,7 +442,7 @@
 
                         <div style="border: 1px solid black; overflow: auto">
                             <!-- todo: m1: start -> 1 graph -> add metric -> save -> delete graph -> save -> add graph -> save -> graph, edit metric -> no graph selection -->
-                            <div  ng-show="model.graphs.length > 1">
+                            <div  >
                                 <label for="metricControl_editMetric_selectGraph">Graph</label>
                                 <select id="metricControl_editMetric_selectGraph" ng-model="graphId" ng-disabled="!clearButtonEnabled()" aardvark-enter="addOrSaveMetric()">
                                     <option value="0" selected="selected">None</option>

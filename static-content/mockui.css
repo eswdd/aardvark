@@ -33,6 +33,43 @@
 
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
 
+.nav-tabs {
+    border-bottom: 1px solid #669ab7;
+}
+.tab-content {
+    border: 1px solid #669ab7;
+    border-top-color: transparent;
+    padding: 3px;
+}
+
+.nav-tabs > li.active > a {
+    padding: 2px 7px;
+    border: 1px solid #669ab7;
+    border-bottom-color: transparent;
+}
+
+.nav-tabs > li.active > a:focus {
+    border: 1px solid #669ab7;
+    border-bottom-color: transparent;
+}
+
+.nav-tabs > li.active > a:hover {
+    border: 1px solid #669ab7;
+    border-bottom-color: transparent;
+}
+.nav-tabs > li > a {
+    padding: 2px 5px;
+    border: 1px solid #ddd;
+    border-bottom-color: transparent;
+}
+.nav-tabs > li > a:focus {
+    border-bottom-color: transparent;
+}
+.nav-tabs > li > a:hover {
+    border-bottom-color: transparent;
+    background-color: transparent;
+}
+
 /* https://github.com/hakib/MassAutocomplete/issues/13#issuecomment-70501721 */
 /* fix styles */
 [mass-autocomplete] {
@@ -52,11 +89,7 @@
     border-width: 1px;
 }
 
-.daret > .caret {
-    image-orientation: 180deg;
-}
-
-.checkbox-label {
+.form-label {
     font-weight: normal;
 }
 
@@ -71,4 +104,19 @@
 .form-control-xs {
     height: 22px;
     padding: 3px 6px;
+}
+
+.form-control-inline {
+    display: inline-block;
+}
+
+.invalid-date button span {
+    background-color: red;
+    border-radius: 32px;
+    color: black;
+}
+
+.dropdown-menu > li > a {
+    padding: 3px 10px;
+    min-width: 50px;
 }

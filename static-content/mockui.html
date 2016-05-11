@@ -80,6 +80,8 @@
                     $rootScope.downsampleBy = "avg";
                     $rootScope.downsampleTo = "";
                     $rootScope.scatterAxis = "";
+                    
+                    $rootScope.autoGraphHeight = true;
 
                     $rootScope.hideDialog = function (message) {
                         $rootScope.message = message;
@@ -280,13 +282,63 @@
                     };
 
 
-                    $rootScope.open1 = function() {
-                        $rootScope.popup1.opened = true;
+                    $rootScope.openFromDatePopup = function() {
+                        $rootScope.fromDatePopupOpen = !$rootScope.fromDatePopupOpen;
+                    };
+                    $rootScope.openToDatePopup = function() {
+                        $rootScope.toDatePopupOpen = !$rootScope.toDatePopupOpen;
+                    };
+/*
+                    function getFromDayClass(data) {
+                        var date = data.date;
+                        if (date < new Date()) {
+                            return 'invalid-date';
+                        }
+                        return '';
+                    }
+                    $rootScope.fromDatePickerOptions = {
+                        customClass: getFromDayClass
                     };
 
-                    $rootScope.popup1 = {
-                        opened: false
+                    function getToDayClass(data) {
+                        var date = data.date;
+                        if (date > new Date()) {
+                            return 'invalid-date';
+                        }
+                        return '';
                     }
+                    $rootScope.toDatePickerOptions = {
+                        customClass: getToDayClass
+                    };*/
+
+                    $rootScope.fromDatePopupOpen = false;
+                    $rootScope.toDatePopupOpen = false;
+                    
+                    $rootScope.end = "bottom";
+                    $rootScope.setEnd = function(end) {
+                        $rootScope.end = end;
+                    }
+                    $rootScope.countMeasure = "mean";
+                    $rootScope.setCountMeasure = function(measure) {
+                        $rootScope.countMeasure = measure;
+                    }
+                    $rootScope.valueMeasure = "any";
+                    $rootScope.setValueMeasure = function(measure) {
+                        $rootScope.valueMeasure = measure;
+                    }
+
+                    $rootScope.addButtonVisible = function() {
+                        return $rootScope.selectedMetric != "";
+                    };
+                    $rootScope.deleteButtonVisible = function() {
+                        return $rootScope.selectedMetricId != "0";
+                    };
+                    $rootScope.saveButtonVisible = function() {
+                        return $rootScope.selectedMetricId != "0";
+                    };
+                    $rootScope.clearButtonEnabled = function() {
+                        return $rootScope.addButtonVisible() || $rootScope.saveButtonVisible();
+                    };
                     
                     $rootScope.updateTree();
                     
@@ -306,7 +358,7 @@
     <div ui-layout-container class="top-panel" size="32px">
         <table border="0">
             <tr>
-                <td style="padding: 5px">Version:&nbsp;1.2.0-dev</td>
+                <td style="padding: 5px">Version:&nbsp;dev</td>
                 <td style="padding: 5px" width="100%" align="center">
                     <b>Aardvark - An OpenTSDB Visualiser</b>
                 </td>
@@ -323,17 +375,6 @@
                 <div ui-layout="{flow : 'row'}" >
                     <div ui-layout-container class="graph-control-panel">
                         <div style="overflow: auto; height: 100%; border-color: black; border-width: 1px; border-style: solid">
-                            <!-- todo: m1: calendar controls incl date/time -->
-                            <div>
-                                <div>
-                                    <input type="checkbox" id="autoReloadId" ng-model="autoReload">
-                                    <label for="autoReloadId">Auto reload</label>
-                                </div>
-                                <div ng-show="autoReload">
-                                    <input type="text" size="2" id="autoReloadPeriodId" ng-model="autoReloadPeriod" />
-                                    <label for="autoReloadPeriodId">seconds</label>
-                                </div>
-                            </div>
                             <aa-collapsible-panel title="Time">
                                 <div style="padding: 3px">
                                     <div>
@@ -343,81 +384,96 @@
                                             <label class="btn btn-primary btn-xs" ng-model="absoluteTimeSpecification" uib-btn-radio="false">Relative</label>
                                         </div>
                                     </div>
+                                    <div>
+                                        <input type="checkbox" id="autoReloadId" ng-model="autoReload">
+                                        <label for="autoReloadId" class="form-label">Auto reload</label>
+                                        <span ng-show="autoReload">
+                                            <input class="form-control form-control-xs form-control-inline" type="text" style="width: 40px" id="autoReloadPeriodId" ng-model="autoReloadPeriod" />
+                                            <label for="autoReloadPeriodId" class="form-label">secs</label>
+                                        </span>
+                                    </div>
                                     <div ng-show="!absoluteTimeSpecification">
-                                        <label for="relativePeriodId">Previous</label><br/>
-                                        <input type="text" size="10" id="relativePeriodId" ng-model="relativePeriod" ng-required />
+                                        <label class="input-label" for="relativePeriodId">Previous</label>
+                                        <input class="form-control form-control-xs form-control-inline" type="text" style="width: 100px" id="relativePeriodId" ng-model="relativePeriod" ng-required />
                                     </div>
                                     <div ng-show="absoluteTimeSpecification">
-                                        <label for="fromDateId">From</label><br/>
-                                        <div >
-                                            <p class="input-group">
-                                                <input type="text" class="form-control form-control-xs" ng-required="true" uib-datepicker-popup="yyyy/MM/dd" ng-model="dt" is-open="popup1.opened" close-text="Close" datepicker-append-to-body="true" popup-placement="auto right" />
-                                                <span class="input-group-btn">
-                                                    <button type="button" class="btn btn-default btn-xs" ng-click="open1()"><i class="glyphicon glyphicon-calendar"></i></button>
-                                                </span>
-                                            </p>
-                                        </div>
-                                        <input type="date" size="10" id="fromDateId" ng-model="fromDate" ng-required />
-                                        <input type="time" size="8" id="fromTimeId" ng-model="fromTime" ng-required />
+                                        <span>From</span><br/>
+                                        <p class="input-group">
+                                            <input type="text" class="form-control form-control-xs" ng-required="true" uib-datepicker-popup="yyyy/MM/dd" datepicker-popup-template-url="datepicker-popup.html" ng-model="fromDate" is-open="fromDatePopupOpen" close-text="Close" datepicker-append-to-body="true" popup-placement="auto right" />
+                                            <span class="input-group-btn" style="padding-right: 3px">
+                                                <button type="button" class="btn btn-default btn-xs" ng-click="openFromDatePopup()"><i class="glyphicon glyphicon-calendar"></i></button>
+                                            </span>
+                                            <uib-timepicker template-url="timepicker.html" ng-model="fromTime" hour-step="1" minute-step="1" show-meridian="false" show-seconds="true" show-spinners="false"></uib-timepicker>
+                                        </p>
                                     </div>
-                                    <div ng-show="!autoReload && absoluteTimeSpecification">
-                                        <label for="toDateId">To</label>
+                                    <div ng-show="!autoReload && absoluteTimeSpecification" style="padding-bottom: 3px">
+                                        <span>To</span>
                                         <button class="btn btn-primary btn-xs">Now</button>
                                     </div>
                                     <div ng-show="!autoReload && absoluteTimeSpecification">
-                                        <input type="date" size="10" id="toDateId" ng-model="toDate" ng-required />
-                                        <input type="time" size="8" id="toTimeId" ng-model="toTime" ng-required />
+                                        <p class="input-group">
+                                            <input type="text" class="form-control form-control-xs" ng-required="true" uib-datepicker-popup="yyyy/MM/dd" datepicker-popup-template-url="datepicker-popup.html" ng-model="toDate" is-open="toDatePopupOpen" close-text="Close" datepicker-append-to-body="true" popup-placement="auto right" />
+                                            <span class="input-group-btn" style="padding-right: 3px">
+                                                <button type="button" class="btn btn-default btn-xs" ng-click="openToDatePopup()"><i class="glyphicon glyphicon-calendar"></i></button>
+                                            </span>
+                                            <uib-timepicker template-url="timepicker.html" ng-model="toTime" hour-step="1" minute-step="1" show-meridian="false" show-seconds="true" show-spinners="false"></uib-timepicker>
+                                        </p>
                                     </div>
                                 </div>
                             </aa-collapsible-panel>
-                            <aa-collapsible-panel title="Graph sizing" initial-collapsed="false">
-                                <div>
-                                    <label for="autoGraphHeight">Auto-height graphs</label>
-                                    <input type="checkbox" id="autoGraphHeight" ng-model="autoGraphHeight">
+                            <aa-collapsible-panel title="Graph sizing" initial-collapsed="true">
+                                <div style="padding: 3px">
+                                    <span class="glyphicon glyphicon-resize-vertical"></span>
+                                    <div class="btn-group">
+                                        <label class="btn btn-primary btn-xs" ng-model="autoGraphHeight" uib-btn-radio="true">Auto-height</label>
+                                        <label class="btn btn-primary btn-xs" ng-model="autoGraphHeight" uib-btn-radio="false">Fixed height</label>
+                                    </div>
                                 </div>
                                 <div ng-show="autoGraphHeight">
-                                    <label for="minGraphHeight">Min height (pixels)</label>
-                                    <input type="text" id="minGraphHeight" ng-model="minGraphHeight">
+                                    <label for="minGraphHeight" class="form-label">Min:</label>
+                                    <input style="width: 100px" class="form-control form-control-xs form-control-inline" type="text" id="minGraphHeight" ng-model="minGraphHeight">
+                                    <span>px</span>
                                 </div>
                                 <div ng-show="!autoGraphHeight">
-                                    <label for="graphHeight">Fixed height (pixels)</label>
-                                    <input type="text" id="graphHeight" ng-model="graphHeight">
+                                    <input style="width: 100px" class="form-control form-control-xs form-control-inline" type="text" id="graphHeight" ng-model="graphHeight">
+                                    <span>px</span>
                                 </div>
                             </aa-collapsible-panel>
                             <uib-accordion close-others="true">
-                                <aa-collapsible-panel title="Graph title & type" initial-collapsed="false">
+                                <uib-accordion-group heading="Graph 1" is-open="true">
+                                <aa-collapsible-panel title="Graph title & type" initial-collapsed="true">
                                     <input type="text" ng-model="graph.title" />
 
                                     <select ng-model="graph.type" ng-show="graphTypes.length > 1">
                                         <option ng-repeat="type in graphTypes">{{type}}</option>
                                     </select>
                                 </aa-collapsible-panel>
-                                <aa-collapsible-panel title="Rendering" initial-collapsed="false">
+                                <aa-collapsible-panel title="Rendering" initial-collapsed="true">
                                     <div>
                                         <input type="checkbox" id="interpolateGapsDygraph" ng-model="graph.dygraph.interpolateGaps" />
-                                        <label for="interpolateGapsDygraph" class="checkbox-label">Interpolate gaps?</label>
+                                        <label for="interpolateGapsDygraph" class="form-label">Interpolate gaps?</label>
                                     </div>
                                     <div>
                                         <input type="checkbox" id="highlightLinesDygraph" ng-model="graph.dygraph.highlightLines" />
-                                        <label for="highlightLinesDygraph" class="checkbox-label">Highlight lines?</label>
+                                        <label for="highlightLinesDygraph" class="form-label">Highlight lines?</label>
                                     </div>
                                     <div>
                                         <input type="checkbox" id="stackedLinesDygraph" ng-model="graph.dygraph.stackedLines" />
-                                        <label for="stackedLinesDygraph" class="checkbox-label">Stacked lines?</label>
+                                        <label for="stackedLinesDygraph" class="form-label">Stacked lines?</label>
                                     </div>
                                 </aa-collapsible-panel>
-                                <aa-collapsible-panel title="y-Axis Control" initial-collapsed="false">
+                                <aa-collapsible-panel title="y-Axis Control" initial-collapsed="true">
                                     <div>
                                         <input type="checkbox" id="squashNegativeDygraph" ng-model="graph.dygraph.squashNegative" ng-disabled="graph.dygraph.meanAdjusted" />
-                                        <label for="squashNegativeDygraph" class="checkbox-label">Squash -ve?</label>
+                                        <label for="squashNegativeDygraph" class="form-label">Squash -ve?</label>
                                     </div>
                                     <div>
                                         <input type="checkbox" id="autoScaleDygraph" ng-model="graph.dygraph.autoScale" ng-disabled="graph.dygraph.ylog" />
-                                        <label for="autoScaleDygraph" class="checkbox-label">Auto scale?</label>
+                                        <label for="autoScaleDygraph" class="form-label">Auto scale?</label>
                                     </div>
                                     <div>
                                         <input type="checkbox" id="ylogDygraph" ng-model="graph.dygraph.ylog" ng-disabled="graph.dygraph.autoScale" />
-                                        <label for="ylogDygraph" class="checkbox-label">Logarithmic?</label>
+                                        <label for="ylogDygraph" class="form-label">Logarithmic?</label>
                                     </div>
                                 </aa-collapsible-panel>
                                 <!--div style="text-decoration: underline; font-weight: 800">
@@ -431,42 +487,60 @@
                                     <input type="checkbox" id="globalAnnotationsDygraph" ng-model="graph.dygraph.globalAnnotations" />
                                     <label for="globalAnnotationsDygraph">Global annotations?</label>
                                 </div-->
-                                <aa-collapsible-panel title="Filtering" initial-collapsed="false">
+                                <div>
+                                </div>
+                                <aa-collapsible-panel title="Filtering" >
                                     <div>
-                                        Show only 
-                                        <select ng-model="graph.dygraph.countFilter.end">
-                                            <option>top</option>
-                                            <option>bottom</option>
-                                        </select>
-                                        <input type="text" size="2" ng-model="graph.dygraph.countFilter.count" />
-                                        lines by
-                                        <select ng-model="graph.dygraph.countFilter.measure">
-                                            <option>min</option>
-                                            <option>mean</option>
-                                            <option>max</option>
-                                        </select>
+                                        <div class="btn-group btn-group-xs" uib-dropdown is-open="wibble" style="display: inline-block">
+                                            <button style="width: 60px; text-align: left" id="single-button" type="button" class="btn btn-primary btn-xs" uib-dropdown-toggle ng-disabled="disabled">
+                                                <span>{{end}}</span> <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="single-button">
+                                                <li role="menuitem"><a ng-click="setEnd('top')">top</a></li>
+                                                <li role="menuitem"><a ng-click="setEnd('bottom')">bottom</a></li>
+                                            </ul>
+                                        </div>
+                                        <input class="form-control form-control-xs form-control-inline" type="text" style="width: 40px" ng-model="graph.dygraph.countFilter.count" />
+                                        by
+                                        <div class="btn-group btn-group-xs" uib-dropdown is-open="wibble2" style="display: inline-block">
+                                            <button style="width: 50px; text-align: left" id="single-button2" type="button" class="btn btn-primary btn-xs" uib-dropdown-toggle ng-disabled="disabled">
+                                                <span>{{countMeasure}}</span> <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="single-button2">
+                                                <li role="menuitem"><a ng-click="setCountMeasure('min')">min</a></li>
+                                                <li role="menuitem"><a ng-click="setCountMeasure('mean')">mean</a></li>
+                                                <li role="menuitem"><a ng-click="setCountMeasure('max')">max</a></li>
+                                            </ul>
+                                        </div>
                                     </div>
-                                    <div>
-                                        Show only lines which have
-                                        <input type="text" size="2" ng-model="graph.dygraph.valueFilter.lowerBound" />
+                                    <div style="border-bottom: 1px groove #808080; padding: 2px">
+                                    </div>
+                                    <div style="padding-top: 2px">
+                                        <input class="form-control form-control-xs form-control-inline" type="text" style="width: 40px" ng-model="graph.dygraph.valueFilter.lowerBound" />
                                         &lt;=
-                                        <select ng-model="graph.dygraph.valueFilter.measure">
-                                            <option>any</option>
-                                            <option>min</option>
-                                            <option>mean</option>
-                                            <option>max</option>
-                                        </select>
-                                        value &lt;=
-                                        <input type="text" size="2" ng-model="graph.dygraph.valueFilter.upperBound" />
+                                        <div class="btn-group btn-group-xs" uib-dropdown is-open="wibble3" style="display: inline-block">
+                                            <button style="width: 50px; text-align: left" id="single-button3" type="button" class="btn btn-primary btn-xs" uib-dropdown-toggle ng-disabled="disabled">
+                                                <span>{{valueMeasure}}</span> <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="single-button3">
+                                                <li role="menuitem"><a ng-click="setValueMeasure('any')">min</a></li>
+                                                <li role="menuitem"><a ng-click="setValueMeasure('min')">min</a></li>
+                                                <li role="menuitem"><a ng-click="setValueMeasure('mean')">mean</a></li>
+                                                <li role="menuitem"><a ng-click="setValueMeasure('max')">max</a></li>
+                                            </ul>
+                                        </div>
+                                        &lt;=
+                                        <input class="form-control form-control-xs form-control-inline" type="text" style="width: 40px" ng-model="graph.dygraph.valueFilter.upperBound" />
                                     </div>
                                 </aa-collapsible-panel>
-                                <aa-collapsible-panel title="Specials" initial-collapsed="false">
+                                <aa-collapsible-panel title="Specials" initial-collapsed="true">
                                     <div>
                                         <input type="checkbox" id="meanAdjustedDygraph" ng-model="graph.dygraph.meanAdjusted" ng-disabled="graph.dygraph.squashNegative" />
-                                        <label for="meanAdjustedDygraph">Mean adjusted?</label>
+                                        <label for="meanAdjustedDygraph" class="form-label">Mean adjusted?</label>
                                     </div>
                                 </aa-collapsible-panel>
                                 <button class="btn btn-primary btn-xs" ng-click="deleteGraph(graph.id)">Delete</button>
+                              </uib-accordion-group>
                             </uib-accordion>
                         </div>
                     </div>
@@ -537,9 +611,9 @@
                             </select>
                         </div>
 
-                        <div style="border: 1px solid black; overflow: auto; height: auto; padding: 3px" >
+                        <div style="overflow: auto; height: auto; padding: 3px" >
                             <!-- todo: m1: start -> 1 graph -> add metric -> save -> delete graph -> save -> add graph -> save -> graph, edit metric -> no graph selection -->
-                            <div  ng-show="model.graphs.length > 1">
+                            <div>
                                 <label for="metricControl_editMetric_selectGraph">Graph</label>
                                 <select id="metricControl_editMetric_selectGraph" ng-model="graphId" ng-disabled="!clearButtonEnabled()">
                                     <option value="0" selected="selected">None</option>
@@ -548,68 +622,74 @@
                                     </option>
                                 </select>
                             </div>
-                            <div>
-                                <label for="metricControl_editMetric_aggregator">Aggregator</label>
-                                <select id="metricControl_editMetric_aggregator" ng-model="aggregator" ng-disabled="!clearButtonEnabled()">
-                                    <option>sum</option>
-                                    <option>min</option>
-                                    <option>max</option>
-                                    <option>avg</option>
-                                    <option>dev</option>
-                                    <option>zimsum</option>
-                                    <option>mimmin</option>
-                                    <option>mimmax</option>
-                                    <!-- TODO load aggregators from /aggregators on tsdb.. -->
-                                </select>
-                            </div>
-                            <div>
-                                <label for="metricControl_editMetric_rightAxis">Right Axis</label>
-                                <input id="metricControl_editMetric_rightAxis" type="checkbox" ng-model="rightAxis" ng-disabled="!clearButtonEnabled()" />
-                            </div>
-                            <div>
-                                <label for="metricControl_editMetric_rate">Rate?</label>
-                                <input id="metricControl_editMetric_rate" type="checkbox" ng-model="rate" ng-disabled="!clearButtonEnabled()" />
-                                <label for="metricControl_editMetric_rate">Rate Ctr?</label>
-                                <input id="metricControl_editMetric_rateCounter" type="checkbox" ng-model="rateCounter" ng-disabled="!clearButtonEnabled() && !rate" />
-                            </div>
-                            <div ng-show="rateCounter">
-                                <label for="metricControl_editMetric_rateCounterMax">Counter max</label>
-                                <input id="metricControl_editMetric_rateCounterMax" type="text" ng-model="rateCounterMax" />
-                                <label for="metricControl_editMetric_rateCounterReset">Counter reset</label>
-                                <input id="metricControl_editMetric_rateCounterReset" type="text" ng-model="rateCounterReset" />
-                            </div>
-                            <div>
-                                <label for="metricControl_editMetric_downsample">Downsample?</label>
-                                <input id="metricControl_editMetric_downsample" type="checkbox" ng-model="downsample" ng-disabled="!clearButtonEnabled()" />
-                                <label for="metricControl_editMetric_downsampleBy">by</label>
-                                <select id="metricControl_editMetric_downsampleBy" ng-model="downsampleBy" ng-disabled="!downsample">
-                                    <option>sum</option>
-                                    <option>min</option>
-                                    <option>max</option>
-                                    <option>avg</option>
-                                    <option>dev</option>
-                                    <option>zimsum</option>
-                                    <option>mimmin</option>
-                                    <option>mimmax</option>
-                                    <!-- TODO load aggregators from /aggregators on tsdb.. -->
-                                </select>
-                                <input type="text" ng-model="downsampleTo" ng-disabled="!downsample" />
-                            </div>
-                            
-                            <div>
-                                <span ng-repeat="tagk in tagNames" style="padding-right: 3px"><button class="btn btn-primary btn-xs" ng-click="addTagRow(tagk)" tooltip-append-to-body="true" uib-tooltip="Add tag row: {{tagValues[tagk].length}} unique values">+ {{tagk}} <span class="badge">{{tagValues[tagk].length}}</span></button></span>
-                            </div>
-                            
-                            <div>
-                                <table cellspacing="3">
-                                    <tr ng-repeat="tag in tags track by tag.id">
-                                        <td><span class="glyphicon glyphicon-remove-circle" style="cursor: pointer; cursor: hand; padding-right: 3px" ng-click="deleteTagRow(tag.id)" tooltip-append-to-body="true" uib-tooltip="Remove row" tooltip-placement="right"></span></td>
-                                        <td style="padding-right: 3px"><span>{{tag.name}}</span></td>
-                                        <td style="width: 100%; padding-right: 3px"><input type="text" style="width: 100%" ng-model="tag.value"  /></td>
-                                        <td><input type="checkbox" ng-model="tag.groupBy"  tooltip-append-to-body="true" uib-tooltip="Group by" tooltip-placement="left" /></td>
-                                    </tr>
-                                </table>
-                            </div>
+                            <uib-tabset>
+                                <uib-tab heading="Query">
+                                    <div>
+                                        <label for="metricControl_editMetric_aggregator">Aggregator</label>
+                                        <select id="metricControl_editMetric_aggregator" ng-model="aggregator" ng-disabled="!clearButtonEnabled()">
+                                            <option>sum</option>
+                                            <option>min</option>
+                                            <option>max</option>
+                                            <option>avg</option>
+                                            <option>dev</option>
+                                            <option>zimsum</option>
+                                            <option>mimmin</option>
+                                            <option>mimmax</option>
+                                            <!-- TODO load aggregators from /aggregators on tsdb.. -->
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="metricControl_editMetric_rate">Rate?</label>
+                                        <input id="metricControl_editMetric_rate" type="checkbox" ng-model="rate" ng-disabled="!clearButtonEnabled()" />
+                                        <label for="metricControl_editMetric_rate">Rate Ctr?</label>
+                                        <input id="metricControl_editMetric_rateCounter" type="checkbox" ng-model="rateCounter" ng-disabled="!clearButtonEnabled() && !rate" />
+                                    </div>
+                                    <div ng-show="rateCounter">
+                                        <label for="metricControl_editMetric_rateCounterMax">Counter max</label>
+                                        <input id="metricControl_editMetric_rateCounterMax" type="text" ng-model="rateCounterMax" />
+                                        <label for="metricControl_editMetric_rateCounterReset">Counter reset</label>
+                                        <input id="metricControl_editMetric_rateCounterReset" type="text" ng-model="rateCounterReset" />
+                                    </div>
+                                    <div>
+                                        <label for="metricControl_editMetric_downsample">Downsample?</label>
+                                        <input id="metricControl_editMetric_downsample" type="checkbox" ng-model="downsample" ng-disabled="!clearButtonEnabled()" />
+                                        <label for="metricControl_editMetric_downsampleBy">by</label>
+                                        <select id="metricControl_editMetric_downsampleBy" ng-model="downsampleBy" ng-disabled="!downsample">
+                                            <option>sum</option>
+                                            <option>min</option>
+                                            <option>max</option>
+                                            <option>avg</option>
+                                            <option>dev</option>
+                                            <option>zimsum</option>
+                                            <option>mimmin</option>
+                                            <option>mimmax</option>
+                                            <!-- TODO load aggregators from /aggregators on tsdb.. -->
+                                        </select>
+                                        <input type="text" ng-model="downsampleTo" ng-disabled="!downsample" />
+                                    </div>
+
+                                    <div>
+                                        <span ng-repeat="tagk in tagNames" style="padding-right: 3px"><button class="btn btn-primary btn-xs" ng-click="addTagRow(tagk)" tooltip-append-to-body="true" uib-tooltip="Add tag row: {{tagValues[tagk].length}} unique values">+ {{tagk}} <span class="badge">{{tagValues[tagk].length}}</span></button></span>
+                                    </div>
+
+                                    <div>
+                                        <table cellspacing="3">
+                                            <tr ng-repeat="tag in tags track by tag.id">
+                                                <td><span class="glyphicon glyphicon-remove-circle" style="cursor: pointer; cursor: hand; padding-right: 3px" ng-click="deleteTagRow(tag.id)" tooltip-append-to-body="true" uib-tooltip="Remove row" tooltip-placement="right"></span></td>
+                                                <td style="padding-right: 3px"><span>{{tag.name}}</span></td>
+                                                <td style="width: 100%; padding-right: 3px"><input type="text" style="width: 100%" ng-model="tag.value"  /></td>
+                                                <td><input type="checkbox" ng-model="tag.groupBy"  tooltip-append-to-body="true" uib-tooltip="Group by" tooltip-placement="left" /></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </uib-tab>
+                                <uib-tab heading="Rendering">
+                                    <div>
+                                        <label for="metricControl_editMetric_rightAxis">Right Axis</label>
+                                        <input id="metricControl_editMetric_rightAxis" type="checkbox" ng-model="rightAxis" ng-disabled="!clearButtonEnabled()" />
+                                    </div>
+                                </uib-tab>
+                            </uib-tabset>
 
                             <!--table>
                                 <tr ng-repeat="tagk in tagNames">
