@@ -26,7 +26,7 @@ aardvark.directive('aardvarkEnter', function() {
             });
         }
     })
-    .controller('AardvarkCtrl', [ '$rootScope', '$http', '$location', function AardvarkCtrl($rootScope, $http, $location) {
+    .controller('AardvarkCtrl', [ '$rootScope', '$http', '$location', 'serialisation', function AardvarkCtrl($rootScope, $http, $location, $serialisation) {
         /*
          * Model persistence - ensures that persistent data is saved to the hash whilst leaving
          * controllers free to litter their own scope with volatile data. Controllers are responsible
@@ -56,9 +56,15 @@ aardvark.directive('aardvarkEnter', function() {
                 $rootScope.model = JSON.parse(hash);
             }
         }
-    
+        
         $rootScope.saveModel = function(render) {
-            $location.hash(JSON.stringify($rootScope.model));
+            console.log("slimmed ser:");
+            var originalLen = JSON.stringify($rootScope.model).length;
+            var serialised = $serialisation.serialise($rootScope.model);
+            $location.hash(serialised);
+            var slimmedLen = serialised.length;
+            console.log("from "+originalLen+" to "+slimmedLen);
+            
             if (render && $rootScope.renderGraphs) {
                 $rootScope.renderGraphs();
             }

@@ -1,0 +1,75 @@
+option optimize_for = SPEED;
+
+import "StringSerialisation.proto";
+
+message IntermediateModel {
+  optional StringSerialisationData aaStringSerialisedForm = 1;
+  optional Global global = 2;
+  repeated Graph graphs = 3;
+  repeated Metric metrics = 4;
+}
+
+message TimePeriod {
+  optional int32 count = 1;
+  optional int32 unit = 2;
+}
+
+message Global {
+  optional int32 flags = 1;
+  optional int64 fromDate = 2;
+  optional int64 fromTime = 3;
+  optional int64 toDate = 4;
+  optional int64 toTime = 5;
+  optional TimePeriod relativePeriod = 6;
+  optional int32 minGraphHeight = 7;
+  optional int32 graphHeight = 8;
+}
+
+message Gnuplot {
+  optional int32 flags = 1;
+  optional string yAxisLabel = 2;
+  optional string y2AxisLabel = 3;
+  optional string yAxisFormat = 4;
+  optional string y2AxisFormat = 5;
+  optional string yAxisRange = 6;
+  optional string y2AxisRange = 7;
+  optional int32 keyLocation = 8;
+}
+
+message Dygraph {
+  optional int32 flags = 1;
+  optional int32 countFilterEnd = 2;
+  optional int32 countFilterCount = 3;
+  optional int32 countFilterMeasure = 4;
+  optional int32 valueFilterLowerBound = 5;
+  optional int32 valueFilterUpperBound = 6;
+  optional int32 valueFilterMeasure = 7;
+}
+
+message Graph {
+  optional int32 id = 1;
+  optional int32 type = 2;
+  optional string title = 3;
+  optional int32 flags = 4;
+  optional Gnuplot gnuplot = 5;
+  optional Dygraph dygraph = 6;
+}
+
+message TagPair {
+  required string name = 1;
+  required string value = 2;
+}
+
+message Metric {
+  optional int32 flags = 1;
+  optional int32 id = 2;
+  optional string name = 3;
+  repeated TagPair tags = 4;
+  optional int32 graphId = 5;
+  optional int64 rateCounterReset = 6;
+  optional int64 rateCounterMax = 7;
+  optional int32 aggregator = 8;
+  optional int32 downsampleBy = 9;
+  optional TimePeriod downsampleTo = 10;
+  optional int32 scatterAxis = 11;
+}
