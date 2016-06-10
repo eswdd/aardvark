@@ -23,9 +23,10 @@
     "tmp": "0.0.28"
   },
   "scripts": {
+    "postinstall": "./generateProtoJson.sh",
     "prestart": "npm install",
     "start": "node aardvark.js",
-    "pretest-continuous": "./pretest.sh",
+    "pretest-continuous": "npm install",
     "pretest": "./pretest.sh",
     "test-continuous": "karma start test/karma.conf.js",
     "test-coverage": "karma start test/karma.coverage.conf.js  --single-run",
