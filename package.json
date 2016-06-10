@@ -25,8 +25,8 @@
   "scripts": {
     "prestart": "npm install",
     "start": "node aardvark.js",
-    "pretest-continuous": "npm install",
-    "pretest": "npm install",
+    "pretest-continuous": "./pretest.sh",
+    "pretest": "./pretest.sh",
     "test-continuous": "karma start test/karma.conf.js",
     "test-coverage": "karma start test/karma.coverage.conf.js  --single-run",
     "test": "karma start test/karma.conf.js  --single-run"
