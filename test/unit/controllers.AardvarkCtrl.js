@@ -11,7 +11,7 @@ describe('Aardvark controllers', function () {
                         var passed = angular.equals(actual, expected);
                         return {
                             pass: passed,
-                            message: 'Expected ' + JSON.stringify(actual) + ' to equal ' + JSON.stringify(expected)
+                            message: 'Expected ' + JSON.stringify(actual) + '\nto equal ' + JSON.stringify(expected)
                         };
                     }
                 };
@@ -70,9 +70,7 @@ describe('Aardvark controllers', function () {
             expect(configReceived).toEqualData(true);
         });
 
-/*
-todo: fix these
-        it('should save the model to the location hash when requested', function () {
+        it('should save the model to the location hash when requested and then rehydrate correctly', function () {
 
             expect(rootScope.model).toEqualData({
                 graphs: [],
@@ -91,26 +89,37 @@ todo: fix these
             };
             rootScope.saveModel();
 
-//            browser.poll();
-            expect(location.url()).toEqualData('#'+encodeURI('{"graphs":[],"metrics":[{"id":"1","name":"fred"}]}'));
-        });
-
-
-        it('should should correctly rehydrate the model from the hash', function () {
-            // recreate the controller now we've changed the hash
-            var encoded = encodeURI('{"global":{},"metrics":[{"id":"1","name":"fred"}],"graphs":[]}');
-            location.hash(encoded);
-//            browser.poll();
+            expect(location.url().indexOf('#')).toEqualData(0);
+            var encoded = location.url().substring(0);
+            
+            location.hash("");
             ctrl = controllerCreator('AardvarkCtrl', {$scope: scope, $rootScope: rootScope});
+            expect(rootScope.model).toEqualData({
+                graphs: [],
+                metrics: []
+            });
 
-            expect(rootScope.model).toEqualData(
-                { global: {}, metrics : [ { id : '1', name : 'fred' }], graphs:[] }
-            );
-
+            location.hash(encoded);
+            ctrl = controllerCreator('AardvarkCtrl', {$scope: scope, $rootScope: rootScope});
+            expect(rootScope.model).toEqualData({"global":{"absoluteTimeSpecification":false,"autoReload":false,"autoGraphHeight":false,"relativePeriod":"2h","graphHeight":null},"graphs":[],"metrics":[{"id":1,"name":"fred","tags":[],"graphOptions":{"scatter":null,"rate":false,"rateCounter":false,"rightAxis":false,"downsample":false,"graphId":null,"rateCounterReset":"","rateCounterMax":"","downsampleBy":"","downsampleTo":""}}]});
             rootScope.saveModel();
-            expect(location.url()).toEqualData('#'+encoded);
+
+            expect(location.url().indexOf('#')).toEqualData(0);
+            encoded = location.url().substring(0);
+
+            location.hash("");
+            ctrl = controllerCreator('AardvarkCtrl', {$scope: scope, $rootScope: rootScope});
+            expect(rootScope.model).toEqualData({
+                graphs: [],
+                metrics: []
+            });
+
+            location.hash(encoded);
+            ctrl = controllerCreator('AardvarkCtrl', {$scope: scope, $rootScope: rootScope});
+            expect(rootScope.model).toEqualData({"global":{"absoluteTimeSpecification":false,"autoReload":false,"autoGraphHeight":false,"relativePeriod":"2h","graphHeight":null},"graphs":[],"metrics":[{"id":1,"name":"fred","tags":[],"graphOptions":{"scatter":null,"rate":false,"rateCounter":false,"rightAxis":false,"downsample":false,"graphId":0,"rateCounterReset":"","rateCounterMax":"","downsampleBy":"","downsampleTo":""}}]});
+            rootScope.saveModel();
+            expect(location.url()).toEqualData(encoded);
         });
-*/
 
     });
 });

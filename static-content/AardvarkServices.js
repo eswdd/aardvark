@@ -465,7 +465,10 @@ aardvark
                 unit: units.valueToId(unit)
             }
         }
-        var fromTimePeriod = function(value) {
+        var fromTimePeriod = function(value, defaultValue) {
+            if (value == null) {
+                return defaultValue;
+            }
             var unit = units.idToValue(value.unit);
             var count = value.count;
             return count + "" + unit;
@@ -640,6 +643,9 @@ aardvark
                         metric.graphOptions.rightAxis,
                         metric.graphOptions.downsample
                     ]);
+                    if (metric.graphOptions.graphId == null) {
+                        metric.graphOptions.graphId = "0";
+                    }
                     intermediateMetric.graphId = parseInt(metric.graphOptions.graphId);
                     if (metric.graphOptions.rate && metric.graphOptions.rateCounter) {
                         intermediateMetric.rateCounterReset = parseInt(metric.graphOptions.rateCounterReset);
@@ -673,6 +679,17 @@ aardvark
             console.log("buflen = "+encoded.length);
             console.log("orilen = "+origLen);
 
+            /*
+            var compressjs = require('compressjs');
+            var algorithm = compressjs.Lzp3;
+            var data = new Buffer('Example data', 'utf8');
+            var compressed = algorithm.compressFile(data);
+            var decompressed = algorithm.decompressFile(compressed);
+// convert from array back to string
+            var data2 = new Buffer(decompressed).toString('utf8');
+            console.log(data2);*/
+
+
             return encoded;
         }
         serialiser.readIntermediateModel = function(intermediateModel) {
@@ -701,7 +718,7 @@ aardvark
                 }
             }
             else {
-                model.global.relativePeriod = fromTimePeriod(intermediateModel.global.relativePeriod);
+                model.global.relativePeriod = fromTimePeriod(intermediateModel.global.relativePeriod, "2h");
             }
             if (model.global.autoGraphHeight) {
                 model.global.minGraphHeight = intermediateModel.global.minGraphHeight;
@@ -804,7 +821,7 @@ aardvark
                 metric.graphOptions.aggregator = aggregationFunctions.idToValue(intermediateMetric.aggregator);
                 if (metric.graphOptions.downsample) {
                     metric.graphOptions.downsampleBy = aggregationFunctions.idToValue(intermediateMetric.downsampleBy);
-                    metric.graphOptions.downsampleTo = fromTimePeriod(intermediateMetric.downsampleTo);
+                    metric.graphOptions.downsampleTo = fromTimePeriod(intermediateMetric.downsampleTo, "");
                 }
                 else {
                     metric.graphOptions.downsampleBy = "";

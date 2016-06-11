@@ -53,7 +53,7 @@ aardvark.directive('aardvarkEnter', function() {
                     hash = hash.substring(1);
                 }
                 hash = decodeURI(hash);
-                $rootScope.model = JSON.parse(hash);
+                $rootScope.model = $serialisation.deserialise(hash);
             }
         }
         
