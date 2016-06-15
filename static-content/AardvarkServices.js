@@ -118,7 +118,6 @@ aardvark
                             if (!Array.isArray(objectGraph)) {
                                 newPath += k + ".";
                             }
-                            // todo: fail if not set
                             var sep = null;
                             for (var i=0; i<pathsAndSeps.length; i++) {
 //                                console.log("Comparing "+newPath+" == "+pathsAndSeps[i].path)
@@ -523,6 +522,18 @@ aardvark
             }
             return value;
         }
+        var toSingleDate = function(fromDate, fromTime) {
+            var date = typeof fromDate == "string" ? moment(fromDate, "YYYY/MM/DD") : moment(fromDate);
+            var time = typeof fromTime == "string" ? moment(fromTime, "HH:mm:ss") : moment(fromTime);
+            var dateTime = date.format("YYYY/MM/DD") + " " + time.format("HH:mm:ss");
+            return moment(dateTime, "YYYY/MM/DD HH:mm:ss").toDate();
+        }
+        var fromSingleDateToDatePart = function(singleDate) {
+            return moment(singleDate.format("YYYY/MM/DD"), "YYYY/MM/DD").toDate();
+        }
+        var fromSingleDateToTimePart = function(singleDate) {
+            return moment(singleDate.format("YYYY/MM/DD"), "YYYY/MM/DD").toDate();
+        }
         serialiser.IntermediateModel = builder.build("IntermediateModel");
         serialiser.compactIds = function(model) {
             // compact the ids!
@@ -558,13 +569,10 @@ aardvark
                 model.global.autoReload,
                 model.global.autoGraphHeight
             ]);
-            // todo: can we combine these into 2?
             if (model.global.absoluteTimeSpecification) {
-                intermediateModel.global.fromDate = model.global.fromDate;
-                intermediateModel.global.fromTime = model.global.fromTime;
+                intermediateModel.global.fromDateTime = toSingleDate(model.global.fromDate, model.global.fromTime);
                 if (!model.global.autoReload) {
-                    intermediateModel.global.toDate = model.global.toDate;
-                    intermediateModel.global.toTime = model.global.toTime;
+                    intermediateModel.global.toDateTime = toSingleDate(model.global.toDate, model.global.toTime);
                 }
             }
             else {
@@ -724,7 +732,6 @@ aardvark
             
             var proto = new serialiser.IntermediateModel(intermediate);
             var buffer = proto.encode().toArrayBuffer();
-            // todo: seems to only do a single replace
             var encoded = proto.toBase64().replaceAll("+","-").replaceAll("/","_").replaceAll("=",",");
             console.log("buffer = "+encoded);
             console.log("buflen = "+encoded.length);
@@ -736,12 +743,13 @@ aardvark
             var data = new Buffer('Example data', 'utf8');
             var compressed = algorithm.compressFile(data);
             var decompressed = algorithm.decompressFile(compressed);
-// convert from array back to string
+            // convert from array back to string
             var data2 = new Buffer(decompressed).toString('utf8');
             console.log(data2);*/
 
 
-            return encoded;
+            // - version '0' is initial
+            return "0"+encoded;
         }
         serialiser.removeDefaults = function(intermediateModel, rawProtoObject) {
             if (Array.isArray(intermediateModel)) {
@@ -841,11 +849,11 @@ aardvark
             model.global.autoReload = globalFlags[1];
             model.global.autoGraphHeight = globalFlags[2];
             if (model.global.absoluteTimeSpecification) {
-                model.global.fromDate = intermediateModel.global.fromDate;
-                model.global.fromTime = intermediateModel.global.fromTime;
+                model.global.fromDate = fromSingleDateToDatePart(intermediateModel.global.fromDateTime);
+                model.global.fromTime = fromSingleDateToTimePart(intermediateModel.global.fromDateTime);
                 if (!model.global.autoReload) {
-                    model.global.toDate = intermediateModel.global.toDate;
-                    model.global.toTime = intermediateModel.global.toTime;
+                    model.global.toDate = fromSingleDateToDatePart(intermediateModel.global.toDateTime);
+                    model.global.toTime = fromSingleDateToTimePart(intermediateModel.global.toDateTime);
                 }
             }
             else {
@@ -965,7 +973,6 @@ aardvark
                     };
                 }
                 
-                // todo: metrics
                 model.metrics.push(metric);
             }
             
@@ -973,6 +980,8 @@ aardvark
         }
         serialiser.deserialise = function(ser) {
             var b64str = ser.replace(",","=").replace("_","/").replace("-","+");
+            // first char is an indicator into serialisation mode - 0 = version 0
+            b64str = b64str.substring(1); 
             var intermediateModel = serialiser.IntermediateModel.decode64(b64str);
             return serialiser.readIntermediateModel(intermediateModel);
         }

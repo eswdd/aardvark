@@ -16,13 +16,11 @@ message TimePeriod {
 
 message Global {
   optional int32 flags = 1;
-  optional int64 fromDate = 2;
-  optional int64 fromTime = 3;
-  optional int64 toDate = 4;
-  optional int64 toTime = 5;
-  optional TimePeriod relativePeriod = 6 [ default = "2h" ];
-  optional int32 minGraphHeight = 7;
-  optional int32 graphHeight = 8;
+  optional int64 fromDateTime = 2;
+  optional int64 toDateTime = 3;
+  optional TimePeriod relativePeriod = 4 [ default = "2h" ];
+  optional int32 minGraphHeight = 5;
+  optional int32 graphHeight = 6;
 }
 
 message Gnuplot {

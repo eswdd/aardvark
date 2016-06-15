@@ -213,7 +213,7 @@ describe('AardvarkServices.serialisation', function() {
             ]
         };
         var serialised = serialisation.serialise(model);
-        expect(serialised.length).toBeLessThan(600); // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix 
+        expect(serialised.length).toBeLessThan(460); // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix 
         var deserialised = serialisation.deserialise(serialised);
         
         // fix the model to what we expect
@@ -392,7 +392,7 @@ describe('AardvarkServices.serialisation', function() {
             ]
         };
         var serialised = serialisation.serialise(model);
-        expect(serialised.length).toBeLessThan(501); // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix 
+        expect(serialised.length).toBeLessThan(460); // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix 
         var deserialised = serialisation.deserialise(serialised);
         
         // fix the model to what we expect
