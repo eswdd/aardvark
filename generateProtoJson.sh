@@ -8,7 +8,7 @@ cat /tmp/rawIntermediateModel.json | awk '{print "var rawIntermediateModelJson =
 
 cat IntermediateModel.proto | sed -e 's/optional string/repeated int32/g' > /tmp/IntermediateModel.proto
 cat /tmp/IntermediateModel.proto | sed -e 's/required string/repeated int32/g' > /tmp/IntermediateModel.proto2
-mv /tmp/IntermediateModel.proto2 /tmp/IntermediateModel.proto
+cat /tmp/IntermediateModel.proto2 | sed -e 's/ *\[ *default.*\;$/\;/' > /tmp/IntermediateModel.proto
 cp StringSerialisation.proto /tmp
 node_modules/.bin/pbjs /tmp/IntermediateModel.proto -s proto -t json -m -o /tmp/IntermediateModel.json -q 
 cat /tmp/IntermediateModel.json | awk '{print "var intermediateModelJson = "$0";"}' > static-content/IntermediateModel.js

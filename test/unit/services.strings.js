@@ -26,8 +26,8 @@ describe('AardvarkServices.strings', function() {
     
     it('expects 2 identical strings to best be served by string references', inject(function(strings) {
         var mgr = strings.getWriteManager();
-        var r1 = mgr.addString("a.b.c");
-        var r2 = mgr.addString("a.b.c");
+        var r1 = mgr.addString("a.b.c",".");
+        var r2 = mgr.addString("a.b.c",".");
         var dict = mgr.complete();
         expect(mgr.state.serialisationMode).toEqualData("stringReferences");
         expect(mgr.state.bytes).toEqualData({
@@ -44,8 +44,8 @@ describe('AardvarkServices.strings', function() {
         });
 
         var reader = strings.getReadManager(dict);
-        var s1 = reader.getString(r1.resolve());
-        var s2 = reader.getString(r2.resolve());
+        var s1 = reader.getString(r1.resolve(),".");
+        var s2 = reader.getString(r2.resolve(),".");
 
         expect(s1).toEqualData("a.b.c");
         expect(s2).toEqualData("a.b.c");
@@ -53,8 +53,8 @@ describe('AardvarkServices.strings', function() {
     
     it('expects 2 overlapping strings to best be served by chains', inject(function(strings) {
         var mgr = strings.getWriteManager();
-        var r1 = mgr.addString("a.b.c.d");
-        var r2 = mgr.addString("a.b.d.e");
+        var r1 = mgr.addString("a.b.c.d",".");
+        var r2 = mgr.addString("a.b.d.e",".");
         var dict = mgr.complete();
         expect(mgr.state.serialisationMode).toEqualData("chains");
         expect(mgr.state.bytes).toEqualData({
@@ -71,8 +71,8 @@ describe('AardvarkServices.strings', function() {
         });
 
         var reader = strings.getReadManager(dict);
-        var s1 = reader.getString(r1.resolve());
-        var s2 = reader.getString(r2.resolve());
+        var s1 = reader.getString(r1.resolve(),".");
+        var s2 = reader.getString(r2.resolve(),".");
 
         expect(s1).toEqualData("a.b.c.d");
         expect(s2).toEqualData("a.b.d.e");
@@ -80,10 +80,10 @@ describe('AardvarkServices.strings', function() {
     
     it('expects 2 pairs of 2 overlapping strings to best be served by chain references', inject(function(strings) {
         var mgr = strings.getWriteManager();
-        var r1 = mgr.addString("a.b.c.d");
-        var r2 = mgr.addString("a.b.c.d");
-        var r3 = mgr.addString("a.b.d.e");
-        var r4 = mgr.addString("a.b.d.e");
+        var r1 = mgr.addString("a.b.c.d",".");
+        var r2 = mgr.addString("a.b.c.d",".");
+        var r3 = mgr.addString("a.b.d.e",".");
+        var r4 = mgr.addString("a.b.d.e",".");
         var dict = mgr.complete();
         expect(mgr.state.serialisationMode).toEqualData("chainReferences");
         expect(mgr.state.bytes).toEqualData({
@@ -103,10 +103,10 @@ describe('AardvarkServices.strings', function() {
         });
         
         var reader = strings.getReadManager(dict);
-        var s1 = reader.getString(r1.resolve());
-        var s2 = reader.getString(r2.resolve());
-        var s3 = reader.getString(r3.resolve());
-        var s4 = reader.getString(r4.resolve());
+        var s1 = reader.getString(r1.resolve(),".");
+        var s2 = reader.getString(r2.resolve(),".");
+        var s3 = reader.getString(r3.resolve(),".");
+        var s4 = reader.getString(r4.resolve(),".");
         
         expect(s1).toEqualData("a.b.c.d");
         expect(s2).toEqualData("a.b.c.d");
@@ -115,6 +115,9 @@ describe('AardvarkServices.strings', function() {
     }));
     
     it('expects compactStringsForWrite to replace all strings with the correct serialised form - raw strings', inject(function(strings) {
+        var pathsAndSeps = [
+            {path:"prop3.prop5.",sep:"."}
+        ];
         var graph = {
             prop1: 1,
             prop2: 2,
@@ -123,12 +126,16 @@ describe('AardvarkServices.strings', function() {
                 prop5: "string.5"
             }
         };
-        strings.compactStringsForWrite(graph);
+        strings.compactStringsForWrite(graph, pathsAndSeps);
         expect(graph.prop3.prop5).toEqualData([0]);
         expect(graph.aaStringSerialisedForm).toEqualData({mode:1,strings:["string.5"],references:[]});
     }));
     
     it('expects compactStringsForWrite to replace all strings with the correct serialised form - int arrays', inject(function(strings) {
+        var pathsAndSeps = [
+            {path:"prop3.prop5a.",sep:"."},
+            {path:"prop3.prop5b.",sep:"."}
+        ];
         var graph = {
             prop1: 1,
             prop2: 2,
@@ -138,7 +145,7 @@ describe('AardvarkServices.strings', function() {
                 prop5b: "string.5"
             }
         };
-        strings.compactStringsForWrite(graph);
+        strings.compactStringsForWrite(graph, pathsAndSeps);
         expect(graph.prop3.prop5a).toEqualData([0]);
         expect(graph.prop3.prop5b).toEqualData([0]);
         expect(graph.aaStringSerialisedForm).toEqualData({mode:1,strings:["string.5"],references:[]});
@@ -207,20 +214,20 @@ describe('AardvarkServices.strings', function() {
             ]
             
         }
-        var paths = [
-            "prop1.",
-            "prop2.prop3.",
-            "prop2.prop4.prop5.",
-            "prop2.prop4.prop6.",
-            "prop7.prop8.",
-            "prop7.prop9.prop10.",
-            "prop7.prop9.prop11.",
-            "prop12.prop13.",
-            "prop12.prop14.prop15."
+        var pathsAndSeps = [
+            {path:"prop1.",sep:"."},
+            {path:"prop2.prop3.",sep:"."},
+            {path:"prop2.prop4.prop5.",sep:"."},
+            {path:"prop2.prop4.prop6.",sep:"."},
+            {path:"prop7.prop8.",sep:"."},
+            {path:"prop7.prop9.prop10.",sep:"."},
+            {path:"prop7.prop9.prop11.",sep:"."},
+            {path:"prop12.prop13.",sep:"."},
+            {path:"prop12.prop14.prop15.",sep:"."}
         ]
         var newModel = JSON.parse(JSON.stringify(graph));
-        strings.compactStringsForWrite(newModel);
-        strings.getReadManager(newModel.aaStringSerialisedForm).unpackStrings(newModel, paths);
+        strings.compactStringsForWrite(newModel, pathsAndSeps);
+        strings.getReadManager(newModel.aaStringSerialisedForm).unpackStrings(newModel, pathsAndSeps);
         newModel.aaStringSerialisedForm = null;
         expect(newModel).toEqualData(graph);
     }));

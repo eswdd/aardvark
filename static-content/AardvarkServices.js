@@ -78,26 +78,26 @@ aardvark
             "stringReferences", "chains", "chainReferences"
         ]);
         var resolverKeyVal = "aa_strings_keyval";
-        strings.getResolver = function(string) {
+        strings.getResolver = function(string,sep) {
             if (!strings.hasOwnProperty("mgr")) {
                 strings.mgr = strings.getWriteManager();
             }
-            return strings.mgr.addString(string);
+            return strings.mgr.addString(string,sep);
         };
         // go down the whole tree, find all the values which are strings, replace them with resolvers.
         // then calculate the optimal serialised form
         // go down the whole tree, find all the resolvers, and translate their values into references for later deserialisation
         // also adds the reference dictionary to the graph
-        strings.compactStringsForWrite = function(objectGraph) {
+        strings.compactStringsForWrite = function(objectGraph, pathsAndSeps) {
             if (!strings.hasOwnProperty("mgr")) {
                 strings.mgr = strings.getWriteManager();
             }
-            strings.autoReplaceInternal(objectGraph);
+            strings.autoReplaceInternal(objectGraph, pathsAndSeps, "");
             var dict = strings.mgr.complete();
             strings.autoResolveInternal(objectGraph);
             objectGraph.aaStringSerialisedForm = new strings.StringSerialisationData(dict);
         }
-        strings.autoReplaceInternal = function(objectGraph) {
+        strings.autoReplaceInternal = function(objectGraph, pathsAndSeps, pathSoFar) {
             if (objectGraph == null) {
                 return;
             }
@@ -107,10 +107,30 @@ aardvark
                         case 'number':
                             break;
                         case 'object':
-                            strings.autoReplaceInternal(objectGraph[k]);
+                            var newPath = pathSoFar;
+                            if (!Array.isArray(objectGraph)) {
+                                newPath += k + "."; 
+                            }
+                            strings.autoReplaceInternal(objectGraph[k], pathsAndSeps, newPath);
                             break;
                         case 'string':
-                            objectGraph[k] = strings.getResolver(objectGraph[k]);
+                            var newPath = pathSoFar;
+                            if (!Array.isArray(objectGraph)) {
+                                newPath += k + ".";
+                            }
+                            // todo: fail if not set
+                            var sep = null;
+                            for (var i=0; i<pathsAndSeps.length; i++) {
+//                                console.log("Comparing "+newPath+" == "+pathsAndSeps[i].path)
+                                if (newPath == pathsAndSeps[i].path) {
+                                    sep = pathsAndSeps[i].sep;
+                                    break;
+                                }
+                            }
+                            if (sep == null) {
+                                throw "Couldn't find pathAndSep for '"+newPath+"'";
+                            }
+                            objectGraph[k] = strings.getResolver(objectGraph[k], sep);
                             break;
                         default:
                             throw "Unsupported type: '"+(typeof objectGraph[k])+"'"
@@ -151,9 +171,12 @@ aardvark
                 stringDefinitions: [],
                 completed: false
             };
-            mgr.addString = function(string) {
+            mgr.addString = function(string,sep) {
                 mgr.state.totalStringLengths += string.length;
-                var segments = string.split(".");
+                if (sep == null) {
+                    sep = ".";
+                }
+                var segments = string.split(sep);
                 var pointers = new Array(segments.length);
 
                 for (var s=0; s<segments.length; s++) {
@@ -296,77 +319,60 @@ aardvark
         // get the reference dictionary from the passed object graph
         strings.getReadManager = function(dict) {
             var mgr = {state:dict};
-            var unpackString = function(obj, path) {
+            var unpackString = function(obj, pathAndPrefix) {
                 if (Array.isArray(obj) && obj.length>0 && (typeof obj[0] != 'Number')) {
                     for (var i=0; i<obj.length; i++) {
-                        unpackString(obj[i], path);
+                        unpackString(obj[i], pathAndPrefix);
                     }
                 }
                 else {
-                    var property = path.substring(0, path.indexOf("."));
+                    var property = pathAndPrefix.path.substring(0, pathAndPrefix.path.indexOf("."));
                     if (obj.hasOwnProperty(property) && obj[property] != null) {
                         // targeted property
-                        if (path.indexOf(".") == path.length - 1) {
+                        if (pathAndPrefix.path.indexOf(".") == pathAndPrefix.path.length - 1) {
                             if (Array.isArray(obj[property]) && obj[property].length>0 && Array.isArray(obj[property][0])) {
                                 var arr = obj[property];
                                 for (var i=0; i<arr.length; i++) {
-                                    arr[i] = mgr.getString(arr[i]);
+                                    arr[i] = mgr.getString(arr[i],pathAndPrefix.sep);
                                 }
                             }
                             else {
-                                obj[property] = mgr.getString(obj[property]);
+                                obj[property] = mgr.getString(obj[property],pathAndPrefix.sep);
                             }
                         }
                         else {
-                            var remainder = path.substring(path.indexOf(".")+1);
-                            unpackString(obj[property], remainder);
+                            var remainder = pathAndPrefix.path.substring(pathAndPrefix.path.indexOf(".")+1);
+                            unpackString(obj[property], {path:remainder,sep:pathAndPrefix.sep});
                         }
                     }
                 }
             }
-            mgr.unpackStrings = function(objectGraph, paths) {
+            mgr.unpackStrings = function(objectGraph, pathsAndSeps) {
                 // new school..
-                for (var p=0; p<paths.length; p++) {
-                    var path = paths[p];
-                    unpackString(objectGraph, path);
+                for (var p=0; p<pathsAndSeps.length; p++) {
+                    var path = pathsAndSeps[p];
+                    unpackString(objectGraph, pathsAndSeps[p]);
                 }
-                
-                // old school
-                /*
-                for (var k in objectGraph) {
-                    if (objectGraph.hasOwnProperty(k) && objectGraph[k] != null) {
-                        switch (typeof objectGraph[k]) {
-                            case 'number':
-                            case 'string':
-                                break;
-                            case 'object':
-                                if (objectGraph[k].hasOwnProperty("aa_serialised_string") && objectGraph[k].aa_serialised_string == "aa_serialised_string") {
-                                    objectGraph[k] = mgr.getString(objectGraph[k]);
-                                }
-                                else {
-                                    mgr.unpackStrings(objectGraph[k]);
-                                }
-                               
-                        }
-                    }
-                }*/
             }
-            mgr.constructOriginalString = function(chain) {
+            mgr.constructOriginalString = function(chain,configuredSep) {
+                if (chain.length == 0) {
+                    return null;
+                }
                 var key = "";
                 var sep = "";
                 for (var i=0; i<chain.length; i++) {
                     key += sep + mgr.state.strings[chain[i]];
-                    sep = ".";
+                    sep = configuredSep;
                 }
                 return key;
             }
-            mgr.getString = function(value) {
+            mgr.getString = function(value,sep) {
                 var mode = strings.modeMapping.idToValue(mgr.state.mode);
                 switch (mode) {
                     case "chains":
-                        return mgr.constructOriginalString(value); // array indexing into strings
+                        return mgr.constructOriginalString(value,sep); // array indexing into strings
                     case "chainReferences":
-                        return mgr.constructOriginalString(mgr.state.references[value[0]]); // array of len 1 indexing into references
+                        return mgr.constructOriginalString(mgr.state.references[value[0]],sep); // array of len 1 indexing into references
                     case "stringReferences":
                         return mgr.state.strings[value[0]]; // array of len 1 indexing into strings
                     default:
@@ -409,6 +415,28 @@ aardvark
         var units = mapping.generateBiDiMapping(["s", "m", "h", "d", "w", "y"]); // todo: incomplete
         var ProtoBuf = dcodeIO.ProtoBuf;
         var builder = ProtoBuf.loadJson(intermediateModelJson);
+        // helper data structures
+        var rawIntermediateModelByType = {};
+        for (var i=0; i<rawIntermediateModelJson.messages.length; i++) {
+            var message = rawIntermediateModelJson.messages[i];
+            if (message.name != "StringSerialisationData") {
+                rawIntermediateModelByType[message.name] = message;
+                var fieldsByName = {};
+                for (var j=0; j<message.fields.length; j++) {
+                    fieldsByName[message.fields[j].name] = message.fields[j];
+                }
+                message.fieldsByName = fieldsByName;
+
+            }
+        }
+        // now replace defaults where appropriate
+        var updateDefaultToLookupValue = function(fieldDef, lookup) {
+            fieldDef.options.default = lookup.valueToId(fieldDef.options.default);
+        }
+        updateDefaultToLookupValue(rawIntermediateModelByType.Gnuplot.fieldsByName.keyLocation, gnuplotKeyLocations);
+        updateDefaultToLookupValue(rawIntermediateModelByType.Metric.fieldsByName.aggregator, aggregationFunctions);
+        updateDefaultToLookupValue(rawIntermediateModelByType.Metric.fieldsByName.downsampleBy, aggregationFunctions);
+        updateDefaultToLookupValue(rawIntermediateModelByType.Metric.fieldsByName.scatterAxis, scatterAxes);
         // todo: move this into a pre-processing step
         var buildStringPaths = function(obj, pathSoFar, interesting, ret) {
             for (var f=0; f<obj.length; f++) {
@@ -422,29 +450,45 @@ aardvark
             }
         }
         var stringPaths = function() {
-            var stringPaths = [];
             var interesting = {};
-            for (var i=0; i<rawIntermediateModelJson.messages.length; i++) {
-                var message = rawIntermediateModelJson.messages[i];
-                if (message.name != "StringSerialisationData") {
-                    interesting[message.name] = message;
-                }
-            }
-            for (var k in interesting) {
-                if (interesting.hasOwnProperty(k)) {
-                    var message = interesting[k];
+            for (var k in rawIntermediateModelByType) {
+                if (rawIntermediateModelByType.hasOwnProperty(k)) {
+                    var message = rawIntermediateModelByType[k];
                     var interestingFields = [];
                     for (var f=0; f<message.fields.length; f++) {
                         var field = message.fields[f];
-                        if (field.type == "string" || interesting.hasOwnProperty(field.type)) {
+                        if (field.type == "string" || rawIntermediateModelByType.hasOwnProperty(field.type)) {
                             interestingFields.push(field);
                         }
                     }
                     interesting[k] = interestingFields;
                 }
             }
+            var paths = [];
+            buildStringPaths(interesting.IntermediateModel, "", interesting, paths);
+            // default is space
+            var stringSepByPrefix = [
+                {prefix:"metrics",sep:"."},
+                {prefix:"graphs.gnuplot.yAxisRange",sep:":"},
+                {prefix:"graphs.gnuplot.y2AxisRange",sep:":"},
+                {prefix:"graphs",sep:" "}
+            ];
             var ret = [];
-            buildStringPaths(interesting.IntermediateModel, "", interesting, ret);
+            for (var i=0; i<paths.length; i++) {
+//                console.log("string path = "+paths[i]);
+                var sep = null;
+                for (var j=0; j<stringSepByPrefix.length; j++) {
+                    if (paths[i].indexOf(stringSepByPrefix[j].prefix)==0) {
+                        sep = stringSepByPrefix[j].sep;
+                        break;
+                    }
+                }
+                if (sep == null) {
+                    throw "Can't resolve sep for path: "+paths[i];
+                }
+                ret.push({path:paths[i],sep:sep});
+//                console.log("pathAndSep = "+JSON.stringify(ret[i]));
+            }
             return ret;
         }
         serialiser.stringPaths = stringPaths();
@@ -538,8 +582,10 @@ aardvark
                 var graph = model.graphs[i];
                 var intermediateGraph = {
                     id: toInt(graph.id),
-                    type: graphTypes.valueToId(graph.type),
-                    title: graph.title
+                    type: graphTypes.valueToId(graph.type)
+                }
+                if (graph.title != "Graph "+(i+1)) {
+                    intermediateGraph.title = graph.title;
                 }
                 // strip serialised model down to only relevant info for the selected graph type
                 switch (graph.type) {
@@ -662,19 +708,24 @@ aardvark
                 }
                 intermediateModel.metrics.push(intermediateMetric);
             }
-            
+
+            serialiser.removeDefaults(intermediateModel, rawIntermediateModelByType["IntermediateModel"]);
             // serialise all the strings into optimal form
-            strings.compactStringsForWrite(intermediateModel);
+            strings.compactStringsForWrite(intermediateModel, serialiser.stringPaths);
 
             return intermediateModel;
         };
+        String.prototype.replaceAll = function(from, to) {
+            return this.split(from).join(to);
+        }
         serialiser.serialise = function(model) {
             var origLen = JSON.stringify(model).length;
             var intermediate = serialiser.generateIntermediateModel(model);
             
             var proto = new serialiser.IntermediateModel(intermediate);
             var buffer = proto.encode().toArrayBuffer();
-            var encoded = proto.toBase64().replace("+","-").replace("/","_").replace("=",",");
+            // todo: seems to only do a single replace
+            var encoded = proto.toBase64().replaceAll("+","-").replaceAll("/","_").replaceAll("=",",");
             console.log("buffer = "+encoded);
             console.log("buflen = "+encoded.length);
             console.log("orilen = "+origLen);
@@ -692,13 +743,93 @@ aardvark
 
             return encoded;
         }
+        serialiser.removeDefaults = function(intermediateModel, rawProtoObject) {
+            if (Array.isArray(intermediateModel)) {
+                for (var i=0; i<intermediateModel.length; i++) {
+                    serialiser.removeDefaults(intermediateModel[i], rawProtoObject);
+                }
+                return;
+            }
+//            console.log("Removing defaults from type: "+rawProtoObject.name)
+            for (var i=0; i<rawProtoObject.fields.length; i++) {
+                var field = rawProtoObject.fields[i];
+                if (intermediateModel.hasOwnProperty(field.name)) {
+//                    console.log(" Both model and proto have field: "+field.name+" which has type: "+field.type);
+                    if (field.options != null && field.options.default != null) {
+//                        console.log(" And has a default supplied!")
+                        switch (field.type) {
+                            case 'int32':
+                            case 'int64':
+                            case 'string':
+                                if (intermediateModel[field.name] == field.options.default) {
+//                                    console.log("  Removed default value of "+field.options.default+" on field "+field.name);
+                                    intermediateModel[field.name] = null;
+                                }
+                                continue;
+                            case 'TimePeriod':
+                                if (fromTimePeriod(intermediateModel[field.name], field.options.default) == field.options.default) {
+//                                    console.log("  Removed default value of "+field.options.default+" on field "+field.name);
+                                    intermediateModel[field.name] = null;
+                                }
+                                continue;
+                        }
+                        if (rawIntermediateModelByType.hasOwnProperty(field.type)) {
+                            serialiser.removeDefaults(intermediateModel[field.name], rawIntermediateModelByType[field.type]);
+                        } 
+                    }
+                    else {
+                        if (rawIntermediateModelByType.hasOwnProperty(field.type)) {
+                            serialiser.removeDefaults(intermediateModel[field.name], rawIntermediateModelByType[field.type]);
+                        }
+                    }
+                }
+            }
+        }
+        serialiser.fillInDefaults = function(intermediateModel, rawProtoObject) {
+            if (Array.isArray(intermediateModel)) {
+                for (var i=0; i<intermediateModel.length; i++) {
+                    serialiser.fillInDefaults(intermediateModel[i], rawProtoObject);
+                }
+                return;
+            }
+//            console.log("Filling in defaults for type: "+rawProtoObject.name)
+            for (var i=0; i<rawProtoObject.fields.length; i++) {
+                var field = rawProtoObject.fields[i];
+//                    console.log(" Both model and proto have field: "+field.name+" which has type: "+field.type);
+                if (intermediateModel.hasOwnProperty(field.name) && intermediateModel[field.name] != null) {
+                    if (rawIntermediateModelByType.hasOwnProperty(field.type)) {
+//                        console.log("  Inserted default value of "+field.options.default+" on field "+field.name);
+                        serialiser.fillInDefaults(intermediateModel[field.name], rawIntermediateModelByType[field.type]);
+                    }
+                }
+                else if (field.options != null && field.options.default != null) {
+//                        console.log(" And has a default supplied!")
+                    switch (field.type) {
+                        case 'int32':
+                        case 'int64':
+                        case 'string':
+                            intermediateModel[field.name] = field.options.default;
+                            continue;
+                        case 'TimePeriod':
+                            intermediateModel[field.name] = toTimePeriod(field.options.default);
+                            continue;
+                    }
+                    if (rawIntermediateModelByType.hasOwnProperty(field.type)) {
+//                        console.log("  Inserted default value of "+field.options.default+" on field "+field.name);
+                        serialiser.fillInDefaults(intermediateModel[field.name], rawIntermediateModelByType[field.type]);
+                    }
+                }
+            }
+        }
         serialiser.readIntermediateModel = function(intermediateModel) {
             console.log("String mode = "+intermediateModel.aaStringSerialisedForm.mode);
             
             
             strings.getReadManager(intermediateModel.aaStringSerialisedForm).unpackStrings(intermediateModel, serialiser.stringPaths);
             intermediateModel.aaStringSerialisedForm = null;
-            // todo
+            
+            serialiser.fillInDefaults(intermediateModel, rawIntermediateModelByType["IntermediateModel"]);
+            
             var model = {
                 global: {},
                 graphs: [],
@@ -731,9 +862,9 @@ aardvark
                 var intermediateGraph = intermediateModel.graphs[i];
                 var graph = {
                     id: intermediateGraph.id,
-                    type: graphTypes.idToValue(intermediateGraph.type),
-                    title: intermediateGraph.title
+                    type: graphTypes.idToValue(intermediateGraph.type)
                 }
+                graph.title = intermediateGraph.title != null ? intermediateGraph.title : "Graph "+(i+1);
                 
                 switch (graph.type) {
                     case "gnuplot":

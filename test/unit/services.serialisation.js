@@ -26,16 +26,16 @@ describe('AardvarkServices.serialisation', function() {
     
     it('expects the string paths to be correct', inject(function(serialisation) {
         expect(serialisation.stringPaths).toEqualData([
-            "graphs.title.",
-            "graphs.gnuplot.yAxisLabel.",
-            "graphs.gnuplot.y2AxisLabel.",
-            "graphs.gnuplot.yAxisFormat.",
-            "graphs.gnuplot.y2AxisFormat.",
-            "graphs.gnuplot.yAxisRange.",
-            "graphs.gnuplot.y2AxisRange.",
-            "metrics.name.",
-            "metrics.tags.name.",
-            "metrics.tags.value."
+            {path:"graphs.title.",sep:" "},
+            {path:"graphs.gnuplot.yAxisLabel.",sep:" "},
+            {path:"graphs.gnuplot.y2AxisLabel.",sep:" "},
+            {path:"graphs.gnuplot.yAxisFormat.",sep:" "},
+            {path:"graphs.gnuplot.y2AxisFormat.",sep:" "},
+            {path:"graphs.gnuplot.yAxisRange.",sep:":"},
+            {path:"graphs.gnuplot.y2AxisRange.",sep:":"},
+            {path:"metrics.name.",sep:"."},
+            {path:"metrics.tags.name.",sep:"."},
+            {path:"metrics.tags.value.",sep:"."}
         ]);
     }));
     

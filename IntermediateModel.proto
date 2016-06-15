@@ -20,20 +20,20 @@ message Global {
   optional int64 fromTime = 3;
   optional int64 toDate = 4;
   optional int64 toTime = 5;
-  optional TimePeriod relativePeriod = 6;
+  optional TimePeriod relativePeriod = 6 [ default = "2h" ];
   optional int32 minGraphHeight = 7;
   optional int32 graphHeight = 8;
 }
 
 message Gnuplot {
   optional int32 flags = 1;
-  optional string yAxisLabel = 2;
-  optional string y2AxisLabel = 3;
-  optional string yAxisFormat = 4;
+  optional string yAxisLabel = 2 [ default = "" ];
+  optional string y2AxisLabel = 3 [ default = "" ];
+  optional string yAxisFormat = 4; // todo: this should be a lookup 
   optional string y2AxisFormat = 5;
-  optional string yAxisRange = 6;
-  optional string y2AxisRange = 7;
-  optional int32 keyLocation = 8;
+  optional string yAxisRange = 6 [ default = "[0:]" ];
+  optional string y2AxisRange = 7 [ default = "[0:]" ];
+  optional int32 keyLocation = 8 [ default = "top right" ];
 }
 
 message Dygraph {
@@ -65,11 +65,11 @@ message Metric {
   optional int32 id = 2;
   optional string name = 3;
   repeated TagPair tags = 4;
-  optional int32 graphId = 5;
+  optional int32 graphId = 5 [ default = 0 ];
   optional int64 rateCounterReset = 6;
   optional int64 rateCounterMax = 7;
-  optional int32 aggregator = 8;
-  optional int32 downsampleBy = 9;
-  optional TimePeriod downsampleTo = 10;
-  optional int32 scatterAxis = 11;
+  optional int32 aggregator = 8 [ default = "sum" ];
+  optional int32 downsampleBy = 9 [ default = "avg" ];
+  optional TimePeriod downsampleTo = 10 [ default = "10m" ];
+  optional int32 scatterAxis = 11 [ default = "x" ];
 }
