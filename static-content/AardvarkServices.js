@@ -733,9 +733,9 @@ aardvark
             var proto = new serialiser.IntermediateModel(intermediate);
             var buffer = proto.encode().toArrayBuffer();
             var encoded = proto.toBase64().replaceAll("+","-").replaceAll("/","_").replaceAll("=",",");
-            console.log("buffer = "+encoded);
-            console.log("buflen = "+encoded.length);
-            console.log("orilen = "+origLen);
+//            console.log("buffer = "+encoded);
+//            console.log("buflen = "+encoded.length);
+//            console.log("orilen = "+origLen);
 
             /*
             var compressjs = require('compressjs');
@@ -830,7 +830,7 @@ aardvark
             }
         }
         serialiser.readIntermediateModel = function(intermediateModel) {
-            console.log("String mode = "+intermediateModel.aaStringSerialisedForm.mode);
+//            console.log("String mode = "+intermediateModel.aaStringSerialisedForm.mode);
             
             
             strings.getReadManager(intermediateModel.aaStringSerialisedForm).unpackStrings(intermediateModel, serialiser.stringPaths);

@@ -58,12 +58,12 @@ aardvark.directive('aardvarkEnter', function() {
         }
         
         $rootScope.saveModel = function(render) {
-            console.log("slimmed ser:");
-            var originalLen = JSON.stringify($rootScope.model).length;
+//            console.log("slimmed ser:");
+//            var originalLen = JSON.stringify($rootScope.model).length;
             var serialised = $serialisation.serialise($rootScope.model);
             $location.hash(serialised);
-            var slimmedLen = serialised.length;
-            console.log("from "+originalLen+" to "+slimmedLen);
+//            var slimmedLen = serialised.length;
+//            console.log("from "+originalLen+" to "+slimmedLen);
             
             if (render && $rootScope.renderGraphs) {
                 $rootScope.renderGraphs();
