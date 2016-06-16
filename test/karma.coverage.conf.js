@@ -44,7 +44,10 @@ module.exports = function (config) {
             'karma-mocha-reporter'
         ],
 
-        preprocessors: { 'static-content/*Ctrl.js': ['coverage'] },
+        preprocessors: { 
+            'static-content/*Ctrl.js': ['coverage'], 
+            'static-content/*Services.js': ['coverage'] 
+        },
 
         junitReporter: {
             outputFile: 'test_out/unit.xml',
