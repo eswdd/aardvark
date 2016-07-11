@@ -84,16 +84,16 @@
                                 </div>
                                 <div ng-show="absoluteTimeSpecification">
                                     <label for="fromDateId">From</label><br/>
-                                    <input type="date" size="10" id="fromDateId" ng-model="fromDate" ng-required aardvark-enter="renderGraphs()" />
-                                    <input type="time" size="8" id="fromTimeId" ng-model="fromTime" ng-required aardvark-enter="renderGraphs()" />
+                                    <input type="text" size="10" id="fromDateId" ng-model="fromDate" ng-required aardvark-enter="renderGraphs()" />
+                                    <input type="text" size="8" id="fromTimeId" ng-model="fromTime" ng-required aardvark-enter="renderGraphs()" />
                                 </div>
                                 <div ng-show="!autoReload && absoluteTimeSpecification">
                                     <label for="toDateId">To</label>
-                                    <button ng-click="now()" disabled="disabled">Now</button>
+                                    <button ng-click="now()" >Now</button>
                                 </div>
                                 <div ng-show="!autoReload && absoluteTimeSpecification">
-                                    <input type="date" size="10" id="toDateId" ng-model="toDate" ng-required aardvark-enter="renderGraphs()" />
-                                    <input type="time" size="8" id="toTimeId" ng-model="toTime" ng-required aardvark-enter="renderGraphs()" />
+                                    <input type="text" size="10" id="toDateId" ng-model="toDate" ng-required aardvark-enter="renderGraphs()" />
+                                    <input type="text" size="8" id="toTimeId" ng-model="toTime" ng-required aardvark-enter="renderGraphs()" />
                                 </div>
                             </div>
                             <div style="border: solid 1px black" ng-show="graphs.length > 1">

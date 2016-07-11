@@ -75,8 +75,19 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', function Graph
         $scope.graphs = $scope.deepClone(model.graphs);
 
         if (model.global != null) {
-            $scope.fromDate= model.global.fromDate;
-            $scope.fromTime= model.global.fromTime;
+            var twoHoursAgo = moment(new Date()-7200000);
+            if (model.global.fromDate != null && model.global.fromDate != "") {
+                $scope.fromDate = model.global.fromDate;
+            }
+            else {
+                $scope.fromDate = twoHoursAgo.format("YYYY/MM/DD");
+            }
+            if (model.global.fromTime != null && model.global.fromTime != "") {
+                $scope.fromTime = model.global.fromTime;
+            }
+            else {
+                $scope.fromTime = twoHoursAgo.format("HH:mm:ss");
+            }
             $scope.autoReload = model.global.autoReload;
             $scope.autoReloadPeriod = model.global.autoReloadPeriod;
             $scope.relativePeriod = model.global.relativePeriod;
