@@ -173,7 +173,7 @@ aardvark
             mgr.addString = function(string,sep) {
                 mgr.state.totalStringLengths += string.length;
                 if (sep == null) {
-                    sep = ".";
+                    throw "Null sep for string: "+string;
                 }
                 var segments = string.split(sep);
                 var pointers = new Array(segments.length);
@@ -523,16 +523,14 @@ aardvark
             return value;
         }
         var toSingleDate = function(fromDate, fromTime) {
-            var date = typeof fromDate == "string" ? moment(fromDate, "YYYY/MM/DD") : moment(fromDate);
-            var time = typeof fromTime == "string" ? moment(fromTime, "HH:mm:ss") : moment(fromTime);
-            var dateTime = date.format("YYYY/MM/DD") + " " + time.format("HH:mm:ss");
-            return moment(dateTime, "YYYY/MM/DD HH:mm:ss").toDate();
+            var dateTimeMoment = moment.utc(fromDate+" "+fromTime, "YYYY/MM/DD HH:mm:ss");
+            return dateTimeMoment.toDate();
         }
         var fromSingleDateToDatePart = function(singleDate) {
-            return moment(singleDate.format("YYYY/MM/DD"), "YYYY/MM/DD").toDate();
+            return moment.utc(singleDate).format("YYYY/MM/DD");
         }
         var fromSingleDateToTimePart = function(singleDate) {
-            return moment(singleDate.format("YYYY/MM/DD"), "YYYY/MM/DD").toDate();
+            return moment.utc(singleDate).format("HH:mm:ss");
         }
         serialiser.IntermediateModel = builder.build("IntermediateModel");
         serialiser.compactIds = function(model) {
@@ -570,9 +568,9 @@ aardvark
                 model.global.autoGraphHeight
             ]);
             if (model.global.absoluteTimeSpecification) {
-                intermediateModel.global.fromDateTime = toSingleDate(model.global.fromDate, model.global.fromTime);
+                intermediateModel.global.fromDateTime = toSingleDate(model.global.fromDate, model.global.fromTime).getTime();
                 if (!model.global.autoReload) {
-                    intermediateModel.global.toDateTime = toSingleDate(model.global.toDate, model.global.toTime);
+                    intermediateModel.global.toDateTime = toSingleDate(model.global.toDate, model.global.toTime).getTime();
                 }
             }
             else {
@@ -849,11 +847,11 @@ aardvark
             model.global.autoReload = globalFlags[1];
             model.global.autoGraphHeight = globalFlags[2];
             if (model.global.absoluteTimeSpecification) {
-                model.global.fromDate = fromSingleDateToDatePart(intermediateModel.global.fromDateTime);
-                model.global.fromTime = fromSingleDateToTimePart(intermediateModel.global.fromDateTime);
+                model.global.fromDate = fromSingleDateToDatePart(intermediateModel.global.fromDateTime.toNumber());
+                model.global.fromTime = fromSingleDateToTimePart(intermediateModel.global.fromDateTime.toNumber());
                 if (!model.global.autoReload) {
-                    model.global.toDate = fromSingleDateToDatePart(intermediateModel.global.toDateTime);
-                    model.global.toTime = fromSingleDateToTimePart(intermediateModel.global.toDateTime);
+                    model.global.toDate = fromSingleDateToDatePart(intermediateModel.global.toDateTime.toNumber());
+                    model.global.toTime = fromSingleDateToTimePart(intermediateModel.global.toDateTime.toNumber());
                 }
             }
             else {

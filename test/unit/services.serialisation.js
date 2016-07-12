@@ -212,7 +212,8 @@ describe('AardvarkServices.serialisation', function() {
                 }
             ]
         };
-        checkRoundTrips(serialisation, model, 460);  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
+        // tag had value "" which won't be serialised
+        checkRoundTrips(serialisation, model, 460, function(model){model.metrics[4].tags = [];});  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
     }));
     
     it('expects the serialisation module to be able to round trip a fully populated model with 5 metrics on 2 graphs in a small amount of space', inject(function(serialisation) {
@@ -375,17 +376,20 @@ describe('AardvarkServices.serialisation', function() {
             ]
         };
         // todo: need to get this down to 460
-        checkRoundTrips(serialisation, model, 470);  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
+        // tag had value "" which won't be serialised
+        checkRoundTrips(serialisation, model, 470, function(model){model.metrics[4].tags = [];});  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
     }));
     
-    var checkRoundTrips = function(serialisation, model, maxLength) {
+    var checkRoundTrips = function(serialisation, model, maxLength, modelFixPostSerialisation) {
         var serialised = serialisation.serialise(model);
         expect(serialised.length).toBeLessThan(maxLength); 
         var deserialised = serialisation.deserialise(serialised);
 
         // fix the model to what we expect
         serialisation.compactIds(model);
-        model.metrics[4].tags = []; // tag had value "" which won't be serialised
+        if (modelFixPostSerialisation != null) {
+            modelFixPostSerialisation(model);
+        }
 
         // don't care about any other component, plus it's easier to debug individual bits
         expect(deserialised.global).toEqualData(model.global);
@@ -398,5 +402,56 @@ describe('AardvarkServices.serialisation', function() {
             expect(deserialised.metrics[m]).toEqualData(model.metrics[m]);
         }
     }
+
+    it('expects the serialisation module to be able to round trip a model using absolute time - strings', inject(function(serialisation) {
+        var fromDate = "2016/01/01";
+        var fromTime = "12:34:22";
+        var toDate = "2016/06/10";
+        var toTime = "09:10:55";
+        var model = {
+            global: {
+                absoluteTimeSpecification: true,
+                autoReload: false,
+                fromDate: "2016/01/01",
+                fromTime: "12:34:22",
+                toDate: "2016/06/10",
+                toTime: "09:10:55"
+            },
+            graphs: [],
+            metrics: []
+        };
+        checkRoundTrips(serialisation, model, 470, function(model) { 
+            model.global.fromDate = fromDate;  
+            model.global.fromTime = fromTime;  
+            model.global.toDate = toDate;  
+            model.global.toTime = toTime;
+            // defaults
+            model.global.autoGraphHeight = false;
+            model.global.graphHeight = null;
+        });
+    }));
+
+    it('expects the serialisation module to be able to round trip a model using absolute time - strings', inject(function(serialisation) {
+        var fromDate = "2016/01/01";
+        var fromTime = "12:34:22";
+        var model = {
+            global: {
+                absoluteTimeSpecification: true,
+                autoReload: true,
+                fromDate: "2016/01/01",
+                fromTime: "12:34:22"
+            },
+            graphs: [],
+            metrics: []
+        };
+        checkRoundTrips(serialisation, model, 470, function(model) {
+            model.global.fromDate = fromDate;
+            model.global.fromTime = fromTime;
+            // defaults
+            model.global.autoGraphHeight = false;
+            model.global.graphHeight = null;
+        });
+    }));
+    
 
 });
