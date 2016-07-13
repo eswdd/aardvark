@@ -84,6 +84,42 @@ describe('Aardvark controllers', function () {
             ]);
         });
 
+        it('should load data for the tree on config update with prefix exclusions', function() {
+            rootScope.config = {tsdbHost: 'tsdb', tsdbPort: '4242', hidePrefixes: ["wibble","dave.fred"]};
+            $httpBackend.expectGET('http://tsdb:4242/api/suggest?type=metrics&max=1000000').respond(
+                [
+                    "flob",
+                    "dave.fred.jim",
+                    "dave.jim.fred",
+                    "name.baldrick",
+                    "name.blackadder",
+                    "wibble",
+                    "wibble.wobble"
+                ]
+            );
+
+            configUpdateFunc();
+            $httpBackend.flush();
+
+            var expectedDataForTheTree = [
+                {id: "flob", name: "flob", isMetric: true, children: []},
+                {id: "dave", name: "dave", isMetric: false, children: [
+                    {id: "dave.jim", name: "jim", isMetric: false, children: [
+                        {id: "dave.jim.fred", name: "fred", isMetric: true, children: []}
+                    ]}
+                ]},
+                {id: "name", name: "name", isMetric: false, children: [
+                    {id: "name.baldrick", name: "baldrick", isMetric: true, children: []},
+                    {id: "name.blackadder", name: "blackadder", isMetric: true, children: []}
+                ]}
+            ];
+
+            expect(scope.dataForTheTree).toEqualData(expectedDataForTheTree);
+            expect(scope.allParentNodes).toEqualData([
+                expectedDataForTheTree[1], expectedDataForTheTree[1].children[0], expectedDataForTheTree[2]
+            ]);
+        });
+
         // todo: test should not load data for the tree if already loading
         it('should not load data for the tree if already loading', function() {
         });

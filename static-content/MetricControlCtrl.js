@@ -249,8 +249,29 @@ aardvark.directive('tagSelection', function() {
             var nodes = {};
             var allNodes = [];
             var parentNodes = [];
+            
+            var ignorePrefixes = $rootScope.config.hidePrefixes;
+            if (ignorePrefixes == null) {
+                ignorePrefixes = [];
+            }
+            for (var p=0; p<ignorePrefixes.length; p++) {
+                if (ignorePrefixes[p].indexOf(".") != ignorePrefixes[p].length-1) {
+                    ignorePrefixes[p] += ".";
+                }
+            }
 
             for (var i = 0; i < json.length; i++) {
+                var ignoreThis = false;
+                for (var p=0; p<ignorePrefixes.length; p++) {
+                    if ((json[i]+".").indexOf(ignorePrefixes[p]) == 0) {
+                        ignoreThis = true;
+                        break;
+                    }
+                }
+                if (ignoreThis) {
+                    continue;
+                }
+                
                 var path = json[i].split(".");
                 var parent = roots;
                 var id = "";
