@@ -11,7 +11,7 @@ describe('Aardvark controllers', function () {
                         var passed = angular.equals(actual, expected);
                         return {
                             pass: passed,
-                            message: 'Expected ' + JSON.stringify(actual) + ' to equal ' + JSON.stringify(expected)
+                            message: 'Expected ' + JSON.stringify(actual) + '\nto equal ' + JSON.stringify(expected)
                         };
                     }
                 };
@@ -25,10 +25,12 @@ describe('Aardvark controllers', function () {
         var rootScope, scope, ctrl, $httpBackend, controllerCreator;
         var configUpdateFunc;
         var saveModelCalled = false;
+        var idGeneratorRef;
 
-        beforeEach(inject(function ($rootScope, _$httpBackend_, $browser, $location, $controller) {
+        beforeEach(inject(function ($rootScope, _$httpBackend_, $browser, $location, $controller, idGenerator) {
             $httpBackend = _$httpBackend_;
             controllerCreator = $controller;
+            idGeneratorRef = idGenerator;
 
             // hmm
             rootScope = $rootScope;
@@ -219,7 +221,7 @@ describe('Aardvark controllers', function () {
             scope.addMetric();
 
             expect(saveModelCalled).toEqualData(true);
-            var newMetricId = scope.lastId+"";
+            var newMetricId = idGeneratorRef.prev();
             expect(rootScope.model.metrics).toEqualData([
                 {
                     id: newMetricId,
@@ -299,50 +301,6 @@ describe('Aardvark controllers', function () {
             expect(scope.clearButtonEnabled()).toEqualData(false);
             expect(scope.addButtonVisible()).toEqualData(false);
             expect(scope.saveButtonVisible()).toEqualData(false);
-        });
-
-        it('should not generate new metrics with the ids of ones from an existing model', function() {
-            rootScope.config = {tsdbHost: 'tsdb', tsdbPort: '4242'};
-            rootScope.model = { metrics : [ { id : "1", name : 'fred' } ] };
-            configUpdateFunc();
-            expect(scope.lastId).toEqualData(1);
-
-            scope.tagNames = [];
-            scope.tag = {};
-            scope.selectedMetric = "some.metric.name";
-
-
-            scope.addMetric();
-
-            expect(saveModelCalled).toEqualData(true);
-            expect(rootScope.model.metrics).toEqualData([
-                {
-                    id: "1",
-                    name: 'fred'
-                },
-                {
-                    id: scope.lastId + "",
-                    name: 'some.metric.name',
-                    tags: [],
-                    graphOptions: {
-                        graphId: '0',
-                        aggregator: 'sum',
-                        axis: 'x1y1',
-                        rate: false,
-                        rateCounter: false,
-                        rateCounterMax: '',
-                        rateCounterReset: '',
-                        downsample: false,
-                        downsampleBy: 'avg',
-                        downsampleTo: '',
-                        scatter: {
-                            axis: ''
-                        }
-                    }
-                }
-            ]);
-
-            expect(rootScope.model.metrics[0].id == rootScope.model.metrics[1].id).toEqualData(false);
         });
 
         it('should populate the metric form when an existing metric is selected', function() {

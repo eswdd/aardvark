@@ -11,7 +11,7 @@ describe('Aardvark controllers', function () {
                         var passed = angular.equals(actual, expected);
                         return {
                             pass: passed,
-                            message: 'Expected ' + JSON.stringify(actual) + ' to equal ' + JSON.stringify(expected)
+                            message: 'Expected ' + JSON.stringify(actual) + '\nto equal ' + JSON.stringify(expected)
                         };
                     }
                 };
@@ -25,11 +25,13 @@ describe('Aardvark controllers', function () {
         var rootScope, scope;
         var configUpdateFunc;
         var saveModelCalled, saveModelRenderArg;
+        var idGeneratorRef;
 
-        beforeEach(inject(function ($rootScope, $controller) {
+        beforeEach(inject(function ($rootScope, $controller, idGenerator) {
             // hmm
             rootScope = $rootScope;
             scope = $rootScope.$new();
+            idGeneratorRef = idGenerator;
 
             rootScope.onConfigUpdate = function(func) {
                 configUpdateFunc = func;
@@ -75,7 +77,7 @@ describe('Aardvark controllers', function () {
 
             expect(scope.graphs).toEqualData([
                 {
-                    id: scope.lastGraphId+"",
+                    id: idGeneratorRef.prev(),
                     title: "Graph 1",
                     type: null,
                     graphWidth: 0,
@@ -119,7 +121,7 @@ describe('Aardvark controllers', function () {
 
             expect(scope.graphs).toEqualData([
                 {
-                    id: scope.lastGraphId+"",
+                    id: idGeneratorRef.prev(),
                     title: "Graph 1",
                     type: "unittest1",
                     graphWidth: 0,
@@ -169,7 +171,6 @@ describe('Aardvark controllers', function () {
 
             configUpdateFunc();
 
-            expect(scope.lastGraphId).toEqualData(1234);
             expect(scope.graphs).toEqualData(rootScope.model.graphs);
         });
 
@@ -177,7 +178,7 @@ describe('Aardvark controllers', function () {
 
             scope.addGraph();
 
-            var firstId = scope.lastGraphId+"";
+            var firstId = idGeneratorRef.prev();
             expect(scope.graphs).toEqualData([
                 {
                     id: firstId,
@@ -215,7 +216,7 @@ describe('Aardvark controllers', function () {
 
             scope.addGraph();
 
-            var secondId = scope.lastGraphId+"";
+            var secondId = idGeneratorRef.prev();
             expect(scope.graphs).toEqualData([
                 {
                     id: firstId,
@@ -289,7 +290,7 @@ describe('Aardvark controllers', function () {
 
             scope.addGraph();
 
-            var firstId = scope.lastGraphId+"";
+            var firstId = idGeneratorRef.prev();
             expect(scope.graphs).toEqualData([
                 {
                     id: firstId,
@@ -327,7 +328,7 @@ describe('Aardvark controllers', function () {
 
             scope.addGraph();
 
-            var secondId = scope.lastGraphId+"";
+            var secondId = idGeneratorRef.prev();
             expect(scope.graphs).toEqualData([
                 {
                     id: firstId,
@@ -413,7 +414,8 @@ describe('Aardvark controllers', function () {
         it('should remove a graph from the model when requested', function () {
             scope.addGraph();
 
-            var firstId = scope.lastGraphId+"";
+            var firstId = idGeneratorRef.prev();
+            
             expect(scope.graphs.length).toEqualData(1);
 
             scope.deleteGraph(firstId);
@@ -433,41 +435,30 @@ describe('Aardvark controllers', function () {
         it('should not create new graphs with an existing id', function () {
             scope.addGraph();
 
-            var firstId = scope.lastGraphId+"";
+            var firstId = idGeneratorRef.prev();
 
             scope.addGraph();
 
-            var secondId = scope.lastGraphId+"";
+            var secondId = idGeneratorRef.prev();
 
-            expect(firstId == secondId).toEqualData(false);
-        });
-
-        //todo: m2: move id generation to a service
-        it('should generate unique ids', function () {
-            scope.timeInMillis = function() {
-                return 0;
-            }
-
-            var firstId = scope.nextId();
-            var secondId = scope.nextId();
             expect(firstId == secondId).toEqualData(false);
         });
 
         it('should control the accordion appropriately when adding / removing graphs', function() {
             expect(scope.isOpen).toEqualData({});
             scope.addGraph();
-            var id1 = scope.lastGraphId + "";
+            var id1 = idGeneratorRef.prev();
 
             expect(scope.isOpen[id1]).toEqualData(true);
 
             scope.addGraph();
-            var id2 = scope.lastGraphId + "";
+            var id2 = idGeneratorRef.prev();
 
             expect(scope.isOpen[id1]).toEqualData(false);
             expect(scope.isOpen[id2]).toEqualData(true);
 
             scope.addGraph();
-            var id3 = scope.lastGraphId + "";
+            var id3 = idGeneratorRef.prev();
 
             expect(scope.isOpen[id1]).toEqualData(false);
             expect(scope.isOpen[id2]).toEqualData(false);

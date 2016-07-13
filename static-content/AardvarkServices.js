@@ -41,6 +41,24 @@ aardvark
         }
         return blitting;
     })
+    // id generation
+    .factory('idGenerator', function() {
+        var generator = {};
+        var maxId = 0;
+        generator.nextId = function() {
+            return (++maxId) + "";
+        }
+        generator.prev = function() {
+            return maxId + "";
+        }
+        generator.updateMax = function(candidateMax) {
+            var p = parseInt(candidateMax);
+            if (p >= maxId) {
+                maxId = p;
+            }
+        }
+        return generator;
+    })
     // mapping strings to ids and back again - used for serialisation
     .factory('mapping', function() {
         var mapping = {};
@@ -387,7 +405,7 @@ aardvark
         return strings;
     }])
     // aardvark (de)serialisation - via an intermediate model 
-    .factory('serialisation', [ 'blitting', 'mapping', 'strings', function(blitting, mapping, strings) {
+    .factory('serialisation', [ 'blitting', 'mapping', 'strings', 'idGenerator', function(blitting, mapping, strings, idGenerator) {
         var serialiser = {};
         var graphTypes = mapping.generateBiDiMapping(["debug", "gnuplot", "horizon", "dygraph", "scatter"]);
         var gnuplotKeyLocations = mapping.generateBiDiMapping([
@@ -547,10 +565,19 @@ aardvark
             for (var i=0; i<model.metrics.length; i++) {
                 if (model.metrics[i].graphOptions != null) {
                     model.metrics[i].graphOptions.graphId = origToNew[model.metrics[i].graphOptions.graphId];
-                    model.metrics[i].id = ++idSource;
                 }
+                model.metrics[i].id = ++idSource;
             }
         }
+        serialiser.decompactIds = function(model) {
+            for (var i=0; i<model.graphs.length; i++) {
+                idGenerator.updateMax(model.graphs[i].id);
+            }
+            for (var i=0; i<model.metrics.length; i++) {
+                idGenerator.updateMax(model.metrics[i].id);
+            }
+        }
+        
         serialiser.generateIntermediateModel = function(m) {
             // take copy of model
             var model = JSON.parse(JSON.stringify(m));
@@ -924,10 +951,10 @@ aardvark
                             measure: valueFilterMeasures.idToValue(intermediateGraph.dygraph.valueFilterMeasure)
                         };
                         if (intermediateGraph.dygraph.valueFilterLowerBound != null) {
-                            graph.dygraph.countFilter.lowerBound = intermediateGraph.dygraph.valueFilterLowerBound + "";
+                            graph.dygraph.valueFilter.lowerBound = intermediateGraph.dygraph.valueFilterLowerBound + "";
                         }
                         if (intermediateGraph.dygraph.valueFilterUpperBound != null) {
-                            graph.dygraph.countFilter.upperBound = intermediateGraph.dygraph.valueFilterUpperBound + "";
+                            graph.dygraph.valueFilter.upperBound = intermediateGraph.dygraph.valueFilterUpperBound + "";
                         }
                         break;
                     case "scatter":
@@ -992,7 +1019,10 @@ aardvark
             // first char is an indicator into serialisation mode - 0 = version 0
             b64str = b64str.substring(1); 
             var intermediateModel = serialiser.IntermediateModel.decode64(b64str);
-            return serialiser.readIntermediateModel(intermediateModel);
+            var model = serialiser.readIntermediateModel(intermediateModel);
+            // so generator knows where to continue
+            serialiser.decompactIds(model);
+            return model;
         }
         return serialiser;
     }]);

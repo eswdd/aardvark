@@ -4,13 +4,12 @@
  * - global graph options
  * - per-graph options (shared and type specific)
  */
-aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', function GraphControlCtrl($scope, $rootScope) {
+aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator', function GraphControlCtrl($scope, $rootScope, idGenerator) {
     // accordion openings
     $scope.isOpen={};
 
     // misc logic
     $scope.graphs = [];
-    $scope.lastGraphId = 0;
 
     // per graph settings
     $scope.showEdit={};
@@ -63,14 +62,6 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', function Graph
             model.graphs = [];
             $scope.addGraph();
             $scope.renderGraphs();
-        }
-        else {
-            for (var i=0; i<model.graphs.length; i++) {
-                var item = model.graphs[i];
-                if (item.id>$scope.lastGraphId) {
-                    $scope.lastGraphId = parseInt(item.id);
-                }
-            }
         }
         $scope.graphs = $scope.deepClone(model.graphs);
 
@@ -140,17 +131,8 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', function Graph
         return new Date().getTime();
     }
 
-    $scope.nextId = function() {
-        var next = $scope.timeInMillis();
-        if (next <= $scope.lastGraphId) {
-            next = $scope.lastGraphId+1;
-        }
-        $scope.lastGraphId = next;
-        return next+"";
-    }
-
     $scope.addGraph = function() {
-        var id = $scope.nextId();
+        var id = idGenerator.nextId();
         $scope.graphs.push({
             id: id,
             title: "Graph "+($scope.graphs.length+1),

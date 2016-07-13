@@ -13,7 +13,7 @@ aardvark.directive('tagSelection', function() {
  * - per metric graphing options (timeseries selection, aggregation)
  * - graph type specific graphing options
  */
-.controller('MetricControlCtrl', [ '$scope', '$rootScope', '$sce', '$http', function MetricControlCtrl($scope, $rootScope, $sce, $http) {
+.controller('MetricControlCtrl', [ '$scope', '$rootScope', '$sce', '$http', 'idGenerator', function MetricControlCtrl($scope, $rootScope, $sce, $http, idGenerator) {
 
     $scope.showTreeFilter = false;
     $scope.allParentNodes = [];
@@ -26,7 +26,6 @@ aardvark.directive('tagSelection', function() {
     $scope.tagOptions = {};
     $scope.tagNames = [];
     $scope.tagValues = {};
-    $scope.lastId = 0;
     $scope.selectedMetricId = 0;
     $scope.nodeSelectionDisabled = false;
 
@@ -174,27 +173,9 @@ aardvark.directive('tagSelection', function() {
         return node.isMetric ? "underline" : "none";
     };
 
-    $scope.nextId = function() {
-        var next = new Date().getTime();
-        if (next <= $scope.lastId) {
-            next = $scope.lastId+1;
-        }
-        $scope.lastId = next;
-        return next + "";
-    }
-
-    $scope.updateIds = function() {
-        for (var i=0; i<$rootScope.model.metrics.length; i++) {
-            var item = $rootScope.model.metrics[i];
-            if (item.id > $scope.lastId) {
-                $scope.lastId = parseInt(item.id);
-            }
-        }
-    }
-
     $scope.addMetric = function() {
         var metric = {
-            id: $scope.nextId(),
+            id: idGenerator.nextId(),
             name: $scope.selectedMetric
         };
         $rootScope.model.metrics.push(metric);
@@ -434,7 +415,7 @@ aardvark.directive('tagSelection', function() {
 
     $scope.updateModel = function() {
         $scope.updateTree();
-        $scope.updateIds();
+        
     }
 
     // tell the main app controller to call us on any update of the scope

@@ -7,7 +7,6 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
     $scope.renderWarnings = {};
     $scope.renderMessages = {};
     $scope.imageRenderCount = 0;
-    $scope.lastId = 0;
     $scope.hiddenElements = {};
     $scope.renderListeners = {};
     $scope.dygraphs = {};

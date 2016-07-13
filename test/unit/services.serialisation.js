@@ -379,7 +379,7 @@ describe('AardvarkServices.serialisation', function() {
         };
         // todo: need to get this down to 460
         // tag had value "" which won't be serialised
-        checkRoundTrips(serialisation, model, 470, function(model){model.metrics[4].tags = [];});  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
+        checkRoundTrips(serialisation, model, 475, function(model){model.metrics[4].tags = [];});  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
     }));
     
     var checkRoundTrips = function(serialisation, model, maxLength, modelFixPostSerialisation) {

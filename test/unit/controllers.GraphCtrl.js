@@ -11,7 +11,7 @@ describe('Aardvark controllers', function () {
                         var passed = angular.equals(actual, expected);
                         return {
                             pass: passed,
-                            message: 'Expected ' + JSON.stringify(actual) + ' to equal ' + JSON.stringify(expected)
+                            message: 'Expected ' + JSON.stringify(actual) + '\nto equal ' + JSON.stringify(expected)
                         };
                     }
                 };
