@@ -371,6 +371,9 @@ aardvark
                     case "chains":
                         return mgr.constructOriginalString(value,sep); // array indexing into strings
                     case "chainReferences":
+                        if (value.length == 0) {
+                            return mgr.constructOriginalString([],sep);
+                        }
                         return mgr.constructOriginalString(mgr.state.references[value[0]].chain,sep); // array of len 1 indexing into references
                     case "stringReferences":
                         return mgr.state.strings[value[0]]; // array of len 1 indexing into strings
@@ -912,14 +915,20 @@ aardvark
                         graph.dygraph.ratioGraph = dygraphFlags[7];
                         graph.dygraph.countFilter = {
                             end: countFilterEnds.idToValue(intermediateGraph.dygraph.countFilterEnd),
-                            count: intermediateGraph.dygraph.countFilterCount + "",
                             measure: countFilterMeasures.idToValue(intermediateGraph.dygraph.countFilterMeasure)
                         };
+                        if (intermediateGraph.dygraph.countFilterCount != null) {
+                            graph.dygraph.countFilter.count = intermediateGraph.dygraph.countFilterCount + "";
+                        }
                         graph.dygraph.valueFilter = {
-                            lowerBound: intermediateGraph.dygraph.valueFilterLowerBound + "",
-                            upperBound: intermediateGraph.dygraph.valueFilterUpperBound + "",
                             measure: valueFilterMeasures.idToValue(intermediateGraph.dygraph.valueFilterMeasure)
                         };
+                        if (intermediateGraph.dygraph.valueFilterLowerBound != null) {
+                            graph.dygraph.countFilter.lowerBound = intermediateGraph.dygraph.valueFilterLowerBound + "";
+                        }
+                        if (intermediateGraph.dygraph.valueFilterUpperBound != null) {
+                            graph.dygraph.countFilter.upperBound = intermediateGraph.dygraph.valueFilterUpperBound + "";
+                        }
                         break;
                     case "scatter":
                         var scatterFlags = blitting.fromBlittedInt(intermediateGraph.flags, [false]);
