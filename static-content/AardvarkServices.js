@@ -264,7 +264,7 @@ aardvark
                     mgr.state.referencedChains = new Array();
                     for (var key in seenChains) {
                         if (seenChains.hasOwnProperty(key)) {
-                            mgr.state.referencedChains.push(seenChains[key]);
+                            mgr.state.referencedChains.push({chain:seenChains[key]});
                             seenChains[key] = mgr.state.referencedChains.length - 1;
                         }
                     }
@@ -371,7 +371,7 @@ aardvark
                     case "chains":
                         return mgr.constructOriginalString(value,sep); // array indexing into strings
                     case "chainReferences":
-                        return mgr.constructOriginalString(mgr.state.references[value[0]],sep); // array of len 1 indexing into references
+                        return mgr.constructOriginalString(mgr.state.references[value[0]].chain,sep); // array of len 1 indexing into references
                     case "stringReferences":
                         return mgr.state.strings[value[0]]; // array of len 1 indexing into strings
                     default:
@@ -639,7 +639,8 @@ aardvark
                                 graph.dygraph.squashNegative,
                                 graph.dygraph.autoScale,
                                 graph.dygraph.ylog,
-                                graph.dygraph.meanAdjusted
+                                graph.dygraph.meanAdjusted,
+                                graph.dygraph.ratioGraph
                             ]);
                             if (graph.dygraph.countFilter != null && graph.dygraph.countFilter.count != "") {
                                 intermediateGraph.dygraph.countFilterEnd = countFilterEnds.valueToId(graph.dygraph.countFilter.end);
@@ -899,7 +900,7 @@ aardvark
                         graph.horizon.squashNegative = horizonFlags[1];
                         break;
                     case "dygraph":
-                        var dygraphFlags = blitting.fromBlittedInt(intermediateGraph.flags, [true, false, false, true, false, false, false]);
+                        var dygraphFlags = blitting.fromBlittedInt(intermediateGraph.flags, [true, false, false, true, false, false, false, false]);
                         graph.dygraph = {};
                         graph.dygraph.interpolateGaps = dygraphFlags[0];
                         graph.dygraph.highlightLines = dygraphFlags[1];
@@ -908,6 +909,7 @@ aardvark
                         graph.dygraph.autoScale = dygraphFlags[4];
                         graph.dygraph.ylog = dygraphFlags[5];
                         graph.dygraph.meanAdjusted = dygraphFlags[6];
+                        graph.dygraph.ratioGraph = dygraphFlags[7];
                         graph.dygraph.countFilter = {
                             end: countFilterEnds.idToValue(intermediateGraph.dygraph.countFilterEnd),
                             count: intermediateGraph.dygraph.countFilterCount + "",

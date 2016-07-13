@@ -3,5 +3,9 @@ option optimize_for = SPEED;
 message StringSerialisationData {
   required int32 mode = 1;
   repeated string strings = 2;
-  repeated int32 references = 3;
+  repeated StringReferenceChain references = 3;
+}
+
+message StringReferenceChain {
+  repeated int32 chain = 1;
 }

@@ -865,13 +865,21 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                         if (indices[s] < json[s].dps.length) {
                             nextTime = Math.min(nextTime, json[s].dps[indices[s]][0]);
                         }
-                        if (dygraphOptions.meanAdjusted) {
+                        if (dygraphOptions.meanAdjusted || dygraphOptions.ratioGraph) {
                             sum += val;
                         }
                     }
                     else {
                         row.push(null);
                     }
+                }
+                if (dygraphOptions.ratioGraph) {
+                    for (var s=0; s<json.length; s++) {
+                        if (row[s+1]!=null && !isNaN(row[s+1])) {
+                            row[s+1] = (row[s+1] * 100) / sum;
+                        }
+                    }
+                    sum = 100;
                 }
                 if (dygraphOptions.meanAdjusted) {
                     var mean = sum / json.length;
@@ -920,7 +928,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 height: height,
                 legend: "always",
                 logscale: dygraphOptions.ylog,
-                stackedGraph: dygraphOptions.stackedLines,
+                stackedGraph: dygraphOptions.stackedLines || dygraphOptions.ratioGraph,
                 connectSeparatedPoints: dygraphOptions.interpolateGaps,
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,

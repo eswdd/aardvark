@@ -95,6 +95,7 @@ describe('AardvarkServices.serialisation', function() {
                         autoScale: true,
                         ylog: false,
                         meanAdjusted: true,
+                        ratioGraph: false,
                         countFilter: {
                             end: "top",
                             count: "5",
@@ -258,6 +259,7 @@ describe('AardvarkServices.serialisation', function() {
                         autoScale: true,
                         ylog: false,
                         meanAdjusted: true,
+                        ratioGraph: false,
                         countFilter: {
                             end: "top",
                             count: "5",
