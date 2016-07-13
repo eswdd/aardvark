@@ -928,7 +928,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 height: height,
                 legend: "always",
                 logscale: dygraphOptions.ylog,
-                stackedGraph: dygraphOptions.stackedLines || dygraphOptions.ratioGraph,
+                stackedGraph: dygraphOptions.stackedLines,
                 connectSeparatedPoints: dygraphOptions.interpolateGaps,
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
