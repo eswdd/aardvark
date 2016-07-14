@@ -33,6 +33,7 @@ aardvark.directive('aardvarkEnter', function() {
          * for correctly populating any derivable volatile data from persistent on page load
          */
         $rootScope.model = {
+            global: {},
             metrics: [],
             graphs: []
         };
@@ -99,7 +100,13 @@ aardvark.directive('aardvarkEnter', function() {
         };
     
         $rootScope.clearAll = function() {
-            $location.url("");
+            $rootScope.model = {
+                global: {},
+                metrics: [],
+                graphs: []
+            };
+            $rootScope.saveModel(true);
+            
         }
     
         $rootScope.formEncode = function(val) {
