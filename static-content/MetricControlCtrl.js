@@ -40,6 +40,8 @@ aardvark.directive('tagSelection', function() {
     $scope.downsampleBy = "avg";
     $scope.downsampleTo = "";
     $scope.scatterAxis = "";
+        
+    $scope.showingIgnoredPrefixes = false;
 
 
     $scope.addButtonVisible = function() {
@@ -169,6 +171,29 @@ aardvark.directive('tagSelection', function() {
         $scope.expandedNodes = $scope.allParentNodes;
     };
 
+    $scope.showIgnoredPrefixes = function() {
+        $scope.showingIgnoredPrefixes = true;
+        $scope.updateTree();
+    }
+
+    $scope.hideIgnoredPrefixes = function() {
+        $scope.showingIgnoredPrefixes = false;
+        $scope.updateTree();
+    }
+
+    $scope.configContainsIgnoredPrefixes = function() {
+        var ignorePrefixes = $rootScope.config.hidePrefixes;
+        return ignorePrefixes != null && ignorePrefixes.length > 0;
+    }
+
+    $scope.showIgnoredPrefixesVisible = function() {
+        return $scope.configContainsIgnoredPrefixes() && !$scope.showingIgnoredPrefixes;
+    }
+
+    $scope.hideIgnoredPrefixesVisible = function() {
+        return $scope.configContainsIgnoredPrefixes() && $scope.showingIgnoredPrefixes;
+    }
+
     $scope.nodeDecoration = function(node) {
         return node.isMetric ? "underline" : "none";
     };
@@ -250,26 +275,32 @@ aardvark.directive('tagSelection', function() {
             var allNodes = [];
             var parentNodes = [];
             
+            var prefixProcessing = $scope.configContainsIgnoredPrefixes() && !$scope.showingIgnoredPrefixes;
+            
             var ignorePrefixes = $rootScope.config.hidePrefixes;
-            if (ignorePrefixes == null) {
-                ignorePrefixes = [];
-            }
-            for (var p=0; p<ignorePrefixes.length; p++) {
-                if (ignorePrefixes[p].indexOf(".") != ignorePrefixes[p].length-1) {
-                    ignorePrefixes[p] += ".";
+            if (prefixProcessing) {
+                if (ignorePrefixes == null) {
+                    ignorePrefixes = [];
+                }
+                for (var p=0; p<ignorePrefixes.length; p++) {
+                    if (ignorePrefixes[p].indexOf(".") != ignorePrefixes[p].length-1) {
+                        ignorePrefixes[p] += ".";
+                    }
                 }
             }
 
             for (var i = 0; i < json.length; i++) {
-                var ignoreThis = false;
-                for (var p=0; p<ignorePrefixes.length; p++) {
-                    if ((json[i]+".").indexOf(ignorePrefixes[p]) == 0) {
-                        ignoreThis = true;
-                        break;
+                if (prefixProcessing) {
+                    var ignoreThis = false;
+                    for (var p=0; p<ignorePrefixes.length; p++) {
+                        if ((json[i]+".").indexOf(ignorePrefixes[p]) == 0) {
+                            ignoreThis = true;
+                            break;
+                        }
                     }
-                }
-                if (ignoreThis) {
-                    continue;
+                    if (ignoreThis) {
+                        continue;
+                    }
                 }
                 
                 var path = json[i].split(".");

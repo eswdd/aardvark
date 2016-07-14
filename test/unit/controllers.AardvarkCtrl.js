@@ -40,6 +40,7 @@ describe('Aardvark controllers', function () {
 
         it('should create a default model and initialise the config on initialisation', function () {
             expect(rootScope.model).toEqualData({
+                global: {},
                 graphs: [],
                 metrics: []
             });
@@ -73,6 +74,7 @@ describe('Aardvark controllers', function () {
         it('should save the model to the location hash when requested and then rehydrate correctly', function () {
 
             expect(rootScope.model).toEqualData({
+                global: {},
                 graphs: [],
                 metrics: []
             });
@@ -95,6 +97,7 @@ describe('Aardvark controllers', function () {
             location.hash("");
             ctrl = controllerCreator('AardvarkCtrl', {$scope: scope, $rootScope: rootScope});
             expect(rootScope.model).toEqualData({
+                global: {},
                 graphs: [],
                 metrics: []
             });
@@ -110,6 +113,7 @@ describe('Aardvark controllers', function () {
             location.hash("");
             ctrl = controllerCreator('AardvarkCtrl', {$scope: scope, $rootScope: rootScope});
             expect(rootScope.model).toEqualData({
+                global: {},
                 graphs: [],
                 metrics: []
             });
