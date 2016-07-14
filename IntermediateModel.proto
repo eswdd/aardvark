@@ -21,6 +21,7 @@ message Global {
   optional TimePeriod relativePeriod = 4 [ default = "2h" ];
   optional int32 minGraphHeight = 5;
   optional int32 graphHeight = 6;
+  optional int32 autoReloadPeriod = 7;
 }
 
 message Gnuplot {

@@ -440,6 +440,7 @@ describe('AardvarkServices.serialisation', function() {
             global: {
                 absoluteTimeSpecification: true,
                 autoReload: true,
+                autoReloadPeriod: 10,
                 fromDate: "2016/01/01",
                 fromTime: "12:34:22"
             },

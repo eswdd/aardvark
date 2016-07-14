@@ -124,6 +124,50 @@ describe('Aardvark controllers', function () {
             rootScope.saveModel();
             expect(location.url()).toEqualData(encoded);
         });
+        
+        it('autoReload timer should be triggered when setup', function() {
+            expect(rootScope.activeTimeoutId).toEqualData(null);
+            
+            rootScope.model = {
+                global: {
+                    autoReload: true,
+                    autoReloadPeriod: "60"
+                },
+                graphs: [],
+                metrics: []
+            }
+            
+            rootScope.resetAutoReload();
+            
+            var timeoutId = rootScope.activeTimeoutId;
+            expect(timeoutId != null).toEqualData(true);
+
+            rootScope.model = {
+                global: {
+                    autoReload: true,
+                    autoReloadPeriod: "120"
+                },
+                graphs: [],
+                metrics: []
+            }
+
+            rootScope.resetAutoReload();
+
+            var timeoutId2 = rootScope.activeTimeoutId;
+            expect(timeoutId != timeoutId2).toEqualData(true);
+
+            rootScope.model = {
+                global: {
+                    autoReload: false
+                },
+                graphs: [],
+                metrics: []
+            }
+
+            rootScope.resetAutoReload();
+            
+            expect(rootScope.activeTimeoutId).toEqualData(null);
+        })
 
     });
 });

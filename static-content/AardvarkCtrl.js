@@ -47,6 +47,8 @@ aardvark.directive('aardvarkEnter', function() {
         $rootScope.config = null;
         $rootScope.graphTypes = [ "gnuplot", "horizon", "dygraph", "scatter" ];
 
+        $rootScope.activeTimeoutId = null;
+
         $rootScope.loadModel = function() {
             var hash = $location.hash();
             if (hash != null && hash!="") {
@@ -66,8 +68,33 @@ aardvark.directive('aardvarkEnter', function() {
 //            var slimmedLen = serialised.length;
 //            console.log("from "+originalLen+" to "+slimmedLen);
             
+            $rootScope.resetAutoReload();
+            
             if (render && $rootScope.renderGraphs) {
                 $rootScope.renderGraphs();
+            }
+        }
+        
+        $rootScope.resetAutoReload = function() {
+            if ($rootScope.activeTimeoutId != null) {
+                clearTimeout($rootScope.activeTimeoutId);
+                $rootScope.activeTimeoutId = null;
+            }
+            if ($rootScope.model.global.autoReload) {
+                try {
+                    var period = parseInt($rootScope.model.global.autoReloadPeriod);
+                    if (period > 0) {
+                        var func = function() {
+                            $rootScope.renderGraphs();
+                            $rootScope.activeTimeoutId = setTimeout(func, period*1000);
+                        }
+                        $rootScope.activeTimeoutId = setTimeout(func, period * 1000);
+                    }
+                    
+                }
+                catch (e) {
+                    // ignore
+                }
             }
         }
     
@@ -119,4 +146,5 @@ aardvark.directive('aardvarkEnter', function() {
     
         $rootScope.loadModel();
         $rootScope.updateConfig();
+        $rootScope.resetAutoReload();
     }]);

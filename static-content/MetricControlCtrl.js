@@ -182,6 +182,9 @@ aardvark.directive('tagSelection', function() {
     }
 
     $scope.configContainsIgnoredPrefixes = function() {
+        if ($rootScope.config == null) {
+            return false;
+        }
         var ignorePrefixes = $rootScope.config.hidePrefixes;
         return ignorePrefixes != null && ignorePrefixes.length > 0;
     }

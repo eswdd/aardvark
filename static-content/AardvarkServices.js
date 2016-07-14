@@ -606,11 +606,19 @@ aardvark
             else {
                 intermediateModel.global.relativePeriod = toTimePeriod(model.global.relativePeriod);
             }
+            if (model.global.autoReload) {
+                if (model.global.autoReloadPeriod != null && model.global.autoReloadPeriod != "") {
+                    intermediateModel.global.autoReloadPeriod = toInt(model.global.autoReloadPeriod);
+                }
+                else {
+                    intermediateModel.global.autoReloadPeriod = null;
+                }
+            }
             if (model.global.autoGraphHeight) {
-                intermediateModel.global.minGraphHeight = model.global.minGraphHeight;
+                intermediateModel.global.minGraphHeight = toInt(model.global.minGraphHeight);
             }
             else {
-                intermediateModel.global.graphHeight = model.global.graphHeight;
+                intermediateModel.global.graphHeight = toInt(model.global.graphHeight);
             }
 
             // minimally populate graphs
@@ -729,10 +737,10 @@ aardvark
                     if (metric.graphOptions.graphId == null) {
                         metric.graphOptions.graphId = "0";
                     }
-                    intermediateMetric.graphId = parseInt(metric.graphOptions.graphId);
+                    intermediateMetric.graphId = toInt(metric.graphOptions.graphId);
                     if (metric.graphOptions.rate && metric.graphOptions.rateCounter) {
-                        intermediateMetric.rateCounterReset = parseInt(metric.graphOptions.rateCounterReset);
-                        intermediateMetric.rateCounterMax = parseInt(metric.graphOptions.rateCounterMax);
+                        intermediateMetric.rateCounterReset = toInt(metric.graphOptions.rateCounterReset);
+                        intermediateMetric.rateCounterMax = toInt(metric.graphOptions.rateCounterMax);
                     }
                     intermediateMetric.aggregator = aggregationFunctions.valueToId(metric.graphOptions.aggregator);
                     if (metric.graphOptions.downsample) {
@@ -887,6 +895,9 @@ aardvark
             }
             else {
                 model.global.relativePeriod = fromTimePeriod(intermediateModel.global.relativePeriod, "2h");
+            }
+            if (model.global.autoReload) {
+                model.global.autoReloadPeriod = intermediateModel.global.autoReloadPeriod;
             }
             if (model.global.autoGraphHeight) {
                 model.global.minGraphHeight = intermediateModel.global.minGraphHeight;
