@@ -42,7 +42,7 @@ describe('Aardvark controllers', function () {
                 saveModelCalled = true;
             }
             saveModelCalled = false;
-            rootScope.model = { graphs: [], metrics: [] };
+            rootScope.model = { global: {}, graphs: [], metrics: [] };
 
             scope = $rootScope.$new();
             ctrl = $controller('MetricControlCtrl', {$scope: scope, $rootScope: rootScope});

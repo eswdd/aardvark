@@ -27,6 +27,14 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
     $scope.autoGraphHeight = true;
     $scope.minGraphHeight = 0;
     $scope.graphHeight = 300;
+    
+    $scope.globalDownsampling = false;
+    $scope.globalDownsampleTo = "5m";
+
+    $scope.$watch('globalDownsampling', function() {
+        console.log("source: globalDownsamplingChanged to "+$scope.globalDownsampling);
+        $rootScope.$emit('globalDownsamplingChanged', $scope.globalDownsampling);
+    });
 
     // gnuplot stuff - nothing global in here
 //    $scope.gnuplot = {};
@@ -85,6 +93,8 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
             $scope.absoluteTimeSpecification = model.global.absoluteTimeSpecification;
             $scope.toDate = model.global.toDate;
             $scope.toTime = model.global.toTime;
+            $scope.globalDownsampling = model.global.globalDownsampling;
+            $scope.globalDownsampleTo = model.global.globalDownsampleTo;
         }
     }
 
@@ -232,7 +242,9 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
             absoluteTimeSpecification: $scope.absoluteTimeSpecification,
             relativePeriod: $scope.relativePeriod,
             toDate: $scope.toDate,
-            toTime: $scope.toTime
+            toTime: $scope.toTime,
+            globalDownsampling: $scope.globalDownsampling,
+            globalDownsampleTo: $scope.globalDownsampleTo
         };
         $rootScope.saveModel(true);
     }

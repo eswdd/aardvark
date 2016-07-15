@@ -43,6 +43,12 @@ aardvark.directive('tagSelection', function() {
         
     $scope.showingIgnoredPrefixes = false;
 
+    $scope.globalDownsampling = false;
+
+    $rootScope.$on('globalDownsamplingChanged', function (event, data) {
+        console.log("target: globalDownsamplingChanged to "+data);
+        $scope.globalDownsampling = data;
+    });
 
     $scope.addButtonVisible = function() {
         return $scope.selectedMetric != "";
@@ -71,6 +77,9 @@ aardvark.directive('tagSelection', function() {
         }
     }
 
+    $scope.downsampleByEnabled = function() {
+        return $scope.downsample || $scope.globalDownsampling;
+    }
 
     $scope.treeOptions = {
         nodeChildren: "children",
@@ -470,6 +479,8 @@ aardvark.directive('tagSelection', function() {
 
     $scope.updateModel = function() {
         $scope.updateTree();
+        // init internal copy
+        $scope.globalDownsampling = $rootScope.model.global.globalDownsampling && true;
         
     }
 

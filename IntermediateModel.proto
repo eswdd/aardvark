@@ -22,6 +22,7 @@ message Global {
   optional int32 minGraphHeight = 5;
   optional int32 graphHeight = 6;
   optional int32 autoReloadPeriod = 7;
+  optional TimePeriod globalDownsampleTo = 8 [ default = "5m" ];
 }
 
 message Gnuplot {

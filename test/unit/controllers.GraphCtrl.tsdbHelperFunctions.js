@@ -197,6 +197,9 @@ describe('Aardvark controllers', function () {
             }, datum);
             expect(result).toEqualData(datum);
         });
+        
+        
+        // todo: url generation
     });
 });
 

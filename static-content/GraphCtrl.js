@@ -214,7 +214,10 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             var metric = metrics[i];
             var options = metric.graphOptions;
             url += "&m=" + options.aggregator + ":";
-            if (options.downsample) {
+            if (global.globalDownsampling) {
+                url += global.globalDownsampleTo + "-" + options.downsampleBy + ":";
+            }
+            else if (options.downsample) {
                 url += options.downsampleTo + "-" + options.downsampleBy + ":";
             }
             if (options.rate) {

@@ -595,7 +595,8 @@ aardvark
                 // always add to the bottom of this
                 model.global.absoluteTimeSpecification,
                 model.global.autoReload,
-                model.global.autoGraphHeight
+                model.global.autoGraphHeight,
+                model.global.globalDownsampling
             ]);
             if (model.global.absoluteTimeSpecification) {
                 intermediateModel.global.fromDateTime = toSingleDate(model.global.fromDate, model.global.fromTime).getTime();
@@ -619,6 +620,9 @@ aardvark
             }
             else {
                 intermediateModel.global.graphHeight = toInt(model.global.graphHeight);
+            }
+            if (model.global.globalDownsampling) {
+                intermediateModel.global.globalDownsampleTo = toTimePeriod(model.global.globalDownsampleTo);
             }
 
             // minimally populate graphs
@@ -881,10 +885,11 @@ aardvark
                 metrics: []
             };
             
-            var globalFlags = blitting.fromBlittedInt(intermediateModel.global.flags, [false,false,true]);
+            var globalFlags = blitting.fromBlittedInt(intermediateModel.global.flags, [false,false,true,false]);
             model.global.absoluteTimeSpecification = globalFlags[0];
             model.global.autoReload = globalFlags[1];
             model.global.autoGraphHeight = globalFlags[2];
+            model.global.globalDownsampling = globalFlags[3];
             if (model.global.absoluteTimeSpecification) {
                 model.global.fromDate = fromSingleDateToDatePart(intermediateModel.global.fromDateTime.toNumber());
                 model.global.fromTime = fromSingleDateToTimePart(intermediateModel.global.fromDateTime.toNumber());
@@ -904,6 +909,9 @@ aardvark
             }
             else {
                 model.global.graphHeight = intermediateModel.global.graphHeight;
+            }
+            if (model.global.globalDownsampling) {
+                model.global.globalDownsampleTo = fromTimePeriod(intermediateModel.global.globalDownsampleTo, "5m");
             }
             
             for (var i=0; i<intermediateModel.graphs.length; i++) {

@@ -95,6 +95,11 @@
                                     <input type="text" size="10" id="toDateId" ng-model="toDate" ng-required aardvark-enter="renderGraphs()" />
                                     <input type="text" size="8" id="toTimeId" ng-model="toTime" ng-required aardvark-enter="renderGraphs()" />
                                 </div>
+                                <div>
+                                    <input type="checkbox" id="globalDownsamplingId" ng-model="globalDownsampling" aardvark-enter="renderGraphs()">
+                                    <label for="globalDownsamplingId">Global downsampling</label><br/>
+                                    <input type="text" size="10" id="globalDownsampleToId" ng-model="globalDownsampleTo" aardvark-enter="renderGraphs()" ng-show="globalDownsampling" />
+                                </div>
                             </div>
                             <div style="border: solid 1px black" ng-show="graphs.length > 1">
                                 <div>
@@ -496,7 +501,7 @@
                                 <label for="metricControl_editMetric_downsample">Downsample?</label>
                                 <input id="metricControl_editMetric_downsample" type="checkbox" ng-model="downsample" ng-disabled="!clearButtonEnabled()" aardvark-enter="addOrSaveMetric()" />
                                 <label for="metricControl_editMetric_downsampleBy">by</label>
-                                <select id="metricControl_editMetric_downsampleBy" ng-model="downsampleBy" ng-disabled="!downsample" aardvark-enter="addOrSaveMetric()">
+                                <select id="metricControl_editMetric_downsampleBy" ng-model="downsampleBy" ng-disabled="!downsampleByEnabled()" aardvark-enter="addOrSaveMetric()">
                                     <option>sum</option>
                                     <option>min</option>
                                     <option>max</option>

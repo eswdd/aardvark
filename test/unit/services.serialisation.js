@@ -45,6 +45,7 @@ describe('AardvarkServices.serialisation', function() {
                 absoluteTimeSpecification: false,
                 autoReload: false,
                 autoGraphHeight: true,
+                globalDownsampling: false,
                 relativePeriod: "2h",
                 minGraphHeight: 300
             },
@@ -223,6 +224,7 @@ describe('AardvarkServices.serialisation', function() {
                 absoluteTimeSpecification: false,
                 autoReload: false,
                 autoGraphHeight: true,
+                globalDownsampling: false,
                 relativePeriod: "2h",
                 minGraphHeight: 300
             },
@@ -405,7 +407,7 @@ describe('AardvarkServices.serialisation', function() {
         }
     }
 
-    it('expects the serialisation module to be able to round trip a model using absolute time - strings', inject(function(serialisation) {
+    it('expects the serialisation module to be able to round trip a model using absolute from and to time - strings', inject(function(serialisation) {
         var fromDate = "2016/01/01";
         var fromTime = "12:34:22";
         var toDate = "2016/06/10";
@@ -430,10 +432,11 @@ describe('AardvarkServices.serialisation', function() {
             // defaults
             model.global.autoGraphHeight = false;
             model.global.graphHeight = null;
+            model.global.globalDownsampling = false;
         });
     }));
 
-    it('expects the serialisation module to be able to round trip a model using absolute time - strings', inject(function(serialisation) {
+    it('expects the serialisation module to be able to round trip a model using absolute from time - strings', inject(function(serialisation) {
         var fromDate = "2016/01/01";
         var fromTime = "12:34:22";
         var model = {
@@ -453,6 +456,7 @@ describe('AardvarkServices.serialisation', function() {
             // defaults
             model.global.autoGraphHeight = false;
             model.global.graphHeight = null;
+            model.global.globalDownsampling = false;
         });
     }));
     
