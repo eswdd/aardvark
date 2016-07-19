@@ -433,6 +433,7 @@ aardvark
         var aggregationFunctions = mapping.generateBiDiMapping(["min","avg","max","sum","zimsum","mimmax","mimmin"]); // todo: flesh out
         var scatterAxes = mapping.generateBiDiMapping(["x","y"]);
         var units = mapping.generateBiDiMapping(["s", "m", "h", "d", "w", "y"]); // todo: incomplete
+        var datumStyles = mapping.generateBiDiMapping(["relative","from","to"]);
         var ProtoBuf = dcodeIO.ProtoBuf;
         var builder = ProtoBuf.loadJson(intermediateModelJson);
         // helper data structures
@@ -596,7 +597,8 @@ aardvark
                 model.global.absoluteTimeSpecification,
                 model.global.autoReload,
                 model.global.autoGraphHeight,
-                model.global.globalDownsampling
+                model.global.globalDownsampling,
+                model.global.baselining
             ]);
             if (model.global.absoluteTimeSpecification) {
                 intermediateModel.global.fromDateTime = toSingleDate(model.global.fromDate, model.global.fromTime).getTime();
@@ -623,6 +625,20 @@ aardvark
             }
             if (model.global.globalDownsampling) {
                 intermediateModel.global.globalDownsampleTo = toTimePeriod(model.global.globalDownsampleTo);
+            }
+            if (model.global.baselining) {
+                intermediateModel.global.baselineDatumStyle = datumStyles.valueToId(model.global.baselineDatumStyle);
+                switch (model.global.baselineDatumStyle) {
+                    case "relative":
+                        intermediateModel.global.baselineRelativePeriod = toTimePeriod(model.global.baselineRelativePeriod);
+                        break;
+                    case "from":
+                        intermediateModel.global.baselineFromDateTime = toSingleDate(model.global.baselineFromDate, model.global.baselineFromTime).getTime();
+                        break;
+                    case "to":
+                        intermediateModel.global.baselineToDateTime = toSingleDate(model.global.baselineToDate, model.global.baselineToTime).getTime();
+                        break;
+                }
             }
 
             // minimally populate graphs
@@ -885,11 +901,12 @@ aardvark
                 metrics: []
             };
             
-            var globalFlags = blitting.fromBlittedInt(intermediateModel.global.flags, [false,false,true,false]);
+            var globalFlags = blitting.fromBlittedInt(intermediateModel.global.flags, [false,false,true,false,false]);
             model.global.absoluteTimeSpecification = globalFlags[0];
             model.global.autoReload = globalFlags[1];
             model.global.autoGraphHeight = globalFlags[2];
             model.global.globalDownsampling = globalFlags[3];
+            model.global.baselining = globalFlags[4];
             if (model.global.absoluteTimeSpecification) {
                 model.global.fromDate = fromSingleDateToDatePart(intermediateModel.global.fromDateTime.toNumber());
                 model.global.fromTime = fromSingleDateToTimePart(intermediateModel.global.fromDateTime.toNumber());
@@ -912,6 +929,23 @@ aardvark
             }
             if (model.global.globalDownsampling) {
                 model.global.globalDownsampleTo = fromTimePeriod(intermediateModel.global.globalDownsampleTo, "5m");
+            }
+            if (model.global.baselining) {
+                
+                model.global.baselineDatumStyle = datumStyles.idToValue(intermediateModel.global.baselineDatumStyle);
+                switch (model.global.baselineDatumStyle) {
+                    case "relative":
+                        model.global.baselineRelativePeriod = fromTimePeriod(intermediateModel.global.baselineRelativePeriod);
+                        break;
+                    case "from":
+                        model.global.baselineFromDate = fromSingleDateToDatePart(intermediateModel.global.baselineFromDateTime.toNumber());
+                        model.global.baselineFromTime = fromSingleDateToTimePart(intermediateModel.global.baselineFromDateTime.toNumber());
+                        break;
+                    case "to":
+                        model.global.baselineToDate = fromSingleDateToDatePart(intermediateModel.global.baselineToDateTime.toNumber());
+                        model.global.baselineToTime = fromSingleDateToTimePart(intermediateModel.global.baselineToDateTime.toNumber());
+                        break;
+                }
             }
             
             for (var i=0; i<intermediateModel.graphs.length; i++) {

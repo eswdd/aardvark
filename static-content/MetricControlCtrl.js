@@ -46,7 +46,6 @@ aardvark.directive('tagSelection', function() {
     $scope.globalDownsampling = false;
 
     $rootScope.$on('globalDownsamplingChanged', function (event, data) {
-        console.log("target: globalDownsamplingChanged to "+data);
         $scope.globalDownsampling = data;
     });
 

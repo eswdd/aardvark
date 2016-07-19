@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="Aardvark">
+<html ng-app="Aardvark" xmlns="http://www.w3.org/1999/html">
 
 <head>
     <meta charset="utf-8">
@@ -99,6 +99,28 @@
                                     <input type="checkbox" id="globalDownsamplingId" ng-model="globalDownsampling" aardvark-enter="renderGraphs()">
                                     <label for="globalDownsamplingId">Global downsampling</label><br/>
                                     <input type="text" size="10" id="globalDownsampleToId" ng-model="globalDownsampleTo" aardvark-enter="renderGraphs()" ng-show="globalDownsampling" />
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="baseliningId" ng-model="baselining" aardvark-enter="renderGraphs()">
+                                    <label for="baseliningId">Baselining</label><br/>
+                                </div>
+                                <div ng-show="baselining">
+                                    <select id="baselineDatumStyleId" ng-model="baselineDatumStyle" aardvark-enter="renderGraphs()">
+                                        <option value="relative">Relative offset</option>
+                                        <option value="from">From date/time</option>
+                                        <option value="to">To date/time</option>
+                                    </select>
+                                </div>
+                                <div ng-show="baselining && baselineDatumStyle == 'relative'">
+                                    <input type="text" size="10" id="baselineRelativePeriodId" ng-model="baselineRelativePeriod" ng-required aardvark-enter="renderGraphs()" />
+                                </div>
+                                <div ng-show="baselining && baselineDatumStyle == 'from'">
+                                    <input type="text" size="10" id="baselineFromDateId" ng-model="baselineFromDate" ng-required aardvark-enter="renderGraphs()" />
+                                    <input type="text" size="8" id="baselineFromTimeId" ng-model="baselingingFromTime" ng-required aardvark-enter="renderGraphs()" />
+                                </div>
+                                <div ng-show="baselining && baselineDatumStyle == 'to'">
+                                    <input type="text" size="10" id="baseliToDateId" ng-model="toDate" ng-required aardvark-enter="renderGraphs()" />
+                                    <input type="text" size="8" id="baseliToTimeId" ng-model="toTime" ng-required aardvark-enter="renderGraphs()" />
                                 </div>
                             </div>
                             <div style="border: solid 1px black" ng-show="graphs.length > 1">

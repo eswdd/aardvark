@@ -37,6 +37,17 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         return false;
     }
 
+    $scope.periodToDiff = function(period) {
+        var numberComponent1 = period.match(/^[0-9]+/);
+        var stringComponent1 = period.match(/[a-zA-Z]+$/);
+        if (numberComponent1.length == 1 && stringComponent1.length == 1) {
+            return moment.duration(parseInt(numberComponent1[0]), stringComponent1[0]);
+        }
+        else {
+            return null;
+        }
+    }
+
     // helper functions for dealing with tsdb data
     $scope.tsdb_rateString = function(metricOptions) {
         var ret = "rate";
@@ -58,10 +69,8 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
     }
     $scope.tsdb_fromTimestampAsTsdbString = function(global) {
         if (global.absoluteTimeSpecification) {
-            // some browsers don't support date and time input types
-            // moment will take Date and string inputs.. woot
-            var date = typeof global.fromDate == "string" ? moment(global.fromDate, "YYYY/MM/DD") : moment(global.fromDate);
-            var time = typeof global.fromTime == "string" ? moment(global.fromTime, "HH:mm:ss") : moment(global.fromTime);
+            var date = moment(global.fromDate, "YYYY/MM/DD");
+            var time = moment(global.fromTime, "HH:mm:ss");
             return date.format("YYYY/MM/DD") + " " + time.format("HH:mm:ss");
         }
         else {
@@ -72,23 +81,21 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         }
     }
     $scope.tsdb_toTimestampAsTsdbString = function(global) {
-        if (global.absoluteTimeSpecification) {
-            // some browsers don't support date and time input types
-            // moment will take Date and string inputs.. woot
-            var date = typeof global.toDate == "string" ? moment(global.toDate, "YYYY/MM/DD") : moment(global.toDate);
-            var time = typeof global.toTime == "string" ? moment(global.toTime, "HH:mm:ss") : moment(global.toTime);
-            return date.format("YYYY/MM/DD") + " " + time.format("HH:mm:ss");
+        if (!global.absoluteTimeSpecification
+            || global.toDate == null || global.toDate == ""
+            || global.toTime == null || global.toTime == "") {
+            return null;
         }
         else {
-            return null;
+            var date = moment(global.toDate, "YYYY/MM/DD");
+            var time = moment(global.toTime, "HH:mm:ss");
+            return date.format("YYYY/MM/DD") + " " + time.format("HH:mm:ss");
         }
     }
     $scope.tsdb_fromTimestampAsDate = function(global, datum) {
         if (global.absoluteTimeSpecification) {
-            // some browsers don't support date and time input types
-            // moment will take Date and string inputs.. woot
-            var date = typeof global.fromDate == "string" ? moment(global.fromDate, "YYYY/MM/DD") : moment(global.fromDate);
-            var time = typeof global.fromTime == "string" ? moment(global.fromTime, "HH:mm:ss") : moment(global.fromTime);
+            var date = moment(global.fromDate, "YYYY/MM/DD");
+            var time = moment(global.fromTime, "HH:mm:ss");
             var dateTime = date.format("YYYY/MM/DD") + " " + time.format("HH:mm:ss");
             return moment(dateTime, "YYYY/MM/DD HH:mm:ss").toDate();
         }
@@ -106,16 +113,87 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         }
     }
     $scope.tsdb_toTimestampAsDate = function(global, datum) {
-        if (global.absoluteTimeSpecification) {
-            // some browsers don't support date and time input types
-            // moment will take Date and string inputs.. woot
-            var date = typeof global.toDate == "string" ? moment(global.toDate, "YYYY/MM/DD") : moment(global.toDate);
-            var time = typeof global.toTime == "string" ? moment(global.toTime, "HH:mm:ss") : moment(global.toTime);
+        if (!global.absoluteTimeSpecification
+            || global.toDate == null || global.toDate == ""
+            || global.toTime == null || global.toTime == "") {
+            return datum ? datum : new Date();
+        }
+        else {
+            var date = moment(global.toDate, "YYYY/MM/DD");
+            var time = moment(global.toTime, "HH:mm:ss");
             var dateTime = date.format("YYYY/MM/DD") + " " + time.format("HH:mm:ss");
             return moment(dateTime, "YYYY/MM/DD HH:mm:ss").toDate();
         }
-        else {
-            return datum ? datum : new Date();
+    }
+    $scope.tsdb_baselineFromTimestampAsTsdbString = function(global, datum) {
+        switch (global.baselineDatumStyle) {
+            case "from":
+                var date = moment(global.baselineFromDate, "YYYY/MM/DD");
+                var time = moment(global.baselineFromTime, "HH:mm:ss");
+                return date.format("YYYY/MM/DD") + " " + time.format("HH:mm:ss");
+            case "to":
+                var diff;
+                if (global.absoluteTimeSpecification) {
+                    var mainFromDateTime1 = moment($scope.tsdb_fromTimestampAsDate(global, datum));
+                    var mainToDateTime1 = moment($scope.tsdb_toTimestampAsDate(global, datum));
+                    diff = moment.duration(mainToDateTime1.diff(mainFromDateTime1));
+                }
+                else {
+                    diff = $scope.periodToDiff(global.relativePeriod);
+                    if (diff == null) {
+                        return null;
+                    }
+                }
+                //0, 2d, 2h
+                var toDate = moment(global.baselineToDate, "YYYY/MM/DD");
+                var toTime = moment(global.baselineToTime, "HH:mm:ss");
+                var toDateTimeString = toDate.format("YYYY/MM/DD") + " " + toTime.format("HH:mm:ss");
+                var toDateTime = moment(toDateTimeString, "YYYY/MM/DD HH:mm:ss");
+                var fromDateTime = toDateTime.subtract(diff);
+                return fromDateTime.format("YYYY/MM/DD HH:mm:ss");
+            case "relative":
+                var mainFromDateTime2 = $scope.tsdb_fromTimestampAsDate(global, datum);
+                var diff1 = $scope.periodToDiff(global.baselineRelativePeriod);
+                if (diff1 != null) {
+                    var dateTime = moment(mainFromDateTime2).subtract(diff1);
+                    return dateTime.format("YYYY/MM/DD HH:mm:ss");
+                }
+                return null;
+        }
+    }
+    $scope.tsdb_baselineToTimestampAsTsdbString = function(global, datum) {
+        switch (global.baselineDatumStyle) {
+            case "from":
+                var diff;
+                if (global.absoluteTimeSpecification) {
+                    var mainFromDateTime1 = moment($scope.tsdb_fromTimestampAsDate(global, datum));
+                    var mainToDateTime1 = moment($scope.tsdb_toTimestampAsDate(global, datum));
+                    diff = moment.duration(mainToDateTime1.diff(mainFromDateTime1));
+                }
+                else {
+                    diff = $scope.periodToDiff(global.relativePeriod);
+                    if (diff == null) {
+                        return null;
+                    }
+                }
+                var fromDate = moment(global.baselineFromDate, "YYYY/MM/DD");
+                var fromTime = moment(global.baselineFromTime, "HH:mm:ss");
+                var fromDateTimeString = fromDate.format("YYYY/MM/DD") + " " + fromTime.format("HH:mm:ss");
+                var fromDateTime = moment(fromDateTimeString, "YYYY/MM/DD HH:mm:ss");
+                var toDateTime = fromDateTime.add(diff);
+                return toDateTime.format("YYYY/MM/DD HH:mm:ss");
+            case "to":
+                var date = moment(global.baselineToDate, "YYYY/MM/DD");
+                var time = moment(global.baselineToTime, "HH:mm:ss");
+                return date.format("YYYY/MM/DD") + " " + time.format("HH:mm:ss");
+            case "relative":
+                var mainToDateTime = $scope.tsdb_toTimestampAsDate(global, datum);
+                var diff1 = $scope.periodToDiff(global.baselineRelativePeriod);
+                if (diff1 != null) {
+                    var dateTime = moment(mainToDateTime).subtract(diff1);
+                    return dateTime.format("YYYY/MM/DD HH:mm:ss");
+                }
+                return null;
         }
     }
 
@@ -170,9 +248,20 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         });
     };
 
-    $scope.tsdb_queryString = function(global, graph, metrics, perLineFn) {
+    $scope.tsdb_queryStringForBaseline = function(global, graph, metrics, perLineFn) {
+        var fromTimestamp = $scope.tsdb_baselineFromTimestampAsTsdbString(global);
+        var toTimestamp = $scope.tsdb_baselineToTimestampAsTsdbString(global);
+        return $scope.tsdb_queryStringInternal(fromTimestamp, toTimestamp, global.autoReload, global.globalDownsampling, global.globalDownsampleTo, graph, metrics, perLineFn);
+    }
 
+    $scope.tsdb_queryString = function(global, graph, metrics, perLineFn) {
         var fromTimestamp = $scope.tsdb_fromTimestampAsTsdbString(global);
+        var toTimestamp = $scope.tsdb_toTimestampAsTsdbString(global);
+        return $scope.tsdb_queryStringInternal(fromTimestamp, toTimestamp, global.autoReload, global.globalDownsampling, global.globalDownsampleTo, graph, metrics, perLineFn);
+    }
+
+    $scope.tsdb_queryStringInternal = function(fromTimestamp, toTimestamp, autoReload, globalDownsampling, globalDownsampleTo, graph, metrics, perLineFn) {
+
         // validation
         if (fromTimestamp == null || fromTimestamp == "") {
             $scope.renderErrors[graph.id] = "No start date specified";
@@ -187,7 +276,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         var url = "";
 
         url += "?start=" + fromTimestamp;
-        if (global.autoReload) {
+        if (autoReload) {
             // todo: do we need to do a conversion to utc?
             var now = new Date();
             var y = now.getFullYear();
@@ -199,9 +288,8 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             url += "&end="+y+"/"+(mo<10?("0"+mo):mo)+"/"+(d<10?("0"+d):d)+"-"+(h<10?("0"+h):h)+":"+(mi<10?("0"+mi):mi)+":"+(s<10?("0"+s):s);
         }
         else {
-            var toString = $scope.tsdb_toTimestampAsTsdbString(global);
-            if (toString != null) {
-                url += "&end=" + toString;
+            if (toTimestamp != null) {
+                url += "&end=" + toTimestamp;
             }
             else {
                 url += "&ignore="+(++$scope.imageRenderCount);
@@ -214,8 +302,8 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             var metric = metrics[i];
             var options = metric.graphOptions;
             url += "&m=" + options.aggregator + ":";
-            if (global.globalDownsampling) {
-                url += global.globalDownsampleTo + "-" + options.downsampleBy + ":";
+            if (globalDownsampling) {
+                url += globalDownsampleTo + "-" + options.downsampleBy + ":";
             }
             else if (options.downsample) {
                 url += options.downsampleTo + "-" + options.downsampleBy + ":";

@@ -30,9 +30,17 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
     
     $scope.globalDownsampling = false;
     $scope.globalDownsampleTo = "5m";
+    
+    $scope.baselining = false;
+    $scope.baselineDatumStyle = "relative";
+    $scope.baselineRelativePeriod = "1d";
+    $scope.baselineFromDate = "";
+    $scope.baselineFromTime = "";
+    $scope.baselineToDate = "";
+    $scope.baselineToTime = "";
+    
 
     $scope.$watch('globalDownsampling', function() {
-        console.log("source: globalDownsamplingChanged to "+$scope.globalDownsampling);
         $rootScope.$emit('globalDownsamplingChanged', $scope.globalDownsampling);
     });
 
@@ -95,6 +103,13 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
             $scope.toTime = model.global.toTime;
             $scope.globalDownsampling = model.global.globalDownsampling;
             $scope.globalDownsampleTo = model.global.globalDownsampleTo;
+            $scope.baselining = model.global.baselining;
+            $scope.baselineDatumStyle = model.global.baselineDatumStyle;
+            $scope.baselineRelativePeriod = model.global.baselineRelativePeriod;
+            $scope.baselineFromDate = model.global.baselineFromDate;
+            $scope.baselineFromTime = model.global.baselineFromTime;
+            $scope.baselineToDate = model.global.baselineToDate;
+            $scope.baselineToTime = model.global.baselineToTime;
         }
     }
 
@@ -244,7 +259,14 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
             toDate: $scope.toDate,
             toTime: $scope.toTime,
             globalDownsampling: $scope.globalDownsampling,
-            globalDownsampleTo: $scope.globalDownsampleTo
+            globalDownsampleTo: $scope.globalDownsampleTo,
+            baselining: $scope.baselining,
+            baselineDatumStyle: $scope.baselineDatumStyle,
+            baselineRelativePeriod: $scope.baselineRelativePeriod,
+            baselineFromDate: $scope.baselineFromDate,
+            baselineFromTime: $scope.baselineFromTime,
+            baselineToDate: $scope.baselineToDate,
+            baselineToTime: $scope.baselineToTime
         };
         $rootScope.saveModel(true);
     }

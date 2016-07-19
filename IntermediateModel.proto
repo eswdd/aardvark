@@ -23,6 +23,10 @@ message Global {
   optional int32 graphHeight = 6;
   optional int32 autoReloadPeriod = 7;
   optional TimePeriod globalDownsampleTo = 8 [ default = "5m" ];
+  optional int32 baselineDatumStyle = 9;
+  optional TimePeriod baselineRelativePeriod = 10 [ default = "1d" ];
+  optional int64 baselineFromDateTime = 11;
+  optional int64 baselineToDateTime = 12;
 }
 
 message Gnuplot {

@@ -45,7 +45,6 @@ describe('AardvarkServices.serialisation', function() {
                 absoluteTimeSpecification: false,
                 autoReload: false,
                 autoGraphHeight: true,
-                globalDownsampling: false,
                 relativePeriod: "2h",
                 minGraphHeight: 300
             },
@@ -215,7 +214,12 @@ describe('AardvarkServices.serialisation', function() {
             ]
         };
         // tag had value "" which won't be serialised
-        checkRoundTrips(serialisation, model, 460, function(model){model.metrics[4].tags = [];});  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
+        checkRoundTrips(serialisation, model, 460, function(model) {
+            model.metrics[4].tags = [];
+            // defaults
+            model.global.globalDownsampling = false;
+            model.global.baselining = false;
+        });  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
     }));
     
     it('expects the serialisation module to be able to round trip a fully populated model with 5 metrics on 2 graphs in a small amount of space', inject(function(serialisation) {
@@ -224,7 +228,6 @@ describe('AardvarkServices.serialisation', function() {
                 absoluteTimeSpecification: false,
                 autoReload: false,
                 autoGraphHeight: true,
-                globalDownsampling: false,
                 relativePeriod: "2h",
                 minGraphHeight: 300
             },
@@ -381,7 +384,12 @@ describe('AardvarkServices.serialisation', function() {
         };
         // todo: need to get this down to 460
         // tag had value "" which won't be serialised
-        checkRoundTrips(serialisation, model, 475, function(model){model.metrics[4].tags = [];});  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
+        checkRoundTrips(serialisation, model, 475, function(model) {
+            model.metrics[4].tags = [];
+            // defaults
+            model.global.globalDownsampling = false;
+            model.global.baselining = false;
+        });  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
     }));
     
     var checkRoundTrips = function(serialisation, model, maxLength, modelFixPostSerialisation) {
@@ -433,6 +441,7 @@ describe('AardvarkServices.serialisation', function() {
             model.global.autoGraphHeight = false;
             model.global.graphHeight = null;
             model.global.globalDownsampling = false;
+            model.global.baselining = false;
         });
     }));
 
@@ -454,6 +463,80 @@ describe('AardvarkServices.serialisation', function() {
             model.global.fromDate = fromDate;
             model.global.fromTime = fromTime;
             // defaults
+            model.global.autoGraphHeight = false;
+            model.global.graphHeight = null;
+            model.global.globalDownsampling = false;
+            model.global.baselining = false;
+        });
+    }));
+
+    it('expects the serialisation module to be able to round trip a model using baselining with relative datum', inject(function(serialisation) {
+        var model = {
+            global: {
+                absoluteTimeSpecification: false,
+                relativePeriod: "2h",
+                baselining: true,
+                baselineDatumStyle: "relative",
+                baselineRelativePeriod: "2d"
+            },
+            graphs: [],
+            metrics: []
+        };
+        checkRoundTrips(serialisation, model, 470, function(model) {
+            // defaults
+            model.global.autoReload = false;
+            model.global.autoGraphHeight = false;
+            model.global.graphHeight = null;
+            model.global.globalDownsampling = false;
+        });
+    }));
+
+    it('expects the serialisation module to be able to round trip a model using baselining with from datetime datum', inject(function(serialisation) {
+        var fromDate = "2016/01/01";
+        var fromTime = "12:34:22";
+        var model = {
+            global: {
+                absoluteTimeSpecification: false,
+                relativePeriod: "2h",
+                baselining: true,
+                baselineDatumStyle: "from",
+                baselineFromDate: fromDate,
+                baselineFromTime: fromTime
+            },
+            graphs: [],
+            metrics: []
+        };
+        checkRoundTrips(serialisation, model, 470, function(model) {
+            model.global.baselineFromDate = fromDate;
+            model.global.baselineFromTime = fromTime;
+            // defaults
+            model.global.autoReload = false;
+            model.global.autoGraphHeight = false;
+            model.global.graphHeight = null;
+            model.global.globalDownsampling = false;
+        });
+    }));
+
+    it('expects the serialisation module to be able to round trip a model using baselining with to datetime datum', inject(function(serialisation) {
+        var toDate = "2016/01/01";
+        var toTime = "12:34:22";
+        var model = {
+            global: {
+                absoluteTimeSpecification: false,
+                relativePeriod: "2h",
+                baselining: true,
+                baselineDatumStyle: "to",
+                baselineToDate: toDate,
+                baselineToTime: toTime
+            },
+            graphs: [],
+            metrics: []
+        };
+        checkRoundTrips(serialisation, model, 470, function(model) {
+            model.global.baselineToDate = toDate;
+            model.global.baselineToTime = toTime;
+            // defaults
+            model.global.autoReload = false;
             model.global.autoGraphHeight = false;
             model.global.graphHeight = null;
             model.global.globalDownsampling = false;
