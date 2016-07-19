@@ -327,6 +327,79 @@ describe('Aardvark controllers', function () {
             expect(scope.renderWarnings).toEqualData({});
         });
         
+        it('should render with dygraph and correctly indicate gaps in data - issue #87', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
+
+            var global = { relativePeriod: "1d", autoReload: false };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
+            var metrics = [ { id: "123", name: "plantime", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:plantime&no_annotations=true&ms=true&arrays=true').respond([
+                {
+                    "metric":"plantime",
+                    "tags":{"identifier":"service","application":"app","host":"host01","team":"T1","plan":"plan1","plan_state":"Successful"},
+                    "aggregateTags":[],
+                    "dps":[
+                        [1468335395347,57.57211685180664],
+                        [1468338875360,51.52141571044922],
+                        [1468403975370,32.534732818603516],
+                        [1468405955887,52.70555114746094],
+                        [1468412435323,66.93949890136719],
+                        [1468416456323,119.05480194091797],
+                        [1468423655463,81.28475189208984],
+                        [1468428575997,77.4905014038086],
+                        [1468433255350,90.22109985351562],
+                        [1468448316183,91.98995208740234],
+                        [1468453895633,59.74071502685547],
+                        [1468502675817,39.572898864746094],
+                        [1468505075407,40.61399841308594],
+                        [1468507535323,42.13880157470703],
+                        [1468510115287,47.14339828491211],
+                        [1468526135580,57.92693328857422],
+                        [1468534895373,49.598899841308594],
+                        [1468538135243,61.92961502075195],
+                        [1468541855960,48.84546661376953],
+                        [1468572995730,41.8890495300293],
+                        [1468587215340,43.88251495361328],
+                        [1468589855823,34.20836639404297]
+                    ]
+                },
+                {
+                    "metric":"plantime",
+                    "tags":{"identifier":"service","application":"app","host":"host01","team":"T1","plan":"plan1​","plan_state":"Failed"},
+                    "aggregateTags":[],
+                    "dps":[
+                        [1468341995407,58.83286666870117],
+                        [1468345535330,62.51340103149414],
+                        [1468362035540,38.79708480834961],
+                        [1468365335783,49.48341751098633],
+                        [1468368335610,65.78500366210938],
+                        [1468393235533,39.09343338012695],
+                        [1468397315487,34.668582916259766],
+                        [1468399415480,75.0943832397461],
+                        [1468483715533,61.68476486206055],
+                        [1468487435610,45.46383285522461],
+                        [1468490197913,40.18468475341797],
+                        [1468492655373,48.184051513671875],
+                        [1468512962767,219.3782196044922],
+                        [1468575515643,43.14083480834961]
+                    ]
+                }
+            ]);
+
+            scope.renderers.dygraph(global, graph, metrics);
+
+
+            $httpBackend.flush();
+
+            expect(renderData.length).toEqualData(36);
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+        
         it('should render with dygraph with interpolation', function() {
             scope.renderedContent = {};
             scope.renderErrors = {};

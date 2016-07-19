@@ -961,6 +961,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                     }
                     else {
                         row.push(null);
+                        nextTime = Math.min(nextTime, json[s].dps[indices[s]][0]);
                     }
                 }
                 if (dygraphOptions.ratioGraph) {
