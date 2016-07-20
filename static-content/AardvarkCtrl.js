@@ -26,7 +26,7 @@ aardvark.directive('aardvarkEnter', function() {
             });
         }
     })
-    .controller('AardvarkCtrl', [ '$rootScope', '$scope', '$http', '$location', 'serialisation', function AardvarkCtrl($rootScope, $scope, $http, $location, $serialisation) {
+    .controller('AardvarkCtrl', [ '$rootScope', '$scope', '$http', '$location', 'serialisation', 'localStorageService', function AardvarkCtrl($rootScope, $scope, $http, $location, $serialisation, $localStorageService) {
         /*
          * Model persistence - ensures that persistent data is saved to the hash whilst leaving
          * controllers free to litter their own scope with volatile data. Controllers are responsible
@@ -158,7 +158,17 @@ aardvark.directive('aardvarkEnter', function() {
             }
             return ret;
         }
+        
+        $scope.bindUserPreferences = function() {
+            $scope.uiAutoUpdate = $localStorageService.get('uiAutoUpdate') == "true";
+            $scope.$watch('uiAutoUpdate', function() {
+                $localStorageService.set('uiAutoUpdate', $scope.uiAutoUpdate);
+                console.log("uiAutoUpdate = "+$scope.uiAutoUpdate);
+            });
+            console.log("uiAutoUpdate = "+$scope.uiAutoUpdate);
+        }
     
+        $scope.bindUserPreferences();
         $rootScope.loadModel();
         $rootScope.updateConfig();
         $rootScope.resetAutoReload();
