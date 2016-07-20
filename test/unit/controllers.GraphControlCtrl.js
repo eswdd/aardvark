@@ -398,7 +398,7 @@ describe('Aardvark controllers', function () {
         });
 
         it('should request rendering when saving changes', function () {
-            scope.renderGraphs();
+            scope.saveAndRenderGraphs();
             expect(saveModelCalled).toEqualData(true);
             expect(saveModelRenderArg).toEqualData(true);
         });
@@ -406,7 +406,7 @@ describe('Aardvark controllers', function () {
         it('should persist internal graphs to the model when saving changes', function () {
             expect(rootScope.model.graphs).toEqualData([]);
             scope.addGraph();
-            scope.renderGraphs();
+            scope.saveAndRenderGraphs();
             expect(saveModelCalled).toEqualData(true);
             expect(rootScope.model.graphs.length).toEqualData(1);
         });
