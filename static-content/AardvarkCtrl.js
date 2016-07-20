@@ -26,7 +26,7 @@ aardvark.directive('aardvarkEnter', function() {
             });
         }
     })
-    .controller('AardvarkCtrl', [ '$rootScope', '$http', '$location', 'serialisation', function AardvarkCtrl($rootScope, $http, $location, $serialisation) {
+    .controller('AardvarkCtrl', [ '$rootScope', '$scope', '$http', '$location', 'serialisation', function AardvarkCtrl($rootScope, $scope, $http, $location, $serialisation) {
         /*
          * Model persistence - ensures that persistent data is saved to the hash whilst leaving
          * controllers free to litter their own scope with volatile data. Controllers are responsible
@@ -37,6 +37,7 @@ aardvark.directive('aardvarkEnter', function() {
             metrics: [],
             graphs: []
         };
+        
 
         /*
          * Config management - we have config loaded from the server, plus a capability to enable
@@ -48,6 +49,20 @@ aardvark.directive('aardvarkEnter', function() {
         $rootScope.graphTypes = [ "gnuplot", "horizon", "dygraph", "scatter" ];
 
         $rootScope.activeTimeoutId = null;
+
+
+        /*
+         auto-updating ui when tabbing out of changed fields / changing radio buttons etc
+         */
+        $scope.uiAutoUpdate = false;
+        $rootScope.renderGraphsIfAutoUpdate = function() {
+            if ($scope.uiAutoUpdate) {
+                $rootScope.renderGraphs();
+            }
+        }
+        $rootScope.autoUpdateEnabled = function() {
+            return $scope.uiAutoUpdate;
+        }
 
         $rootScope.loadModel = function() {
             var hash = $location.hash();

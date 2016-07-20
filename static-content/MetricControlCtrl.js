@@ -3,7 +3,7 @@
  */
 aardvark.directive('tagSelection', function() {
     return {
-        template: '<div mass-autocomplete><input type="text" ng-model="tag[tagk]" mass-autocomplete-item="tagOptions[tagk]" size="15" aardvark-enter="addOrSaveMetric()" /> {{tagValuesMatchCount(tagk)}}</div>'
+        template: '<div mass-autocomplete><input type="text" ng-model="tag[tagk]" mass-autocomplete-item="tagOptions[tagk]" size="15" ng-blur="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" /> {{tagValuesMatchCount(tagk)}}</div>'
     }
 })
 /*
@@ -72,6 +72,11 @@ aardvark.directive('tagSelection', function() {
             $scope.addMetric();
         }
         else {
+            $scope.saveMetric();
+        }
+    }
+    $scope.saveMetricIfAutoUpdate = function() {
+        if (!$scope.addButtonVisible() && $rootScope.autoUpdateEnabled()) {
             $scope.saveMetric();
         }
     }
