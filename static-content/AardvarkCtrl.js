@@ -163,9 +163,7 @@ aardvark.directive('aardvarkEnter', function() {
             $scope.uiAutoUpdate = $localStorageService.get('uiAutoUpdate') == "true";
             $scope.$watch('uiAutoUpdate', function() {
                 $localStorageService.set('uiAutoUpdate', $scope.uiAutoUpdate);
-                console.log("uiAutoUpdate = "+$scope.uiAutoUpdate);
             });
-            console.log("uiAutoUpdate = "+$scope.uiAutoUpdate);
         }
     
         $scope.bindUserPreferences();

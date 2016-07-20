@@ -1193,6 +1193,33 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
     };
 
     $rootScope.renderGraphs = function() {
+        // set width / height
+        var width = 0;
+        var height = 0;
+        // simple for now - this would have to change if we do dashboarding
+        var boundingBox = document.getElementById("graph-panel");
+        if (boundingBox != null) {
+            // extra 20px off in both dirs to account for scroll bars
+            width = boundingBox.clientWidth-24;
+            height = boundingBox.clientHeight-($rootScope.model.graphs.length*20)-20; // for titles
+        }
+        var eachHeight = 0;
+        if ($rootScope.model.global.autoGraphHeight) {
+            eachHeight = height / $rootScope.model.graphs.length;
+            var minGraphHeight = $rootScope.model.global.minGraphHeight == "" ? 0 : parseInt($rootScope.model.global.minGraphHeight);
+            if (eachHeight < minGraphHeight) {
+                eachHeight = minGraphHeight;
+            }
+        }
+        else {
+            eachHeight = $rootScope.model.global.graphHeight;
+        }
+        // not global to allow rendering code to be shared with future dashboards
+        for (var i=0; i<$rootScope.model.graphs.length; i++) {
+            var graph = $rootScope.model.graphs[i];
+            graph.graphWidth = width;
+            graph.graphHeight = eachHeight;
+        }
         // todo: could be cleverer about clearing in case some graphs haven't changed
         // ie track ids found and delete others
         $scope.clearGraphRenderListeners();

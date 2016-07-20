@@ -112,6 +112,9 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
                 $scope.baselineFromTime = model.global.baselineFromTime;
                 $scope.baselineToDate = model.global.baselineToDate;
                 $scope.baselineToTime = model.global.baselineToTime;
+                $scope.graphHeight = model.global.graphHeight;
+                $scope.minGraphHeight = model.global.minGraphHeight;
+                $scope.autoGraphHeight = model.global.autoGraphHeight;
             }
         }
         $scope.saveAndRenderGraphs();
@@ -227,34 +230,6 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
         }
     }
     $scope.saveAndRenderGraphs = function() {
-        // todo: move height calculations to rendering pane and send parameters through
-        // set width / height
-        var width = 0;
-        var height = 0;
-        // simple for now - this would have to change if we do dashboarding
-        var boundingBox = document.getElementById("graph-panel");
-        if (boundingBox != null) {
-            // extra 20px off in both dirs to account for scroll bars
-            width = boundingBox.clientWidth-24;
-            height = boundingBox.clientHeight-($scope.graphs.length*20)-20; // for titles
-        }
-        var eachHeight = 0;
-        if ($scope.autoGraphHeight) {
-            eachHeight = height / $scope.graphs.length;
-            var minGraphHeight = $scope.minGraphHeight == "" ? 0 : parseInt($scope.minGraphHeight);
-            if (eachHeight < minGraphHeight) {
-                eachHeight = minGraphHeight;
-            }
-        }
-        else {
-            eachHeight = $scope.graphHeight;
-        }
-        // not global to allow rendering code to be shared with future dashboards
-        for (var i=0; i<$scope.graphs.length; i++) {
-            var graph = $scope.graphs[i];
-            graph.graphWidth = width;
-            graph.graphHeight = eachHeight;
-        }
         // now save for rendering
         $rootScope.model.graphs = $scope.deepClone($scope.graphs);
 
@@ -275,7 +250,10 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
             baselineFromDate: $scope.baselineFromDate,
             baselineFromTime: $scope.baselineFromTime,
             baselineToDate: $scope.baselineToDate,
-            baselineToTime: $scope.baselineToTime
+            baselineToTime: $scope.baselineToTime,
+            graphHeight: $scope.graphHeight,
+            minGraphHeight: $scope.minGraphHeight,
+            autoGraphHeight: $scope.autoGraphHeight
         };
         $rootScope.saveModel(true);
     }

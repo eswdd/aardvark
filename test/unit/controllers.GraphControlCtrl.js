@@ -80,8 +80,6 @@ describe('Aardvark controllers', function () {
                     id: idGeneratorRef.prev(),
                     title: "Graph 1",
                     type: null,
-                    graphWidth: 0,
-                    graphHeight: 0,
                     gnuplot: {
                         yAxisRange: "[0:]",
                         y2AxisRange: "[0:]",
@@ -124,8 +122,6 @@ describe('Aardvark controllers', function () {
                     id: idGeneratorRef.prev(),
                     title: "Graph 1",
                     type: "unittest1",
-                    graphWidth: 0,
-                    graphHeight: 0,
                     gnuplot: {
                         yAxisRange: "[0:]",
                         y2AxisRange: "[0:]",

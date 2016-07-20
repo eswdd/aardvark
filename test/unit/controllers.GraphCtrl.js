@@ -75,6 +75,10 @@ describe('Aardvark controllers', function () {
             var notGraph = { id: "def", type: "something" };
             var incMetric = { id: "123", graphOptions: { graphId: "abc" }};
             var excMetric = { id: "456", graphOptions: { graphId: "def" }};
+            rootScope.model.global = {
+                autoGraphHeight: true,
+                minGraphHeight: 0
+            };
             rootScope.model.graphs = [ graph, notGraph ];
             rootScope.model.metrics = [ incMetric, excMetric ];
 
