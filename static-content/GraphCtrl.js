@@ -1192,12 +1192,14 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         });
     };
 
-    $rootScope.renderGraphs = function() {
+    $rootScope.renderGraphs = function(boundingBox) {
         // set width / height
         var width = 0;
         var height = 0;
         // simple for now - this would have to change if we do dashboarding
-        var boundingBox = document.getElementById("graph-panel");
+        if (boundingBox == null) {
+            boundingBox = document.getElementById("graph-panel");
+        }
         if (boundingBox != null) {
             // extra 20px off in both dirs to account for scroll bars
             width = boundingBox.clientWidth-24;

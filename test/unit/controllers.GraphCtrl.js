@@ -87,6 +87,66 @@ describe('Aardvark controllers', function () {
             expect(graphs).toEqualData([graph]);
             expect(metricss).toEqualData([[incMetric]]);
         });
+
+        it('should respect the minimum graph height to that specified when using autoGraphHeight', function() {
+            var graph = { id: "abc", type: "unittest" };
+            var incMetric = { id: "123", graphOptions: { graphId: "abc" }};
+            rootScope.model.global = {
+                autoGraphHeight: true,
+                minGraphHeight: 201
+            };
+            rootScope.model.graphs = [ graph ];
+            rootScope.model.metrics = [ incMetric ];
+
+            rootScope.renderGraphs({clientHeight: 240, clientWidth: 424});
+
+            expect(graphs).toEqualData([graph]);
+            expect(metricss).toEqualData([[incMetric]]);
+            expect(graph.graphHeight).toEqualData(201);
+            expect(graph.graphWidth).toEqualData(400);
+        });
+
+        it('should apportion the render area correctly between multiple graphs', function() {
+            var graph = { id: "abc", type: "unittest" };
+            var graph2 = { id: "def", type: "unittest" };
+            var incMetric = { id: "123", graphOptions: { graphId: "abc" }};
+            var incMetric2 = { id: "456", graphOptions: { graphId: "def" }};
+            rootScope.model.global = {
+                autoGraphHeight: true,
+                minGraphHeight: 0
+            };
+            rootScope.model.graphs = [ graph, graph2 ];
+            rootScope.model.metrics = [ incMetric, incMetric2 ];
+
+            rootScope.renderGraphs({clientHeight: 260, clientWidth: 424});
+
+            expect(graphs).toEqualData([graph, graph2]);
+            expect(metricss).toEqualData([[incMetric],[incMetric2]]);
+            expect(graph.graphHeight).toEqualData(100);
+            expect(graph.graphWidth).toEqualData(400);
+            expect(graph2.graphHeight).toEqualData(100);
+            expect(graph2.graphWidth).toEqualData(400);
+        });
+
+        it('should fix the graph height to that specified when not using autoGraphHeight', function() {
+            var graph = { id: "abc", type: "unittest" };
+            var notGraph = { id: "def", type: "something" };
+            var incMetric = { id: "123", graphOptions: { graphId: "abc" }};
+            var excMetric = { id: "456", graphOptions: { graphId: "def" }};
+            rootScope.model.global = {
+                autoGraphHeight: false,
+                graphHeight: 300
+            };
+            rootScope.model.graphs = [ graph, notGraph ];
+            rootScope.model.metrics = [ incMetric, excMetric ];
+
+            rootScope.renderGraphs({clientHeight: 260, clientWidth: 424});
+
+            expect(graphs).toEqualData([graph]);
+            expect(metricss).toEqualData([[incMetric]]);
+            expect(graph.graphHeight).toEqualData(300);
+            expect(graph.graphWidth).toEqualData(400);
+        });
     });
 });
 
