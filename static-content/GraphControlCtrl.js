@@ -74,7 +74,7 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
         
     }
 
-    $scope.loadModel = function() {
+    $scope.loadModel = function(datum) {
         var model = $rootScope.model;
         if (model.graphs == null || model.graphs.length == 0) {
             model.graphs = [];
@@ -84,22 +84,34 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
             $scope.graphs = $scope.deepClone(model.graphs);
     
             if (model.global != null) {
-                var twoHoursAgo = moment(new Date()-7200000);
-                if (model.global.fromDate != null && model.global.fromDate != "") {
-                    $scope.fromDate = model.global.fromDate;
+                var twoHoursAgo = moment((datum != null ? datum : new Date())-7200000);
+                if (model.global.absoluteTimeSpecification) {
+                    if (model.global.fromDate != null && model.global.fromDate != "") {
+                        $scope.fromDate = model.global.fromDate;
+                    }
+                    else {
+                        $scope.fromDate = twoHoursAgo.format("YYYY/MM/DD");
+                    }
+                    if (model.global.fromTime != null && model.global.fromTime != "") {
+                        $scope.fromTime = model.global.fromTime;
+                    }
+                    else {
+                        $scope.fromTime = twoHoursAgo.format("HH:mm:ss");
+                    }
+                    $scope.relativePeriod = "";
                 }
                 else {
-                    $scope.fromDate = twoHoursAgo.format("YYYY/MM/DD");
-                }
-                if (model.global.fromTime != null && model.global.fromTime != "") {
-                    $scope.fromTime = model.global.fromTime;
-                }
-                else {
-                    $scope.fromTime = twoHoursAgo.format("HH:mm:ss");
+                    if (model.global.relativePeriod != null && model.global.relativePeriod != "") {
+                        $scope.relativePeriod = model.global.relativePeriod;
+                    }
+                    else {
+                        $scope.relativePeriod = "2h";
+                    }
+                    $scope.fromDate = "";
+                    $scope.fromTime = "";
                 }
                 $scope.autoReload = model.global.autoReload;
                 $scope.autoReloadPeriod = model.global.autoReloadPeriod;
-                $scope.relativePeriod = model.global.relativePeriod;
                 $scope.absoluteTimeSpecification = model.global.absoluteTimeSpecification;
                 $scope.toDate = model.global.toDate;
                 $scope.toTime = model.global.toTime;

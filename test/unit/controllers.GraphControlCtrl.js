@@ -42,7 +42,7 @@ describe('Aardvark controllers', function () {
             }
             saveModelCalled = false;
             saveModelRenderArg = false;
-            rootScope.model = { graphs: [], metrics: [] };
+            rootScope.model = { global: {}, graphs: [], metrics: [] };
             rootScope.graphTypes = [ "unittest1", "unittest2" ];
 
             $controller('GraphControlCtrl', {$scope: scope, $rootScope: rootScope});
@@ -477,6 +477,32 @@ describe('Aardvark controllers', function () {
             expect(scope.isOpen[id1]).toEqualData(false);
             expect(scope.isOpen[id2]).toEqualData(false);
             expect(scope.isOpen[id3]).toEqualData(false);
+        });
+        
+        it('should setup the date/time correctly when loading an empty model', function() {
+            rootScope.model.global.absoluteTimeSpecification = false;
+            scope.loadModel();
+            expect(scope.relativePeriod).toEqualData("2h");
+            expect(scope.fromDate).toEqualData("");
+            expect(scope.fromTime).toEqualData("");
+            expect(scope.toDate).toEqualData("");
+            expect(scope.toDate).toEqualData("");
+        });
+        
+        it('should setup the date/time correctly when loading a model with an invalid date/time', function() {
+            rootScope.model.graphs = [{}];
+            rootScope.model.global.absoluteTimeSpecification = false;
+            scope.loadModel();
+            expect(scope.relativePeriod).toEqualData("2h");
+            expect(scope.fromDate).toEqualData("");
+            expect(scope.fromTime).toEqualData("");
+
+            var datum = new Date(2016,7,20,12,10,10);
+            rootScope.model.global.absoluteTimeSpecification = true;
+            scope.loadModel(datum);
+            expect(scope.relativePeriod).toEqualData("");
+            expect(scope.fromDate).toEqualData("2016/08/20");
+            expect(scope.fromTime).toEqualData("10:10:10");
         });
 
 
