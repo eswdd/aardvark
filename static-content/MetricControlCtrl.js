@@ -434,9 +434,6 @@ aardvark.directive('tagSelection', function() {
         if (inputText=="" || inputText==null){
             return "";
         }
-        if (inputText.endsWith("|") && $scope.re[tag]) {
-            inputText = inputText.substring(0, inputText.length-1);
-        }
         var allValues = $scope.tagValues[tag];
         var count = 0;
         if (inputText=="*") {

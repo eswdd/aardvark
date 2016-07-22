@@ -242,7 +242,7 @@ describe('Aardvark controllers', function () {
             expect(scope.tagValues).toEqualData({});
             expect(scope.tagOptions).toEqualData({});
             expect(scope.nodeSelectionDisabled).toEqualData(false);
-        })
+        });
 
         it('should suggest correct tag values', function() {
             scope.tagValues = { key1: ["value1","something2","value2"] };
@@ -256,8 +256,12 @@ describe('Aardvark controllers', function () {
             expect(scope.suggestTagValues('value1','key1')).toEqualData([ret_value1]);
             expect(scope.suggestTagValues('value12','key1')).toEqualData([]);
             expect(scope.suggestTagValues('*','key1')).toEqualData([]);
+            expect(scope.suggestTagValues('value1|','key1')).toEqualData([{"label":"something2","value":"value1|something2"},{"label":"value2","value":"value1|value2"}]);
+            expect(scope.suggestTagValues('value1|value2','key1')).toEqualData([{"label":"value2","value":"value1|value2"}]);
+            expect(scope.suggestTagValues('value1|value2|','key1')).toEqualData([{"label":"something2","value":"value1|value2|something2"}]);
+            expect(scope.suggestTagValues('value1|value2|something2|','key1')).toEqualData([]);
         });
-
+        
         it('should correctly count matching tag values', function() {
             scope.tagValues = { key1: ["value1","something2","value2"] };
 
