@@ -1334,7 +1334,7 @@ describe('Aardvark controllers', function () {
             testFiltering(
                 { countFilter: {count: 2, measure: "max", end: "bottom"}},
                 {
-                    metric1: [10,20,70],
+                    metric1: [10,20,700],
                     metric2: [20,30,40],
                     metric3: [30,40,50],
                     metric4: [40,50,60]
