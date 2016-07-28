@@ -391,6 +391,121 @@ describe('Aardvark controllers', function () {
             expect(result).toEqualData("2016/01/21 10:10:10");
         });
         
+        it('should return the correct duration when using the "from" baseline datum style', function() {
+            // absolute from date/time - use baseline from
+            var result = scope.baselineOffset({
+                "absoluteTimeSpecification": true,
+                "fromDate": "2016/01/24",
+                "fromTime": "12:23:22",
+                baselining: true,
+                baselineDatumStyle: "from",
+                baselineFromDate: "2016/01/23",
+                baselineFromTime: "10:23:10"
+            }, null);
+            expect(result).toEqualData(moment.duration(26,'h').add(moment.duration(12,'s')));
+
+            // absolute from and to date/time - use baseline from (same as prev)
+            result = scope.baselineOffset({
+                "absoluteTimeSpecification": true,
+                "fromDate": "2016/01/24",
+                "fromTime": "12:23:22",
+                "toDate": "2016/02/26",
+                "toTime": "12:23:22",
+                baselining: true,
+                baselineDatumStyle: "from",
+                baselineFromDate: "2016/01/23",
+                baselineFromTime: "10:10:10"
+            }, null);
+            expect(result).toEqualData(moment.duration(26,'h').add(moment.duration(13,'m').add(moment.duration(12,'s'))));
+
+            // relative time specification - use baseline from (same as prev)
+            var datum = new Date(2016,0,24,12,23,22);
+            result = scope.baselineOffset({
+                "absoluteTimeSpecification": false,
+                "relativePeriod": "2h",
+                baselining: true,
+                baselineDatumStyle: "from",
+                baselineFromDate: "2016/01/23",
+                baselineFromTime: "10:10:10"
+            }, datum);
+            expect(result).toEqualData(moment.duration(24,'h').add(moment.duration(13,'m').add(moment.duration(12,'s'))));
+        });
+        
+        it('should return the correct duration when using the "to" baseline datum style', function() {
+            var datum = new Date(2016,0,22,14,10,10);
+            // absolute from date/time - null "to" means now
+            var result = scope.baselineOffset({
+                "absoluteTimeSpecification": true,
+                "fromDate": "2016/01/22",
+                "fromTime": "12:23:22",
+                baselining: true,
+                baselineDatumStyle: "to",
+                baselineToDate: "2016/01/21",
+                baselineToTime: "10:10:10"
+            }, datum);
+            expect(result).toEqualData(moment.duration(28,'h'));
+
+            // absolute from and to date/time
+            result = scope.baselineOffset({
+                "absoluteTimeSpecification": true,
+                "fromDate": "2016/01/22",
+                "fromTime": "12:23:22",
+                "toDate": "2016/01/23",
+                "toTime": "10:10:10",
+                baselining: true,
+                baselineDatumStyle: "to",
+                baselineToDate: "2016/01/21",
+                baselineToTime: "10:10:10"
+            }, null);
+            expect(result).toEqualData(moment.duration(48,'h'));
+
+            // relative time specification, to is null == datum
+            result = scope.baselineOffset({
+                "absoluteTimeSpecification": false,
+                "relativePeriod": "2h",
+                baselining: true,
+                baselineDatumStyle: "to",
+                baselineToDate: "2016/01/21",
+                baselineToTime: "10:10:10"
+            }, datum);
+            expect(result).toEqualData(moment.duration(28,'h'));
+        });
+        
+        it('should return the correct duration when using the "relative" baseline datum style', function() {
+            // absolute from date/time - null means now so will be baselineRelativePeriod prior to datum
+            var result = scope.baselineOffset({
+                "absoluteTimeSpecification": true,
+                "fromDate": "2016/01/23",
+                "fromTime": "12:23:22",
+                baselining: true,
+                baselineDatumStyle: "relative",
+                baselineRelativePeriod: "1d"
+            }, null);
+            expect(result).toEqualData(moment.duration(1,'d'));
+
+            // absolute from and to date/time - subtract period from to date/time
+            result = scope.baselineOffset({
+                "absoluteTimeSpecification": true,
+                "fromDate": "2016/02/24",
+                "fromTime": "12:23:22",
+                "toDate": "2016/03/23",
+                "toTime": "13:13:13",
+                baselining: true,
+                baselineDatumStyle: "relative",
+                baselineRelativePeriod: "1d"
+            }, null);
+            expect(result).toEqualData(moment.duration(1,'d'));
+
+            // relative time specification - will be baselineRelativePeriod prior to datum
+            result = scope.baselineOffset({
+                "absoluteTimeSpecification": false,
+                "relativePeriod": "2h",
+                baselining: true,
+                baselineDatumStyle: "relative",
+                baselineRelativePeriod: "1d"
+            }, null);
+            expect(result).toEqualData(moment.duration(1,'d'));
+        });
         
         // todo: url generation
         // todo: validate baseline is before standard when using absolute datums

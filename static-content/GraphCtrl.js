@@ -47,6 +47,27 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             return null;
         }
     }
+    
+    $scope.baselineOffset = function(global, datum) {
+        switch (global.baselineDatumStyle) {
+            case "from":
+                var mainFromDateTime = moment($scope.tsdb_fromTimestampAsDate(global, datum));
+                var fromDate = moment(global.baselineFromDate, "YYYY/MM/DD");
+                var fromTime = moment(global.baselineFromTime, "HH:mm:ss");
+                var baselineFromDateTime = moment(fromDate.format("YYYY/MM/DD") + " " + fromTime.format("HH:mm:ss"), "YYYY/MM/DD HH:mm:ss");
+                return moment.duration(mainFromDateTime.diff(baselineFromDateTime));
+            case "to":
+                var mainToDateTime = moment($scope.tsdb_toTimestampAsDate(global, datum));
+                var toDate = moment(global.baselineToDate, "YYYY/MM/DD");
+                var toTime = moment(global.baselineToTime, "HH:mm:ss");
+                var baselineToDateTime = moment(toDate.format("YYYY/MM/DD") + " " + toTime.format("HH:mm:ss"), "YYYY/MM/DD HH:mm:ss");
+                return moment.duration(mainToDateTime.diff(baselineToDateTime));
+            case "relative":
+                return $scope.periodToDiff(global.baselineRelativePeriod);
+            default:
+                throw "Unrecognized baseline datum style: "+global.baselineDatumStyle;
+        }
+    }
 
     // helper functions for dealing with tsdb data
     $scope.tsdb_rateString = function(metricOptions) {
@@ -248,9 +269,9 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         });
     };
 
-    $scope.tsdb_queryStringForBaseline = function(global, graph, metrics, perLineFn) {
-        var fromTimestamp = $scope.tsdb_baselineFromTimestampAsTsdbString(global);
-        var toTimestamp = $scope.tsdb_baselineToTimestampAsTsdbString(global);
+    $scope.tsdb_queryStringForBaseline = function(global, graph, metrics, perLineFn, datum) {
+        var fromTimestamp = $scope.tsdb_baselineFromTimestampAsTsdbString(global, datum);
+        var toTimestamp = $scope.tsdb_baselineToTimestampAsTsdbString(global, datum);
         return $scope.tsdb_queryStringInternal(fromTimestamp, toTimestamp, global.autoReload, global.globalDownsampling, global.globalDownsampleTo, graph, metrics, perLineFn);
     }
 
@@ -670,7 +691,8 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             return;
         });
     };
-    $scope.renderers["dygraph"] = function(global, graph, metrics) {
+    // todo: specifying ratio and auto scale is going to look darn odd - need to decide what to do - add issue for this..
+    $scope.renderers["dygraph"] = function(global, graph, metrics, datum) {
         var fromTimestamp = $scope.tsdb_fromTimestampAsTsdbString(global);
         // validation
         if (fromTimestamp == null || fromTimestamp == "") {
@@ -700,74 +722,106 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         }
 
         $scope.renderMessages[graph.id] = "Loading...";
-
-        // url construction
-        var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/query";
-
-        url += $scope.tsdb_queryString(global, graph, metrics);
         
-        if (dygraphOptions.annotations || dygraphOptions.globalAnnotations) {
-            if (dygraphOptions.globalAnnotations) {
-                url += "&global_annotations=true";
+        var constructUrl = function(queryStringFn, datum) {
+            var ret = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/query";
+
+            ret += queryStringFn(global, graph, metrics, null, datum);
+
+            if (dygraphOptions.annotations || dygraphOptions.globalAnnotations) {
+                if (dygraphOptions.globalAnnotations) {
+                    ret += "&global_annotations=true";
+                }
             }
-        }
-        else {
-            url += "&no_annotations=true";
-        }
+            else {
+                ret += "&no_annotations=true";
+            }
 
-        url += "&ms=true&arrays=true";
+            ret += "&ms=true&arrays=true";
+            if (global.baselining) {
+                ret += "&show_query=true";
+            }
+            return ret;
+        }
+        
+        
+        var mainJson = null;
+        var baselineJson = null;
+        
+        var errorResponse = false;
 
-        // now we have the url, so call it!
-        $http.get(url).success(function (json) {
-            
-            if (!json || json.length == 0) {
+        // baseline approach
+        // 1. make both queries
+        // 2. link results together so that we have a way of mapping from main to baseline
+        // 3. perform filtering based on main, but remove matching baseline if exclude (todo removal)
+        // 4. initial label setting (both sets)
+        // 5. auto-scaling and label adjustment (both together)
+        // 6. baseline time adjustment
+        // 7. min/max time calculations (together)
+        // 8. seperate processing
+        //  a. ratio graphs
+        //  b. mean adjustment
+        //  c. negative squashing
+        // 9. gap filling / merge timeseries (together)
+        // 10. merge labels
+        // 11. render graph
+        
+        var processJson = function() {
+            if (!mainJson || mainJson.length == 0) {
                 $scope.renderErrors[graph.id] = "Empty response from TSDB";
                 $scope.renderMessages[graph.id] = "";
                 return;
+            }
+            var baselining = global.baselining;
+            if ((baselining && (!baselineJson || baselineJson.length == 0))) {
+                $scope.renderWarnings[graph.id] = "Empty response from TSDB for baseline query";
+                baselining = false;
             }
 
             var width = Math.floor(graph.graphWidth);
             var height = Math.floor(graph.graphHeight);
 
             var graphData = [];
-            
-            // filtering
+
+            // 3. perform filtering based on main, but remove matching baseline if exclude 
+            var filteredOut = [];
             var measured = null;
-            if (dygraphOptions.countFilter != null && dygraphOptions.countFilter.count != "" && dygraphOptions.countFilter.count < json.length) {
-                measured = new Array(json.length);
-                var sorted = new Array(json.length);
-                for (var i=0; i<json.length; i++) {
+            if (dygraphOptions.countFilter != null && dygraphOptions.countFilter.count != "" && dygraphOptions.countFilter.count < mainJson.length) {
+                measured = new Array(mainJson.length);
+                var sorted = new Array(mainJson.length);
+                for (var i=0; i<mainJson.length; i++) {
                     switch (dygraphOptions.countFilter.measure) {
                         case "mean":
                             measured[i] = 0;
-                            for (var p=0; p<json[i].dps.length; p++) {
-                                measured[i] +=  json[i].dps[p][1];
+                            for (var p=0; p<mainJson[i].dps.length; p++) {
+                                measured[i] +=  mainJson[i].dps[p][1];
                             }
-                            measured[i] /= json[i].dps.length;
+                            measured[i] /= mainJson[i].dps.length;
                             break;
                         case "min":
                             measured[i] = Number.MAX_VALUE;
-                            for (var p=0; p<json[i].dps.length; p++) {
-                                measured[i] = Math.min(measured[i], json[i].dps[p][1]);
+                            for (var p=0; p<mainJson[i].dps.length; p++) {
+                                measured[i] = Math.min(measured[i], mainJson[i].dps[p][1]);
                             }
                             break;
                         case "max":
                             measured[i] = Number.MIN_VALUE;
-                            for (var p=0; p<json[i].dps.length; p++) {
-                                measured[i] = Math.max(measured[i], json[i].dps[p][1]);
+                            for (var p=0; p<mainJson[i].dps.length; p++) {
+                                measured[i] = Math.max(measured[i], mainJson[i].dps[p][1]);
                             }
                             break;
                     }
                     sorted[i] = measured[i];
                 }
                 // increasing order
-                sorted.sort();
+                sorted.sort(function(a,b){return a-b;}); // default sort is alphanumeric!
                 if (dygraphOptions.countFilter.end == "top") {
-                    var thresholdIndex1 = json.length - dygraphOptions.countFilter.count;
+                    var thresholdIndex1 = (mainJson.length - dygraphOptions.countFilter.count);
                     var threshold1 = sorted[thresholdIndex1];
-                    for (var i=json.length-1; i>=0; i--) {
+                    for (var i=mainJson.length-1; i>=0; i--) {
                         if (measured[i] < threshold1) {
-                            json.splice(i,1);
+                            filteredOut.push(mainJson[i]);
+                            mainJson.splice(i,1);
                             measured.splice(i,1);
                         }
                     }
@@ -775,9 +829,10 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 else if (dygraphOptions.countFilter.end == "bottom") {
                     var thresholdIndex2 = dygraphOptions.countFilter.count - 1;
                     var threshold2 = sorted[thresholdIndex2];
-                    for (var i=json.length-1; i>=0; i--) {
+                    for (var i=mainJson.length-1; i>=0; i--) {
                         if (measured[i] > threshold2) {
-                            json.splice(i,1);
+                            filteredOut.push(mainJson[i]);
+                            mainJson.splice(i,1);
                             measured.splice(i,1);
                         }
                     }
@@ -785,33 +840,33 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             }
             if (dygraphOptions.valueFilter != null && (dygraphOptions.valueFilter.lowerBound != "" || dygraphOptions.valueFilter.upperBound != "")) {
                 if ((dygraphOptions.countFilter && dygraphOptions.valueFilter.measure != dygraphOptions.countFilter.measure) || measured == null) {
-                    measured = new Array(json.length);
-                    for (var i=0; i<json.length; i++) {
+                    measured = new Array(mainJson.length);
+                    for (var i=0; i<mainJson.length; i++) {
                         switch (dygraphOptions.valueFilter.measure) {
                             case "mean":
                                 measured[i] = 0;
-                                for (var p=0; p<json[i].dps.length; p++) {
-                                    measured[i] +=  json[i].dps[p][1];
+                                for (var p=0; p<mainJson[i].dps.length; p++) {
+                                    measured[i] +=  mainJson[i].dps[p][1];
                                 }
-                                measured[i] /= json[i].dps.length;
+                                measured[i] /= mainJson[i].dps.length;
                                 break;
                             case "min":
                                 measured[i] = Number.MAX_VALUE;
-                                for (var p=0; p<json[i].dps.length; p++) {
-                                    measured[i] = Math.min(measured[i], json[i].dps[p][1]);
+                                for (var p=0; p<mainJson[i].dps.length; p++) {
+                                    measured[i] = Math.min(measured[i], mainJson[i].dps[p][1]);
                                 }
                                 break;
                             case "max":
                                 measured[i] = Number.MIN_VALUE;
-                                for (var p=0; p<json[i].dps.length; p++) {
-                                    measured[i] = Math.max(measured[i], json[i].dps[p][1]);
+                                for (var p=0; p<mainJson[i].dps.length; p++) {
+                                    measured[i] = Math.max(measured[i], mainJson[i].dps[p][1]);
                                 }
                                 break;
                         }
                     }
                 }
-                var include = new Array(json.length);
-                for (var i=json.length-1; i>=0; i--) {
+                var include = new Array(mainJson.length);
+                for (var i=mainJson.length-1; i>=0; i--) {
                     include[i] = true;
                     switch (dygraphOptions.valueFilter.measure) {
                         case "mean":
@@ -830,15 +885,15 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                             break;
                         case "any":
                             include[i] = false;
-                            for (var p=0; p<json[i].dps.length; p++) {
+                            for (var p=0; p<mainJson[i].dps.length; p++) {
                                 var includePoint = true;
                                 if (dygraphOptions.valueFilter.lowerBound != "") {
-                                    if (json[i].dps[p][1] < dygraphOptions.valueFilter.lowerBound) {
+                                    if (mainJson[i].dps[p][1] < dygraphOptions.valueFilter.lowerBound) {
                                         includePoint = false;
                                     }
                                 }
                                 if (dygraphOptions.valueFilter.upperBound != "") {
-                                    if (json[i].dps[p][1] > dygraphOptions.valueFilter.upperBound) {
+                                    if (mainJson[i].dps[p][1] > dygraphOptions.valueFilter.upperBound) {
                                         includePoint = false;
                                     }
                                 }
@@ -846,146 +901,356 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                                     include[i] = true;
                                     break;
                                 }
-                                
+
                             }
                     }
                     if (!include[i]) {
-                        json.splice(i,1);
+                        filteredOut.push(mainJson[i]);
+                        mainJson.splice(i,1);
                         measured.splice(i,1);
                     }
                 }
             }
-            
-            if (json.length == 0) {
+
+            if (mainJson.length == 0) {
                 $scope.renderErrors[graph.id] = "Value filtering excluded all time series";
                 $scope.renderMessages[graph.id] = "";
                 return;
             }
             
-            var minTime = json[0].dps[0][0];
-            var maxTime = json[0].dps[json[0].dps.length-1][0];
-            for (var s=1; s<json.length; s++) {
-                minTime = Math.min(minTime, json[s].dps[0][0]);
-                maxTime = Math.max(maxTime, json[s].dps[json[s].dps.length-1][0]);
-            }
-            var indices = new Array(json.length);
-            for (var s=0; s<json.length; s++) {
-                indices[s] = 0;
+            // now filter out of baselineJson based on filteredOut
+            if (baselining && measured != null) {
+                var filteredOutByQuery = {};
+                for (var s=0; s<filteredOut.length; s++) {
+                    var str = JSON.stringify(filteredOut[s].query);
+                    if (!(str in filteredOutByQuery)) {
+                        filteredOutByQuery[str] = [];
+                    }
+                    filteredOutByQuery[str].push(filteredOut[s]);
+                }
+                
+                var allTagsMatch = function(tags1, tags2) {
+                    var tagsArray1 = [];
+                    for (var k in tags1) {
+                        if (tags1.hasOwnProperty(k)) {
+                            tagsArray1.push(k);
+                        }
+                    }
+                    var tagsArray2 = [];
+                    for (var k in tags2) {
+                        if (tags2.hasOwnProperty(k)) {
+                            tagsArray2.push(k);
+                        }
+                    }
+                    if (tagsArray1.length != tagsArray2.length) {
+                        return false;
+                    }
+                    for (var i=0; i<tagsArray1.length; i++) {
+                        var k = tagsArray1[i];
+                        if (tags2.hasOwnProperty(k)) {
+                            if (tags1[k] != tags2[k]) {
+                                return false;
+                            }
+                        }
+                        else {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                
+                for (var s=baselineJson.length-1; s>=0; s--) {
+                    var str = JSON.stringify(baselineJson[s].query);
+                    // ok, we have definitely removed some results from this query
+                    if (str in filteredOutByQuery) {
+                        for (var i=0; i<filteredOutByQuery[str].length; i++) {
+                            if (allTagsMatch(baselineJson[s].tags, filteredOutByQuery[str].tags)) {
+                                baselineJson.splice(s,1);
+                                delete filteredOutByQuery[str];
+                                break;
+                            }
+                        }
+                    }
+                }
             }
 
-            var labels = ["x"];
-            for (var t=0; t<json.length; t++) {
-                var name = $scope.timeSeriesName(json[t]);
-                labels.push(name);
+            // 4. initial label setting (both sets)
+            var mainLabels = ["x"];
+            var baselineLabels = ["x"];
+            for (var t=0; t<mainJson.length; t++) {
+                var name = $scope.timeSeriesName(mainJson[t]);
+                mainLabels.push(name);
             }
-            
-            var scaleFactors = new Array(json.length);
+            if (baselining) {
+                for (var t=0; t<baselineJson.length; t++) {
+                    var name = $scope.timeSeriesName(baselineJson[t]);
+                    baselineLabels.push(name+"[BL]");
+                }
+            }
+
+            // 5. auto-scaling and label adjustment (both together)
+            var mainScaleFactors = new Array(mainJson.length);
+            var baselineScaleFactors = baselining ? new Array(baselineJson.length) : null;
             if (dygraphOptions.autoScale) {
-                var maxValues = new Array(json.length);
-                for (var s=0; s<json.length; s++) {
-                    scaleFactors[s] = 1;
-                    var max = 0;
-                    var min = Number.MAX_VALUE;
-                    for (var p=0; p<json[s].dps.length; p++) {
-                        max = Math.max(max, json[s].dps[p][1]);
-                        min = Math.min(min, json[s].dps[p][1]);
+                var mainMaxValues = new Array(mainJson.length);
+                var baselineMaxValues = baselining ? new Array(baselineJson.length) : null;
+                
+                var calcMaxValues = function(json, scaleFactors, maxValues) {
+                    for (var s=0; s<json.length; s++) {
+                        scaleFactors[s] = 1;
+                        var max = 0;
+                        var min = Number.MAX_VALUE;
+                        for (var p=0; p<json[s].dps.length; p++) {
+                            max = Math.max(max, json[s].dps[p][1]);
+                            min = Math.min(min, json[s].dps[p][1]);
+                        }
+                        if (!dygraphOptions.squashNegative && min < 0) {
+                            max = Math.max(max, Math.abs(min));
+                        }
+                        maxValues[s] = max;
                     }
-                    if (!dygraphOptions.squashNegative && min < 0) {
-                        max = Math.max(max, Math.abs(min));
-                    }
-                    maxValues[s] = max;
+                }
+                
+                calcMaxValues(mainJson, mainScaleFactors, mainMaxValues);
+                if (baselining) {
+                    calcMaxValues(baselineJson, baselineScaleFactors, baselineMaxValues);
                 }
 
                 // loops through to update the maxs array based on base metric name...
                 // this is so we scale same base metric to same scale
                 var checkedMetrics = new Array();
-                for (var s=0; s<json.length; s++) {
-                    var metricName = json[s].metric;
-                    if (checkedMetrics.indexOf(metricName) == -1) {
-                        checkedMetrics.push(metricName);
-                        // find the max value for all instances of this metric name
-                        var maxThisMetric = maxValues[s];
-                        for (var k=s+1; k<json.length; k++) {
-                            if (json[k].metric == metricName) {
-                                maxThisMetric = Math.max(maxThisMetric, maxValues[k]);
+                var updateMaxValues = function(json, maxValues) {
+                    for (var s=0; s<json.length; s++) {
+                        var metricName = json[s].metric;
+                        if (checkedMetrics.indexOf(metricName) == -1) {
+                            checkedMetrics.push(metricName);
+                            // find the max value for all instances of this metric name
+                            var maxThisMetric = maxValues[s];
+                            for (var k=s+1; k<json.length; k++) {
+                                if (json[k].metric == metricName) {
+                                    maxThisMetric = Math.max(maxThisMetric, maxValues[k]);
+                                }
                             }
-                        }
-                        // set the global max as the max for each instance of this metric name
-                        for (var k=s; k<json.length; k++) {
-                            if (json[k].metric == metricName) {
-                                maxValues[k] = maxThisMetric;
+                            // set the global max as the max for each instance of this metric name
+                            for (var k=s; k<json.length; k++) {
+                                if (json[k].metric == metricName) {
+                                    maxValues[k] = maxThisMetric;
+                                }
                             }
                         }
                     }
                 }
-
-
+                
+                updateMaxValues(mainJson, mainMaxValues);
+                if (baselining) {
+                    updateMaxValues(baselineJson, baselineMaxValues);
+                }
 
                 var maxl = 0;
-                for (var s=0; s<maxValues.length; s++) {
-                    maxValues[s] = parseInt(Math.log(maxValues[s])/Math.log(10));
-                    if (maxValues[s]>maxl) {
-                        maxl = maxValues[s];
+                var calcMaxl = function(maxValues) {
+                    for (var s=0; s<maxValues.length; s++) {
+                        maxValues[s] = parseInt(Math.log(maxValues[s])/Math.log(10));
+                        if (maxValues[s]>maxl) {
+                            maxl = maxValues[s];
+                        }
                     }
                 }
+                calcMaxl(mainMaxValues);
+                if (baselining) {
+                    calcMaxl(baselineMaxValues);
+                }
 
-                for (var s=0;s<json.length;s++) {
-                    var l = maxl - maxValues[s];
-                    if (l>0) {
-                        scaleFactors[s] = Math.pow(10, l);
-                        labels[s+1] = scaleFactors[s]+"x "+labels[s+1];
+                var updateScaleFactors = function(json, scaleFactors, mainValues, labels) { 
+                    for (var s=0;s<json.length;s++) {
+                        var l = maxl - mainValues[s];
+                        if (l>0) {
+                            scaleFactors[s] = Math.pow(10, l);
+                            labels[s+1] = scaleFactors[s]+"x "+labels[s+1];
+                        }
+                    }
+                }
+                updateScaleFactors(mainJson, mainScaleFactors, mainMaxValues, mainLabels);
+                if (baselining) {
+                    updateScaleFactors(baselineJson, baselineScaleFactors, baselineMaxValues, baselineLabels);
+                }
+            }
+
+            // 6. baseline time adjustment
+            if (baselining) {
+                var baselineOffset = $scope.baselineOffset(global, datum).asMilliseconds();
+                for (var s=0; s<baselineJson.length; s++) {
+                    for (var p=0; p<baselineJson[s].dps.length; p++) {
+                        baselineJson[s].dps[p][0] += baselineOffset;
                     }
                 }
             }
+
+            // 7. min/max time calculations (together)
+            var minTime = mainJson[0].dps[0][0];
+            var maxTime = mainJson[0].dps[mainJson[0].dps.length-1][0];
+            for (var s=1; s<mainJson.length; s++) {
+                minTime = Math.min(minTime, mainJson[s].dps[0][0]);
+                maxTime = Math.max(maxTime, mainJson[s].dps[mainJson[s].dps.length-1][0]);
+            }
+            if (baselineJson != null) {
+                for (var s=0; s<baselineJson.length; s++) {
+                    minTime = Math.min(minTime, baselineJson[s].dps[0][0]);
+                    maxTime = Math.max(maxTime, baselineJson[s].dps[baselineJson[s].dps.length-1][0]);
+                }
+            }
+
+            // indices, used to track progress through dps arrays
+            var mainIndices1 = new Array(mainJson.length);
+            var mainIndices2 = new Array(mainJson.length);
+            for (var s=0; s<mainJson.length; s++) {
+                mainIndices1[s] = 0;
+                mainIndices2[s] = 0;
+            }
+            var baselineIndices1;
+            var baselineIndices2;
+            if (baselining) {
+                baselineIndices1 = new Array(baselineJson.length);
+                baselineIndices2 = new Array(baselineJson.length);
+                for (var s=0; s<baselineJson.length; s++) {
+                    baselineIndices1[s] = 0;
+                    baselineIndices2[s] = 0;
+                }
+            }
+            
+            var ignoredOptions = [];
+            if (dygraphOptions.ratioGraph) {
+                if (dygraphOptions.meanAdjusted) {
+                    ignoredOptions.push("mean adjustment");
+                }
+                if (dygraphOptions.autoScale) {
+                    ignoredOptions.push("auto scaling");
+                }
+            }
+            else if (dygraphOptions.meanAdjusted) {
+                if (dygraphOptions.autoScale) {
+                    ignoredOptions.push("auto scaling");
+                }
+            }
+            var ignoredBecause = null;
+
+            // 8. seperate processing
+            //  a. ratio graphs
+            //  b. mean adjustment
+            //  c. negative squashing
+            var seperateProcessing = function(json, indices, scaleFactors) {
+//                console.log("seperateProcessing:");
+//                console.log("json = "+JSON.stringify(json));
+                for (var t=minTime; t<=maxTime; ) {
+//                    console.log("t = "+t);
+                    var nextTime = maxTime + 1; // break condition
+                    var sum = 0; // for mean adjusted graphs
+                    var hadValue = [];
+                    for (var s=0; s<json.length; s++) {
+                        hadValue.push(false);
+                        if (indices[s] >= json[s].dps.length) {
+                            // skip this one
+                        }
+                        else if (json[s].dps[indices[s]][0] == t) {
+                            hadValue[s] = true;
+                            var val = json[s].dps[indices[s]][1];
+                            if (dygraphOptions.squashNegative && val < 0) {
+                                json[s].dps[indices[s]][1] = 0;
+                                val = 0;
+                            }
+                            indices[s]++;
+                            if (indices[s] < json[s].dps.length) {
+                                nextTime = Math.min(nextTime, json[s].dps[indices[s]][0]);
+                            }
+                            if (dygraphOptions.ratioGraph) {
+                                sum += Math.abs(val);
+                            }
+                            else if (dygraphOptions.meanAdjusted) {
+                                sum += val;
+                            }
+                        }
+                        else {
+                            nextTime = Math.min(nextTime, json[s].dps[indices[s]][0]);
+                        }
+                    }
+                    if (dygraphOptions.ratioGraph) {
+                        for (var s=0; s<json.length; s++) {
+                            if (hadValue[s] && json[s].dps[indices[s]-1][1]!=null && !isNaN(json[s].dps[indices[s]-1][1])) {
+                                json[s].dps[indices[s]-1][1] = (json[s].dps[indices[s]-1][1] * 100) / sum;
+                            }
+                        }
+                        ignoredBecause = "ratio graphs";
+                    }
+                    else if (dygraphOptions.meanAdjusted) {
+                        var mean = sum / json.length;
+                        for (var s=0; s<json.length; s++) {
+//                            console.log("s = "+s);
+//                            console.log("indices[s] = "+indices[s]);
+                            if (hadValue[s] && json[s].dps[indices[s]-1][1]!=null && !isNaN(json[s].dps[indices[s]-1][1])) {
+
+//                                console.log("val = "+json[s].dps[indices[s]-1][1]);
+//                                console.log("mean = "+mean);
+                                json[s].dps[indices[s]-1][1] -= mean;
+                            }
+                        }
+                        ignoredBecause = "mean adjustment";
+                    }
+                    else if (dygraphOptions.autoScale) {
+                        for (var s=0; s<json.length; s++) {
+                            if (hadValue[s] && json[s].dps[indices[s]-1][1]!=null && !isNaN(json[s].dps[indices[s]-1][1])) {
+                                json[s].dps[indices[s]-1][1] *= scaleFactors[s];
+                            }
+                        }
+                        ignoredBecause = "auto scaling";
+                    }
+                    t = nextTime;
+                }
+            }
+            
+            seperateProcessing(mainJson, mainIndices1, mainScaleFactors);
+            if (baselining) {
+                seperateProcessing(baselineJson, baselineIndices1, baselineScaleFactors);
+            }
+          
+            // ie we had some clashes and some data..
+            if (ignoredBecause != null && ignoredOptions.length > 0) {
+                var buff = "";
+                var sep = "Ignored ";
+                for (var i=0; i<ignoredOptions.length; i++) {
+                    buff += sep + ignoredOptions[i];
+                    sep = " and ";
+                }
+                buff += " as not compatible with " + ignoredBecause;
+                
+                $scope.renderWarnings[graph.id] = buff;
+            }
+
+            // 9. gap filling / merge timeseries (together)
             for (var t=minTime; t<=maxTime; ) {
                 var row = [new Date(t)];
                 var nextTime = maxTime + 1; // break condition
-                var sum = 0; // for mean adjusted graphs
-                for (var s=0; s<json.length; s++) {
-                    if (indices[s] >= json[s].dps.length) {
-                        row.push(null);
-                    }
-                    else if (json[s].dps[indices[s]][0] == t) {
-                        var val = json[s].dps[indices[s]][1];
-                        if (dygraphOptions.squashNegative && val < 0) {
-                            val = 0;
+                var gapFillAndMergeJson = function(json, indices) {
+                    for (var s=0; s<json.length; s++) {
+                        // gap filling
+                        if (indices[s] >= json[s].dps.length) {
+                            row.push(null);
                         }
-                        row.push(val);
-                        indices[s]++;
-                        if (indices[s] < json[s].dps.length) {
+                        else if (json[s].dps[indices[s]][0] == t) {
+                            var val = json[s].dps[indices[s]][1];
+                            row.push(val);
+                            indices[s]++;
+                            if (indices[s] < json[s].dps.length) {
+                                nextTime = Math.min(nextTime, json[s].dps[indices[s]][0]);
+                            }
+                        }
+                        else {
+                            row.push(null);
                             nextTime = Math.min(nextTime, json[s].dps[indices[s]][0]);
                         }
-                        if (dygraphOptions.meanAdjusted || dygraphOptions.ratioGraph) {
-                            sum += val;
-                        }
-                    }
-                    else {
-                        row.push(null);
-                        nextTime = Math.min(nextTime, json[s].dps[indices[s]][0]);
                     }
                 }
-                if (dygraphOptions.ratioGraph) {
-                    for (var s=0; s<json.length; s++) {
-                        if (row[s+1]!=null && !isNaN(row[s+1])) {
-                            row[s+1] = (row[s+1] * 100) / sum;
-                        }
-                    }
-                    sum = 100;
-                }
-                if (dygraphOptions.meanAdjusted) {
-                    var mean = sum / json.length;
-                    for (var s=0; s<json.length; s++) {
-                        if (row[s+1]!=null && !isNaN(row[s+1])) {
-                            row[s+1] -= mean;
-                        }
-                    } 
-                }
-                if (dygraphOptions.autoScale) {
-                    for (var s=0; s<json.length; s++) {
-                        if (row[s+1]!=null && !isNaN(row[s+1])) {
-                            row[s+1] *= scaleFactors[s];
-                        }
-                    }
+                gapFillAndMergeJson(mainJson, mainIndices2);
+                if (baselining) {
+                    gapFillAndMergeJson(baselineJson, baselineIndices2);
                 }
                 graphData.push(row);
                 t = nextTime;
@@ -1011,7 +1276,15 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                     positionLegend();
                 }
             });
-            
+
+            // 10. merge labels
+            var labels = mainLabels;
+            if (baselining) {
+                for (var s=1; s<baselineLabels.length; s++) {
+                    labels.push(baselineLabels[s]);
+                }
+            }
+
             var labelsDiv = document.getElementById("dygraphLegend_"+graph.id);
             var config = {
                 labels: labels,
@@ -1050,7 +1323,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                     strokeBorderWidth: 1,
                     highlightCircleSize: 5
                 };
-                 config.highlightCallback = function(event, x, points, row, seriesName) {
+                config.highlightCallback = function(event, x, points, row, seriesName) {
                     if (labelsDiv) {
                         //find the y val
                         var yval = '';
@@ -1068,15 +1341,49 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             }
 
             $scope.dygraph_render("dygraphDiv_"+graph.id, graph.id, graphData, config);
-            
+
             $scope.renderMessages[graph.id] = "";
             $scope.graphRendered(graph.id);
             return;
-        })
-        .error(function (arg) {
+            
+        }
+
+        // 1. make both queries
+        var url = constructUrl($scope.tsdb_queryString, null);
+        var baselineUrl = global.baselining ? constructUrl($scope.tsdb_queryStringForBaseline, datum) : null;
+
+        // now we have the url, so call it!
+        $http.get(url).success(function (json) {
+            if (errorResponse) {
+                return;
+            }
+            mainJson = json;
+            if (!global.baselining || baselineJson != null) {
+                processJson();
+            }
+            // else wait for baseline data
+        }).error(function (arg) {
             $scope.renderMessages[graph.id] = "Error loading data: "+arg;
+            errorReponse = true;
             return;
         });
+        
+        if (global.baselining) {
+            $http.get(baselineUrl).success(function (json) {
+                if (errorResponse) {
+                    return;
+                }
+                baselineJson = json;
+                if (mainJson != null) {
+                    processJson();
+                }
+                // else wait for main data
+            }).error(function (arg) {
+                $scope.renderMessages[graph.id] = "Error loading data: "+arg;
+                errorReponse = true;
+                return;
+            });
+        }
     };
     $scope.renderers["scatter"] = function(global, graph, metrics) {
         var fromTimestamp = $scope.tsdb_fromTimestampAsTsdbString(global);

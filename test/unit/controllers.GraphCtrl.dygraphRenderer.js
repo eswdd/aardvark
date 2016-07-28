@@ -564,16 +564,15 @@ describe('Aardvark controllers', function () {
             expect(scope.renderWarnings).toEqualData({});
         });
         
-        it('should render with dygraph with mean adjustment', function() {
+        var dygraphMeanAdjustedTest = function(graph) {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { squashNegative: false, meanAdjusted: true }};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                            { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
@@ -583,11 +582,11 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 50]
             ]},{metric: "metric2", tags: {}, dps:[
                 [1234567811000, -20],
-                    [1234567812000, 20],
-                    [1234567813000, -30],
-                    [1234567814000, 40],
-                    [1234567815000, 10]
-                ]}]);
+                [1234567812000, 20],
+                [1234567813000, -30],
+                [1234567814000, 40],
+                [1234567815000, 10]
+            ]}]);
 
             scope.renderers.dygraph(global, graph, metrics);
 
@@ -621,10 +620,14 @@ describe('Aardvark controllers', function () {
                 }
             });
             expect(scope.renderErrors).toEqualData({});
+        }
+        
+        it('should render with dygraph with mean adjustment', function() {
+            dygraphMeanAdjustedTest({id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { squashNegative: false, meanAdjusted: true }});
             expect(scope.renderWarnings).toEqualData({});
         });
         
-        it('should render with dygraph with mean adjustment and negative squashing', function() {
+        it('should render with dygraph with mean adjustment & negative squashing', function() {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
@@ -682,6 +685,135 @@ describe('Aardvark controllers', function () {
             });
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
+        });
+        
+        var dygraphRatioTest = function(graph) {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
+
+            var global = { relativePeriod: "1d", autoReload: false };
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                            { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true').respond([{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 10],
+                [1234567812000, -20],
+                [1234567813000, 30],
+                [1234567814000, -40],
+                [1234567815000, 40]
+            ]},{metric: "metric2", tags: {}, dps:[
+                [1234567811000, -20],
+                    [1234567812000, 20],
+                    [1234567813000, -30],
+                    [1234567814000, 40],
+                    [1234567815000, 10]
+                ]}]);
+
+            scope.renderers.dygraph(global, graph, metrics);
+
+            $httpBackend.flush();
+
+            expect(renderDivId).toEqualData("dygraphDiv_abc");
+            expect(renderGraphId).toEqualData("abc");
+            expect(renderData).toEqualData([
+                [new Date(1234567811000), 100/3, -200/3],
+                [new Date(1234567812000), -50, 50],
+                [new Date(1234567813000), 50, -50],
+                [new Date(1234567814000), -50, 50],
+                [new Date(1234567815000), 80, 20]
+            ]);
+            expect(renderConfig).toEqualData({
+                labels: ["x", "metric1", "metric2"],
+                width: 0,
+                height: 0,
+                legend: "always",
+                drawGapEdgePoints: true,
+                axisLabelFontSize: 9,
+                labelsDivStyles: {
+                    fontSize: 9,
+                    textAlign: "right"
+                },
+                labelsSeparateLines: true,
+                labelsDiv: null,
+                labelsDivWidth: 1000,
+                axes:{
+                    y:{}
+                }
+            });
+            expect(scope.renderErrors).toEqualData({});
+        };
+
+        it('should render with dygraph with ratio graph', function() { 
+            dygraphRatioTest({id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { squashNegative: false, ratioGraph: true }});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+        
+        it('should render with dygraph with ratio graph & negative squashing', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
+
+            var global = { relativePeriod: "1d", autoReload: false };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { squashNegative: true, ratioGraph: true }};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true').respond([{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 10],
+                [1234567812000, -20],
+                [1234567813000, 30],
+                [1234567814000, -40],
+                [1234567815000, 40]
+            ]},{metric: "metric2", tags: {}, dps:[
+                [1234567811000, -20],
+                [1234567812000, 20],
+                [1234567813000, -30],
+                [1234567814000, 40],
+                [1234567815000, 10]
+            ]}]);
+
+            scope.renderers.dygraph(global, graph, metrics);
+
+            $httpBackend.flush();
+
+            expect(renderDivId).toEqualData("dygraphDiv_abc");
+            expect(renderGraphId).toEqualData("abc");
+            expect(renderData).toEqualData([
+                [new Date(1234567811000), 100, 0],
+                [new Date(1234567812000), 0, 100],
+                [new Date(1234567813000), 100, 0],
+                [new Date(1234567814000), 0, 100],
+                [new Date(1234567815000), 80, 20]
+            ]);
+            expect(renderConfig).toEqualData({
+                labels: ["x", "metric1", "metric2"],
+                width: 0,
+                height: 0,
+                legend: "always",
+                drawGapEdgePoints: true,
+                axisLabelFontSize: 9,
+                labelsDivStyles: {
+                    fontSize: 9,
+                    textAlign: "right"
+                },
+                labelsSeparateLines: true,
+                labelsDiv: null,
+                labelsDivWidth: 1000,
+                axes:{
+                    y:{}
+                }
+            });
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+        
+        // identical to ratio only - should ignore mean adjustment as not compatible
+        it('should render with dygraph with ratio graph & mean adjustment', function() {
+            dygraphRatioTest({id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { meanAdjusted: true, ratioGraph: true }});
+            expect(scope.renderWarnings).toEqualData({abc:"Ignored mean adjustment as not compatible with ratio graphs"});
         });
         
         it('should render with dygraph with auto scaling', function() {
@@ -742,6 +874,84 @@ describe('Aardvark controllers', function () {
             });
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
+        });
+
+        it('should render with dygraph with auto scaling & negative squashing', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
+
+            var global = { relativePeriod: "1d", autoReload: false };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { autoScale: true, squashNegative: true }};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true').respond([{metric: "metric1", tags: {}, dps:[
+                [1234567811000, -1000],
+                [1234567812000, -2000],
+                [1234567813000, -3000],
+                [1234567814000, -4000],
+                [1234567815000, -5000]
+            ]},{metric: "metric2", tags: {}, dps:[
+                [1234567811000, 20],
+                [1234567812000, 20],
+                [1234567813000, 30],
+                [1234567814000, 40],
+                [1234567815000, 10]
+            ]}]);
+
+            scope.renderers.dygraph(global, graph, metrics);
+
+            $httpBackend.flush();
+
+            expect(renderDivId).toEqualData("dygraphDiv_abc");
+            expect(renderGraphId).toEqualData("abc");
+            expect(renderData).toEqualData([
+                [new Date(1234567811000), 0, 20],
+                [new Date(1234567812000), 0, 20],
+                [new Date(1234567813000), 0, 30],
+                [new Date(1234567814000), 0, 40],
+                [new Date(1234567815000), 0, 10]
+            ]);
+            expect(renderConfig).toEqualData({
+                labels: ["x", "metric1", "metric2"],
+                width: 0,
+                height: 0,
+                legend: "always",
+                drawGapEdgePoints: true,
+                axisLabelFontSize: 9,
+                labelsDivStyles: {
+                    fontSize: 9,
+                    textAlign: "right"
+                },
+                labelsSeparateLines: true,
+                labelsDiv: null,
+                labelsDivWidth: 1000,
+                axes:{
+                    y:{}
+                }
+            });
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
+        // identical to mean adjusted only - should ignore auto scaling as not compatible
+        it('should render with dygraph with auto scaling & mean adjustment', function() {
+            dygraphMeanAdjustedTest({id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { autoScale: true, meanAdjusted: true }});
+            expect(scope.renderWarnings).toEqualData({abc:"Ignored auto scaling as not compatible with mean adjustment"});
+        });
+
+        // identical to ratio only - should ignore auto scaling as not compatible
+        it('should render with dygraph with auto scaling & ratio graph', function() {
+            dygraphRatioTest({id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { autoScale: true, ratioGraph: true }});
+            expect(scope.renderWarnings).toEqualData({abc:"Ignored auto scaling as not compatible with ratio graphs"});
+        });
+
+        // identical to ratio only - should ignore auto scaling as not compatible
+        it('should render with dygraph with auto scaling & ratio graph & mean adjustment', function() {
+            dygraphRatioTest({id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { autoScale: true, ratioGraph: true, meanAdjusted: true }});
+            expect(scope.renderWarnings).toEqualData({abc:"Ignored mean adjustment and auto scaling as not compatible with ratio graphs"});
         });
         
         it('should render with dygraph with auto scaling and scale same metrics same amount', function() {
@@ -1349,6 +1559,621 @@ describe('Aardvark controllers', function () {
             );
         });
 
+        it('should fail when baselining is enabled and there was an empty response for the main query', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+
+            var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([]);
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=2016/01/20 14:10:10&end=2016/01/21 14:10:10&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
+                [1234481411000, 10],
+                [1234481412000, 20],
+                [1234481413000, 30],
+                [1234481414000, 40],
+                [1234481415000, 50]
+            ]}]);
+
+            var datum = new Date(2016,0,22,14,10,10);
+            
+            scope.renderers.dygraph(global, graph, metrics, datum);
+
+            $httpBackend.flush();
+
+            expect(renderDivId).toEqualData(null);
+            expect(renderGraphId).toEqualData(null);
+            expect(renderData).toEqualData(null);
+            expect(renderConfig).toEqualData(null);
+            expect(scope.renderErrors).toEqualData({abc:"Empty response from TSDB"});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+        
+        it('should warn when baselining is enabled and there was an empty response for the baseline query', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+
+            var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 10],
+                [1234567812000, 20],
+                [1234567813000, 30],
+                [1234567814000, 40],
+                [1234567815000, 50]
+            ]}]);
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=2016/01/20 14:10:10&end=2016/01/21 14:10:10&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([]);
+
+            var datum = new Date(2016,0,22,14,10,10);
+            
+            scope.renderers.dygraph(global, graph, metrics, datum);
+
+            $httpBackend.flush();
+
+            expect(renderDivId).toEqualData("dygraphDiv_abc");
+            expect(renderGraphId).toEqualData("abc");
+            expect(renderData).toEqualData([
+                [new Date(1234567811000), 10],
+                [new Date(1234567812000), 20],
+                [new Date(1234567813000), 30],
+                [new Date(1234567814000), 40],
+                [new Date(1234567815000), 50]
+            ]);
+            expect(renderConfig).toEqualData({
+                labels: ["x", "metric1"],
+                width: 0,
+                height: 0,
+                legend: "always",
+                drawGapEdgePoints: true,
+                axisLabelFontSize: 9,
+                labelsDivStyles: {
+                    fontSize: 9,
+                    textAlign: "right"
+                },
+                labelsSeparateLines: true,
+                labelsDiv: null,
+                labelsDivWidth: 1000,
+                axes:{
+                    y:{}
+                }
+            });
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({abc:"Empty response from TSDB for baseline query"});
+        });
+
+        var baselineTest = function(url1, data1, url2, data2, global, graph, metrics, expectedRenderData, labels) {
+            if (url1 == null) {
+                url1 = 'http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true';
+            }
+            if (url2 == null) {
+                url2 = 'http://tsdb:4242/api/query?start=2016/01/20 14:10:10&end=2016/01/21 14:10:10&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true';
+            }
+            if (labels == null) {
+                labels = ["x", "metric1", "metric1[BL]"];
+            }
+
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
+
+            var datum = new Date(2016,0,22,14,10,10);
+
+            if (graph == null) {
+                graph = {id:"abc", graphWidth: 0, graphHeight: 0};
+            }
+            if (metrics == null) {
+                metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+            }
+
+            $httpBackend.expectGET(url1).respond(data1);
+            $httpBackend.expectGET(url2).respond(data2);
+
+            scope.renderers.dygraph(global, graph, metrics, datum);
+
+
+            $httpBackend.flush();
+
+            expect(renderDivId).toEqualData("dygraphDiv_abc");
+            expect(renderGraphId).toEqualData("abc");
+            expect(renderData).toEqualData(expectedRenderData);
+            expect(renderConfig).toEqualData({
+                labels: labels,
+                width: 0,
+                height: 0,
+                legend: "always",
+                drawGapEdgePoints: true,
+                axisLabelFontSize: 9,
+                labelsDivStyles: {
+                    fontSize: 9,
+                    textAlign: "right"
+                },
+                labelsSeparateLines: true,
+                labelsDiv: null,
+                labelsDivWidth: 1000,
+                axes:{
+                    y:{}
+                }
+            });
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({});
+        }
+        
+        it('should render baseline lines where we had no corresponding main query lines', function() {
+            var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+
+            var url1 = 'http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
+            var url2 = 'http://tsdb:4242/api/query?start=2016/01/20 14:10:10&end=2016/01/21 14:10:10&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
+
+            var data1 = [{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 10],
+                [1234567812000, -20],
+                [1234567813000, 30],
+                [1234567814000, -40],
+                [1234567815000, 50]
+            ]}];
+            var data2 = [{metric: "metric2", tags: {}, dps:[
+                [1234481411000, -20],
+                [1234481412000, 30],
+                [1234481413000, -30],
+                [1234481414000, 50],
+                [1234481415000, 20]
+            ]}];
+
+            var renderData = [
+                [new Date(1234567811000), 10, -20],
+                [new Date(1234567812000), -20, 30],
+                [new Date(1234567813000), 30, -30],
+                [new Date(1234567814000), -40, 50],
+                [new Date(1234567815000), 50, 20]
+            ];
+
+            baselineTest(url1, data1, url2, data2, global, null, metrics, renderData, ["x", "metric1", "metric2[BL]"]);
+        });
+        
+        it('should render with dygraph when baselining is enabled', function() {
+            var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
+
+            var data1 = [{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 10],
+                [1234567812000, 20],
+                [1234567813000, 30],
+                [1234567814000, 40],
+                [1234567815000, 50]
+            ]}];
+            var data2 = [{metric: "metric1", tags: {}, dps:[
+                [1234481411000, 10],
+                [1234481412000, 20],
+                [1234481413000, 30],
+                [1234481414000, 40],
+                [1234481415000, 50]
+            ]}];
+            
+            var renderData = [
+                [new Date(1234567811000), 10, 10],
+                [new Date(1234567812000), 20, 20],
+                [new Date(1234567813000), 30, 30],
+                [new Date(1234567814000), 40, 40],
+                [new Date(1234567815000), 50, 50]
+            ];
+
+            baselineTest(null, data1, null, data2, global, null, null, renderData, null);
+        });
+        
+        it('should render with dygraph when baselining is enabled with negative squashing', function() {
+            var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { squashNegative: true }};
+
+            var data1 = [{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 10],
+                [1234567812000, -20],
+                [1234567813000, 30],
+                [1234567814000, -40],
+                [1234567815000, 50]
+            ]}];
+            var data2 = [{metric: "metric1", tags: {}, dps:[
+                [1234481411000, 10],
+                [1234481412000, -20],
+                [1234481413000, 30],
+                [1234481414000, -40],
+                [1234481415000, 50]
+            ]}];
+
+            var renderData = [
+                [new Date(1234567811000), 10, 10],
+                [new Date(1234567812000), 0, 0],
+                [new Date(1234567813000), 30, 30],
+                [new Date(1234567814000), 0, 0],
+                [new Date(1234567815000), 50, 50]
+            ];
+
+            baselineTest(null, data1, null, data2, global, graph, null, renderData, null);
+        });
+        
+        it('should render with dygraph when baselining is enabled with mean adjustment', function() {
+            var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { squashNegative: false, meanAdjusted: true }};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+
+            var url1 = 'http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
+            var url2 = 'http://tsdb:4242/api/query?start=2016/01/20 14:10:10&end=2016/01/21 14:10:10&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
+
+            var data1 = [{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 10],
+                [1234567812000, -20],
+                [1234567813000, 30],
+                [1234567814000, -40],
+                [1234567815000, 50]
+            ]},{metric: "metric2", tags: {}, dps:[
+                [1234567811000, -20],
+                [1234567812000, 20],
+                [1234567813000, -30],
+                [1234567814000, 40],
+                [1234567815000, 10]
+            ]}];
+            var data2 = [{metric: "metric1", tags: {}, dps:[
+                [1234481411000, 20],
+                [1234481412000, -20],
+                [1234481413000, 40],
+                [1234481414000, -40],
+                [1234481415000, 60]
+            ]},{metric: "metric2", tags: {}, dps:[
+                [1234481411000, -20],
+                [1234481412000, 30],
+                [1234481413000, -30],
+                [1234481414000, 50],
+                [1234481415000, 20]
+            ]}];
+
+            var renderData = [
+                [new Date(1234567811000), 15, -15, 20, -20],
+                [new Date(1234567812000), -20, 20, -25, 25],
+                [new Date(1234567813000), 30, -30, 35, -35],
+                [new Date(1234567814000), -40, 40, -45, 45],
+                [new Date(1234567815000), 20, -20, 20, -20]
+            ];
+
+            baselineTest(url1, data1, url2, data2, global, graph, metrics, renderData, ["x", "metric1", "metric2", "metric1[BL]", "metric2[BL]"]);
+        });
+        
+        it('should render with dygraph when baselining is enabled with mean adjustment & negative squashing', function() {
+
+            var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { squashNegative: true, meanAdjusted: true }};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+
+
+            var url1 = 'http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
+            var url2 = 'http://tsdb:4242/api/query?start=2016/01/20 14:10:10&end=2016/01/21 14:10:10&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
+            
+            var data1 = [{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 10],
+                [1234567812000, -20],
+                [1234567813000, 30],
+                [1234567814000, -40],
+                [1234567815000, 50]
+            ]},{metric: "metric2", tags: {}, dps:[
+                [1234567811000, -20],
+                [1234567812000, 20],
+                [1234567813000, -30],
+                [1234567814000, 40],
+                [1234567815000, 10]
+            ]}];
+            var data2 = [{metric: "metric1", tags: {}, dps:[
+                [1234481411000, 20],
+                [1234481412000, -20],
+                [1234481413000, 40],
+                [1234481414000, -40],
+                [1234481415000, 60]
+            ]},{metric: "metric2", tags: {}, dps:[
+                [1234481411000, -20],
+                [1234481412000, 30],
+                [1234481413000, -30],
+                [1234481414000, 50],
+                [1234481415000, 20]
+            ]}];
+            
+            var renderData = [
+                [new Date(1234567811000), 5, -5, 10, -10],
+                [new Date(1234567812000), -10, 10, -15, 15],
+                [new Date(1234567813000), 15, -15, 20, -20],
+                [new Date(1234567814000), -20, 20, -25, 25],
+                [new Date(1234567815000), 20, -20, 20, -20]
+            ];
+
+            baselineTest(url1, data1, url2, data2, global, graph, metrics, renderData, ["x", "metric1", "metric2", "metric1[BL]", "metric2[BL]"]);
+        });
+        
+        it('should render with dygraph when baselining is enabled with ratio graph', function() {
+            var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { squashNegative: false, ratioGraph: true }};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+
+            var url1 = 'http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
+            var url2 = 'http://tsdb:4242/api/query?start=2016/01/20 14:10:10&end=2016/01/21 14:10:10&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
+
+            var data1 = [{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 10],
+                [1234567812000, -20],
+                [1234567813000, 30],
+                [1234567814000, -40],
+                [1234567815000, 40]
+            ]},{metric: "metric2", tags: {}, dps:[
+                [1234567811000, -30],
+                [1234567812000, 20],
+                [1234567813000, -30],
+                [1234567814000, 40],
+                [1234567815000, 10]
+            ]}];
+            var data2 = [{metric: "metric1", tags: {}, dps:[
+                [1234481411000, 20],
+                [1234481412000, -20],
+                [1234481413000, 70],
+                [1234481414000, -80],
+                [1234481415000, 60]
+            ]},{metric: "metric2", tags: {}, dps:[
+                [1234481411000, -20],
+                [1234481412000, 30],
+                [1234481413000, -30],
+                [1234481414000, 120],
+                [1234481415000, 20]
+            ]}];
+
+            var renderData = [
+                [new Date(1234567811000), 25, -75, 50, -50],
+                [new Date(1234567812000), -50, 50, -40, 60],
+                [new Date(1234567813000), 50, -50, 70, -30],
+                [new Date(1234567814000), -50, 50, -40, 60],
+                [new Date(1234567815000), 80, 20, 75, 25]
+            ];
+
+            baselineTest(url1, data1, url2, data2, global, graph, metrics, renderData, ["x", "metric1", "metric2", "metric1[BL]", "metric2[BL]"]);
+        });
+        
+        it('should render with dygraph when baselining is enabled with ratio graph & negative squashing', function() {
+
+            var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { squashNegative: true, ratioGraph: true }};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+
+
+            var url1 = 'http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
+            var url2 = 'http://tsdb:4242/api/query?start=2016/01/20 14:10:10&end=2016/01/21 14:10:10&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
+            
+            var data1 = [{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 10],
+                [1234567812000, -20],
+                [1234567813000, 30],
+                [1234567814000, -40],
+                [1234567815000, 40]
+            ]},{metric: "metric2", tags: {}, dps:[
+                [1234567811000, -20],
+                [1234567812000, 20],
+                [1234567813000, -30],
+                [1234567814000, 40],
+                [1234567815000, 10]
+            ]}];
+            var data2 = [{metric: "metric1", tags: {}, dps:[
+                [1234481411000, 30],
+                [1234481412000, -20],
+                [1234481413000, 40],
+                [1234481414000, -40],
+                [1234481415000, 60]
+            ]},{metric: "metric2", tags: {}, dps:[
+                [1234481411000, -20],
+                [1234481412000, 30],
+                [1234481413000, -30],
+                [1234481414000, 50],
+                [1234481415000, 40]
+            ]}];
+            
+            var renderData = [
+                [new Date(1234567811000), 100, 0, 100, 0],
+                [new Date(1234567812000), 0, 100, 0, 100],
+                [new Date(1234567813000), 100, 0, 100, 0],
+                [new Date(1234567814000), 0, 100, 0, 100],
+                [new Date(1234567815000), 80, 20, 60, 40]
+            ];
+
+            baselineTest(url1, data1, url2, data2, global, graph, metrics, renderData, ["x", "metric1", "metric2", "metric1[BL]", "metric2[BL]"]);
+        });
+        
+        it('should render with dygraph when baselining is enabled with auto scaling', function() {
+            var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { autoScale: true }};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+
+
+            var url1 = 'http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
+            var url2 = 'http://tsdb:4242/api/query?start=2016/01/20 14:10:10&end=2016/01/21 14:10:10&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
+
+            var data1 = [{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 1000],
+                [1234567812000, 2000],
+                [1234567813000, 3000],
+                [1234567814000, 4000],
+                [1234567815000, 5000]
+            ]},{metric: "metric2", tags: {}, dps:[
+                [1234567811000, 20],
+                [1234567812000, 20],
+                [1234567813000, 30],
+                [1234567814000, 40],
+                [1234567815000, 10]
+            ]}];
+            var data2 = [{metric: "metric1", tags: {}, dps:[
+                [1234481411000, 1000],
+                [1234481412000, 2000],
+                [1234481413000, 3000],
+                [1234481414000, 4000],
+                [1234481415000, 5000]
+            ]},{metric: "metric2", tags: {}, dps:[
+                [1234481411000, 20],
+                [1234481412000, 20],
+                [1234481413000, 30],
+                [1234481414000, 40],
+                [1234481415000, 10]
+            ]}];
+
+            var renderData = [
+                [new Date(1234567811000), 1000, 2000, 1000, 2000],
+                [new Date(1234567812000), 2000, 2000, 2000, 2000],
+                [new Date(1234567813000), 3000, 3000, 3000, 3000],
+                [new Date(1234567814000), 4000, 4000, 4000, 4000],
+                [new Date(1234567815000), 5000, 1000, 5000, 1000]
+            ];
+
+            baselineTest(url1, data1, url2, data2, global, graph, metrics, renderData, ["x", "metric1", "100x metric2", "metric1[BL]", "100x metric2[BL]"]);
+        });
+        
+        it('should render with dygraph when baselining is enabled with auto scaling & negative squashing', function() {
+
+            var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { autoScale: true, squashNegative: true }};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+
+
+            var url1 = 'http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
+            var url2 = 'http://tsdb:4242/api/query?start=2016/01/20 14:10:10&end=2016/01/21 14:10:10&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
+
+            var data1 = [{metric: "metric1", tags: {}, dps:[
+                [1234567811000, -1000],
+                [1234567812000, -2000],
+                [1234567813000, -3000],
+                [1234567814000, -4000],
+                [1234567815000, -5000]
+            ]},{metric: "metric2", tags: {}, dps:[
+                [1234567811000, 20],
+                [1234567812000, 20],
+                [1234567813000, 30],
+                [1234567814000, 40],
+                [1234567815000, 10]
+            ]}];
+            var data2 = [{metric: "metric1", tags: {}, dps:[
+                [1234481411000, -1000],
+                [1234481412000, -2000],
+                [1234481413000, -3000],
+                [1234481414000, -4000],
+                [1234481415000, -5000]
+            ]},{metric: "metric2", tags: {}, dps:[
+                [1234481411000, 20],
+                [1234481412000, 20],
+                [1234481413000, 30],
+                [1234481414000, 40],
+                [1234481415000, 10]
+            ]}];
+
+            var renderData = [
+                [new Date(1234567811000), 0, 20, 0, 20],
+                [new Date(1234567812000), 0, 20, 0, 20],
+                [new Date(1234567813000), 0, 30, 0, 30],
+                [new Date(1234567814000), 0, 40, 0, 40],
+                [new Date(1234567815000), 0, 10, 0, 10]
+            ];
+
+            baselineTest(url1, data1, url2, data2, global, graph, metrics, renderData, ["x", "metric1", "metric2", "metric1[BL]", "metric2[BL]"]);
+        });
+        
+        it('should remove baseline results when the corresponding main query results are removed by filtering', function() {
+            var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { countFilter: {count: 1, measure: "max", end: "bottom"} }};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+
+            var url1 = 'http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
+            var url2 = 'http://tsdb:4242/api/query?start=2016/01/20 14:10:10&end=2016/01/21 14:10:10&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
+
+            var data1 = [{metric: "metric1", tags: {}, query: { metric: "metric1", tags: {} }, dps:[
+                [1234567811000, 100],
+                [1234567812000, 20],
+                [1234567813000, 30],
+                [1234567814000, 40],
+                [1234567815000, 50]
+            ]},{metric: "metric2", tags: {}, query: { metric: "metric2", tags: {} }, dps:[
+                [1234567811000, 20],
+                [1234567812000, 20],
+                [1234567813000, 30],
+                [1234567814000, 40],
+                [1234567815000, 10]
+            ]}];
+            var data2 = [{metric: "metric1", query: { metric: "metric1", tags: {} }, tags: {}, dps:[
+                [1234481411000, 20],
+                [1234481412000, 20],
+                [1234481413000, 40],
+                [1234481414000, 40],
+                [1234481415000, 60]
+            ]},{metric: "metric2", query: { metric: "metric2", tags: {} }, tags: {}, dps:[
+                [1234481411000, 200], // lets make sure this one doesn't get removed as baseline shouldn't be considered when filtering
+                [1234481412000, 30],
+                [1234481413000, 30],
+                [1234481414000, 50],
+                [1234481415000, 20]
+            ]}];
+
+            var renderData = [
+                [new Date(1234567811000), 20, 200],
+                [new Date(1234567812000), 20, 30],
+                [new Date(1234567813000), 30, 30],
+                [new Date(1234567814000), 40, 50],
+                [new Date(1234567815000), 10, 20]
+            ];
+
+            baselineTest(url1, data1, url2, data2, global, graph, metrics, renderData, ["x", "metric2", "metric2[BL]"]);
+        });
+        
+        it('should not error when filtering excludes all baseline lines by excluding all corresponding main query results', function() {
+            var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { countFilter: {count: 1, measure: "max", end: "bottom"} }};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+
+            var url1 = 'http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
+            var url2 = 'http://tsdb:4242/api/query?start=2016/01/20 14:10:10&end=2016/01/21 14:10:10&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
+
+            var data1 = [{metric: "metric1", tags: {}, query: { metric: "metric1", tags: {} }, dps:[
+                [1234567811000, 100],
+                [1234567812000, 20],
+                [1234567813000, 30],
+                [1234567814000, 40],
+                [1234567815000, 50]
+            ]},{metric: "metric2", tags: {}, query: { metric: "metric2", tags: {} }, dps:[
+                [1234567811000, 20],
+                [1234567812000, 20],
+                [1234567813000, 30],
+                [1234567814000, 40],
+                [1234567815000, 10]
+            ]}];
+            var data2 = [{metric: "metric1", query: { metric: "metric1", tags: {} }, tags: {}, dps:[
+                [1234481411000, 20],
+                [1234481412000, 20],
+                [1234481413000, 40],
+                [1234481414000, 40],
+                [1234481415000, 60]
+            ]}];
+
+            var renderData = [
+                [new Date(1234567811000), 20],
+                [new Date(1234567812000), 20],
+                [new Date(1234567813000), 30],
+                [new Date(1234567814000), 40],
+                [new Date(1234567815000), 10]
+            ];
+
+            baselineTest(url1, data1, url2, data2, global, graph, metrics, renderData, ["x", "metric2"]);
+        });
+        
         // todo: http error
         // todo: line highlighting callback
         // todo: value formatters
