@@ -698,7 +698,9 @@ aardvark
                                 graph.dygraph.autoScale,
                                 graph.dygraph.ylog,
                                 graph.dygraph.meanAdjusted,
-                                graph.dygraph.ratioGraph
+                                graph.dygraph.ratioGraph,
+                                graph.dygraph.annotations,
+                                graph.dygraph.globalAnnotations
                             ]);
                             if (graph.dygraph.countFilter != null && graph.dygraph.countFilter.count != "") {
                                 intermediateGraph.dygraph.countFilterEnd = countFilterEnds.valueToId(graph.dygraph.countFilter.end);
@@ -983,7 +985,7 @@ aardvark
                         graph.horizon.squashNegative = horizonFlags[1];
                         break;
                     case "dygraph":
-                        var dygraphFlags = blitting.fromBlittedInt(intermediateGraph.flags, [true, false, false, true, false, false, false, false]);
+                        var dygraphFlags = blitting.fromBlittedInt(intermediateGraph.flags, [true, false, false, true, false, false, false, false, true, false]);
                         graph.dygraph = {};
                         graph.dygraph.interpolateGaps = dygraphFlags[0];
                         graph.dygraph.highlightLines = dygraphFlags[1];
@@ -993,6 +995,8 @@ aardvark
                         graph.dygraph.ylog = dygraphFlags[5];
                         graph.dygraph.meanAdjusted = dygraphFlags[6];
                         graph.dygraph.ratioGraph = dygraphFlags[7];
+                        graph.dygraph.annotations = dygraphFlags[8];
+                        graph.dygraph.globalAnnotations = dygraphFlags[9];
                         graph.dygraph.countFilter = {
                             end: countFilterEnds.idToValue(intermediateGraph.dygraph.countFilterEnd),
                             measure: countFilterMeasures.idToValue(intermediateGraph.dygraph.countFilterMeasure)

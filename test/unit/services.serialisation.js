@@ -105,7 +105,8 @@ describe('AardvarkServices.serialisation', function() {
                             lowerBound: "200",
                             upperBound: "500",
                             measure: "any"
-                        }
+                        },
+                        annotations: true
                     }
                 },
                 {
@@ -219,6 +220,8 @@ describe('AardvarkServices.serialisation', function() {
             // defaults
             model.global.globalDownsampling = false;
             model.global.baselining = false;
+            model.graphs[3].dygraph.annotations = true;
+            model.graphs[3].dygraph.globalAnnotations = false;
         });  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
     }));
     
@@ -274,7 +277,8 @@ describe('AardvarkServices.serialisation', function() {
                             lowerBound: "200",
                             upperBound: "500",
                             measure: "any"
-                        }
+                        },
+                        annotations: true
                     }
                 },
                 {
@@ -389,6 +393,7 @@ describe('AardvarkServices.serialisation', function() {
             // defaults
             model.global.globalDownsampling = false;
             model.global.baselining = false;
+            model.graphs[1].dygraph.globalAnnotations = false;
         });  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
     }));
     

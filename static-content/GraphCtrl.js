@@ -1342,6 +1342,8 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
 
             $scope.dygraph_render("dygraphDiv_"+graph.id, graph.id, graphData, config);
 
+            //todo: $scope.dygraphs[graph.id].setAnnotations([]);
+
             $scope.renderMessages[graph.id] = "";
             $scope.graphRendered(graph.id);
             return;

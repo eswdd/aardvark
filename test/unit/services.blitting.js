@@ -62,5 +62,20 @@ describe('AardvarkServices.blitting', function() {
         expect(blitting.fromBlittedInt(3, [true, true])).toEqualData([true, true]);
         expect(blitting.fromBlittedInt(3, [true, false])).toEqualData([true, false]);
     }));
+    
+    it('expects maximal flags to round trip correctly', inject(function(blitting) {
+        var blitted = blitting.toBlittedInt([false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true]);
+        expect(blitting.fromBlittedInt(blitted, [true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,false]))
+            .toEqualData([false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true]);
+    }));
+    
+    it('expects an error where there are too many flags', inject(function(blitting) {
+        try {
+            blitting.toBlittedInt([false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,true]);
+            fail("Excpected an error");
+        } catch (e) {
+            expect(e).toEqualData("arr too long, max is 16, but is 17");
+        }
+    }));
 
 });
