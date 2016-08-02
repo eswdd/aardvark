@@ -95,7 +95,11 @@ app.use(express.static('./static-content'));
 // fake tsdb api
 var tsdb = require('faketsdb');
 var tsdbConfig = {
-    verbose: false
+    verbose: false,
+    probabilities: {
+        annotation: 0.01,
+        globalAnnotation: 0.5
+    }
 };
 tsdb.install(app, tsdbConfig);
 tsdb.addTimeSeries("tsd.rpc.received", { host: "host01", type: "put" }, "counter");

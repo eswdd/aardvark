@@ -1,0 +1,154 @@
+<html>
+<head>
+    <title>Dygraphs testing</title>
+    <script type="application/javascript" src="../node_modules/dygraphs/dygraph-combined-dev.js"></script>
+    
+    <script type="application/javascript">
+        function renderGraph(divId, labels, data, annotations) {
+            var config = {
+                labels: labels,
+                width: 600,
+                height: 200,
+                legend: "never",
+                logscale: false,
+                stackedGraph: false,
+                connectSeparatedPoints: false,
+                drawGapEdgePoints: true,
+                labelsSeparateLines: true
+            };
+
+            var g = new Dygraph(
+                    // containing div
+                    document.getElementById(divId),
+                    data,
+                    config
+            );
+            
+            if (annotations && annotations.length > 0) {
+                var anns = [];
+                for (var a=0; a<annotations.length; a++) {
+                    anns.push({
+                        series: annotations[a].series,
+                        xval: annotations[a].startTime,
+                icon: "unknown.jpg",
+                height: 16,
+                width: 16,
+                        attachAtBottom: true,
+                        tickHeight: g.height - 16,
+                        text: annotations[a].description
+                    })
+                }
+                g.setAnnotations(anns);
+            }
+            
+            return g;
+        }
+        
+        function renderGraphs() {
+            // Render with gaps
+            renderGraph("dygraph_1", ["x", "series1","series2"], [
+                [1470118170000,10,20],
+                [1470118171000,11,21],
+                [1470118172000,12,22],
+                [1470118173000,13,null],
+                [1470118174000,14,null],
+                [1470118175000,15,null],
+                [1470118176000,16,null],
+                [1470118177000,17,27],
+                [1470118178000,18,28],
+                [1470118179000,19,29]
+            ], []);
+            // Render with annotation
+            renderGraph("dygraph_2", ["x", "series1","series2"], [
+                [1470118170000,10,20],
+                [1470118171000,11,21],
+                [1470118172000,12,22],
+                [1470118173000,13,null],
+                [1470118174000,14,null],
+                [1470118175000,15,null],
+                [1470118176000,16,null],
+                [1470118177000,17,27],
+                [1470118178000,18,28],
+                [1470118179000,19,29]
+            ], [{
+                startTime: 1470118174000,
+                description: "Some text",
+                series: "series1"
+            }]);
+            // Annotation in gap
+            renderGraph("dygraph_3", ["x", "series1","series2"], [
+                [1470118170000,10,20],
+                [1470118171000,11,21],
+                [1470118172000,12,22],
+                [1470118173000,13,null],
+                [1470118174000,null,null],
+                [1470118175000,15,null],
+                [1470118176000,16,null],
+                [1470118177000,17,27],
+                [1470118178000,18,28],
+                [1470118179000,19,29]
+            ], [{
+                startTime: 1470118174000,
+                description: "Some text",
+                series: "series1"
+            }]);
+            // Annotation in blank
+            renderGraph("dygraph_4", ["x", "series1","series2"], [
+                [1470118170000,10,20],
+                [1470118171000,11,21],
+                [1470118172000,12,22],
+                [1470118173000,13,null],
+                [1470118175000,15,null],
+                [1470118176000,16,null],
+                [1470118177000,17,27],
+                [1470118178000,18,28],
+                [1470118179000,19,29]
+            ], [{
+                startTime: 1470118174000,
+                description: "Some text",
+                series: "series1"
+            }]);
+            // Annotation in gap on missing series
+            renderGraph("dygraph_5", ["x", "series1","series2"], [
+                [1470118170000,10,20],
+                [1470118171000,11,21],
+                [1470118172000,12,22],
+                [1470118173000,13,null],
+                [1470118174500,14.5,null],
+                [1470118176000,16,null],
+                [1470118177000,17,27],
+                [1470118178000,18,28],
+                [1470118179000,19,29]
+            ], [{
+                startTime: 1470118174500,
+                description: "Some text",
+                series: "series3"
+            }]);
+        }
+        
+        
+    </script>
+    
+</head>
+
+<body onload="renderGraphs()">
+
+<h3>Render with gaps - SUCCESS</h3>
+<div id="dygraph_1" style="background-color: white"></div>
+
+<h3>Render with annotation - SUCCESS</h3>
+<div id="dygraph_2" style="background-color: white"></div>
+
+<h3>Annotation in gap - SUCCESS</h3>
+<div id="dygraph_3" style="background-color: white"></div>
+
+<h3>Annotation in blank - FAIL</h3>
+<div id="dygraph_4" style="background-color: white"></div>
+
+<h3>Annotation in gap on missing series - FAIL</h3>
+<div id="dygraph_5" style="background-color: white"></div>
+
+
+</body>
+
+</html>

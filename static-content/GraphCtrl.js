@@ -974,6 +974,145 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 }
             }
 
+
+            // indices, used to track progress through dps arrays
+            var mainIndices1 = new Array(mainJson.length);
+            var mainIndices2 = new Array(mainJson.length);
+            var mainIndices3 = new Array(mainJson.length);
+            for (var s=0; s<mainJson.length; s++) {
+                mainIndices1[s] = 0;
+                mainIndices2[s] = 0;
+                mainIndices3[s] = 0;
+            }
+            var baselineIndices1;
+            var baselineIndices2;
+            var baselineIndices3;
+            if (baselining) {
+                baselineIndices1 = new Array(baselineJson.length);
+                baselineIndices2 = new Array(baselineJson.length);
+                baselineIndices3 = new Array(baselineJson.length);
+                for (var s=0; s<baselineJson.length; s++) {
+                    baselineIndices1[s] = 0;
+                    baselineIndices2[s] = 0;
+                    baselineIndices3[s] = 0;
+                }
+            }
+            
+            // now we've filtered we can work out the set of annotations which need rendering
+            var annotations = [];
+            var globalAnnotationsMain = [];
+            var globalAnnotationsBaseline = [];
+            var discoverAnnotations = function(json, indices, globalAnnotations) {
+                for (var s=0; s<json.length; s++) {
+                    json[s].annotations.sort(function(a,b){
+                        var ret = a.startTime - b.startTime;
+                        if (ret == 0) {
+                            if (a.endTime == null || b.endTime == null) {
+                                return 0;
+                            }
+                            return a.endTime - b.endTime;
+                        }
+                        return ret;
+                    });
+                    for (var p= 0, a=0; p<json[s].dps.length && a<json[s].annotations.length; ) {
+                        var t = json[s].dps[p][0];
+                        var annT = json[s].annotations[a].startTime; // todo: how do we represent endTime with dygraph?
+                        if (t < annT) {
+                            // annotation after last point
+                            if (p == json[s].dps.length - 1) {
+                                // add a point at the end
+                                // let dygraphs interpolate
+                                json[s].dps.push([annT,null]);
+                                // insert annotation
+                                annotations.push([json[s], json[s].annotations[a]]);
+                                // next annotation
+                                a++;
+                            }
+                            // annotation after a mid point
+                            else {
+                                p++;
+                            }
+                        }
+                        else if (t == annT) {
+                            // we have a point at the correct time, this is good
+//                            console.log("inserting annotation at existing point")
+                            annotations.push([json[s], json[s].annotations[a]]);
+                            a++;
+                        }
+                        else { // t > annT
+                            // annotation needs to go in here
+                            // let dygraphs interpolate
+                            json[s].dps.splice(p,0,[annT,null]);
+                            // insert annotation
+                            annotations.push([json[s], json[s].annotations[a]]);
+                            // next annotation
+                            a++;
+                        }
+                    }
+                    if (dygraphOptions.globalAnnotations && globalAnnotations.length == 0 && json[s].globalAnnotations.length > 0) {
+                        for (var a=0; a<json[s].globalAnnotations; a++) {
+                            globalAnnotations.push(json[s].globalAnnotations[a]);
+                        }
+                        globalAnnotations.sort(function(a,b){
+                            var ret = a.startTime - b.startTime;
+                            if (ret == 0) {
+                                if (a.endTime == null || b.endTime == null) {
+                                    return 0;
+                                }
+                                return a.endTime - b.endTime;
+                            }
+                            return ret;
+                        });
+                    }
+                }
+                if (dygraphOptions.globalAnnotations && globalAnnotations.length > 0) {
+                    for (var a=0; a<globalAnnotations.length; a++) {
+                        var annT = globalAnnotations[a].startTime;
+                        var hitAtTime = false;
+                        for (var s=0; s<json.length; s++) {
+                            while (indices[s] < json[s].dps.length && json[s].dps[indices[s]][0] < annT) {
+                                indices[s]++;
+                            }
+                            if (indices[s] < json[s].dps.length && json[s].dps[indices[s]][0] == annT) {
+                                hitAtTime = true;
+                            }
+                        }
+                        // now each index is either past the end of the points, or dps[index].time >= annotation.startTime
+                        var annotationAdded = false;
+                        for (var s=0; s<json.length; s++) {
+                            var p = indices[s];
+                            if (p < json[s].dps.length) {
+                                var t = json[s].dps[indices[s]][0];
+                                if (t == annT) {
+                                    if (!annotationAdded) {
+                                        annotations.push([json[s], globalAnnotations[a]]);
+                                        annotationAdded = true;
+                                    }
+                                }
+                                else { // t > annT
+                                    // ensure it gets added somewhere, so here is good enough
+                                    if (!hitAtTime && !annotationAdded) {
+                                        annotations.push([json[s], globalAnnotations[a]]);
+                                        // put in a null point here
+                                        json[s].dps.splice(p,0,[t,null]);
+                                    }
+                                }
+                            }
+                            // past end of dps
+                            else {
+                                json[s].dps.push([annT, null]);
+                            }
+                        }
+                    }
+                }
+            }
+            if (dygraphOptions.annotations) {
+                discoverAnnotations(mainJson, mainIndices1, globalAnnotationsMain);
+                if (global.baselining) {
+                    discoverAnnotations(baselineJson, baselineIndices1, globalAnnotationsBaseline);
+                }
+            }
+
             // 4. initial label setting (both sets)
             var mainLabels = ["x"];
             var baselineLabels = ["x"];
@@ -1098,24 +1237,6 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                     maxTime = Math.max(maxTime, baselineJson[s].dps[baselineJson[s].dps.length-1][0]);
                 }
             }
-
-            // indices, used to track progress through dps arrays
-            var mainIndices1 = new Array(mainJson.length);
-            var mainIndices2 = new Array(mainJson.length);
-            for (var s=0; s<mainJson.length; s++) {
-                mainIndices1[s] = 0;
-                mainIndices2[s] = 0;
-            }
-            var baselineIndices1;
-            var baselineIndices2;
-            if (baselining) {
-                baselineIndices1 = new Array(baselineJson.length);
-                baselineIndices2 = new Array(baselineJson.length);
-                for (var s=0; s<baselineJson.length; s++) {
-                    baselineIndices1[s] = 0;
-                    baselineIndices2[s] = 0;
-                }
-            }
             
             var ignoredOptions = [];
             if (dygraphOptions.ratioGraph) {
@@ -1206,9 +1327,9 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 }
             }
             
-            seperateProcessing(mainJson, mainIndices1, mainScaleFactors);
+            seperateProcessing(mainJson, mainIndices2, mainScaleFactors);
             if (baselining) {
-                seperateProcessing(baselineJson, baselineIndices1, baselineScaleFactors);
+                seperateProcessing(baselineJson, baselineIndices2, baselineScaleFactors);
             }
           
             // ie we had some clashes and some data..
@@ -1248,12 +1369,17 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                         }
                     }
                 }
-                gapFillAndMergeJson(mainJson, mainIndices2);
+                gapFillAndMergeJson(mainJson, mainIndices3);
                 if (baselining) {
-                    gapFillAndMergeJson(baselineJson, baselineIndices2);
+                    gapFillAndMergeJson(baselineJson, baselineIndices3);
                 }
                 graphData.push(row);
                 t = nextTime;
+            }
+            
+            if (dygraphOptions.annotations && dygraphOptions.globalAnnotations) {
+                // todo: how do we go about putting global annotations in?
+                
             }
 
             var positionLegend = function() {
@@ -1342,7 +1468,52 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
 
             $scope.dygraph_render("dygraphDiv_"+graph.id, graph.id, graphData, config);
 
-            //todo: $scope.dygraphs[graph.id].setAnnotations([]);
+            var createDygraphAnnotation = function(g, seriesAndAnnotation) {
+                var series = seriesAndAnnotation[0];
+                var annotation = seriesAndAnnotation[1];
+                var icon = "unknown.jpg";
+                if (annotation.custom.type) {
+                    if (annotation.custom.toUpperCase() == "CONFIG") {
+                        icon = "config.jpg"
+                    }
+                    else if (annotation.custom.toUpperCase() == "DEPLOYMENT") {
+                        icon = "deployment.jpg"
+                    }
+                    else if (annotation.custom.toUpperCase() == "PROBLEM") {
+                        icon = "problem.jpg"
+                    }
+                }
+
+                var ret = {
+                    series: $scope.timeSeriesName(series),
+                    xval: annotation.startTime,
+                    height: 16,
+                    width: 16,
+                    icon: icon,
+                    attachAtBottom: true,
+                    tickHeight: g.height - 16,
+                    text: annotation.description
+                };
+
+
+                return ret;
+            }
+            
+            if (dygraphOptions.annotations) {
+                var dygraphAnnotations = [];
+                var g = $scope.dygraphs[graph.id];
+                for (var a=0; a<annotations.length; a++) {
+                    dygraphAnnotations.push(createDygraphAnnotation(g, annotations[a]));
+                }
+//                if (dygraphOptions.globalAnnotations) {
+//                    for (var a=0; a<globalAnnotations.length; a++) {
+//                        dygraphAnnotations.push(createDygraphAnnotation(g, globalAnnotations[a]));
+//                    }
+//                }
+                g.setAnnotations(dygraphAnnotations);
+            }
+
+
 
             $scope.renderMessages[graph.id] = "";
             $scope.graphRendered(graph.id);
