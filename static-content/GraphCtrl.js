@@ -388,6 +388,11 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         );
 
         $scope.dygraphs[graphId] = g;
+        
+        return g;
+    }
+    $scope.dygraph_setAnnotations = function(g, annotations) {
+        g.setAnnotations(annotations);
     }
 
     // pre-defined in unit tests
@@ -1000,9 +1005,8 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             
             // now we've filtered we can work out the set of annotations which need rendering
             var annotations = [];
-            var globalAnnotationsMain = [];
-            var globalAnnotationsBaseline = [];
-            var discoverAnnotations = function(json, indices, globalAnnotations) {
+            var discoverAnnotations = function(json, indices) {
+                var globalAnnotations = [];
                 for (var s=0; s<json.length; s++) {
                     json[s].annotations.sort(function(a,b){
                         var ret = a.startTime - b.startTime;
@@ -1050,9 +1054,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                         }
                     }
                     if (dygraphOptions.globalAnnotations && globalAnnotations.length == 0 && json[s].globalAnnotations.length > 0) {
-                        for (var a=0; a<json[s].globalAnnotations; a++) {
-                            globalAnnotations.push(json[s].globalAnnotations[a]);
-                        }
+                        globalAnnotations = json[s].globalAnnotations;
                         globalAnnotations.sort(function(a,b){
                             var ret = a.startTime - b.startTime;
                             if (ret == 0) {
@@ -1094,22 +1096,25 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                                     if (!hitAtTime && !annotationAdded) {
                                         annotations.push([json[s], globalAnnotations[a]]);
                                         // put in a null point here
-                                        json[s].dps.splice(p,0,[t,null]);
+                                        json[s].dps.splice(p,0,[annT,null]);
+                                        annotationAdded = true;
                                     }
                                 }
                             }
                             // past end of dps
-                            else {
+                            else if (!annotationAdded) {
+                                annotations.push([json[s], globalAnnotations[a]]);
                                 json[s].dps.push([annT, null]);
+                                annotationAdded = true;
                             }
                         }
                     }
                 }
             }
             if (dygraphOptions.annotations) {
-                discoverAnnotations(mainJson, mainIndices1, globalAnnotationsMain);
-                if (global.baselining) {
-                    discoverAnnotations(baselineJson, baselineIndices1, globalAnnotationsBaseline);
+                discoverAnnotations(mainJson, mainIndices1);
+                if (baselining) {
+                    discoverAnnotations(baselineJson, baselineIndices1);
                 }
             }
 
@@ -1376,11 +1381,6 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 graphData.push(row);
                 t = nextTime;
             }
-            
-            if (dygraphOptions.annotations && dygraphOptions.globalAnnotations) {
-                // todo: how do we go about putting global annotations in?
-                
-            }
 
             var positionLegend = function() {
                 var container = d3.select("#scrollable-graph-panel").node();
@@ -1466,20 +1466,20 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
 
             }
 
-            $scope.dygraph_render("dygraphDiv_"+graph.id, graph.id, graphData, config);
+            var dygraph = $scope.dygraph_render("dygraphDiv_"+graph.id, graph.id, graphData, config);
 
             var createDygraphAnnotation = function(g, seriesAndAnnotation) {
                 var series = seriesAndAnnotation[0];
                 var annotation = seriesAndAnnotation[1];
                 var icon = "unknown.jpg";
-                if (annotation.custom.type) {
-                    if (annotation.custom.toUpperCase() == "CONFIG") {
+                if (annotation.custom && annotation.custom.type) {
+                    if (annotation.custom.type.toUpperCase() == "CONFIG") {
                         icon = "config.jpg"
                     }
-                    else if (annotation.custom.toUpperCase() == "DEPLOYMENT") {
+                    else if (annotation.custom.type.toUpperCase() == "DEPLOYMENT") {
                         icon = "deployment.jpg"
                     }
-                    else if (annotation.custom.toUpperCase() == "PROBLEM") {
+                    else if (annotation.custom.type.toUpperCase() == "PROBLEM") {
                         icon = "problem.jpg"
                     }
                 }
@@ -1501,16 +1501,10 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             
             if (dygraphOptions.annotations) {
                 var dygraphAnnotations = [];
-                var g = $scope.dygraphs[graph.id];
                 for (var a=0; a<annotations.length; a++) {
-                    dygraphAnnotations.push(createDygraphAnnotation(g, annotations[a]));
+                    dygraphAnnotations.push(createDygraphAnnotation(dygraph, annotations[a]));
                 }
-//                if (dygraphOptions.globalAnnotations) {
-//                    for (var a=0; a<globalAnnotations.length; a++) {
-//                        dygraphAnnotations.push(createDygraphAnnotation(g, globalAnnotations[a]));
-//                    }
-//                }
-                g.setAnnotations(dygraphAnnotations);
+                $scope.dygraph_setAnnotations(dygraph, dygraphAnnotations);
             }
 
 
