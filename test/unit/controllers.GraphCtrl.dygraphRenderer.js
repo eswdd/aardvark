@@ -2184,22 +2184,58 @@ describe('Aardvark controllers', function () {
             baselineTest(url1, data1, url2, data2, global, graph, metrics, renderData, ["x", "metric2"]);
         });
 
-        var annotationTest = function(responseData, expectedRenderData, expectedAnnotations) {
+        var annotationTest = function(responseData, expectedRenderData, expectedAnnotations, autoScaling, expectedLabels) {
             var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&ms=true&arrays=true";
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
-            var expectedLabels = ["x", "metric1"];
-            _annotationTest(false, metrics, url, responseData, expectedRenderData, expectedLabels, expectedAnnotations);
+            if (autoScaling) {
+                metrics.push({ id: "123", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } });
+                url = url.replace("metric1","metric1&m=sum:metric2");
+            }
+            if (expectedLabels == null) {
+                expectedLabels = ["x", "metric1"];
+            }
+            _annotationTest(false, metrics, null, url, null, responseData, null, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling);
         }
-        var globalAnnotationTest = function(responseData, expectedRenderData, expectedAnnotations) {
+        var annotationBaselineTest = function(responseData, baselineResponseData, expectedRenderData, expectedAnnotations, autoScaling, expectedLabels) {
+            var datum = new Date(2016,5,3,0,0,0);
+            var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&ms=true&arrays=true&show_query=true";
+            var baselineUrl = "http://tsdb:4242/api/query?start=2016/06/01 00:00:00&end=2016/06/02 00:00:00&m=sum:metric1&ms=true&arrays=true&show_query=true";
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+            if (autoScaling) {
+                metrics.push({ id: "123", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } });
+                url = url.replace("metric1","metric1&m=sum:metric2");
+                baselineUrl = baselineUrl.replace("metric1","metric1&m=sum:metric2");
+            }
+            if (expectedLabels == null) {
+                expectedLabels = ["x", "metric1","metric1[BL]"];
+            }
+            _annotationTest(false, metrics, datum, url, baselineUrl, responseData, baselineResponseData, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling);
+        }
+        var globalAnnotationTest = function(responseData, expectedRenderData, expectedAnnotations, autoScaling, expectedLabels) {
             var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&global_annotations=true&ms=true&arrays=true";
             var metrics = [ 
                 { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }, 
                 { id: "123", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } 
             ];
-            var expectedLabels = ["x", "metric1", "metric2"];
-            _annotationTest(true, metrics, url, responseData, expectedRenderData, expectedLabels, expectedAnnotations);
+            if (expectedLabels == null) {
+                expectedLabels = ["x", "metric1", "metric2"];
+            }
+            _annotationTest(true, metrics, null, url, null, responseData, null, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling);
         }
-        var _annotationTest = function(globalAnnotations, metrics, url, responseData, expectedRenderData, expectedLabels, expectedAnnotations) {
+        var globalAnnotationBaselineTest = function(responseData, baselineResponseData, expectedRenderData, expectedAnnotations, autoScaling, expectedLabels) {
+            var datum = new Date(2016,5,3,0,0,0);
+            var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&global_annotations=true&ms=true&arrays=true&show_query=true";
+            var baselineUrl = "http://tsdb:4242/api/query?start=2016/06/01 00:00:00&end=2016/06/02 00:00:00&m=sum:metric1&m=sum:metric2&global_annotations=true&ms=true&arrays=true&show_query=true";
+            var metrics = [
+                { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "123", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }
+            ];
+            if (expectedLabels == null) {
+                expectedLabels = ["x", "metric1", "metric2","metric1[BL]","metric2[BL]"];
+            }
+            _annotationTest(true, metrics, datum, url, baselineUrl, responseData, baselineResponseData, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling);
+        }
+        var _annotationTest = function(globalAnnotations, metrics, datum, url, baselineUrl, responseData, baselineResponseData, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling) {
 
             scope.renderedContent = {};
             scope.renderErrors = {};
@@ -2207,12 +2243,20 @@ describe('Aardvark controllers', function () {
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: {annotations: true, globalAnnotations: globalAnnotations }};
+            if (baselineUrl != null && baselineResponseData != null) {
+                global.baselining = true;
+                global.baselineDatumStyle = "relative";
+                global.baselineRelativePeriod = "1d";
+            }
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: {annotations: true, globalAnnotations: globalAnnotations, autoScale: autoScaling }};
             
 
             $httpBackend.expectGET(url).respond(responseData);
+            if (baselineUrl != null && baselineResponseData != null) {
+                $httpBackend.expectGET(baselineUrl).respond(baselineResponseData);
+            }
 
-            scope.renderers.dygraph(global, graph, metrics);
+            scope.renderers.dygraph(global, graph, metrics, datum);
 
 
             $httpBackend.flush();
@@ -2381,6 +2425,49 @@ describe('Aardvark controllers', function () {
             var expectedAnnotation2 = {"series":"metric1","xval":1234567815000,"height":16,"width":16,"icon":"unknown.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text"};
 
             annotationTest(responseData, expectedRenderData, [expectedAnnotation1, expectedAnnotation2]);
+        });
+        it('should render with dygraph when autoscaling and annotations are enabled and there is an annotation on a series point', function() {
+            var responseData = [{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 10],
+                [1234567812000, 20],
+                [1234567813000, 30],
+                [1234567814000, 40],
+                [1234567815000, 50]
+            ], annotations: [
+                {
+                    startTime: 1234567813000,
+                    description: "Some text",
+                    custom: null
+                }
+            ]},{metric: "metric2", tags: {}, dps:[
+                [1234567811000, 100],
+                [1234567812000, 200],
+                [1234567813000, 300],
+                [1234567814000, 400],
+                [1234567815000, 500]
+            ], annotations: [
+                {
+                    startTime: 1234567814000,
+                    description: "Some text 2",
+                    custom: {
+                        type: "config"
+                    }
+                }
+            ]}];
+
+
+            var expectedRenderData = [
+                [new Date(1234567811000), 100, 100],
+                [new Date(1234567812000), 200, 200],
+                [new Date(1234567813000), 300, 300],
+                [new Date(1234567814000), 400, 400],
+                [new Date(1234567815000), 500, 500]
+            ];
+
+            var expectedAnnotation1 = {"series":"10x metric1","xval":1234567813000,"height":16,"width":16,"icon":"unknown.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text"};
+            var expectedAnnotation2 = {"series":"metric2","xval":1234567814000,"height":16,"width":16,"icon":"config.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text 2"};
+
+            annotationTest(responseData, expectedRenderData, [expectedAnnotation1, expectedAnnotation2], true, ["x","10x metric1", "metric2"]);
         });
 
         it('should render with dygraph when global annotations are enabled and there is a global annotation at the time of a series point', function() {
@@ -2566,32 +2653,568 @@ describe('Aardvark controllers', function () {
 
             globalAnnotationTest(responseData, expectedRenderData, [expectedAnnotation1, expectedAnnotation2]);
         });
+        it('should render with dygraph when autoscaling and annotations are enabled and there is a global annotation on a series point', function() {
+            var responseData = [{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 10],
+                [1234567812000, 20],
+                [1234567813000, 30],
+                [1234567815000, 50]
+            ], annotations: [], globalAnnotations: [
+                {
+                    startTime: 1234567813000,
+                    description: "Some text",
+                    custom: null
+                },
+                {
+                    startTime: 1234567814000,
+                    description: "Some text 2",
+                    custom: {
+                        type: "config"
+                    }
+                }
+            ]},{metric: "metric2", tags: {}, dps:[
+                [1234567811000, 600],
+                [1234567812000, 700],
+                [1234567814000, 900],
+                [1234567815000, 900]
+            ], annotations: [], globalAnnotations: [
+                {
+                    startTime: 1234567813000,
+                    description: "Some text",
+                    custom: null
+                },
+                {
+                    startTime: 1234567814000,
+                    description: "Some text 2",
+                    custom: {
+                        type: "config"
+                    }
+                }
+            ]}];
+
+
+            var expectedRenderData = [
+                [new Date(1234567811000), 100, 600],
+                [new Date(1234567812000), 200, 700],
+                [new Date(1234567813000), 300, null],
+                [new Date(1234567814000), null, 900],
+                [new Date(1234567815000), 500, 900]
+            ];
+
+            var expectedAnnotation1 = {"series":"10x metric1","xval":1234567813000,"height":16,"width":16,"icon":"unknown.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text"};
+            var expectedAnnotation2 = {"series":"metric2","xval":1234567814000,"height":16,"width":16,"icon":"config.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text 2"};
+
+            globalAnnotationTest(responseData, expectedRenderData, [expectedAnnotation1, expectedAnnotation2], true, ["x", "10x metric1", "metric2"]);
+        });
         
         it('should render with dygraph when annotations are enabled and there is an annotation on a baseline series', function() {
-            fail();
+            var responseData = [{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 10],
+                [1234567812000, 20],
+                [1234567813000, 30],
+                [1234567814000, 40],
+                [1234567815000, 50]
+            ], annotations: []}];
+            var baselineResponseData = [{metric: "metric1", tags: {}, dps:[
+                [1234481411000, 11],
+                [1234481412000, 22],
+                [1234481413000, 33],
+                [1234481414000, 44],
+                [1234481415000, 55]
+            ], annotations: [
+                {
+                    startTime: 1234481413000,
+                    description: "Some text",
+                    custom: null
+                },
+                {
+                    startTime: 1234481414000,
+                    description: "Some text 2",
+                    custom: {
+                        type: "config"
+                    }
+                }
+            ]}];
+
+
+            var expectedRenderData = [
+                [new Date(1234567811000), 10, 11],
+                [new Date(1234567812000), 20, 22],
+                [new Date(1234567813000), 30, 33],
+                [new Date(1234567814000), 40, 44],
+                [new Date(1234567815000), 50, 55]
+            ];
+
+            var expectedAnnotation1 = {"series":"metric1[BL]","xval":1234567813000,"height":16,"width":16,"icon":"unknown.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text"};
+            var expectedAnnotation2 = {"series":"metric1[BL]","xval":1234567814000,"height":16,"width":16,"icon":"config.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text 2"};
+
+            annotationBaselineTest(responseData, baselineResponseData, expectedRenderData, [expectedAnnotation1, expectedAnnotation2]);
         });
         it('should render with dygraph when annotations are enabled and there is an annotation on a baseline series between points', function() {
-            fail();
+            var responseData = [{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 10],
+                [1234567812000, 20],
+                [1234567814000, 40],
+                [1234567815000, 50]
+            ], annotations: []}];
+            var baselineResponseData = [{metric: "metric1", tags: {}, dps:[
+                [1234481411000, 11],
+                [1234481412000, 22],
+                [1234481415000, 55]
+            ], annotations: [
+                {
+                    startTime: 1234481413000,
+                    description: "Some text",
+                    custom: null
+                },
+                {
+                    startTime: 1234481414000,
+                    description: "Some text 2",
+                    custom: {
+                        type: "config"
+                    }
+                }
+            ]}];
+
+
+            var expectedRenderData = [
+                [new Date(1234567811000), 10, 11],
+                [new Date(1234567812000), 20, 22],
+                [new Date(1234567813000), null, null],
+                [new Date(1234567814000), 40, null],
+                [new Date(1234567815000), 50, 55]
+            ];
+
+            var expectedAnnotation1 = {"series":"metric1[BL]","xval":1234567813000,"height":16,"width":16,"icon":"unknown.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text"};
+            var expectedAnnotation2 = {"series":"metric1[BL]","xval":1234567814000,"height":16,"width":16,"icon":"config.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text 2"};
+
+            annotationBaselineTest(responseData, baselineResponseData, expectedRenderData, [expectedAnnotation1, expectedAnnotation2]);
         });
         it('should render with dygraph when annotations are enabled and there is an annotation on a baseline series before any points', function() {
-            fail();
+            var responseData = [{metric: "metric1", tags: {}, dps:[
+                [1234567812000, 20],
+                [1234567813000, 30],
+                [1234567814000, 40],
+                [1234567815000, 50]
+            ], annotations: []}];
+            var baselineResponseData = [{metric: "metric1", tags: {}, dps:[
+                [1234481413000, 33],
+                [1234481414000, 44],
+                [1234481415000, 55]
+            ], annotations: [
+                {
+                    startTime: 1234481411000,
+                    description: "Some text",
+                    custom: null
+                },
+                {
+                    startTime: 1234481412000,
+                    description: "Some text 2",
+                    custom: {
+                        type: "config"
+                    }
+                }
+            ]}];
+
+
+            var expectedRenderData = [
+                [new Date(1234567811000), null, null],
+                [new Date(1234567812000), 20, null],
+                [new Date(1234567813000), 30, 33],
+                [new Date(1234567814000), 40, 44],
+                [new Date(1234567815000), 50, 55]
+            ];
+
+            var expectedAnnotation1 = {"series":"metric1[BL]","xval":1234567811000,"height":16,"width":16,"icon":"unknown.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text"};
+            var expectedAnnotation2 = {"series":"metric1[BL]","xval":1234567812000,"height":16,"width":16,"icon":"config.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text 2"};
+
+            annotationBaselineTest(responseData, baselineResponseData, expectedRenderData, [expectedAnnotation1, expectedAnnotation2]);
         });
         it('should render with dygraph when annotations are enabled and there is an annotation on a baseline series after any points', function() {
-            fail();
+            var responseData = [{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 10],
+                [1234567812000, 20],
+                [1234567813000, 30],
+                [1234567814000, 40]
+            ], annotations: []}];
+            var baselineResponseData = [{metric: "metric1", tags: {}, dps:[
+                [1234481411000, 11],
+                [1234481412000, 22],
+                [1234481413000, 33]
+            ], annotations: [
+                {
+                    startTime: 1234481414000,
+                    description: "Some text",
+                    custom: null
+                },
+                {
+                    startTime: 1234481415000,
+                    description: "Some text 2",
+                    custom: {
+                        type: "config"
+                    }
+                }
+            ]}];
+
+
+            var expectedRenderData = [
+                [new Date(1234567811000), 10, 11],
+                [new Date(1234567812000), 20, 22],
+                [new Date(1234567813000), 30, 33],
+                [new Date(1234567814000), 40, null],
+                [new Date(1234567815000), null, null]
+            ];
+
+            var expectedAnnotation1 = {"series":"metric1[BL]","xval":1234567814000,"height":16,"width":16,"icon":"unknown.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text"};
+            var expectedAnnotation2 = {"series":"metric1[BL]","xval":1234567815000,"height":16,"width":16,"icon":"config.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text 2"};
+
+            annotationBaselineTest(responseData, baselineResponseData, expectedRenderData, [expectedAnnotation1, expectedAnnotation2]);
+        });
+        it('should render with dygraph when autoscaling and annotations are enabled and there is an annotation on a baseline series point', function() {
+            var responseData = [{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 10],
+                [1234567812000, 20],
+                [1234567813000, 30],
+                [1234567814000, 40],
+                [1234567815000, 50]
+            ], annotations: [], globalAnnotations: []},
+                {metric: "metric2", tags: {}, dps:[
+                    [1234567811000, 600],
+                    [1234567812000, 700],
+                    [1234567813000, 800],
+                    [1234567814000, 900],
+                    [1234567815000, 900]
+                ], annotations: [], globalAnnotations: []}];
+            var baselineResponseData = [{metric: "metric1", tags: {}, dps:[
+                [1234481411000, 11],
+                [1234481412000, 22],
+                [1234481413000, 33],
+                [1234481414000, 44],
+                [1234481415000, 55]
+            ], annotations: [
+                {
+                    startTime: 1234481413000,
+                    description: "Some text",
+                    custom: null
+                }
+            ]},
+                {metric: "metric2", tags: {}, dps:[
+                    [1234481411000, 660],
+                    [1234481412000, 770],
+                    [1234481413000, 880],
+                    [1234481414000, 990],
+                    [1234481415000, 990]
+                ], annotations: [
+                    {
+                        startTime: 1234481414000,
+                        description: "Some text 2",
+                        custom: {
+                            type: "config"
+                        }
+                    }
+                ]}];
+
+
+            var expectedRenderData = [
+                [new Date(1234567811000), 100, 600, 110, 660],
+                [new Date(1234567812000), 200, 700, 220, 770],
+                [new Date(1234567813000), 300, 800, 330, 880],
+                [new Date(1234567814000), 400, 900, 440, 990],
+                [new Date(1234567815000), 500, 900, 550, 990]
+            ];
+
+            var expectedAnnotation1 = {"series":"10x metric1[BL]","xval":1234567813000,"height":16,"width":16,"icon":"unknown.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text"};
+            var expectedAnnotation2 = {"series":"metric2[BL]","xval":1234567814000,"height":16,"width":16,"icon":"config.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text 2"};
+
+            annotationBaselineTest(responseData, baselineResponseData, expectedRenderData, [expectedAnnotation1, expectedAnnotation2], true, ["x", "10x metric1","metric2","10x metric1[BL]","metric2[BL]"]);
         });
         
         it('should render with dygraph when global annotations are enabled and there is a global annotation from the baseline query at the time of a series point', function() {
-            fail();
+            var responseData = [{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 10],
+                [1234567812000, 20],
+                [1234567813000, 30],
+                [1234567814000, 40],
+                [1234567815000, 50]
+            ], annotations: [], globalAnnotations: []},
+                {metric: "metric2", tags: {}, dps:[
+                    [1234567811000, 60],
+                    [1234567812000, 70],
+                    [1234567813000, 80],
+                    [1234567814000, 90],
+                    [1234567815000, 100]
+                ], annotations: [], globalAnnotations: []}];
+            var baselineResponseData = [{metric: "metric1", tags: {}, dps:[
+                [1234481411000, 11],
+                [1234481412000, 22],
+                [1234481413000, 33],
+                [1234481415000, 55]
+            ], annotations: [], globalAnnotations: [
+                {
+                    startTime: 1234481413000,
+                    description: "Some text",
+                    custom: null
+                },
+                {
+                    startTime: 1234481414000,
+                    description: "Some text 2",
+                    custom: {
+                        type: "config"
+                    }
+                }
+            ]},
+                {metric: "metric2", tags: {}, dps:[
+                    [1234481411000, 66],
+                    [1234481412000, 77],
+                    [1234481414000, 99],
+                    [1234481415000, 110]
+                ], annotations: [], globalAnnotations: [
+                ]}];
+
+
+            var expectedRenderData = [
+                [new Date(1234567811000), 10, 60, 11, 66],
+                [new Date(1234567812000), 20, 70, 22, 77],
+                [new Date(1234567813000), 30, 80, 33, null],
+                [new Date(1234567814000), 40, 90, null, 99],
+                [new Date(1234567815000), 50, 100, 55, 110]
+            ];
+
+            var expectedAnnotation1 = {"series":"metric1[BL]","xval":1234567813000,"height":16,"width":16,"icon":"unknown.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text"};
+            var expectedAnnotation2 = {"series":"metric2[BL]","xval":1234567814000,"height":16,"width":16,"icon":"config.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text 2"};
+
+            globalAnnotationBaselineTest(responseData, baselineResponseData, expectedRenderData, [expectedAnnotation1, expectedAnnotation2]);
         });
         it('should render with dygraph when global annotations are enabled and there is a global annotation from the baseline query at a time between any series points', function() {
-            fail();
+            var responseData = [{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 10],
+                [1234567812000, 20],
+                [1234567813000, 30],
+                [1234567814000, 40],
+                [1234567815000, 50]
+            ], annotations: [], globalAnnotations: []},
+                {metric: "metric2", tags: {}, dps:[
+                    [1234567811000, 60],
+                    [1234567812000, 70],
+                    [1234567813000, 80],
+                    [1234567814000, 90],
+                    [1234567815000, 100]
+                ], annotations: [], globalAnnotations: []}];
+            var baselineResponseData = [{metric: "metric1", tags: {}, dps:[
+                [1234481411000, 11],
+                [1234481412000, 22],
+                [1234481415000, 55]
+            ], annotations: [], globalAnnotations: []},
+                {metric: "metric2", tags: {}, dps:[
+                    [1234481411000, 66],
+                    [1234481412000, 77],
+                    [1234481415000, 110]
+                ], annotations: [], globalAnnotations: [
+                    {
+                        startTime: 1234481413000,
+                        description: "Some text",
+                        custom: null
+                    },
+                    {
+                        startTime: 1234481414000,
+                        description: "Some text 2",
+                        custom: {
+                            type: "config"
+                        }
+                    }
+                ]}];
+
+
+            var expectedRenderData = [
+                [new Date(1234567811000), 10, 60, 11, 66],
+                [new Date(1234567812000), 20, 70, 22, 77],
+                [new Date(1234567813000), 30, 80, null, null],
+                [new Date(1234567814000), 40, 90, null, null],
+                [new Date(1234567815000), 50, 100, 55, 110]
+            ];
+
+            var expectedAnnotation1 = {"series":"metric1[BL]","xval":1234567813000,"height":16,"width":16,"icon":"unknown.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text"};
+            var expectedAnnotation2 = {"series":"metric1[BL]","xval":1234567814000,"height":16,"width":16,"icon":"config.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text 2"};
+
+            globalAnnotationBaselineTest(responseData, baselineResponseData, expectedRenderData, [expectedAnnotation1, expectedAnnotation2]);
         });
         it('should render with dygraph when global annotations are enabled and there is a global annotation from the baseline query at a time before any series points', function() {
-            fail();
+            var responseData = [{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 10],
+                [1234567812000, 20],
+                [1234567813000, 30],
+                [1234567814000, 40],
+                [1234567815000, 50]
+            ], annotations: [], globalAnnotations: []},
+                {metric: "metric2", tags: {}, dps:[
+                    [1234567811000, 60],
+                    [1234567812000, 70],
+                    [1234567813000, 80],
+                    [1234567814000, 90],
+                    [1234567815000, 100]
+                ], annotations: [], globalAnnotations: []}];
+            var baselineResponseData = [{metric: "metric1", tags: {}, dps:[
+                [1234481413000, 33],
+                [1234481414000, 44],
+                [1234481415000, 55]
+            ], annotations: [], globalAnnotations: []},
+                {metric: "metric2", tags: {}, dps:[
+                    [1234481413000, 88],
+                    [1234481414000, 99],
+                    [1234481415000, 110]
+                ], annotations: [], globalAnnotations: [
+                    {
+                        startTime: 1234481411000,
+                        description: "Some text",
+                        custom: null
+                    },
+                    {
+                        startTime: 1234481412000,
+                        description: "Some text 2",
+                        custom: {
+                            type: "config"
+                        }
+                    }
+                ]}];
+
+
+            var expectedRenderData = [
+                [new Date(1234567811000), 10, 60, null, null],
+                [new Date(1234567812000), 20, 70, null, null],
+                [new Date(1234567813000), 30, 80, 33, 88],
+                [new Date(1234567814000), 40, 90, 44, 99],
+                [new Date(1234567815000), 50, 100, 55, 110]
+            ];
+
+            var expectedAnnotation1 = {"series":"metric1[BL]","xval":1234567811000,"height":16,"width":16,"icon":"unknown.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text"};
+            var expectedAnnotation2 = {"series":"metric1[BL]","xval":1234567812000,"height":16,"width":16,"icon":"config.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text 2"};
+
+            globalAnnotationBaselineTest(responseData, baselineResponseData, expectedRenderData, [expectedAnnotation1, expectedAnnotation2]);
         });
         it('should render with dygraph when global annotations are enabled and there is a global annotation from the baseline query at a time after any series points', function() {
-            fail();
+            var responseData = [{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 10],
+                [1234567812000, 20],
+                [1234567813000, 30],
+                [1234567814000, 40],
+                [1234567815000, 50]
+            ], annotations: [], globalAnnotations: []},
+                {metric: "metric2", tags: {}, dps:[
+                    [1234567811000, 60],
+                    [1234567812000, 70],
+                    [1234567813000, 80],
+                    [1234567814000, 90],
+                    [1234567815000, 100]
+                ], annotations: [], globalAnnotations: []}];
+            var baselineResponseData = [{metric: "metric1", tags: {}, dps:[
+                [1234481411000, 11],
+                [1234481412000, 22],
+                [1234481413000, 33]
+            ], annotations: [], globalAnnotations: [
+                {
+                    startTime: 1234481414000,
+                    description: "Some text",
+                    custom: null
+                },
+                {
+                    startTime: 1234481415000,
+                    description: "Some text 2",
+                    custom: {
+                        type: "config"
+                    }
+                }
+            ]},
+                {metric: "metric2", tags: {}, dps:[
+                    [1234481411000, 66],
+                    [1234481412000, 77],
+                    [1234481413000, 88]
+                ], annotations: [], globalAnnotations: []}];
+
+
+            var expectedRenderData = [
+                [new Date(1234567811000), 10, 60, 11, 66],
+                [new Date(1234567812000), 20, 70, 22, 77],
+                [new Date(1234567813000), 30, 80, 33, 88],
+                [new Date(1234567814000), 40, 90, null, null],
+                [new Date(1234567815000), 50, 100, null, null]
+            ];
+
+            var expectedAnnotation1 = {"series":"metric1[BL]","xval":1234567814000,"height":16,"width":16,"icon":"unknown.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text"};
+            var expectedAnnotation2 = {"series":"metric1[BL]","xval":1234567815000,"height":16,"width":16,"icon":"config.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text 2"};
+
+            globalAnnotationBaselineTest(responseData, baselineResponseData, expectedRenderData, [expectedAnnotation1, expectedAnnotation2]);
         });
+        it('should render with dygraph when autoscaling and annotations are enabled and there is a global annotation on a baseline series point', function() {
+            var responseData = [{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 10],
+                [1234567812000, 20],
+                [1234567813000, 30],
+                [1234567814000, 40],
+                [1234567815000, 50]
+            ], annotations: [], globalAnnotations: []},
+                {metric: "metric2", tags: {}, dps:[
+                    [1234567811000, 600],
+                    [1234567812000, 700],
+                    [1234567813000, 800],
+                    [1234567814000, 900],
+                    [1234567815000, 900]
+                ], annotations: [], globalAnnotations: []}];
+            var baselineResponseData = [{metric: "metric1", tags: {}, dps:[
+                [1234481411000, 11],
+                [1234481412000, 22],
+                [1234481413000, 33],
+                [1234481414000, 44],
+                [1234481415000, 55]
+            ], annotations: [], globalAnnotations: [
+                {
+                    startTime: 1234481413000,
+                    description: "Some text",
+                    custom: null
+                },
+                {
+                    startTime: 1234481414000,
+                    description: "Some text 2",
+                    custom: {
+                        type: "config"
+                    }
+                }
+            ]},
+                {metric: "metric2", tags: {}, dps:[
+                    [1234481411000, 660],
+                    [1234481412000, 770],
+                    [1234481413000, 880],
+                    [1234481414000, 990],
+                    [1234481415000, 990]
+                ], annotations: [], globalAnnotations: [
+                    {
+                        startTime: 1234481413000,
+                        description: "Some text",
+                        custom: null
+                    },
+                    {
+                        startTime: 1234481414000,
+                        description: "Some text 2",
+                        custom: {
+                            type: "config"
+                        }
+                    }
+                ]}];
+
+
+            var expectedRenderData = [
+                [new Date(1234567811000), 100, 600, 110, 660],
+                [new Date(1234567812000), 200, 700, 220, 770],
+                [new Date(1234567813000), 300, 800, 330, 880],
+                [new Date(1234567814000), 400, 900, 440, 990],
+                [new Date(1234567815000), 500, 900, 550, 990]
+            ];
+
+            var expectedAnnotation1 = {"series":"10x metric1[BL]","xval":1234567813000,"height":16,"width":16,"icon":"unknown.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text"};
+            var expectedAnnotation2 = {"series":"10x metric1[BL]","xval":1234567814000,"height":16,"width":16,"icon":"config.jpg","attachAtBottom":true,"tickHeight":84,"text":"Some text 2"};
+
+            globalAnnotationBaselineTest(responseData, baselineResponseData, expectedRenderData, [expectedAnnotation1, expectedAnnotation2], true, ["x", "10x metric1","metric2","10x metric1[BL]","metric2[BL]"]);
+        });
+        
         
         // todo: http error
         // todo: line highlighting callback

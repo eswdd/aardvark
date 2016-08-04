@@ -1005,7 +1005,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             
             // now we've filtered we can work out the set of annotations which need rendering
             var annotations = [];
-            var discoverAnnotations = function(json, indices) {
+            var discoverAnnotations = function(json, indices, isBaseline) {
                 var globalAnnotations = [];
                 for (var s=0; s<json.length; s++) {
                     json[s].annotations.sort(function(a,b){
@@ -1028,7 +1028,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                                 // let dygraphs interpolate
                                 json[s].dps.push([annT,null]);
                                 // insert annotation
-                                annotations.push([json[s], json[s].annotations[a]]);
+                                annotations.push([json[s], json[s].annotations[a], isBaseline]);
                                 // next annotation
                                 a++;
                             }
@@ -1040,7 +1040,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                         else if (t == annT) {
                             // we have a point at the correct time, this is good
 //                            console.log("inserting annotation at existing point")
-                            annotations.push([json[s], json[s].annotations[a]]);
+                            annotations.push([json[s], json[s].annotations[a], isBaseline]);
                             a++;
                         }
                         else { // t > annT
@@ -1048,7 +1048,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                             // let dygraphs interpolate
                             json[s].dps.splice(p,0,[annT,null]);
                             // insert annotation
-                            annotations.push([json[s], json[s].annotations[a]]);
+                            annotations.push([json[s], json[s].annotations[a], isBaseline]);
                             // next annotation
                             a++;
                         }
@@ -1087,14 +1087,14 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                                 var t = json[s].dps[indices[s]][0];
                                 if (t == annT) {
                                     if (!annotationAdded) {
-                                        annotations.push([json[s], globalAnnotations[a]]);
+                                        annotations.push([json[s], globalAnnotations[a], isBaseline]);
                                         annotationAdded = true;
                                     }
                                 }
                                 else { // t > annT
                                     // ensure it gets added somewhere, so here is good enough
                                     if (!hitAtTime && !annotationAdded) {
-                                        annotations.push([json[s], globalAnnotations[a]]);
+                                        annotations.push([json[s], globalAnnotations[a], isBaseline]);
                                         // put in a null point here
                                         json[s].dps.splice(p,0,[annT,null]);
                                         annotationAdded = true;
@@ -1103,7 +1103,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                             }
                             // past end of dps
                             else if (!annotationAdded) {
-                                annotations.push([json[s], globalAnnotations[a]]);
+                                annotations.push([json[s], globalAnnotations[a], isBaseline]);
                                 json[s].dps.push([annT, null]);
                                 annotationAdded = true;
                             }
@@ -1112,9 +1112,9 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 }
             }
             if (dygraphOptions.annotations) {
-                discoverAnnotations(mainJson, mainIndices1);
+                discoverAnnotations(mainJson, mainIndices1, false);
                 if (baselining) {
-                    discoverAnnotations(baselineJson, baselineIndices1);
+                    discoverAnnotations(baselineJson, baselineIndices1, true);
                 }
             }
 
@@ -1133,15 +1133,24 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             }
 
             // 5. auto-scaling and label adjustment (both together)
-            var mainScaleFactors = new Array(mainJson.length);
-            var baselineScaleFactors = baselining ? new Array(baselineJson.length) : null;
+            var scaleMultiplierByMetricName = {}; // default 1
+            
+            var initScaleMultipliers = function(json) {
+                for (var s=0; s<json.length; s++) {
+                    scaleMultiplierByMetricName[json[s].metric] = 1;
+                }
+            }
+            initScaleMultipliers(mainJson);
+            if (baselining) {
+                initScaleMultipliers(baselineJson);
+            }
+            
             if (dygraphOptions.autoScale) {
-                var mainMaxValues = new Array(mainJson.length);
-                var baselineMaxValues = baselining ? new Array(baselineJson.length) : null;
+                var maxValueByMetricName = {};
                 
-                var calcMaxValues = function(json, scaleFactors, maxValues) {
+                var calcMaxValues = function(json) {
                     for (var s=0; s<json.length; s++) {
-                        scaleFactors[s] = 1;
+                        scaleMultiplierByMetricName[json[s].metric] = 1;
                         var max = 0;
                         var min = Number.MAX_VALUE;
                         for (var p=0; p<json[s].dps.length; p++) {
@@ -1151,71 +1160,48 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                         if (!dygraphOptions.squashNegative && min < 0) {
                             max = Math.max(max, Math.abs(min));
                         }
-                        maxValues[s] = max;
-                    }
-                }
-                
-                calcMaxValues(mainJson, mainScaleFactors, mainMaxValues);
-                if (baselining) {
-                    calcMaxValues(baselineJson, baselineScaleFactors, baselineMaxValues);
-                }
-
-                // loops through to update the maxs array based on base metric name...
-                // this is so we scale same base metric to same scale
-                var checkedMetrics = new Array();
-                var updateMaxValues = function(json, maxValues) {
-                    for (var s=0; s<json.length; s++) {
-                        var metricName = json[s].metric;
-                        if (checkedMetrics.indexOf(metricName) == -1) {
-                            checkedMetrics.push(metricName);
-                            // find the max value for all instances of this metric name
-                            var maxThisMetric = maxValues[s];
-                            for (var k=s+1; k<json.length; k++) {
-                                if (json[k].metric == metricName) {
-                                    maxThisMetric = Math.max(maxThisMetric, maxValues[k]);
-                                }
-                            }
-                            // set the global max as the max for each instance of this metric name
-                            for (var k=s; k<json.length; k++) {
-                                if (json[k].metric == metricName) {
-                                    maxValues[k] = maxThisMetric;
-                                }
-                            }
+                        if (maxValueByMetricName[json[s].metric] == null)
+                        {
+                            maxValueByMetricName[json[s].metric] = max;
+                        }
+                        else {
+                            maxValueByMetricName[json[s].metric] = Math.max(maxValueByMetricName[json[s].metric], max);
                         }
                     }
                 }
                 
-                updateMaxValues(mainJson, mainMaxValues);
+                calcMaxValues(mainJson);
                 if (baselining) {
-                    updateMaxValues(baselineJson, baselineMaxValues);
+                    calcMaxValues(baselineJson);
                 }
 
                 var maxl = 0;
-                var calcMaxl = function(maxValues) {
-                    for (var s=0; s<maxValues.length; s++) {
-                        maxValues[s] = parseInt(Math.log(maxValues[s])/Math.log(10));
-                        if (maxValues[s]>maxl) {
-                            maxl = maxValues[s];
-                        }
+                for (var metric in maxValueByMetricName) {
+                    var logMax = parseInt(Math.log(maxValueByMetricName[metric])/Math.log(10));
+                    if (logMax>maxl) {
+                        maxl = logMax;
                     }
                 }
-                calcMaxl(mainMaxValues);
-                if (baselining) {
-                    calcMaxl(baselineMaxValues);
+                
+                for (var metric in maxValueByMetricName) {
+                    var pow = parseInt(Math.log(maxValueByMetricName[metric])/Math.log(10));
+                    var l = maxl - pow;
+                    if (l > 0) {
+                        scaleMultiplierByMetricName[metric] = Math.pow(10, l);
+                    }
                 }
 
-                var updateScaleFactors = function(json, scaleFactors, mainValues, labels) { 
+                var updateScaleFactors = function(json, labels) {
                     for (var s=0;s<json.length;s++) {
-                        var l = maxl - mainValues[s];
-                        if (l>0) {
-                            scaleFactors[s] = Math.pow(10, l);
-                            labels[s+1] = scaleFactors[s]+"x "+labels[s+1];
+                        var scale = scaleMultiplierByMetricName[json[s].metric];
+                        if (scale > 1) {
+                            labels[s+1] = scale+"x "+labels[s+1];
                         }
                     }
                 }
-                updateScaleFactors(mainJson, mainScaleFactors, mainMaxValues, mainLabels);
+                updateScaleFactors(mainJson, mainLabels);
                 if (baselining) {
-                    updateScaleFactors(baselineJson, baselineScaleFactors, baselineMaxValues, baselineLabels);
+                    updateScaleFactors(baselineJson, baselineLabels);
                 }
             }
 
@@ -1263,7 +1249,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             //  a. ratio graphs
             //  b. mean adjustment
             //  c. negative squashing
-            var seperateProcessing = function(json, indices, scaleFactors) {
+            var seperateProcessing = function(json, indices) {
 //                console.log("seperateProcessing:");
 //                console.log("json = "+JSON.stringify(json));
                 for (var t=minTime; t<=maxTime; ) {
@@ -1323,7 +1309,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                     else if (dygraphOptions.autoScale) {
                         for (var s=0; s<json.length; s++) {
                             if (hadValue[s] && json[s].dps[indices[s]-1][1]!=null && !isNaN(json[s].dps[indices[s]-1][1])) {
-                                json[s].dps[indices[s]-1][1] *= scaleFactors[s];
+                                json[s].dps[indices[s]-1][1] *= scaleMultiplierByMetricName[json[s].metric];
                             }
                         }
                         ignoredBecause = "auto scaling";
@@ -1332,9 +1318,9 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 }
             }
             
-            seperateProcessing(mainJson, mainIndices2, mainScaleFactors);
+            seperateProcessing(mainJson, mainIndices2);
             if (baselining) {
-                seperateProcessing(baselineJson, baselineIndices2, baselineScaleFactors);
+                seperateProcessing(baselineJson, baselineIndices2);
             }
           
             // ie we had some clashes and some data..
@@ -1483,10 +1469,22 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                         icon = "problem.jpg"
                     }
                 }
+                
+                var label = $scope.timeSeriesName(series);
+                var scale = scaleMultiplierByMetricName[seriesAndAnnotation[0].metric];
+                if (scale > 1) {
+                    label = scale+"x "+label;
+                }
+                var baseline = seriesAndAnnotation[2];
+                var offsetMs = 0;
+                if (baseline) {
+                    label += "[BL]";
+                    offsetMs = $scope.baselineOffset(global, datum).asMilliseconds();
+                }
 
                 var ret = {
-                    series: $scope.timeSeriesName(series),
-                    xval: annotation.startTime,
+                    series: label,
+                    xval: annotation.startTime + offsetMs,
                     height: 16,
                     width: 16,
                     icon: icon,
