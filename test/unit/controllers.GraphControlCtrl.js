@@ -86,7 +86,8 @@ describe('Aardvark controllers', function () {
                         showKey: true,
                         keyAlignment: "columnar",
                         keyLocation: "top left",
-                        keyBox: true
+                        keyBox: true,
+                        style: "linespoint"
                     },
                     horizon: {
                         interpolateGaps: true,
@@ -128,7 +129,8 @@ describe('Aardvark controllers', function () {
                         showKey: true,
                         keyAlignment: "columnar",
                         keyLocation: "top left",
-                        keyBox: true
+                        keyBox: true,
+                        style: "linespoint"
                     },
                     horizon: {
                         interpolateGaps: true,
@@ -186,7 +188,8 @@ describe('Aardvark controllers', function () {
                         showKey: true,
                         keyAlignment: "columnar",
                         keyLocation: "top left",
-                        keyBox: true
+                        keyBox: true,
+                        style: "linespoint"
                     },
                     horizon: {
                         interpolateGaps: true,
@@ -224,7 +227,8 @@ describe('Aardvark controllers', function () {
                         showKey: true,
                         keyAlignment: "columnar",
                         keyLocation: "top left",
-                        keyBox: true
+                        keyBox: true,
+                        style: "linespoint"
                     },
                     horizon: {
                         interpolateGaps: true,
@@ -256,7 +260,8 @@ describe('Aardvark controllers', function () {
                         showKey: true,
                         keyAlignment: "columnar",
                         keyLocation: "top left",
-                        keyBox: true
+                        keyBox: true,
+                        style: "linespoint"
                     },
                     horizon: {
                         interpolateGaps: true,
@@ -298,7 +303,8 @@ describe('Aardvark controllers', function () {
                         showKey: true,
                         keyAlignment: "columnar",
                         keyLocation: "top left",
-                        keyBox: true
+                        keyBox: true,
+                        style: "linespoint"
                     },
                     horizon: {
                         interpolateGaps: true,
@@ -336,7 +342,8 @@ describe('Aardvark controllers', function () {
                         showKey: true,
                         keyAlignment: "columnar",
                         keyLocation: "top left",
-                        keyBox: true
+                        keyBox: true,
+                        style: "linespoint"
                     },
                     horizon: {
                         interpolateGaps: true,
@@ -368,7 +375,8 @@ describe('Aardvark controllers', function () {
                         showKey: true,
                         keyAlignment: "columnar",
                         keyLocation: "top left",
-                        keyBox: true
+                        keyBox: true,
+                        style: "linespoint"
                     },
                     horizon: {
                         interpolateGaps: true,

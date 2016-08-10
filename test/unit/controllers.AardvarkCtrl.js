@@ -106,7 +106,7 @@ describe('Aardvark controllers', function () {
 
             location.hash(encoded);
             ctrl = controllerCreator('AardvarkCtrl', {$scope: scope, $rootScope: rootScope});
-            expect(rootScope.model).toEqualData({"global":{"absoluteTimeSpecification":false,"autoReload":false,"autoGraphHeight":false,globalDownsampling:false,"relativePeriod":"2h","baselining":false,"graphHeight":null},"graphs":[],"metrics":[{"id":1,"name":"fred","tags":[],"graphOptions":{"scatter":null,"rate":false,"rateCounter":false,"rightAxis":false,"downsample":false,"graphId":0,"rateCounterReset":"","rateCounterMax":"","downsampleBy":"","downsampleTo":""}}]});
+            expect(rootScope.model).toEqualData({"global":{"absoluteTimeSpecification":false,"autoReload":false,"autoGraphHeight":false,globalDownsampling:false,"relativePeriod":"2h","baselining":false,"graphHeight":null},"graphs":[],"metrics":[{"id":1,"name":"fred","tags":[],"graphOptions":{"scatter":null,"rate":false,"rateCounter":false,"downsample":false,"graphId":0,"rateCounterReset":"","rateCounterMax":"","downsampleBy":"","downsampleTo":""}}]});
             rootScope.saveModel();
 
             expect(location.url().indexOf('#')).toEqualData(0);
@@ -122,7 +122,7 @@ describe('Aardvark controllers', function () {
 
             location.hash(encoded);
             ctrl = controllerCreator('AardvarkCtrl', {$scope: scope, $rootScope: rootScope});
-            expect(rootScope.model).toEqualData({"global":{"absoluteTimeSpecification":false,"autoReload":false,"autoGraphHeight":false,globalDownsampling:false,"relativePeriod":"2h","baselining":false,"graphHeight":null},"graphs":[],"metrics":[{"id":1,"name":"fred","tags":[],"graphOptions":{"scatter":null,"rate":false,"rateCounter":false,"rightAxis":false,"downsample":false,"graphId":0,"rateCounterReset":"","rateCounterMax":"","downsampleBy":"","downsampleTo":""}}]});
+            expect(rootScope.model).toEqualData({"global":{"absoluteTimeSpecification":false,"autoReload":false,"autoGraphHeight":false,globalDownsampling:false,"relativePeriod":"2h","baselining":false,"graphHeight":null},"graphs":[],"metrics":[{"id":1,"name":"fred","tags":[],"graphOptions":{"scatter":null,"rate":false,"rateCounter":false,"downsample":false,"graphId":0,"rateCounterReset":"","rateCounterMax":"","downsampleBy":"","downsampleTo":""}}]});
             rootScope.saveModel();
             expect(location.url()).toEqualData(encoded);
         });

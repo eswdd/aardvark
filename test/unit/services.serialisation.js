@@ -130,7 +130,7 @@ describe('AardvarkServices.serialisation', function() {
                         rateCounter: false,
                         rateCounterReset: "",
                         rateCounterMax: "",
-                        rightAxis: true,
+                        axis: "x1y2",
                         aggregator: "sum",
                         downsample: true,
                         downsampleBy: "avg",
@@ -148,7 +148,6 @@ describe('AardvarkServices.serialisation', function() {
                         rateCounter: true,
                         rateCounterReset: 1234,
                         rateCounterMax: 12345,
-                        rightAxis: false,
                         aggregator: "sum",
                         downsample: false,
                         downsampleBy: "",
@@ -166,7 +165,6 @@ describe('AardvarkServices.serialisation', function() {
                         rateCounter: false,
                         rateCounterReset: "",
                         rateCounterMax: "",
-                        rightAxis: false,
                         aggregator: "sum",
                         downsample: false,
                         downsampleBy: "",
@@ -184,7 +182,6 @@ describe('AardvarkServices.serialisation', function() {
                         rateCounter: false,
                         rateCounterReset: "",
                         rateCounterMax: "",
-                        rightAxis: false,
                         aggregator: "sum",
                         downsample: false,
                         downsampleBy: "",
@@ -202,7 +199,6 @@ describe('AardvarkServices.serialisation', function() {
                         rateCounter: true,
                         rateCounterReset: 1234,
                         rateCounterMax: 12345,
-                        rightAxis: false,
                         aggregator: "sum",
                         downsample: false,
                         downsampleBy: "",
@@ -228,6 +224,8 @@ describe('AardvarkServices.serialisation', function() {
             }
             model.global.globalDownsampling = false;
             model.global.baselining = false;
+//            model.graphs[1].gnuplot.style = "linespoint";
+            model.graphs[1].gnuplot.globalAnnotations = false;
             model.graphs[3].dygraph.annotations = true;
             model.graphs[3].dygraph.globalAnnotations = false;
         });  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
@@ -310,7 +308,7 @@ describe('AardvarkServices.serialisation', function() {
                         rateCounter: false,
                         rateCounterReset: "",
                         rateCounterMax: "",
-                        rightAxis: true,
+                        axis: "x1y2",
                         aggregator: "sum",
                         downsample: true,
                         downsampleBy: "avg",
@@ -328,7 +326,6 @@ describe('AardvarkServices.serialisation', function() {
                         rateCounter: true,
                         rateCounterReset: 1234,
                         rateCounterMax: 12345,
-                        rightAxis: false,
                         aggregator: "sum",
                         downsample: false,
                         downsampleBy: "",
@@ -346,7 +343,6 @@ describe('AardvarkServices.serialisation', function() {
                         rateCounter: false,
                         rateCounterReset: "",
                         rateCounterMax: "",
-                        rightAxis: false,
                         aggregator: "sum",
                         downsample: false,
                         downsampleBy: "",
@@ -364,7 +360,6 @@ describe('AardvarkServices.serialisation', function() {
                         rateCounter: false,
                         rateCounterReset: "",
                         rateCounterMax: "",
-                        rightAxis: false,
                         aggregator: "sum",
                         downsample: false,
                         downsampleBy: "",
@@ -382,7 +377,6 @@ describe('AardvarkServices.serialisation', function() {
                         rateCounter: true,
                         rateCounterReset: 1234,
                         rateCounterMax: 12345,
-                        rightAxis: false,
                         aggregator: "sum",
                         downsample: false,
                         downsampleBy: "",
@@ -408,6 +402,7 @@ describe('AardvarkServices.serialisation', function() {
             }
             model.global.globalDownsampling = false;
             model.global.baselining = false;
+            model.graphs[0].gnuplot.globalAnnotations = false;
             model.graphs[1].dygraph.globalAnnotations = false;
         });  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
     }));
