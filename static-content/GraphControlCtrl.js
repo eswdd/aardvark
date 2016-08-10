@@ -75,6 +75,32 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
     }
 
     $scope.loadModel = function(datum) {
+        // initial state
+        $scope.isOpen={};
+        $scope.graphs = [];
+        $scope.showEdit={};
+        $scope.relativePeriod = "2h";
+        $scope.absoluteTimeSpecification = false;
+        $scope.autoReload = false;
+        $scope.autoReloadPeriod = "15";
+        $scope.fromDate = "";
+        $scope.fromTime = "";
+        $scope.toDate = "";
+        $scope.toTime = "";
+        $scope.autoGraphHeight = true;
+        $scope.minGraphHeight = 0;
+        $scope.graphHeight = 300;
+        $scope.globalDownsampling = false;
+        $scope.globalDownsampleTo = "5m";
+        $scope.baselining = false;
+        $scope.baselineDatumStyle = "relative";
+        $scope.baselineRelativePeriod = "1d";
+        $scope.baselineFromDate = "";
+        $scope.baselineFromTime = "";
+        $scope.baselineToDate = "";
+        $scope.baselineToTime = "";
+        
+        // now load the model
         var model = $rootScope.model;
         if (model.graphs == null || model.graphs.length == 0) {
             model.graphs = [];

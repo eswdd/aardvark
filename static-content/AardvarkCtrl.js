@@ -80,15 +80,32 @@ aardvark.directive('aardvarkEnter', function() {
                 hash = decodeURI(hash);
                 $rootScope.model = $serialisation.deserialise(hash);
             }
+            else {
+                // there's a hash in there already
+                if ($location.absUrl().indexOf("/#/") > 0) {
+                    hash = $location.path();
+                    while (hash.indexOf("/") == 0) {
+                        hash = hash.substring(1);
+                    }
+                    hash = decodeURI(hash);
+                    $rootScope.model = $serialisation.deserialise(hash);
+                }
+            }
         }
         
         $rootScope.saveModel = function(render) {
 //            console.log("slimmed ser:");
 //            var originalLen = JSON.stringify($rootScope.model).length;
             var serialised = $serialisation.serialise($rootScope.model);
+            console.log("$location.absUrl: "+$location.absUrl());
+            console.log("$location.url: "+$location.url());
+            console.log("$location.path: "+$location.path());
+            console.log("$location.hash: "+$location.hash());
+            // there's a hash in the path in the url, some horrendousness going on
+            if ($location.absUrl().indexOf("/#/") > 0) {
+                $location.path("");
+            }
             $location.hash(serialised);
-//            var slimmedLen = serialised.length;
-//            console.log("from "+originalLen+" to "+slimmedLen);
             
             $rootScope.resetAutoReload();
             
@@ -176,6 +193,8 @@ aardvark.directive('aardvarkEnter', function() {
                 graphs: []
             };
             $rootScope.saveModel(true);
+            // force everything to re-initialise
+            $rootScope.updateConfig();
             
         }
     
