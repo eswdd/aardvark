@@ -38,7 +38,14 @@ aardvark.directive('aardvarkEnter', function() {
             graphs: []
         };
         
-
+        // 1000*major + minor
+        $rootScope.TSDB_2_0 = 2000;
+        $rootScope.TSDB_2_1 = 2001;
+        $rootScope.TSDB_2_2 = 2002;
+        $rootScope.TSDB_2_3 = 2003;
+        
+        $rootScope.tsdbVersion = $rootScope.TSDB_2_0;
+        
         /*
          * Config management - we have config loaded from the server, plus a capability to enable
          * controllers to register for notifications of updates to the config
@@ -128,6 +135,27 @@ aardvark.directive('aardvarkEnter', function() {
             }
         }
     
+        $rootScope.updateTsdbVersion = function() {
+            if ($rootScope.config) {
+                $http.get('/api/version').success(function(json) {
+                    try {
+                        var versionFromServer = json.version;
+                        var firstDot = versionFromServer.indexOf(".");
+                        var secondDot = versionFromServer.indexOf(".", firstDot+1);
+                        var major = parseInt(versionFromServer.substring(0,firstDot));
+                        var minor = parseInt(versionFromServer.substring(firstDot+1, secondDot));
+                        $rootScope.tsdbVersion = (major * 1000) + minor;
+                    }
+                    catch (e) {
+                        // ignore, use default version
+                    }
+                });
+            }
+            // do it when we're up to date
+            else {
+                $rootScope.onConfigUpdate($rootScope.updateTsdbVersion);
+            }
+        }
     
         $rootScope.updateConfig = function() {
             $http.get('/aardvark/config').success(function(json) {
@@ -167,6 +195,7 @@ aardvark.directive('aardvarkEnter', function() {
         }
     
         $scope.bindUserPreferences();
+        $rootScope.updateTsdbVersion();
         $rootScope.loadModel();
         $rootScope.updateConfig();
         $rootScope.resetAutoReload();

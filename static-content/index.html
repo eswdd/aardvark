@@ -547,12 +547,29 @@
                                 <input type="text" ng-model="downsampleTo" ng-disabled="!downsample" ng-blur="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
                             </div>
 
-                            <table>
-                                <tr ng-repeat="tagk in tagNames">
-                                    <td>{{tagk}}</td>
-                                    <td><div tag-selection></div></td>
-                                </tr>
-                            </table>
+                            <div ng-hide="tagFilteringSupported()">
+                                <table>
+                                    <tr ng-repeat="tagk in tagNames">
+                                        <td>{{tagk}}</td>
+                                        <td><div tag-selection></div></td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div ng-show="tagFilteringSupported()">
+                                <span ng-repeat="tagk in tagNames" style="padding-right: 3px"><button class="btn btn-primary btn-xs" ng-click="addTagRow(tagk)" tooltip-append-to-body="true" uib-tooltip="Add tag row: {{tagValues[tagk].length}} unique values">+ {{tagk}} <span class="badge">{{tagValues[tagk].length}}</span></button></span>
+                            </div>
+
+                            <div ng-show="tagFilteringSupported()">
+                                <table cellspacing="3">
+                                    <tr ng-repeat="tag in tagFilters track by tag.id">
+                                        <td><span class="glyphicon glyphicon-remove-circle" style="cursor: pointer; cursor: hand; padding-right: 3px" ng-click="deleteTagRow(tag.id)" tooltip-append-to-body="true" uib-tooltip="Remove row" tooltip-placement="right"></span></td>
+                                        <td style="padding-right: 3px"><span>{{tag.name}}</span></td>
+                                        <td style="width: 100%; padding-right: 3px"><div tag-filter-selection></div></td>
+                                        <td><input type="checkbox" ng-model="tag.groupBy"  tooltip-append-to-body="true" uib-tooltip="Group by" tooltip-placement="left" /></td>
+                                    </tr>
+                                </table>
+                            </div>
                         </div>
                         <div ng-show="graph.type == 'scatter'">
                             <label for="metricControl_scatter_axis">Axis</label>

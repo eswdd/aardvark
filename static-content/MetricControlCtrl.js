@@ -5,6 +5,10 @@ aardvark.directive('tagSelection', function() {
     return {
         template: '<div mass-autocomplete><input type="text" ng-model="tag[tagk]" mass-autocomplete-item="tagOptions[tagk]" size="15" ng-blur="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" /> {{tagValuesMatchCount(tagk)}}</div>'
     }
+}).directive('tagFilterSelection', function() {
+    return {
+        template: '<div mass-autocomplete><input type="text" ng-model="tag.value" mass-autocomplete-item="tagOptions[tag.name]" size="15" ng-blur="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" /> {{tagValuesMatchCountFiltering(tag)}}</div>'
+    }
 })
 /*
  * Metric management:
@@ -26,6 +30,7 @@ aardvark.directive('tagSelection', function() {
     $scope.tagOptions = {};
     $scope.tagNames = [];
     $scope.tagValues = {};
+    $scope.tagFilters = [];
     $scope.selectedMetricId = 0;
     $scope.nodeSelectionDisabled = false;
 
@@ -63,7 +68,10 @@ aardvark.directive('tagSelection', function() {
     };
     $scope.expandAllVisible = function() {
         return $rootScope.config && $rootScope.config.ui.metrics.enableExpandAll;
-    }
+    };
+    $scope.tagFilteringSupported = function() {
+        return $rootScope.tsdbVersion >= $rootScope.TSDB_2_2;
+    };
     $scope.clearSelectedTreeNode = function() {
         $scope.selectedTreeNode = undefined;
     }
@@ -143,8 +151,9 @@ aardvark.directive('tagSelection', function() {
         // load the tag names / possible values
         $scope.metricSelected(metric.name, false);
         // populate tag chosen values / re flags
-        for (var t=0; t<metric.tags.length; t++) {
-            var tag = metric.tags[t];
+        $scope.tagFilters = metric.tags;
+        for (var t=0; t<$scope.tagFilters.length; t++) {
+            var tag = $scope.tagFilters[t];
             $scope.tag[tag.name] = tag.value;
         }
         // populate graph options
@@ -252,12 +261,18 @@ aardvark.directive('tagSelection', function() {
     // todo: m1: how to do tag expansion with regexes? here or in graph rendering? here i suspect..
     $scope.persistViewToExistingMetric = function(metric) {
         var tArray = [];
-        for (var i=0; i<$scope.tagNames.length; i++) {
-            var tName = $scope.tagNames[i];
-            tArray.push({
-                name: tName,
-                value: $scope.tag[tName]
-            });
+        if ($scope.tagFilteringSupported()) {
+            tArray = $scope.tagFilters;
+        }
+        else {
+            for (var i=0; i<$scope.tagNames.length; i++) {
+                var tName = $scope.tagNames[i];
+                tArray.push({
+                    name: tName,
+                    value: $scope.tag[tName],
+                    groupBy: true
+                });
+            }
         }
         metric.tags = tArray;
         metric.graphOptions = {
@@ -278,6 +293,23 @@ aardvark.directive('tagSelection', function() {
         $rootScope.saveModel(true);
         $scope.selectedMetric = "";
         $scope.selectedMetricId = metric.id;
+    }
+
+    $scope.addTagRow = function(tagk) {
+        $scope.tagFilters.push({id:idGenerator.nextId(),name:tagk,value:"",groupBy:true});
+    }
+
+    $scope.deleteTagRow = function(id) {
+        var index = -1;
+        for (var i=0; i<$scope.tagFilters.length; i++) {
+            if ($scope.tagFilters[i].id == id) {
+                index = i;
+                break;
+            }
+        }
+        if (index != -1) {
+            $scope.tagFilters.splice(index, 1);
+        }
     }
 
     // todo: this needs to not do any work if it's already running a request
@@ -400,6 +432,7 @@ aardvark.directive('tagSelection', function() {
                 }
                 fn(tagNames[i]);
             }
+            // todo: populate tag filters
             $scope.tagNames = tagNames;
             $scope.tagValues = tagValues;
             
@@ -413,6 +446,7 @@ aardvark.directive('tagSelection', function() {
         $scope.tagValues = {};
         $scope.tagNames = [];
         $scope.tag = {};
+        $scope.tagFilters = [];
         $scope.graphId = "0";
         $scope.selectedMetric = "";
         $scope.selectedMetricId = "0";
@@ -431,6 +465,17 @@ aardvark.directive('tagSelection', function() {
 
     $scope.tagValuesMatchCount = function(tag) {
         var inputText = $scope.tag[tag];
+        return $scope.tagValuesMatchCountInternal(tag, inputText, false);
+    };
+
+    $scope.tagValuesMatchCountFiltering = function(tagFilter) {
+        var tag = tagFilter.name;
+        
+        var inputText = tagFilter.value;
+        return $scope.tagValuesMatchCountInternal(tag, inputText, true);
+    };
+        
+    $scope.tagValuesMatchCountInternal = function(tag, inputText, filtering) {
         if (inputText=="" || inputText==null){
             return "";
         }
@@ -439,7 +484,66 @@ aardvark.directive('tagSelection', function() {
         if (inputText=="*") {
             return "("+allValues.length+")";
         }
-
+        if (filtering && (inputText=="wildcard(*)" || inputText=="iwildcard(*)" || inputText=="regexp(.*)")) {
+            return "("+allValues.length+")";
+        }
+        
+        if (inputText.indexOf(")") == inputText.length - 1) {
+            var fn = null;
+            var ignoreCase = false;
+            var negate = false;
+            var openBraceIndex = inputText.indexOf("(");
+            if (openBraceIndex > -1) {
+                if (inputText.indexOf("literal_or(") == 0 || inputText.indexOf("iliteral_or(") == 0
+                    || inputText.indexOf("not_literal_or(") == 0 || inputText.indexOf("not_iliteral_or(") == 0) {
+                    ignoreCase = inputText.indexOf("iliteral_or(") >= 0;
+                    negate = inputText.indexOf("not_") == 0;
+                    var toMatch = inputText.substring(openBraceIndex+1, inputText.length-1).split("|");
+                    if (ignoreCase) {
+                        for (var m=0; m<toMatch.length; m++) {
+                            toMatch[m] = toMatch[m].toLowerCase();
+                        }
+                    }
+                    fn = function(candidateValue) {
+                        var v = ignoreCase ? candidateValue.toLowerCase() : candidateValue;
+                        return toMatch.indexOf(v) >= 0;
+                    };
+                }
+                if (inputText.indexOf("wildcard(") == 0 || inputText.indexOf("iwildcard(") == 0 || inputText.indexOf("regexp(") == 0) {
+                    ignoreCase = inputText.indexOf("iwildcard(") == 0;
+                    var regexp = inputText.substring(openBraceIndex+1, inputText.length-1);
+                    if (inputText.indexOf("wildcard") >= 0) {
+                        regexp = regexp.replaceAll(".","\\\\.");
+                        regexp = regexp.replaceAll("*",".*");
+                        regexp = regexp.replaceAll("\\\\..*","\\\\.");
+                    }
+                    if (ignoreCase) {
+                        regexp = regexp.toLowerCase();
+                    }
+                    fn = function(candidateValue) {
+                        var v = ignoreCase ? candidateValue.toLowerCase() : candidateValue;
+                        try {
+                            return v.match(new RegExp(regexp)) != null;
+                        }
+                        catch (regexpError) {
+                            console.log("regexp("+regexp+") caused an error: "+regexpError);
+                            return false;
+                        }
+                    };
+                }
+                if (fn != null) {
+                    for (var j=0; j<allValues.length; j++) {
+                        if (fn(allValues[j])) {
+                            count++;
+                        }
+                    }
+                    var result = negate ? allValues.length - count : count;
+                    return "("+result+")";
+                }
+                
+            }
+        }
+        // old school query
         var allTags = inputText.split("|");
         for (var j=0; j<allValues.length; j++) {
             var ind = allTags.indexOf(allValues[j]);
@@ -447,8 +551,10 @@ aardvark.directive('tagSelection', function() {
                 count++;
             }
         }
+
         return "("+count+")";
-    };
+    }
+        
 
     $scope.suggestTagValues = function(term, tag) {
         var q = term.toLowerCase().trim();

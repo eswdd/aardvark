@@ -340,13 +340,33 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             var sep = "{";
             for (var t=0; t<metric.tags.length; t++) {
                 var tag = metric.tags[t];
-                if (tag.value != "") {
+                if (tag.value != "" && (tag.groupBy == null || tag.groupBy)) {
                     url += sep + tag.name + "=" + tag.value;
                     sep = ",";
                 }
             }
             if (sep == ",") {
                 url += "}";
+            }
+            // tsdb 2.2+ supports filters
+            if ($rootScope.tsdbVersion >= $rootScope.TSDB_2_2) {
+                // filters section requires the group by section to have been written out, even if empty
+                if (sep == ",") {
+                    sep = "{";
+                }
+                else {
+                    sep = "{}{";
+                }
+                for (var t=0; t<metric.tags.length; t++) {
+                    var tag = metric.tags[t];
+                    if (tag.value != "" && tag.value != "*" && tag.value != "wildcard(*)" && tag.groupBy != null && !tag.groupBy) {
+                        url += sep + tag.name + "=" + tag.value;
+                        sep = ",";
+                    }
+                }
+                if (sep == ",") {
+                    url += "}";
+                }
             }
 
             if (perLineFn) {

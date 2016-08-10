@@ -44,6 +44,13 @@ describe('Aardvark controllers', function () {
             saveModelCalled = false;
             rootScope.model = { global: {}, graphs: [], metrics: [] };
 
+            rootScope.TSDB_2_0 = 2000;
+            rootScope.TSDB_2_1 = 2001;
+            rootScope.TSDB_2_2 = 2002;
+            rootScope.TSDB_2_3 = 2003;
+            // default to 2.0
+            rootScope.tsdbVersion = 2000;
+
             scope = $rootScope.$new();
             ctrl = $controller('MetricControlCtrl', {$scope: scope, $rootScope: rootScope});
         }));
@@ -280,6 +287,66 @@ describe('Aardvark controllers', function () {
             scope.tag = { key1: 'value1|value2' };
             expect(scope.tagValuesMatchCount('key1')).toEqualData("(2)");
         });
+        
+        it('should correctly count matching tag values when filtering available', function() {
+            rootScope.tsdbVersion = rootScope.TSDB_2_2;
+            scope.tagValues = { key1: ["value1","something2","value2","Value3"] };
+            
+            var tagFilter = {name: 'key1', value: ''};
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("");
+            tagFilter.value = 'value';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(0)");
+            tagFilter.value = 'value1';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(1)");
+            tagFilter.value = 'value12';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(0)");
+            tagFilter.value = '*';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(4)");
+            tagFilter.value = 'literal_or(value4)';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(0)");
+            tagFilter.value = 'literal_or(value1)';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(1)");
+            tagFilter.value = 'literal_or(value1|value2)';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(2)");
+            tagFilter.value = 'literal_or(value1|value2|value3)';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(2)");
+            tagFilter.value = 'iliteral_or(value1|value2|value3)';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(3)");
+            tagFilter.value = 'not_literal_or(value4)';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(4)");
+            tagFilter.value = 'not_literal_or(value1)';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(3)");
+            tagFilter.value = 'not_literal_or(value1|value2)';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(2)");
+            tagFilter.value = 'not_literal_or(value1|value2|value3)';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(2)");
+            tagFilter.value = 'not_iliteral_or(value1|value2|value3)';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(1)");
+            tagFilter.value = 'wildcard(.*)';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(0)");
+            tagFilter.value = 'wildcard(*)';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(4)");
+            tagFilter.value = 'iwildcard(*)';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(4)");
+            tagFilter.value = 'wildcard(value*)';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(2)");
+            tagFilter.value = 'iwildcard(value*)';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(3)");
+            tagFilter.value = 'wildcard(*e*2)';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(2)");
+            tagFilter.value = 'regexp(*)';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(0)");
+            tagFilter.value = 'regexp(.*)';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(4)");
+            tagFilter.value = 'regexp(value.*)';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(2)");
+            tagFilter.value = 'regexp([vV]alue.*)';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(3)");
+            tagFilter.value = '.*';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(0)");
+            tagFilter.value = 'value1|value2';
+            expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(2)");
+        });
 
         it('should add the metric to the model when addMetric() is called', function() {
             scope.tagNames = ["tag1","tag2","tag3"];
@@ -306,15 +373,18 @@ describe('Aardvark controllers', function () {
                     tags: [
                         {
                             name: "tag1",
-                            value: ""
+                            value: "",
+                            groupBy: true
                         },
                         {
                             name: "tag2",
-                            value: "*"
+                            value: "*",
+                            groupBy: true
                         },
                         {
                             name: "tag3",
-                            value: "value"
+                            value: "value",
+                            groupBy: true
                         }
                     ],
                     graphOptions: {
@@ -397,15 +467,18 @@ describe('Aardvark controllers', function () {
                         tags: [
                             {
                                 name: "tag1",
-                                value: ""
+                                value: "",
+                                groupBy: true
                             },
                             {
                                 name: "tag2",
-                                value: "*"
+                                value: "*",
+                                groupBy: true
                             },
                             {
                                 name: "tag3",
-                                value: "value"
+                                value: "value",
+                                groupBy: true
                             }
                         ],
                         graphOptions: {
@@ -482,15 +555,18 @@ describe('Aardvark controllers', function () {
                         tags: [
                             {
                                 name: "tag1",
-                                value: "abc"
+                                value: "abc",
+                                groupBy: true
                             },
                             {
                                 name: "tag2",
-                                value: "zab"
+                                value: "zab",
+                                groupBy: true
                             },
                             {
                                 name: "tag3",
-                                value: ""
+                                value: "",
+                                groupBy: true
                             }
                         ],
                         graphOptions: {
@@ -550,15 +626,18 @@ describe('Aardvark controllers', function () {
                             tags: [
                                 {
                                     name: "tag1",
-                                    value: ""
+                                    value: "",
+                                    groupBy: true
                                 },
                                 {
                                     name: "tag2",
-                                    value: "*"
+                                    value: "*",
+                                    groupBy: true
                                 },
                                 {
                                     name: "tag3",
-                                    value: "value"
+                                    value: "value",
+                                    groupBy: true
                                 }
                             ],
                             graphOptions: {
@@ -592,15 +671,18 @@ describe('Aardvark controllers', function () {
                         tags: [
                             {
                                 name: "tag1",
-                                value: "abc"
+                                value: "abc",
+                                groupBy: true
                             },
                             {
                                 name: "tag2",
-                                value: "zab"
+                                value: "zab",
+                                groupBy: true
                             },
                             {
                                 name: "tag3",
-                                value: ""
+                                value: "",
+                                groupBy: true
                             }
                         ],
                         graphOptions: {

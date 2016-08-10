@@ -743,8 +743,14 @@ aardvark
                 var tagsToWrite = [];
                 if (metric.tags != null) {
                     for (var t=0; t<metric.tags.length; t++) {
-                        if (metric.tags[t].value != "") {
-                            tagsToWrite.push(metric.tags[t]);
+                        var tag = metric.tags[t];
+                        if (tag.value != "") {
+                            var flags = blitting.toBlittedInt([tag.groupBy==null || tag.groupBy]);
+                            tagsToWrite.push({
+                                name: tag.name,
+                                value: tag.value,
+                                flags: flags
+                            });
                         }
                     }
                 }
@@ -1030,11 +1036,21 @@ aardvark
                 var metric = {
                     id: toInt(intermediateMetric.id),
                     name: intermediateMetric.name,
-                    tags: intermediateMetric.tags,
+                    tags: [],
                     graphOptions: {
                         scatter: null
                     }
                 };
+                
+                for (var t=0; t<intermediateMetric.tags.length; t++) {
+                    var iTag = intermediateMetric.tags[t];
+                    var tagFlags = blitting.fromBlittedInt(iTag.flags, [true]);
+                    metric.tags.push({
+                        name: iTag.name,
+                        value: iTag.value,
+                        groupBy: tagFlags[0]
+                    });
+                }
 
                 var metricFlags = blitting.fromBlittedInt(intermediateMetric.flags, [false,false,false,false]);
                 metric.graphOptions.rate = metricFlags[0];

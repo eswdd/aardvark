@@ -215,9 +215,17 @@ describe('AardvarkServices.serialisation', function() {
             ]
         };
         // tag had value "" which won't be serialised
-        checkRoundTrips(serialisation, model, 460, function(model) {
+        // todo: need to get this down to 460
+        checkRoundTrips(serialisation, model, 465, function(model) {
             model.metrics[4].tags = [];
             // defaults
+            for (var m=0; m<model.metrics.length; m++) {
+                for (var t=0; t<model.metrics[m].tags.length; t++) {
+                    if (model.metrics[m].tags[t].groupBy == null) {
+                        model.metrics[m].tags[t].groupBy = true;
+                    }
+                }
+            }
             model.global.globalDownsampling = false;
             model.global.baselining = false;
             model.graphs[3].dygraph.annotations = true;
@@ -388,9 +396,16 @@ describe('AardvarkServices.serialisation', function() {
         };
         // todo: need to get this down to 460
         // tag had value "" which won't be serialised
-        checkRoundTrips(serialisation, model, 475, function(model) {
+        checkRoundTrips(serialisation, model, 485, function(model) {
             model.metrics[4].tags = [];
             // defaults
+            for (var m=0; m<model.metrics.length; m++) {
+                for (var t=0; t<model.metrics[m].tags.length; t++) {
+                    if (model.metrics[m].tags[t].groupBy == null) {
+                        model.metrics[m].tags[t].groupBy = true;
+                    }
+                }
+            }
             model.global.globalDownsampling = false;
             model.global.baselining = false;
             model.graphs[1].dygraph.globalAnnotations = false;
@@ -399,7 +414,8 @@ describe('AardvarkServices.serialisation', function() {
     
     var checkRoundTrips = function(serialisation, model, maxLength, modelFixPostSerialisation) {
         var serialised = serialisation.serialise(model);
-        expect(serialised.length).toBeLessThan(maxLength); 
+        // less than or equals
+        expect(serialised.length).toBeLessThan(maxLength+1); 
         var deserialised = serialisation.deserialise(serialised);
 
         // fix the model to what we expect

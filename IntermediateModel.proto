@@ -62,6 +62,7 @@ message Graph {
 message TagPair {
   required string name = 1;
   required string value = 2;
+  optional int32 flags = 3 [ default = 0 ];
 }
 
 message Metric {

@@ -27,6 +27,7 @@ describe('Aardvark controllers', function () {
         beforeEach(inject(function ($rootScope, _$httpBackend_, $browser, $location, $controller) {
             $httpBackend = _$httpBackend_;
             $httpBackend.expectGET('/aardvark/config').respond({key: "value"});
+            $httpBackend.expectGET('/api/version').respond({version: "2.0.0"});
             browser = $browser;
             location = $location;
             controllerCreator = $controller;
@@ -66,6 +67,7 @@ describe('Aardvark controllers', function () {
 
             // we should get a second get call when we ask the config to update
             $httpBackend.expectGET('/aardvark/config').respond({key: "value"});
+            $httpBackend.expectGET('/api/version').respond({version: "2.0.0"});
             rootScope.updateConfig();
             $httpBackend.flush();
             expect(configReceived).toEqualData(true);
