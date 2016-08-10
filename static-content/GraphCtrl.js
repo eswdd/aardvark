@@ -534,6 +534,15 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             url += "&smooth=csplines";
         }
 
+
+        if (graph.gnuplot != null && graph.gnuplot.style != null && graph.gnuplot.style != "") {
+            url += "&style="+graph.gnuplot.style;
+        }
+        
+        if (graph.gnuplot != null && graph.gnuplot.globalAnnotations) {
+            url += "&global_annotations";
+        }
+
         url += "&png";
 
         var width = Math.floor(graph.graphWidth);

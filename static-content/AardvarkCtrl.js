@@ -97,10 +97,6 @@ aardvark.directive('aardvarkEnter', function() {
 //            console.log("slimmed ser:");
 //            var originalLen = JSON.stringify($rootScope.model).length;
             var serialised = $serialisation.serialise($rootScope.model);
-            console.log("$location.absUrl: "+$location.absUrl());
-            console.log("$location.url: "+$location.url());
-            console.log("$location.path: "+$location.path());
-            console.log("$location.hash: "+$location.hash());
             // there's a hash in the path in the url, some horrendousness going on
             if ($location.absUrl().indexOf("/#/") > 0) {
                 $location.path("");

@@ -43,6 +43,15 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
     $scope.$watch('globalDownsampling', function() {
         $rootScope.$emit('globalDownsamplingChanged', $scope.globalDownsampling);
     });
+    
+    $scope.showGnuplotStyles = function() {
+        return $rootScope.tsdbVersion >= $rootScope.TSDB_2_2;
+    }
+    
+    $scope.showGnuplotAnnotationOptions = function() {
+        return $rootScope.tsdbVersion >= $rootScope.TSDB_2_3;
+    }
+    
 
     // gnuplot stuff - nothing global in here
 //    $scope.gnuplot = {};
@@ -214,7 +223,8 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
                 showKey: true,
                 keyAlignment: "columnar",
                 keyLocation: "top left",
-                keyBox: true
+                keyBox: true,
+                style: "linespoint"
             },
             // horizon defaults
             horizon: {

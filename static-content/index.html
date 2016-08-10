@@ -300,9 +300,24 @@
                                                     </div>
                                                 </div>
                                             </uib-tab>
-                                            <uib-tab heading="Style">
-                                                <input type="checkbox" id="smooth" ng-model="graph.gnuplot.lineSmoothing" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                                <label for="smooth">Smooth lines</label>
+                                            <uib-tab heading="Misc">
+                                                <div ng-show="showGnuplotAnnotationOptions()">
+                                                    <input type="checkbox" id="gnuplotGlobalAnnotations" ng-model="graph.gnuplot.globalAnnotations" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                                    <label for="gnuplotGlobalAnnotations">Global annotations</label>
+                                                </div>
+                                                <div>
+                                                    <input type="checkbox" id="gnuplotSmooth" ng-model="graph.gnuplot.lineSmoothing" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                                    <label for="gnuplotSmooth">Smooth lines</label>
+                                                </div>
+                                                <div ng-show="showGnuplotStyles()">
+                                                    <label for="gnuplotStyle">Style</label>
+                                                    <select id="gnuplotStyle" ng-model="graph.gnuplot.style" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
+                                                        <option>linespoint</option>
+                                                        <option>points</option>
+                                                        <option>circles</option>
+                                                        <option>dots</option>
+                                                    </select>
+                                                </div>
                                             </uib-tab>
                                         </uib-tabset>
                                     </div>

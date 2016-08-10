@@ -71,6 +71,9 @@ aardvark
                 id2V.push(valueArray[v]);
             }
             ret.valueToId = function(value) {
+                if (value == null) {
+                    return null;
+                }
                 if (!v2Id.hasOwnProperty(value)) {
                     return null;
                 }
@@ -427,10 +430,12 @@ aardvark
             "out bottom center",
             "out bottom right"
         ]);
+        var gnuplotStyles = mapping.generateBiDiMapping(["linespoint","points","circles","dots"]);
         var countFilterEnds = mapping.generateBiDiMapping(["top","bottom"]);
         var countFilterMeasures = mapping.generateBiDiMapping(["min","mean","max"]);
         var valueFilterMeasures = mapping.generateBiDiMapping(["any","min","mean","max"]);
         var aggregationFunctions = mapping.generateBiDiMapping(["min","avg","max","sum","zimsum","mimmax","mimmin"]); // todo: flesh out
+        var axes = mapping.generateBiDiMapping(["x1y1","x1y2"]);
         var scatterAxes = mapping.generateBiDiMapping(["x","y"]);
         var units = mapping.generateBiDiMapping(["s", "m", "h", "d", "w", "y"]); // todo: incomplete
         var datumStyles = mapping.generateBiDiMapping(["relative","from","to"]);
@@ -455,9 +460,11 @@ aardvark
             fieldDef.options.default = lookup.valueToId(fieldDef.options.default);
         }
         updateDefaultToLookupValue(rawIntermediateModelByType.Gnuplot.fieldsByName.keyLocation, gnuplotKeyLocations);
+        updateDefaultToLookupValue(rawIntermediateModelByType.Gnuplot.fieldsByName.style, gnuplotStyles);
         updateDefaultToLookupValue(rawIntermediateModelByType.Metric.fieldsByName.aggregator, aggregationFunctions);
         updateDefaultToLookupValue(rawIntermediateModelByType.Metric.fieldsByName.downsampleBy, aggregationFunctions);
         updateDefaultToLookupValue(rawIntermediateModelByType.Metric.fieldsByName.scatterAxis, scatterAxes);
+        updateDefaultToLookupValue(rawIntermediateModelByType.Metric.fieldsByName.axis, axes);
         // todo: move this into a pre-processing step
         var buildStringPaths = function(obj, pathSoFar, interesting, ret) {
             for (var f=0; f<obj.length; f++) {
@@ -661,7 +668,8 @@ aardvark
                                 graph.gnuplot.showKey,
                                 graph.gnuplot.keyBox,
                                 graph.gnuplot.lineSmoothing,
-                                graph.gnuplot.keyAlignment=="columnar"
+                                graph.gnuplot.keyAlignment=="columnar",
+                                graph.gnuplot.globalAnnotations
                             ]);
                             intermediateGraph.gnuplot = {
                                 yAxisLabel: graph.gnuplot.yAxisLabel,
@@ -674,6 +682,7 @@ aardvark
                             if (graph.gnuplot.showKey) {
                                 intermediateGraph.gnuplot.keyLocation = gnuplotKeyLocations.valueToId(graph.gnuplot.keyLocation);
                             }
+                            intermediateGraph.gnuplot.style = gnuplotStyles.valueToId(graph.gnuplot.style);
                         }
                         else {
                             intermediateGraph.gnuplot = {};
@@ -759,7 +768,6 @@ aardvark
                     intermediateMetric.flags = blitting.toBlittedInt([
                         metric.graphOptions.rate,
                         metric.graphOptions.rateCounter,
-                        metric.graphOptions.rightAxis,
                         metric.graphOptions.downsample
                     ]);
                     if (metric.graphOptions.graphId == null) {
@@ -778,6 +786,7 @@ aardvark
                     if (metric.graphOptions.scatter != null) {
                         intermediateMetric.scatterAxis = scatterAxes.valueToId(metric.graphOptions.scatter.axis);
                     }
+                    intermediateMetric.axis = axes.valueToId(metric.graphOptions.axis);
                 }
                 intermediateModel.metrics.push(intermediateMetric);
             }
@@ -966,7 +975,7 @@ aardvark
                 
                 switch (graph.type) {
                     case "gnuplot":
-                        var gnuplotFlags = blitting.fromBlittedInt(intermediateGraph.flags, [false, false, true, false, false, true]);
+                        var gnuplotFlags = blitting.fromBlittedInt(intermediateGraph.flags, [false, false, true, false, false, true, false]);
                         graph.gnuplot = {};
                         graph.gnuplot.yAxisLogScale = gnuplotFlags[0];
                         graph.gnuplot.y2AxisLogScale = gnuplotFlags[1];
@@ -974,6 +983,7 @@ aardvark
                         graph.gnuplot.keyBox = gnuplotFlags[3];
                         graph.gnuplot.lineSmoothing = gnuplotFlags[4];
                         graph.gnuplot.keyAlignment = gnuplotFlags[5] ? "columnar" : "horizontal";
+                        graph.gnuplot.globalAnnotations = gnuplotFlags[6];
                         graph.gnuplot.yAxisLabel = intermediateGraph.gnuplot.yAxisLabel;
                         graph.gnuplot.y2AxisLabel = intermediateGraph.gnuplot.y2AxisLabel;
                         graph.gnuplot.yAxisFormat = intermediateGraph.gnuplot.yAxisFormat;
@@ -983,6 +993,7 @@ aardvark
                         if (graph.gnuplot.showKey) {
                             graph.gnuplot.keyLocation = gnuplotKeyLocations.idToValue(intermediateGraph.gnuplot.keyLocation);
                         }
+                        graph.gnuplot.style = gnuplotStyles.idToValue(intermediateGraph.gnuplot.style);
                         break;
                     case "horizon":
                         var horizonFlags = blitting.fromBlittedInt(intermediateGraph.flags, [true, false]);
@@ -1052,11 +1063,10 @@ aardvark
                     });
                 }
 
-                var metricFlags = blitting.fromBlittedInt(intermediateMetric.flags, [false,false,false,false]);
+                var metricFlags = blitting.fromBlittedInt(intermediateMetric.flags, [false,false,false]);
                 metric.graphOptions.rate = metricFlags[0];
                 metric.graphOptions.rateCounter = metricFlags[1];
-                metric.graphOptions.rightAxis = metricFlags[2];
-                metric.graphOptions.downsample = metricFlags[3];
+                metric.graphOptions.downsample = metricFlags[2];
                 metric.graphOptions.graphId = intermediateMetric.graphId;
                 if (metric.graphOptions.rate && metric.graphOptions.rateCounter) {
                     metric.graphOptions.rateCounterReset = intermediateMetric.rateCounterReset.toNumber();
@@ -1081,6 +1091,7 @@ aardvark
                         axis: scatterAxis
                     };
                 }
+                metric.graphOptions.axis = axes.idToValue(intermediateMetric.axis);
                 
                 model.metrics.push(metric);
             }
