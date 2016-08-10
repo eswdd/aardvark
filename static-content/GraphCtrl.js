@@ -1397,7 +1397,10 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                     // top needs to be relative to this panel, not whole window
                     var legendTop = graphBox.top - graphPanelBox.top;
                     // and now we just go find the rule we added and set the top/height
-                    d3.select("#dygraphLegend_"+graph.id).style("top", legendTop+"px");
+                    d3.select("#dygraphLegend_"+graph.id)
+                      .style("top", legendTop+"px")
+                      .style("height",graphBox.height+"px")
+                      .style("width",graphBox.width+"px");
                 }
             }
 
