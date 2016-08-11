@@ -48,7 +48,7 @@ Why the name?
 -------------
 
 It was originally called Otis (from *O*pen*T*SDB V*is*ualiser). Anyone growing up in the UK in the 90's
-should be well aware of [https://en.wikipedia.org/wiki/Otis_the_Aardvark](Otis the Aardvark).
+should be well aware of [Otis the Aardvark](https://en.wikipedia.org/wiki/Otis_the_Aardvark).
 
 Copyright
 ---------
