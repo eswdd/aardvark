@@ -15,13 +15,14 @@ A brief list of features:
 * Stacked graphs
 * Deep linking
 * Tree based metric selection
+* Baselining - compare a time series to an earlier version of itself
+* View annotations
 
 Intended additional features:
 * Auto-downsampling of series to prevent browser 'lock-up'
-* Baselining - compare a time series to an earlier version of itself
 * Filter UI by tag key/value and or time range
 * Popout to Gnuplot image
-* View/add/edit annotations
+* Add/edit annotations
 * Metadata viewer
 
 Getting started
