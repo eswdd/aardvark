@@ -10,9 +10,15 @@ aardvark
 An [OpenTSDB](http://opentsdb.net) Visualiser.
 
 A brief list of features:
-* Javascript client-side rendered graphs
+* Javascript client-side rendered charts:
+  * Line charts
+  * Ratio charts
+  * Mean weighted charts
+  * Horizon charts
+  * Scatter charts
 * Auto scaling
-* Stacked graphs
+* Stacked charts
+* Filtering by value or top/bottom timeseries
 * Deep linking
 * Tree based metric selection
 * Baselining - compare a time series to an earlier version of itself
