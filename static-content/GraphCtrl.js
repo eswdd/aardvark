@@ -241,27 +241,29 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 while (nextIndex < ts.dps.length && ts.dps[nextIndex][0] < v) {
                     nextIndex++;
                 }
-                if (ts.dps[nextIndex][0] == v) {
-                    lastValue = ts.dps[nextIndex][1];
-                    lastValueTime = ts.dps[nextIndex][0];
-                    ret.push(squashNegatives && lastValue < 0 ? 0 : lastValue);
-                    nextIndex++;
-                    if (nextIndex>=ts.dps.length) {
-                        break;
+                if (nextIndex < ts.dps.length) {
+                    if (ts.dps[nextIndex][0] == v) {
+                        lastValue = ts.dps[nextIndex][1];
+                        lastValueTime = ts.dps[nextIndex][0];
+                        ret.push(squashNegatives && lastValue < 0 ? 0 : lastValue);
+                        nextIndex++;
+                        if (nextIndex>=ts.dps.length) {
+                            break;
+                        }
                     }
-                }
-                else if (ts.dps[nextIndex][0] > v) {
-                    // interpolate
-                    if (interpolate) {
-                        var nextValue = ts.dps[nextIndex][1];
-                        var nextTime = ts.dps[nextIndex][0];
-                        var timeDiffLastToNext = nextTime - lastValueTime;
-                        var timeDiffLastToNow = v - lastValueTime;
-                        var value = lastValue + ((nextValue - lastValue) * (timeDiffLastToNow / timeDiffLastToNext));
-                        ret.push(squashNegatives && value < 0 ? 0 : value);
-                    }
-                    else {
-                        ret.push(null);
+                    else if (ts.dps[nextIndex][0] > v) {
+                        // interpolate
+                        if (interpolate) {
+                            var nextValue = ts.dps[nextIndex][1];
+                            var nextTime = ts.dps[nextIndex][0];
+                            var timeDiffLastToNext = nextTime - lastValueTime;
+                            var timeDiffLastToNow = v - lastValueTime;
+                            var value = lastValue + ((nextValue - lastValue) * (timeDiffLastToNow / timeDiffLastToNext));
+                            ret.push(squashNegatives && value < 0 ? 0 : value);
+                        }
+                        else {
+                            ret.push(null);
+                        }
                     }
                 }
             }

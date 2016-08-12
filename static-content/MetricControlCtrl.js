@@ -531,7 +531,7 @@ aardvark.directive('tagSelection', function() {
                         }
                     };
                 }
-                if (fn != null) {
+                if (fn != null && allValues != null) {
                     for (var j=0; j<allValues.length; j++) {
                         if (fn(allValues[j])) {
                             count++;
@@ -544,11 +544,13 @@ aardvark.directive('tagSelection', function() {
             }
         }
         // old school query
-        var allTags = inputText.split("|");
-        for (var j=0; j<allValues.length; j++) {
-            var ind = allTags.indexOf(allValues[j]);
-            if (ind >= 0) {
-                count++;
+        if (allValues != null) {
+            var allTags = inputText.split("|");
+            for (var j=0; j<allValues.length; j++) {
+                var ind = allTags.indexOf(allValues[j]);
+                if (ind >= 0) {
+                    count++;
+                }
             }
         }
 

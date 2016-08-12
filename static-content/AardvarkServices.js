@@ -531,7 +531,11 @@ aardvark
             if (isDecimalDigit(unit)) {
                 return {}; 
             }
-            var count = toInt(value.substring(0, value.length-1));
+            var countString = value.substring(0, value.length-1);
+            if (countString == "") {
+                return {};
+            }
+            var count = toInt(countString);
             return {
                 count: count,
                 unit: units.valueToId(unit)
