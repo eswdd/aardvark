@@ -1039,49 +1039,51 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             var discoverAnnotations = function(json, indices, isBaseline) {
                 var globalAnnotations = [];
                 for (var s=0; s<json.length; s++) {
-                    json[s].annotations.sort(function(a,b){
-                        var ret = a.startTime - b.startTime;
-                        if (ret == 0) {
-                            if (a.endTime == null || b.endTime == null) {
-                                return 0;
+                    if (json[s].annotations != null) {
+                        json[s].annotations.sort(function(a,b){
+                            var ret = a.startTime - b.startTime;
+                            if (ret == 0) {
+                                if (a.endTime == null || b.endTime == null) {
+                                    return 0;
+                                }
+                                return a.endTime - b.endTime;
                             }
-                            return a.endTime - b.endTime;
-                        }
-                        return ret;
-                    });
-                    for (var p= 0, a=0; p<json[s].dps.length && a<json[s].annotations.length; ) {
-                        var t = json[s].dps[p][0];
-                        var annT = json[s].annotations[a].startTime; // todo: how do we represent endTime with dygraph?
-                        if (t < annT) {
-                            // annotation after last point
-                            if (p == json[s].dps.length - 1) {
-                                // add a point at the end
+                            return ret;
+                        });
+                        for (var p= 0, a=0; p<json[s].dps.length && a<json[s].annotations.length; ) {
+                            var t = json[s].dps[p][0];
+                            var annT = json[s].annotations[a].startTime; // todo: how do we represent endTime with dygraph?
+                            if (t < annT) {
+                                // annotation after last point
+                                if (p == json[s].dps.length - 1) {
+                                    // add a point at the end
+                                    // let dygraphs interpolate
+                                    json[s].dps.push([annT,null]);
+                                    // insert annotation
+                                    annotations.push([json[s], json[s].annotations[a], isBaseline]);
+                                    // next annotation
+                                    a++;
+                                }
+                                // annotation after a mid point
+                                else {
+                                    p++;
+                                }
+                            }
+                            else if (t == annT) {
+                                // we have a point at the correct time, this is good
+    //                            console.log("inserting annotation at existing point")
+                                annotations.push([json[s], json[s].annotations[a], isBaseline]);
+                                a++;
+                            }
+                            else { // t > annT
+                                // annotation needs to go in here
                                 // let dygraphs interpolate
-                                json[s].dps.push([annT,null]);
+                                json[s].dps.splice(p,0,[annT,null]);
                                 // insert annotation
                                 annotations.push([json[s], json[s].annotations[a], isBaseline]);
                                 // next annotation
                                 a++;
                             }
-                            // annotation after a mid point
-                            else {
-                                p++;
-                            }
-                        }
-                        else if (t == annT) {
-                            // we have a point at the correct time, this is good
-//                            console.log("inserting annotation at existing point")
-                            annotations.push([json[s], json[s].annotations[a], isBaseline]);
-                            a++;
-                        }
-                        else { // t > annT
-                            // annotation needs to go in here
-                            // let dygraphs interpolate
-                            json[s].dps.splice(p,0,[annT,null]);
-                            // insert annotation
-                            annotations.push([json[s], json[s].annotations[a], isBaseline]);
-                            // next annotation
-                            a++;
                         }
                     }
                     if (dygraphOptions.globalAnnotations && globalAnnotations.length == 0 && json[s].globalAnnotations.length > 0) {
