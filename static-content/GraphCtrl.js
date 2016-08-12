@@ -1486,6 +1486,8 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
 
             var dygraph = $scope.dygraph_render("dygraphDiv_"+graph.id, graph.id, graphData, config);
 
+            dygraph.canvas_.style["z-index"] = "20";
+
             var createDygraphAnnotation = function(g, seriesAndAnnotation) {
                 var series = seriesAndAnnotation[0];
                 var annotation = seriesAndAnnotation[1];
