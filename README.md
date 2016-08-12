@@ -10,18 +10,25 @@ aardvark
 An [OpenTSDB](http://opentsdb.net) Visualiser.
 
 A brief list of features:
-* Javascript client-side rendered graphs
+* Javascript client-side rendered charts:
+  * Line charts
+  * Ratio charts
+  * Mean weighted charts
+  * Horizon charts
+  * Scatter charts
 * Auto scaling
-* Stacked graphs
+* Stacked charts
+* Filtering by value or top/bottom timeseries
 * Deep linking
 * Tree based metric selection
+* Baselining - compare a time series to an earlier version of itself
+* View annotations
 
 Intended additional features:
 * Auto-downsampling of series to prevent browser 'lock-up'
-* Baselining - compare a time series to an earlier version of itself
 * Filter UI by tag key/value and or time range
 * Popout to Gnuplot image
-* View/add/edit annotations
+* Add/edit annotations
 * Metadata viewer
 
 Getting started
@@ -41,7 +48,7 @@ Why the name?
 -------------
 
 It was originally called Otis (from *O*pen*T*SDB V*is*ualiser). Anyone growing up in the UK in the 90's
-should be well aware of [https://en.wikipedia.org/wiki/Otis_the_Aardvark](Otis the Aardvark).
+should be well aware of [Otis the Aardvark](https://en.wikipedia.org/wiki/Otis_the_Aardvark).
 
 Copyright
 ---------
