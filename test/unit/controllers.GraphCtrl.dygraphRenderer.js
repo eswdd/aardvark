@@ -74,7 +74,10 @@ describe('Aardvark controllers', function () {
                 renderData = data;
                 renderConfig = config;
                 return {
-                    height: dygraphHeight
+                    height: dygraphHeight,
+                    canvas_: {
+                        style: {}
+                    }
                 };
             }
 
