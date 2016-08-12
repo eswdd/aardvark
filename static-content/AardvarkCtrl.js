@@ -150,7 +150,7 @@ aardvark.directive('aardvarkEnter', function() {
     
         $rootScope.updateTsdbVersion = function() {
             if ($rootScope.config) {
-                $http.get('/api/version').success(function(json) {
+                $http.get("http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+'/api/version').success(function(json) {
                     try {
                         var versionFromServer = json.version;
                         var firstDot = versionFromServer.indexOf(".");
