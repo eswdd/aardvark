@@ -720,11 +720,13 @@ aardvark
                                 intermediateGraph.dygraph.countFilterCount = toInt(graph.dygraph.countFilter.count);
                                 intermediateGraph.dygraph.countFilterMeasure = countFilterMeasures.valueToId(graph.dygraph.countFilter.measure)
                             }
-                            if (graph.dygraph.valueFilter != null && graph.dygraph.valueFilter.lowerBound != "" || graph.dygraph.valueFilter.upperBound != "") {
-                                if (graph.dygraph.valueFilter.lowerBound != "") {
+                            if (graph.dygraph.valueFilter != null && 
+                                (graph.dygraph.valueFilter.lowerBound != null && graph.dygraph.valueFilter.lowerBound != "") || 
+                                (graph.dygraph.valueFilter.upperBound != null && graph.dygraph.valueFilter.upperBound != "")) {
+                                if (graph.dygraph.valueFilter.lowerBound != null && graph.dygraph.valueFilter.lowerBound != "") {
                                     intermediateGraph.dygraph.valueFilterLowerBound = toInt(graph.dygraph.valueFilter.lowerBound);
                                 }
-                                if (graph.dygraph.valueFilter.upperBound != "") {
+                                if (graph.dygraph.valueFilter.upperBound != null && graph.dygraph.valueFilter.upperBound != "") {
                                     intermediateGraph.dygraph.valueFilterUpperBound = toInt(graph.dygraph.valueFilter.upperBound);
                                 }
                                 intermediateGraph.dygraph.valueFilterMeasure = valueFilterMeasures.valueToId(graph.dygraph.valueFilter.measure)
