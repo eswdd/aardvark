@@ -2200,9 +2200,11 @@ describe('Aardvark controllers', function () {
             _annotationTest(false, metrics, null, url, null, responseData, null, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling);
         }
         var annotationBaselineTest = function(responseData, baselineResponseData, expectedRenderData, expectedAnnotations, autoScaling, expectedLabels) {
-            var datum = new Date(2016,5,3,0,0,0);
+            var datum = moment.utc("2016-06-03").toDate();
             var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&ms=true&arrays=true&show_query=true";
-            var baselineUrl = "http://tsdb:4242/api/query?start=2016/06/01 00:00:00&end=2016/06/02 00:00:00&m=sum:metric1&ms=true&arrays=true&show_query=true";
+            var start = moment.utc("2016-06-01").format("YYYY/MM/DD HH:mm:ss");
+            var end = moment.utc("2016-06-02").format("YYYY/MM/DD HH:mm:ss");
+            var baselineUrl = "http://tsdb:4242/api/query?start="+start+"&end="+end+"&m=sum:metric1&ms=true&arrays=true&show_query=true";
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
             if (autoScaling) {
                 metrics.push({ id: "123", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } });
@@ -2226,9 +2228,11 @@ describe('Aardvark controllers', function () {
             _annotationTest(true, metrics, null, url, null, responseData, null, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling);
         }
         var globalAnnotationBaselineTest = function(responseData, baselineResponseData, expectedRenderData, expectedAnnotations, autoScaling, expectedLabels) {
-            var datum = new Date(2016,5,3,0,0,0);
+            var datum = moment.utc("2016-06-03").toDate();
             var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&global_annotations=true&ms=true&arrays=true&show_query=true";
-            var baselineUrl = "http://tsdb:4242/api/query?start=2016/06/01 00:00:00&end=2016/06/02 00:00:00&m=sum:metric1&m=sum:metric2&global_annotations=true&ms=true&arrays=true&show_query=true";
+            var start = moment.utc("2016-06-01").format("YYYY/MM/DD HH:mm:ss");
+            var end = moment.utc("2016-06-02").format("YYYY/MM/DD HH:mm:ss");
+            var baselineUrl = "http://tsdb:4242/api/query?start="+start+"&end="+end+"&m=sum:metric1&m=sum:metric2&global_annotations=true&ms=true&arrays=true&show_query=true";
             var metrics = [
                 { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                 { id: "123", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }
