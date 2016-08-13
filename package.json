@@ -3,7 +3,7 @@
   "name": "aardvark",
   "description": "An OpenTSDB Visualiser",
   "repository": "https://github.com/eswdd/aardvark",
-  "license": "GPL",
+  "license": "GPL-3.0",
   "main": "aardvark.js",
   "bin": {
     "aardvark": "aardvark.js"
