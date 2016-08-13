@@ -271,19 +271,19 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         });
     };
 
-    $scope.tsdb_queryStringForBaseline = function(global, graph, metrics, perLineFn, datum) {
+    $scope.tsdb_queryStringForBaseline = function(global, graph, metrics, perLineFn, datum, downsampleOverrideFn) {
         var fromTimestamp = $scope.tsdb_baselineFromTimestampAsTsdbString(global, datum);
         var toTimestamp = $scope.tsdb_baselineToTimestampAsTsdbString(global, datum);
-        return $scope.tsdb_queryStringInternal(fromTimestamp, toTimestamp, global.autoReload, global.globalDownsampling, global.globalDownsampleTo, graph, metrics, perLineFn);
+        return $scope.tsdb_queryStringInternal(fromTimestamp, toTimestamp, global.autoReload, global.globalDownsampling, global.globalDownsampleTo, graph, metrics, perLineFn, downsampleOverrideFn);
     }
 
-    $scope.tsdb_queryString = function(global, graph, metrics, perLineFn) {
+    $scope.tsdb_queryString = function(global, graph, metrics, perLineFn, downsampleOverrideFn) {
         var fromTimestamp = $scope.tsdb_fromTimestampAsTsdbString(global);
         var toTimestamp = $scope.tsdb_toTimestampAsTsdbString(global);
-        return $scope.tsdb_queryStringInternal(fromTimestamp, toTimestamp, global.autoReload, global.globalDownsampling, global.globalDownsampleTo, graph, metrics, perLineFn);
+        return $scope.tsdb_queryStringInternal(fromTimestamp, toTimestamp, global.autoReload, global.globalDownsampling, global.globalDownsampleTo, graph, metrics, perLineFn, downsampleOverrideFn);
     }
 
-    $scope.tsdb_queryStringInternal = function(fromTimestamp, toTimestamp, autoReload, globalDownsampling, globalDownsampleTo, graph, metrics, perLineFn) {
+    $scope.tsdb_queryStringInternal = function(fromTimestamp, toTimestamp, autoReload, globalDownsampling, globalDownsampleTo, graph, metrics, perLineFn, downsampleOverrideFn) {
 
         // validation
         if (fromTimestamp == null || fromTimestamp == "") {
@@ -325,7 +325,10 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             var metric = metrics[i];
             var options = metric.graphOptions;
             url += "&m=" + options.aggregator + ":";
-            if (globalDownsampling) {
+            if (downsampleOverrideFn) {
+                url += downsampleOverrideFn(options.downsampleBy) + ":";
+            }
+            else if (globalDownsampling) {
                 url += globalDownsampleTo + "-" + options.downsampleBy + ":";
             }
             else if (options.downsample) {
@@ -586,6 +589,11 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             }
         }
 
+        var downsampleTo = !(stepSize % 86400000) ? stepSize / 86400000 + "d" : 
+                               !(stepSize % 3600000) ? stepSize / 3600000 + "h" : 
+                                   !(stepSize % 60000) ? stepSize / 60000 + "m" :
+                                       stepSize / 1000 + "s";
+
         // now recalculate width so we get the time range requested
         width = Math.ceil(timeWidth / stepSize);
 
@@ -606,7 +614,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         // url construction
         var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/query";
 
-        url += $scope.tsdb_queryString(global, graph, metrics);
+        url += $scope.tsdb_queryString(global, graph, metrics, null, function(by) {return downsampleTo+"-"+(by?by:"avg")});
 
         url += "&ms=true&arrays=true";
 
