@@ -40,7 +40,7 @@ Getting started
    $ git clone https://github.com/eswdd/aardvark.git
    $ cd aardvark
    $ npm install
-   $ npm start
+   $ node aardvark.js -s -d
 ```
 * Point browser at [http://localhost:8000/](http://localhost:8000/).
 
@@ -53,7 +53,7 @@ should be well aware of [Otis the Aardvark](https://en.wikipedia.org/wiki/Otis_t
 Copyright
 ---------
 ```
-   Copyright 2014 Simon Matic Langford
+   Copyright 2014-2016 Simon Matic Langford
 
    Licensed under the GNU General Public License, Version 3.0 (the "License");
    you may not use this file except in compliance with the License.

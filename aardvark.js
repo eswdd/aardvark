@@ -93,43 +93,45 @@ if (config.sourceBuild) {
 app.use(express.static('./static-content'));
 
 // fake tsdb api
-var tsdb = require('faketsdb');
-var tsdbConfig = {
-    verbose: false,
-    probabilities: {
-        annotation: 0.01,
-        globalAnnotation: 0.5
-    },
-    version: "2.2.0"
-};
-tsdb.install(app, tsdbConfig);
-tsdb.addTimeSeries("tsd.rpc.received", { host: "host01", type: "put" }, "counter");
-tsdb.addTimeSeries("tsd.rpc.received", { host: "host01", type: "telnet" }, "counter");
-tsdb.addTimeSeries("tsd.rpc.errors", { host: "host01", type: "invalid_values" }, "counter");
-tsdb.addTimeSeries("tsd.rpc.errors", { host: "host01", type: "hbase_errors" }, "counter");
-tsdb.addTimeSeries("tsd.rpc.errors", { host: "host01", type: "illegal_arguments" }, "counter");
-tsdb.addTimeSeries("ifstat.bytes", { host: "host01", direction: "in" }, "counter");
-tsdb.addTimeSeries("ifstat.bytes", { host: "host01", direction: "out" }, "counter");
-tsdb.addTimeSeries("ifstat.bytes", { host: "host02", direction: "in" }, "counter");
-tsdb.addTimeSeries("ifstat.bytes", { host: "host02", direction: "out" }, "counter");
-tsdb.addTimeSeries("ifstat.bytes", { host: "host03", direction: "in" }, "counter");
-tsdb.addTimeSeries("ifstat.bytes", { host: "host03", direction: "out" }, "counter");
-tsdb.addTimeSeries("cpu.percent", { host: "host01" }, "gauge", {min:0, max:100});
-tsdb.addTimeSeries("cpu.percent", { host: "host02" }, "gauge", {min:0, max:100});
-tsdb.addTimeSeries("cpu.percent", { host: "host03" }, "gauge", {min:0, max:100});
-tsdb.addTimeSeries("cpu.queue", { host: "host01" }, "gauge", {min:0});
-tsdb.addTimeSeries("cpu.queue", { host: "host02" }, "gauge", {min:0});
-tsdb.addTimeSeries("cpu.queue", { host: "host03" }, "gauge", {min:0});
-tsdb.addTimeSeries("some.stat", { host: "host02" }, "gauge");
-tsdb.addTimeSeries("some.stat", { host: "host03" }, "gauge");
-tsdb.addTimeSeries("some.stat.min", { host: "host02" }, "gauge");
-tsdb.addTimeSeries("some.stat.min", { host: "host03" }, "gauge");
-tsdb.addTimeSeries("some.stat.max", { host: "host02" }, "gauge");
-tsdb.addTimeSeries("some.stat.max", { host: "host03" }, "gauge");
+if (config.devMode) {
+    var tsdb = require('faketsdb');
+    var tsdbConfig = {
+        verbose: false,
+        probabilities: {
+            annotation: 0.01,
+            globalAnnotation: 0.5
+        },
+        version: "2.2.0"
+    };
+    tsdb.install(app, tsdbConfig);
+    tsdb.addTimeSeries("tsd.rpc.received", { host: "host01", type: "put" }, "counter");
+    tsdb.addTimeSeries("tsd.rpc.received", { host: "host01", type: "telnet" }, "counter");
+    tsdb.addTimeSeries("tsd.rpc.errors", { host: "host01", type: "invalid_values" }, "counter");
+    tsdb.addTimeSeries("tsd.rpc.errors", { host: "host01", type: "hbase_errors" }, "counter");
+    tsdb.addTimeSeries("tsd.rpc.errors", { host: "host01", type: "illegal_arguments" }, "counter");
+    tsdb.addTimeSeries("ifstat.bytes", { host: "host01", direction: "in" }, "counter");
+    tsdb.addTimeSeries("ifstat.bytes", { host: "host01", direction: "out" }, "counter");
+    tsdb.addTimeSeries("ifstat.bytes", { host: "host02", direction: "in" }, "counter");
+    tsdb.addTimeSeries("ifstat.bytes", { host: "host02", direction: "out" }, "counter");
+    tsdb.addTimeSeries("ifstat.bytes", { host: "host03", direction: "in" }, "counter");
+    tsdb.addTimeSeries("ifstat.bytes", { host: "host03", direction: "out" }, "counter");
+    tsdb.addTimeSeries("cpu.percent", { host: "host01" }, "gauge", {min:0, max:100});
+    tsdb.addTimeSeries("cpu.percent", { host: "host02" }, "gauge", {min:0, max:100});
+    tsdb.addTimeSeries("cpu.percent", { host: "host03" }, "gauge", {min:0, max:100});
+    tsdb.addTimeSeries("cpu.queue", { host: "host01" }, "gauge", {min:0});
+    tsdb.addTimeSeries("cpu.queue", { host: "host02" }, "gauge", {min:0});
+    tsdb.addTimeSeries("cpu.queue", { host: "host03" }, "gauge", {min:0});
+    tsdb.addTimeSeries("some.stat", { host: "host02" }, "gauge");
+    tsdb.addTimeSeries("some.stat", { host: "host03" }, "gauge");
+    tsdb.addTimeSeries("some.stat.min", { host: "host02" }, "gauge");
+    tsdb.addTimeSeries("some.stat.min", { host: "host03" }, "gauge");
+    tsdb.addTimeSeries("some.stat.max", { host: "host02" }, "gauge");
+    tsdb.addTimeSeries("some.stat.max", { host: "host03" }, "gauge");
 
-// fake tsdb graph
-var tsdb = require('./mockTsdbGraph');
-app.use('/q',tsdb);
+    // fake tsdb graph
+    var tsdbGraph = require('./mockTsdbGraph');
+    app.use('/q',tsdbGraph);
+}
 
 
 // aardvark backend
@@ -140,53 +142,6 @@ aardvark.use(function timeLog(req, res, next) {
     console.log(new Date(Date.now())+': '+req.originalUrl);
     next();
 })
-// define the
-aardvark.get('/tags', function(req, res) {
-    var requestJson = {"metric": req.query["metric"], "limit": 100000, "useMeta": true}; // todo: useMeta should be based on tsdb config
-    var postData = JSON.stringify(requestJson);
-    var options = {
-        hostname: config.tsdbHost,
-        port: config.tsdbPort,
-        path: '/api/search/lookup',
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': postData.length
-        }
-    };
-
-    var clientReq = http.request(options, function(clientRes) {
-        clientRes.setEncoding('utf8');
-        var data = "";
-        clientRes.on('data', function (chunk) {
-            data += chunk;
-        });
-        clientRes.on('end', function() {
-            var tagValues = {};
-
-            var tsdbResponse = JSON.parse(data);
-            var results = tsdbResponse.results;
-            for (var i=0; i<results.length; i++) {
-                var ts = results[i];
-                for (var tagk in ts.tags) {
-                    if (ts.tags.hasOwnProperty(tagk)) {
-                        if (!(tagk in tagValues)) {
-                            tagValues[tagk] = [];
-                        }
-                        if (tagValues[tagk].indexOf(ts.tags[tagk]) < 0) {
-                            tagValues[tagk].push(ts.tags[tagk]);
-                        }
-                    }
-                }
-            }
-            res.json(tagValues);
-        })
-    });
-
-    clientReq.write(postData);
-    clientReq.end();
-
-});
 aardvark.get('/config', function(req, res) {
     res.json(config);
 });
