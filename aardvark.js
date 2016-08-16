@@ -52,8 +52,8 @@ if (!config.hasOwnProperty('sourceBuild')) {
 if (!config.hasOwnProperty('devMode')) {
     config.devMode = false;
 }
-if (!config.hasOwnProperty('tsdbHost')) {
-    config.tsdbHost = 'localhost';
+if (!config.hasOwnProperty('tsdbProtocol')) {
+    config.tsdbProtocol = 'http';
 }
 if (!config.hasOwnProperty('tsdbHost')) {
     config.tsdbHost = 'localhost';

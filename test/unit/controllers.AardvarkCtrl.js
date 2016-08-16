@@ -48,7 +48,7 @@ describe('Aardvark controllers', function () {
             $httpBackend.flush();
 
             expect(rootScope.config).toEqualData({
-                key: "value", tsdbHost: "tsdb", tsdbPort: 4242
+                key: "value", tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"
             });
         });
 
@@ -57,7 +57,7 @@ describe('Aardvark controllers', function () {
             $httpBackend.flush();
 
             expect(rootScope.config).toEqualData({
-                key: "value", tsdbHost: "tsdb", tsdbPort: 4242
+                key: "value", tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"
             });
 
             var configReceived = false;

@@ -150,7 +150,7 @@ aardvark.directive('aardvarkEnter', function() {
     
         $rootScope.updateTsdbVersion = function() {
             if ($rootScope.config) {
-                $http.get("http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+'/api/version').success(function(json) {
+                $http.get($rootScope.config.tsdbProtocol+"://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+'/api/version').success(function(json) {
                     try {
                         var versionFromServer = json.version;
                         var firstDot = versionFromServer.indexOf(".");
@@ -172,6 +172,10 @@ aardvark.directive('aardvarkEnter', function() {
     
         $rootScope.updateConfig = function() {
             $http.get('/aardvark/config').success(function(json) {
+                // apply some defaults..
+                if (!json.tsdbProtocol) {
+                    json.tsdbProtocol = "http";
+                }
                 $rootScope.config = json;
                 if (json.devMode && $rootScope.graphTypes.indexOf("debug") < 0) {
                     $rootScope.graphTypes.splice(0, 0, "debug");

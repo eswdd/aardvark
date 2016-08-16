@@ -60,7 +60,7 @@ describe('Aardvark controllers', function () {
         });
 
         it('should load data for the tree on config update', function() {
-            rootScope.config = {tsdbHost: 'tsdb', tsdbPort: '4242'};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
             $httpBackend.expectGET('http://tsdb:4242/api/suggest?type=metrics&max=1000000').respond(
                 [
                     "flob",
@@ -92,7 +92,7 @@ describe('Aardvark controllers', function () {
         });
 
         it('should load data for the tree on config update with prefix exclusions', function() {
-            rootScope.config = {tsdbHost: 'tsdb', tsdbPort: '4242', hidePrefixes: ["wibble","dave.fred"]};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http", hidePrefixes: ["wibble","dave.fred"]};
             $httpBackend.expectGET('http://tsdb:4242/api/suggest?type=metrics&max=1000000').respond(
                 [
                     "flob",
@@ -125,7 +125,7 @@ describe('Aardvark controllers', function () {
         });
 
         it('should load data for the tree on config update with prefix exclusions disabled in ui', function() {
-            rootScope.config = {tsdbHost: 'tsdb', tsdbPort: '4242', hidePrefixes: ["wibble","dave.fred"]};
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http", hidePrefixes: ["wibble","dave.fred"]};
             scope.showingIgnoredPrefixes = true;
             $httpBackend.expectGET('http://tsdb:4242/api/suggest?type=metrics&max=1000000').respond(
                 [
@@ -181,7 +181,7 @@ describe('Aardvark controllers', function () {
         it('should correctly process a selected node in the tree', function() {
             var node = {id: "name.baldrick", name: "baldrick", isMetric: true, children: []};
             
-            rootScope.config = { tsdbHost: "tsdb", tsdbPort: 4242 };
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
 
             var response = {
                 "type":"LOOKUP",
@@ -451,7 +451,7 @@ describe('Aardvark controllers', function () {
         });
 
         it('should populate the metric form when an existing metric is selected', function() {
-            rootScope.config = { tsdbHost: "tsdb", tsdbPort: 4242 };
+            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
             rootScope.model = {
                 graphs: [
                     {
@@ -902,7 +902,7 @@ describe('Aardvark controllers', function () {
         });
         
         it('should reset user entered metric options on selecting a new metric', function() {
-            rootScope.config = { tsdbHost: "tsdb", tsdbPort: 4242 };
+            rootScope.config = { tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http" };
 
             var node = {id: "name.baldrick", name: "baldrick", isMetric: true, children: []};
             var response = {

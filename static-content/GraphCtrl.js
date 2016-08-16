@@ -455,7 +455,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         $scope.renderMessages[graph.id] = "Loading...";
 
 
-        var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/q";
+        var url = $rootScope.config.tsdbProtocol+"://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/q";
         var qs = $scope.tsdb_queryString(global, graph, metrics, function(metric) {
             return "&o=axis+"+metric.graphOptions.axis;
         });
@@ -612,7 +612,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         }
 
         // url construction
-        var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/query";
+        var url = $rootScope.config.tsdbProtocol+"://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/query";
 
         url += $scope.tsdb_queryString(global, graph, metrics, null, function(by) {return downsampleTo+"-"+(by?by:"avg")});
 
@@ -768,7 +768,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         $scope.renderMessages[graph.id] = "Loading...";
         
         var constructUrl = function(queryStringFn, datum) {
-            var ret = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/query";
+            var ret = $rootScope.config.tsdbProtocol+"://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/query";
 
             ret += queryStringFn(global, graph, metrics, null, datum);
 
@@ -1624,7 +1624,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         $scope.renderMessages[graph.id] = "Loading...";
 
         // url construction
-        var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/query";
+        var url = $rootScope.config.tsdbProtocol+"://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/query";
 
         url += $scope.tsdb_queryString(global, graph, metrics);
 

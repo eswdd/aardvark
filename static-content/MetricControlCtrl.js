@@ -392,7 +392,7 @@ aardvark.directive('tagSelection', function() {
         $scope.tagOptions = {};
         $scope.tag = {};
         $scope.resetUserMetricOptions();
-        var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/search/lookup";
+        var url = $rootScope.config.tsdbProtocol+"://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/search/lookup";
         var requestJson = {"metric": metricName, "limit": 100000, "useMeta": true}; // todo: useMeta should be based on tsdb config
         var postData = JSON.stringify(requestJson);
         $http.post(url, postData).success(function (data) {
