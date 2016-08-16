@@ -53,7 +53,7 @@ aardvark.directive('aardvarkEnter', function() {
         $rootScope.configListeners = [];
 
         $rootScope.config = null;
-        $rootScope.graphTypes = [ "gnuplot", "horizon", "dygraph", "scatter" ];
+        $rootScope.graphTypes = [ "gnuplot", "horizon", "dygraph", "scatter", "heatmap" ];
 
         $rootScope.activeTimeoutId = null;
 

@@ -90,7 +90,16 @@ aardvark.directive('tagSelection', function() {
     }
 
     $scope.downsampleByEnabled = function() {
-        return $scope.downsample || $scope.globalDownsampling;
+        var graph = null;
+        if ($rootScope.model.graphs != null) {
+            for (var g=0; g<$rootScope.model.graphs.length; g++) {
+                if ($rootScope.model.graphs[g].id == $scope.graphId) {
+                    graph = $rootScope.model.graphs[g];
+                }
+            }
+        }
+        return $scope.downsample || $scope.globalDownsampling 
+            || (graph != null && (graph.type == "horizon" || graph.type == "heatmap"));
     }
 
     $scope.treeOptions = {
@@ -480,6 +489,9 @@ aardvark.directive('tagSelection', function() {
             return "";
         }
         var allValues = $scope.tagValues[tag];
+        if (allValues == null) {
+            return "";
+        }
         var count = 0;
         if (inputText=="*") {
             return "("+allValues.length+")";

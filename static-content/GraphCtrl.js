@@ -284,7 +284,6 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
     }
 
     $scope.tsdb_queryStringInternal = function(fromTimestamp, toTimestamp, autoReload, globalDownsampling, globalDownsampleTo, graph, metrics, perLineFn, downsampleOverrideFn) {
-
         // validation
         if (fromTimestamp == null || fromTimestamp == "") {
             $scope.renderErrors[graph.id] = "No start date specified";
@@ -725,6 +724,333 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                     resizeFocusRule();
                 }
             });
+
+            $scope.renderMessages[graph.id] = "";
+            $scope.graphRendered(graph.id);
+            return;
+        })
+        .error(function (arg) {
+            $scope.renderMessages[graph.id] = "Error loading data: "+arg;
+            return;
+        });
+    };
+    $scope.renderers["heatmap"] = function(global, graph, metrics) {
+        // validation
+        var fromTimestamp = $scope.tsdb_fromTimestampAsTsdbString(global);
+        if (fromTimestamp == null || fromTimestamp == "") {
+            $scope.renderErrors[graph.id] = "No start date specified";
+            return;
+        }
+        if (metrics == null || metrics.length == 0) {
+            $scope.renderErrors[graph.id] = "No metrics specified";
+            return;
+        }
+        if (metrics.length != 1) {
+            $scope.renderErrors[graph.id] = "Require exactly 1 metric, currently have "+metrics.length;
+            return;
+        }
+        
+        $scope.renderMessages[graph.id] = "Loading...";
+        var divSelector = "#heatmapDiv_"+graph.id;
+        
+        var heatmapOptions = graph.heatmap;
+        if (!heatmapOptions) {
+            heatmapOptions = {};
+        }
+
+        var width = Math.floor(graph.graphWidth);
+        var height = Math.floor(graph.graphHeight);
+
+        var fromDateTime = $scope.tsdb_fromTimestampAsDate(global);
+        var toDateTime = $scope.tsdb_toTimestampAsDate(global);
+        
+        var fromYear = fromDateTime.getYear()+1900;
+        var toYear = toDateTime.getYear()+1900;
+        var numYears = (toYear - fromYear) + 1;
+        
+        var fromMonth = fromYear*12 + fromDateTime.getMonth();
+        var toMonth = toYear*12 + toDateTime.getMonth();
+        var numMonths = (toMonth - fromMonth) + 1;
+        
+        // depending on the heatmap style, the number of squares per row/column will vary, these 
+        // need to be integer values so we will calculate appropriate values for the
+        // size of the graph
+        var style = heatmapOptions.style ? heatmapOptions.style : "auto";
+        if (style == "auto") {
+            // if style is auto, we guess passed on toTimestamp-fromTimestamp
+            var diff = toDateTime.getTime() - fromDateTime.getTime();
+            var year = 86400000 * 365;
+            style = diff > year ? "week_day" : "day_hour";
+        }
+        // todo: validate style
+        
+        // calculate max cell size that fits data in width and height
+        var minCellSize = 5;
+        var cellSize = minCellSize;
+        var cols = 0;
+        var rows = 0;
+        var downsampleTo = null;
+        if (style == "week_day") {
+            var cellSizeFromWidth = (width - 20) / 53; // weeks in a year, after space for year text
+            var cellSizeFromHeight = height / (numYears * 8); // min height of a year view is 8 cells, 7 for days, plus 1 padding
+            cellSize = Math.min(cellSizeFromWidth, cellSizeFromHeight);
+            downsampleTo = "1d";
+        }
+        else if (style == "day_hour") {
+            downsampleTo = "1h";
+            cellSize = minCellSize;
+//            console.log("width = "+width);
+//            console.log("height = "+height);
+            for (rows=1; ; rows++) {
+//                console.log("Processing ROWS = "+rows)
+                
+                var maxMonthHeight = height / rows;
+                var candidateCellSizeFromHeight = Math.floor(maxMonthHeight / 25);
+//                console.log("maxMonthHeight = "+maxMonthHeight+", candidateCellSizeFromHeight="+candidateCellSizeFromHeight);
+                
+                var maxMonthsInRow = Math.ceil(numMonths / rows);
+                var numRowsWithCells = Math.ceil(numMonths / maxMonthsInRow);
+//                console.log("maxMonthsInRow = "+maxMonthsInRow+", numRowsWithCells="+numRowsWithCells);
+
+                var candidateMonthWidthFromWidth = Math.floor(width / maxMonthsInRow)
+                var candidateCellSizeFromWidth = (candidateMonthWidthFromWidth - 20) / 31;
+//                console.log("candidateMonthWidthFromWidth = "+candidateMonthWidthFromWidth+", candidateCellSizeFromWidth="+candidateCellSizeFromWidth);
+                for ( ; ; candidateCellSizeFromWidth--) {
+                    var totalHeightFromCellSizeFromWidth = numRowsWithCells * candidateCellSizeFromWidth * 25;
+                    if (totalHeightFromCellSizeFromWidth <= height) {
+//                        console.log("totalHeightFromCellSizeFromWidth = "+totalHeightFromCellSizeFromWidth+", candidateCellSizeFromWidth="+candidateCellSizeFromWidth);
+                        break;
+                    }
+                }
+                var candidateCellSize = Math.min(candidateCellSizeFromHeight, candidateCellSizeFromWidth);
+                
+                if (candidateCellSize > cellSize || rows == 1) {
+                    cellSize = candidateCellSize;
+//                    console.log("Appears we're better off with "+rows+" rows: "+cellSize);
+                    var monthHeight = cellSize * 25;
+                    var monthWidth = (cellSize * 31) + 20;
+//                    console.log("Gives us w x h of "+monthWidth+"x"+monthHeight);
+                }
+                else {
+//                    console.log("Appears we were better off with "+(rows-1)+" rows: "+candidateCellSize);
+                    rows--;
+                    cols = Math.ceil(numMonths/rows);
+                    break;
+                }
+            }
+            // that gives us a single column, but perhaps if we go to 2 columns we can have larger cells
+        }
+        
+        
+        // min value
+        if (cellSize < minCellSize) {
+            cellSize = minCellSize;
+            if (style == "week_day") {
+                height = cellSize * (numYears * 8);
+            }
+            else if (style == "day_hour") {
+                height = cellSize * (numMonths * 25);
+            }
+        }
+
+        var yearHeight = height / numYears;
+
+        // url construction
+        var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/query";
+
+        url += $scope.tsdb_queryString(global, graph, metrics, null, downsampleTo ? function(by) {return downsampleTo+"-"+(by?by:"avg")} : null);
+
+        url += "&ms=true&arrays=true";
+
+        // now we have the url, so call it!
+        $http.get(url).success(function (json) {
+            if (json.length != 1) {
+                $scope.renderErrors[graph.id] = "TSDB results doesn't contain exactly 1 metric, was "+json.length;
+                $scope.renderMessages[graph.id] = "";
+                return;
+            }
+            
+            var series = json[0];
+            var minValue = null, maxValue = null;
+            for (var p=0; p<series.dps.length; p++) {
+                if (heatmapOptions.excludeNegative && series.dps[p][1] < 0) {
+                    series.dps[p][1] = 0;
+                }
+                if (minValue == null) {
+                    minValue = series.dps[p][1];
+                    maxValue = series.dps[p][1];
+                }
+                else {
+                    minValue = Math.min(minValue, series.dps[p][1]);
+                    maxValue = Math.max(maxValue, series.dps[p][1]);
+                }
+            }
+            
+            // remove old heatmaps..
+            d3.select(divSelector)
+                .selectAll("svg")
+                .remove();
+
+            var scale;
+            // todo: fix log scale
+            if (heatmapOptions.ylog) {
+                scale = d3.scale.log();
+            }
+            else {
+                scale = d3.scale.quantize();
+            }
+            var color = scale
+                .domain([minValue, maxValue])
+                .range(d3.range(11).map(function(d) { return "q" + d + "-11"; }));
+            
+            if (style == "week_day") {
+                // render away
+                var format = d3.time.format("%Y-%m-%d");
+    
+                var translateX = ((width - cellSize * 53) / 2);
+                if (translateX < 0) {
+                    translateX = 0;
+                }
+                var translateY = (yearHeight - cellSize * 7 - 1);
+                if (translateY < 0) {
+                    translateY = 0;
+                }
+                
+                var svg = d3.select(divSelector).selectAll("svg")
+                    .data(d3.range(fromYear, toYear+1))
+                    .enter().append("svg")
+                    .attr("width", width)
+                    .attr("height", yearHeight)
+                    .attr("class", "RdYlGn")
+                    .append("g")
+                    .attr("transform", "translate(" + translateX + "," + translateY + ")");
+    
+                svg.append("text")
+                    .attr("transform", "translate(-6," + cellSize * 3.5 + ")rotate(-90)")
+                    .style("text-anchor", "middle")
+                    .text(function(d) { return d; });
+    
+                var rect = svg.selectAll(".cell")
+                    .data(function(d) { return d3.time.days(new Date(d, 0, 1), new Date(d + 1, 0, 1)); })
+                    .enter().append("rect")
+                    .attr("class", "cell")
+                    .attr("width", cellSize)
+                    .attr("height", cellSize)
+                    .attr("x", function(d) { return d3.time.weekOfYear(d) * cellSize; })
+                    .attr("y", function(d) { return d.getDay() * cellSize; })
+                    .datum(format);
+    
+                rect.append("title")
+                    .text(function(d) { return d; });
+    
+                svg.selectAll(".path")
+                    .data(function(d) { return d3.time.months(new Date(d, 0, 1), new Date(d + 1, 0, 1)); })
+                    .enter().append("path")
+                    .attr("class", "path")
+                    .attr("d", monthPath);
+    
+                var data = d3.nest()
+                    .key(function(d) { 
+                        return format(new Date(d[0])); 
+                    })
+                    .rollup(function(d) { 
+                        return d[0][1]; 
+                    })
+                    .map(series.dps);
+    
+                rect.filter(function(d) { 
+                        return d in data; 
+                    })
+                    .attr("class", function(d) { 
+                        return "cell " + color(data[d]); 
+                    })
+                    .select("title")
+                    .text(function(d) { 
+                        return d + ": " + data[d]; 
+                    });
+    
+                function monthPath(t0) {
+                    var t1 = new Date(t0.getFullYear(), t0.getMonth() + 1, 0),
+                        d0 = t0.getDay(), w0 = d3.time.weekOfYear(t0),
+                        d1 = t1.getDay(), w1 = d3.time.weekOfYear(t1);
+                    return "M" + (w0 + 1) * cellSize + "," + d0 * cellSize
+                        + "H" + w0 * cellSize + "V" + 7 * cellSize
+                        + "H" + w1 * cellSize + "V" + (d1 + 1) * cellSize
+                        + "H" + (w1 + 1) * cellSize + "V" + 0
+                        + "H" + (w0 + 1) * cellSize + "Z";
+                }
+            }
+            else if (style == "day_hour") {
+                // render away
+                var format = d3.time.format("%Y-%m-%d @ %H");
+
+                var monthHeight = cellSize * 25;
+                var monthWidth = (cellSize * 31) + 20;
+                
+//                console.log("monthWidth = "+monthWidth);
+//                console.log("monthHeight = "+monthHeight);
+
+                var svg = d3.select(divSelector).selectAll("svg")
+                    .data(d3.range(fromMonth, toMonth+1))
+                    .enter().append("svg")
+                    .attr("width", monthWidth)
+                    .attr("height", monthHeight)
+                    .attr("class", "RdYlGn")
+                    .append("g")
+                    .attr("transform", "translate(19," + (cellSize / 2) + ")");
+
+                svg.append("text")
+                    .attr("transform", "translate(-6," + cellSize * 12 + ")rotate(-90)")
+                    .style("text-anchor", "middle")
+                    .text(function(d) {
+                        var month = d%12;
+                        var year = (d-month)/12;
+                        return (month+1)+"/"+year; 
+                    });
+                
+                var rect = svg.selectAll(".cell")
+                    .data(function(d) {
+                        var month1 = d%12;
+                        var year1 = (d-month1)/12;
+                        var month2 = (d+1)%12;
+                        var year2 = ((d+1)-month2)/12;
+                        var ret = d3.time.hours(new Date(year1, month1, 1), new Date(year2, month2, 1));
+                        return ret;
+                    })
+                    .enter().append("rect")
+                    .attr("class", "cell")
+                    .attr("width", cellSize)
+                    .attr("height", cellSize)
+                    .attr("x", function(d) { return (d.getDate()-1) * cellSize; })
+                    .attr("y", function(d) { return d.getHours() * cellSize; })
+                    .datum(format);
+
+                rect.append("title")
+                    .text(function(d) { 
+                        return d; 
+                    });
+
+                var data = d3.nest()
+                    .key(function(d) {
+                        return format(new Date(d[0]));
+                    })
+                    .rollup(function(d) {
+                        return d[0][1];
+                    })
+                    .map(series.dps);
+
+                rect.filter(function(d) {
+                    return d in data;
+                })
+                    .attr("class", function(d) {
+                        return "cell " + color(data[d]);
+                    })
+                    .select("title")
+                    .text(function(d) {
+                        return d + ": " + data[d];
+                    });
+                
+            }
 
             $scope.renderMessages[graph.id] = "";
             $scope.graphRendered(graph.id);

@@ -30,7 +30,8 @@ message Global {
 }
 
 message Gnuplot {
-  optional int32 flags = 1;
+  // Usage stopped after introducing flags on Graph object
+  // optional int32 flags = 1;
   optional string yAxisLabel = 2 [ default = "" ];
   optional string y2AxisLabel = 3 [ default = "" ];
   optional string yAxisFormat = 4;
@@ -42,13 +43,18 @@ message Gnuplot {
 }
 
 message Dygraph {
-  optional int32 flags = 1;
+  // Usage stopped after introducing flags on Graph object
+  // optional int32 flags = 1; 
   optional int32 countFilterEnd = 2;
   optional int32 countFilterCount = 3;
   optional int32 countFilterMeasure = 4;
   optional int32 valueFilterLowerBound = 5;
   optional int32 valueFilterUpperBound = 6;
   optional int32 valueFilterMeasure = 7;
+}
+
+message Heatmap {
+  optional int32 style = 1 [ default = "auto" ];
 }
 
 message Graph {
@@ -58,6 +64,7 @@ message Graph {
   optional int32 flags = 4;
   optional Gnuplot gnuplot = 5;
   optional Dygraph dygraph = 6;
+  optional Heatmap heatmap = 7;
 }
 
 message TagPair {

@@ -410,7 +410,7 @@ aardvark
     // aardvark (de)serialisation - via an intermediate model 
     .factory('serialisation', [ 'blitting', 'mapping', 'strings', 'idGenerator', function(blitting, mapping, strings, idGenerator) {
         var serialiser = {};
-        var graphTypes = mapping.generateBiDiMapping(["debug", "gnuplot", "horizon", "dygraph", "scatter"]);
+        var graphTypes = mapping.generateBiDiMapping(["debug", "gnuplot", "horizon", "dygraph", "scatter", "heatmap"]);
         var gnuplotKeyLocations = mapping.generateBiDiMapping([
             "out top left",
             "out top center",
@@ -439,6 +439,7 @@ aardvark
         var scatterAxes = mapping.generateBiDiMapping(["x","y"]);
         var units = mapping.generateBiDiMapping(["s", "m", "h", "d", "w", "y"]); // todo: incomplete
         var datumStyles = mapping.generateBiDiMapping(["relative","from","to"]);
+        var heatmapStyles = mapping.generateBiDiMapping(["auto","week_day","day_hour"]);
         var ProtoBuf = dcodeIO.ProtoBuf;
         var builder = ProtoBuf.loadJson(intermediateModelJson);
         // helper data structures
@@ -744,6 +745,17 @@ aardvark
                             ]);
                         }
                         break;
+                    case "heatmap":
+                        if (graph.heatmap != null) {
+                            intermediateGraph.flags = blitting.toBlittedInt([
+                                graph.heatmap.excludeNegative,
+                                graph.heatmap.ylog
+                            ]);
+                            intermediateGraph.heatmap = {
+                                style: heatmapStyles.valueToId(graph.heatmap.style)
+                            };
+                        }
+                        break;
                 }
                 intermediateModel.graphs.push(intermediateGraph);
             }
@@ -1041,6 +1053,13 @@ aardvark
                         var scatterFlags = blitting.fromBlittedInt(intermediateGraph.flags, [false]);
                         graph.scatter = {};
                         graph.scatter.excludeNegative = scatterFlags[0];
+                        break;
+                    case "heatmap":
+                        var heatmapFlags = blitting.fromBlittedInt(intermediateGraph.flags, [false,false]);
+                        graph.heatmap = {};
+                        graph.heatmap.excludeNegative = heatmapFlags[0];
+                        graph.heatmap.ylog = heatmapFlags[1];
+                        graph.heatmap.style = heatmapStyles.idToValue(intermediateGraph.heatmap.style);
                         break;
                 }
                 
