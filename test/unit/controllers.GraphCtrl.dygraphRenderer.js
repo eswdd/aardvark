@@ -155,7 +155,7 @@ describe('Aardvark controllers', function () {
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ { id: "123", name: "metric1", tags: [{name: "host", value: "host1"}], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1{host=host1}&no_annotations=true&ms=true&arrays=true').respond([]);
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1{host=host1}&no_annotations=true&ms=true&arrays=true&show_query=true').respond([]);
 
             scope.renderers.dygraph(global, graph, metrics);
 
@@ -179,7 +179,7 @@ describe('Aardvark controllers', function () {
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true').respond([{metric: "metric1", tags: {}, dps:[
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
                 [1234567812000, 20],
                 [1234567813000, 30],
@@ -233,7 +233,7 @@ describe('Aardvark controllers', function () {
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
-            $httpBackend.expectGET('https://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true').respond([{metric: "metric1", tags: {}, dps:[
+            $httpBackend.expectGET('https://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
                 [1234567812000, 20],
                 [1234567813000, 30],
@@ -287,7 +287,7 @@ describe('Aardvark controllers', function () {
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { stackedLines: true }};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true').respond([{metric: "metric1", tags: {}, dps:[
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
                 [1234567812000, 20],
                 [1234567813000, 30],
@@ -343,7 +343,7 @@ describe('Aardvark controllers', function () {
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                             { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true').respond([{metric: "metric1", tags: {}, dps:[
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567810000, 10],
                 [1234567811000, 10],
                 [1234567813000, 30],
@@ -405,7 +405,7 @@ describe('Aardvark controllers', function () {
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ { id: "123", name: "plantime", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:plantime&no_annotations=true&ms=true&arrays=true').respond([
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:plantime&no_annotations=true&ms=true&arrays=true&show_query=true').respond([
                 {
                     "metric":"plantime",
                     "tags":{"identifier":"service","application":"app","host":"host01","team":"T1","plan":"plan1","plan_state":"Successful"},
@@ -478,7 +478,7 @@ describe('Aardvark controllers', function () {
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { interpolateGaps: true }};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true').respond([{metric: "metric1", tags: {}, dps:[
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
                 [1234567812000, 20],
                 [1234567813000, 30],
@@ -533,7 +533,7 @@ describe('Aardvark controllers', function () {
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { ylog: true }};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true').respond([{metric: "metric1", tags: {}, dps:[
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
                 [1234567812000, 20],
                 [1234567813000, 30],
@@ -588,7 +588,7 @@ describe('Aardvark controllers', function () {
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { squashNegative: true }};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true').respond([{metric: "metric1", tags: {}, dps:[
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
                 [1234567812000, -20],
                 [1234567813000, 30],
@@ -642,7 +642,7 @@ describe('Aardvark controllers', function () {
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true').respond([{metric: "metric1", tags: {}, dps:[
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
                 [1234567812000, -20],
                 [1234567813000, 30],
@@ -706,7 +706,7 @@ describe('Aardvark controllers', function () {
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                             { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true').respond([{metric: "metric1", tags: {}, dps:[
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
                 [1234567812000, -20],
                 [1234567813000, 30],
@@ -765,7 +765,7 @@ describe('Aardvark controllers', function () {
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                             { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true').respond([{metric: "metric1", tags: {}, dps:[
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
                 [1234567812000, -20],
                 [1234567813000, 30],
@@ -829,7 +829,7 @@ describe('Aardvark controllers', function () {
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true').respond([{metric: "metric1", tags: {}, dps:[
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
                 [1234567812000, -20],
                 [1234567813000, 30],
@@ -895,7 +895,7 @@ describe('Aardvark controllers', function () {
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                             { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true').respond([{metric: "metric1", tags: {}, dps:[
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 1000],
                 [1234567812000, 2000],
                 [1234567813000, 3000],
@@ -955,7 +955,7 @@ describe('Aardvark controllers', function () {
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true').respond([{metric: "metric1", tags: {}, dps:[
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, -1000],
                 [1234567812000, -2000],
                 [1234567813000, -3000],
@@ -1034,7 +1034,7 @@ describe('Aardvark controllers', function () {
                             { id: "124", name: "metric1", tags: [{name: "host", value: "host2"}], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                             { id: "125", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1{host=host1}&m=sum:metric1{host=host2}&m=sum:metric2&no_annotations=true&ms=true&arrays=true').respond([{metric: "metric1", tags: {host: "host1"}, dps:[
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1{host=host1}&m=sum:metric1{host=host2}&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {host: "host1"}, dps:[
                 [1234567811000, 1000],
                 [1234567812000, 2000],
                 [1234567813000, 3000],
@@ -1100,7 +1100,7 @@ describe('Aardvark controllers', function () {
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true').respond([{metric: "metric1", tags: {}, dps:[
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, -1000],
                 [1234567812000, -2000],
                 [1234567813000, -3000],
@@ -1160,7 +1160,7 @@ describe('Aardvark controllers', function () {
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true').respond([{metric: "metric1", tags: {}, dps:[
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, -1000],
                 [1234567812000, -2000],
                 [1234567813000, -3000],
@@ -1224,7 +1224,7 @@ describe('Aardvark controllers', function () {
                 { id: "126", name: "metric4", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }
             ];
         
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&m=sum:metric3&m=sum:metric4&no_annotations=true&ms=true&arrays=true').respond(
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&m=sum:metric3&m=sum:metric4&no_annotations=true&ms=true&arrays=true&show_query=true').respond(
             [
                 {
                     metric: "metric1", tags: {}, dps:[
@@ -1293,7 +1293,7 @@ describe('Aardvark controllers', function () {
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { countFilter: {count: "", measure: "min", end: "top"} } };
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true').respond([{metric: "metric1", tags: {}, dps:[
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
                 [1234567812000, 20],
                 [1234567813000, 30],
@@ -2243,7 +2243,7 @@ describe('Aardvark controllers', function () {
         });
 
         var annotationTest = function(responseData, expectedRenderData, expectedAnnotations, autoScaling, expectedLabels) {
-            var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&ms=true&arrays=true";
+            var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&ms=true&arrays=true&show_query=true";
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
             if (autoScaling) {
                 metrics.push({ id: "123", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } });
@@ -2272,7 +2272,7 @@ describe('Aardvark controllers', function () {
             _annotationTest(false, metrics, datum, url, baselineUrl, responseData, baselineResponseData, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling);
         }
         var globalAnnotationTest = function(responseData, expectedRenderData, expectedAnnotations, autoScaling, expectedLabels) {
-            var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&global_annotations=true&ms=true&arrays=true";
+            var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&global_annotations=true&ms=true&arrays=true&show_query=true";
             var metrics = [ 
                 { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }, 
                 { id: "123", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } 

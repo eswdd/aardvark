@@ -385,13 +385,58 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
 
     $scope.timeSeriesName = function(metric) {
         var name = metric.metric;
+        var ungroupedString = "";
+        var ungroupedSep = "";
         var tagNames = [];
-        for (var tk in metric.tags) {
-            if (metric.tags.hasOwnProperty(tk)) {
-                tagNames.push(tk);
+        if (metric.query != null) {
+            if (metric.query.tags != null) {
+                for (var tk in metric.query.tags) {
+                    if (metric.query.tags.hasOwnProperty(tk)) {
+                        tagNames.push(tk);
+                    }
+                }
+            }
+            if (metric.query.filters != null) {
+                var filtersByTagk = {};
+                for (var f=0; f<metric.query.filters.length; f++) {
+                    if (!filtersByTagk.hasOwnProperty(metric.query.filters[f].tagk)) {
+                        filtersByTagk[metric.query.filters[f].tagk] = [];
+                    }
+                    filtersByTagk[metric.query.filters[f].tagk].push(metric.query.filters[f]);
+                }
+                // type/tagk/filter/groupBy
+                for (var tagk in filtersByTagk) {
+                    var exclude = false;
+                    var groupBy = false;
+                    var tagkUngroupedString = "";
+                    var tagkUngroupedSep = "";
+                    for (var f=0; f<filtersByTagk[tagk].length; f++) {
+                        if (filtersByTagk[tagk][f].groupBy) {
+                            groupBy = true;
+                        }
+                        tagkUngroupedString += tagkUngroupedSep + tagk + "=" + filtersByTagk[tagk][f].type + "(" + filtersByTagk[tagk][f].filter + ")";
+                        tagkUngroupedSep = ",";
+                    }
+                    if (!groupBy) {
+                        exclude = true;
+                        ungroupedString += ungroupedSep + tagkUngroupedString;
+                        ungroupedSep = ",";
+                    }
+                    if (!exclude) {
+                        tagNames.push(tagk);
+                    }
+                }
             }
         }
-        if (tagNames.length > 0) {
+        else {
+            for (var tk in metric.tags) {
+                if (metric.tags.hasOwnProperty(tk)) {
+                    tagNames.push(tk);
+                }
+            }
+        }
+        tagNames.sort();
+        if (tagNames.length > 0 || ungroupedString != "") {
             name += "{";
             tagNames.sort();
             var sep = "";
@@ -400,6 +445,9 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 sep = ",";
             }
             name += "}";
+            if (ungroupedString != "") {
+                name += "{" + ungroupedString + "}";
+            }
         }
         return name;
     }
@@ -615,7 +663,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
 
         url += $scope.tsdb_queryString(global, graph, metrics, null, function(by) {return downsampleTo+"-"+(by?by:"avg")});
 
-        url += "&ms=true&arrays=true";
+        url += "&ms=true&arrays=true&show_query=true";
 
         // now we have the url, so call it!
         $http.get(url).success(function (json) {
@@ -1107,10 +1155,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 ret += "&no_annotations=true";
             }
 
-            ret += "&ms=true&arrays=true";
-            if (global.baselining) {
-                ret += "&show_query=true";
-            }
+            ret += "&ms=true&arrays=true&show_query=true";
             return ret;
         }
         
@@ -1586,13 +1631,17 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             var minTime = mainJson[0].dps[0][0];
             var maxTime = mainJson[0].dps[mainJson[0].dps.length-1][0];
             for (var s=1; s<mainJson.length; s++) {
-                minTime = Math.min(minTime, mainJson[s].dps[0][0]);
-                maxTime = Math.max(maxTime, mainJson[s].dps[mainJson[s].dps.length-1][0]);
+                if (mainJson[s].length > 0) {
+                    minTime = Math.min(minTime, mainJson[s].dps[0][0]);
+                    maxTime = Math.max(maxTime, mainJson[s].dps[mainJson[s].dps.length-1][0]);
+                }
             }
             if (baselineJson != null) {
                 for (var s=0; s<baselineJson.length; s++) {
-                    minTime = Math.min(minTime, baselineJson[s].dps[0][0]);
-                    maxTime = Math.max(maxTime, baselineJson[s].dps[baselineJson[s].dps.length-1][0]);
+                    if (baselineJson[s].length > 0) {
+                        minTime = Math.min(minTime, baselineJson[s].dps[0][0]);
+                        maxTime = Math.max(maxTime, baselineJson[s].dps[baselineJson[s].dps.length-1][0]);
+                    }
                 }
             }
             
@@ -1950,7 +1999,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
 
         url += $scope.tsdb_queryString(global, graph, metrics);
 
-        url += "&no_annotations=true&ms=true";
+        url += "&no_annotations=true&ms=true&show_query=true";
 
         // now we have the url, so call it!
         $http.get(url).success(function (json) {

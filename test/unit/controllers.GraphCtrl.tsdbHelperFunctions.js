@@ -601,6 +601,156 @@ describe('Aardvark controllers', function () {
             expect(scope.tsdb_queryStringInternal("1d","1h",false, false, null, {id:"abc"}, metrics, null)).toEqualData("?start=1d&end=1h&m=sum:metric1");
         });
         
+        it('should generate a legacy time series name when no query is provided', function() {
+            var ts = {
+                metric: "fred",
+                tags: {
+                    tag1: "value1",
+                    tag2: "value2",
+                    tag3: "value3",
+                    tag4: "value4"
+                },
+                aggregatedTags: ["tag5","tag6"]
+            };
+            expect(scope.timeSeriesName(ts)).toEqualData("fred{tag1=value1,tag2=value2,tag3=value3,tag4=value4}");
+        })
+        
+        it('should generate a reduced time series name when the query is provided', function() {
+            var ts = {
+                metric: "fred",
+                tags: {
+                    tag1: "value1",
+                    tag2: "value2",
+                    tag3: "value3",
+                    tag4: "value4"
+                },
+                aggregatedTags: ["tag5","tag6"],
+                query: {
+                    aggregator: "sum",
+                    tsuids: null,
+                    downsample: null,
+                    rate: true,
+                    explicitTags: false,
+                    filters: [],
+                    rateOptions: null,
+                    tags: {
+                        tag2: "value2",
+                        tag4: "*"
+                    }
+                }
+            };
+            expect(scope.timeSeriesName(ts)).toEqualData("fred{tag2=value2,tag4=value4}");
+        });
+        
+        it('should generate a reduced time series name when the query is provided using filters', function() {
+            var ts = {
+                metric: "fred",
+                tags: {
+                    tag1: "value1",
+                    tag2: "value2",
+                    tag3: "value3",
+                    tag4: "value4"
+                },
+                aggregatedTags: ["tag5","tag6"],
+                query: {
+                    aggregator: "sum",
+                    tsuids: null,
+                    downsample: null,
+                    rate: true,
+                    explicitTags: false,
+                    filters: [
+                        {tagk:"tag2",type:"wildcard",filter:"value*",groupBy:true},
+                        {tagk:"tag4",type:"literal_or",filter:"value4",groupBy:true}
+                    ],
+                    rateOptions: null,
+                    tags: {}
+                }
+            };
+            expect(scope.timeSeriesName(ts)).toEqualData("fred{tag2=value2,tag4=value4}");
+        });
+        
+        it('should generate a reduced time series name when the query is provided using ungrouped filters', function() {
+            var ts = {
+                metric: "fred",
+                tags: {
+                    tag1: "value1",
+                    tag2: "value2",
+                    tag3: "value3",
+                    tag4: "value4"
+                },
+                aggregatedTags: ["tag5","tag6"],
+                query: {
+                    aggregator: "sum",
+                    tsuids: null,
+                    downsample: null,
+                    rate: true,
+                    explicitTags: false,
+                    filters: [
+                        {tagk:"tag2",type:"wildcard",filter:"value*",groupBy:false},
+                        {tagk:"tag4",type:"regexp",filter:"value4",groupBy:false}
+                    ],
+                    rateOptions: null,
+                    tags: {}
+                }
+            };
+            expect(scope.timeSeriesName(ts)).toEqualData("fred{}{tag2=wildcard(value*),tag4=regexp(value4)}");
+        });
+        
+        it('should generate a reduced time series name when the query is provided using mixed grouped filters', function() {
+            var ts = {
+                metric: "fred",
+                tags: {
+                    tag1: "value1",
+                    tag2: "value2",
+                    tag3: "value3",
+                    tag4: "value4"
+                },
+                aggregatedTags: ["tag5","tag6"],
+                query: {
+                    aggregator: "sum",
+                    tsuids: null,
+                    downsample: null,
+                    rate: true,
+                    explicitTags: false,
+                    filters: [
+                        {tagk:"tag2",type:"wildcard",filter:"value*",groupBy:true},
+                        {tagk:"tag2",type:"regexp",filter:"value4",groupBy:false}
+                    ],
+                    rateOptions: null,
+                    tags: {}
+                }
+            };
+            expect(scope.timeSeriesName(ts)).toEqualData("fred{tag2=value2}");
+        });
+        
+        it('should generate a reduced time series name when the query is provided using mixed filters and tags', function() {
+            var ts = {
+                metric: "fred",
+                tags: {
+                    tag1: "value1",
+                    tag2: "value2",
+                    tag3: "value3",
+                    tag4: "value4"
+                },
+                aggregatedTags: ["tag5","tag6"],
+                query: {
+                    aggregator: "sum",
+                    tsuids: null,
+                    downsample: null,
+                    rate: true,
+                    explicitTags: false,
+                    filters: [
+                        {tagk:"tag2",type:"wildcard",filter:"value*",groupBy:true}
+                    ],
+                    rateOptions: null,
+                    tags: {
+                        tag4: "*"
+                    }
+                }
+            };
+            expect(scope.timeSeriesName(ts)).toEqualData("fred{tag2=value2,tag4=value4}");
+        });
+        
         // todo: finish url generation
         // todo: validate baseline is before standard when using absolute datums
     });

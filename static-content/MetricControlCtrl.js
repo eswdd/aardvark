@@ -538,7 +538,10 @@ aardvark.directive('tagSelection', function() {
                             return v.match(new RegExp(regexp)) != null;
                         }
                         catch (regexpError) {
-                            console.log("regexp("+regexp+") caused an error: "+regexpError);
+                            // typical user error
+                            if (regexp != "*") {
+                                console.log("regexp("+regexp+") caused an error: "+regexpError);
+                            }
                             return false;
                         }
                     };
