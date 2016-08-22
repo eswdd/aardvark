@@ -177,9 +177,6 @@ aardvark.directive('aardvarkEnter', function() {
                     json.tsdbProtocol = "http";
                 }
                 $rootScope.config = json;
-                if (json.devMode && $rootScope.graphTypes.indexOf("debug") < 0) {
-                    $rootScope.graphTypes.splice(0, 0, "debug");
-                }
                 for (var i=$rootScope.configListeners.length-1; i>=0; i--) {
                     $rootScope.configListeners[i]();
                 }

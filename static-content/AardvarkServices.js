@@ -410,6 +410,7 @@ aardvark
     // aardvark (de)serialisation - via an intermediate model 
     .factory('serialisation', [ 'blitting', 'mapping', 'strings', 'idGenerator', function(blitting, mapping, strings, idGenerator) {
         var serialiser = {};
+        // Issue #110 - debug now dead
         var graphTypes = mapping.generateBiDiMapping(["debug", "gnuplot", "horizon", "dygraph", "scatter", "heatmap"]);
         var gnuplotKeyLocations = mapping.generateBiDiMapping([
             "out top left",

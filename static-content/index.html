@@ -161,9 +161,6 @@
                                         <button ng-click="showEdit[graph.id] = !showEdit[graph.id]">Edit title/type</button> <button ng-click="deleteGraph(graph.id)">Delete</button>
                                     </div>
 
-                                    <div ng-show="graph.type == 'debug'">
-                                        debug controls
-                                    </div>
                                     <div ng-show="graph.type == 'gnuplot'">
                                         <uib-tabset>
                                             <uib-tab heading="Axes">
@@ -467,9 +464,6 @@
                         </div>
                         <!-- content -->
                         <div ng-show="renderErrors[graph.id]==null">
-                            <div id="debugDiv_{{graph.id}}" ng-show="graph.type == 'debug'">
-                                <pre>{{renderedContent[graph.id]}}</pre>
-                            </div>
                             <!--<div id="gnuplotDiv_{{graph.id}}" ng-show="graph.type == 'gnuplot'">-->
                                 <!--<pre>{{renderedContent[graph.id]}}</pre>-->
                             <!--</div>-->

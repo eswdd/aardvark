@@ -136,8 +136,6 @@ aardvark.directive('tagSelection', function() {
         }
     };
 
-    // localhost:8000/m1/index.html##%7B%22metrics%22:%5B%7B%22id%22:1427097769459,%22name%22:%22dave.fred%22,%22tags%22:%5B%7B%22name%22:%22host%22,%22re%22:true%7D,%7B%22name%22:%22user%22,%22re%22:true%7D,%7B%22name%22:%22method%22,%22re%22:true%7D%5D,%22graphOptions%22:%7B%22graphId%22:%221427097741599%22,%22rate%22:false,%22downsample%22:false,%22downsampleBy%22:%22%22%7D%7D%5D,%22graphs%22:%5B%7B%22id%22:%221427097741599%22,%22title%22:%22Graph%201%22,%22type%22:%22debug%22,%22showTitle%22:false%7D,%7B%22id%22:%221427097752136%22,%22title%22:%22Graph%202%22,%22type%22:%22debug%22,%22showTitle%22:true%7D%5D%7D
-
     $scope.nodeSelectedForEditing = function() {
         var metricId = $scope.selectedMetricId;
         if (metricId == "0") {

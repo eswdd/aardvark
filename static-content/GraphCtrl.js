@@ -471,30 +471,6 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
     if (!$scope.renderers) {
         $scope.renderers = {};
     }
-    $scope.renderers["debug"] = function(global, graph, metrics) {
-        var lineSep = "";
-        var txt = "";
-        for (var i=0; i<metrics.length; i++) {
-            var m = metrics[i];
-            txt += lineSep + "["+i+"] " + m.id + ": " + m.name;
-            lineSep = "\n";
-            var sep = " {";
-            for (var t=0; t< m.tags.length; t++) {
-                var tag = m.tags[t];
-                if (tag.value != '') {
-                    txt += sep + " " + tag.name + "='" + tag.value + "'";
-                    sep = ",";
-                }
-            }
-            if (sep != " {") {
-                txt += " }";
-            }
-            if (metrics[i].graphOptions.axis == "x1y2") {
-                txt += " [rightAxis]";
-            }
-        }
-        $scope.renderedContent[graph.id] = txt;
-    };
     $scope.renderers["gnuplot"] = function(global, graph, metrics) {
         if ($scope.renderedContent[graph.id] == null) {
             $scope.renderedContent[graph.id] = { src: "", width: 0, height: 0 };
