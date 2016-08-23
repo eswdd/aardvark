@@ -1604,21 +1604,24 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             }
 
             // 7. min/max time calculations (together)
-            var minTime = mainJson[0].dps[0][0];
-            var maxTime = mainJson[0].dps[mainJson[0].dps.length-1][0];
-            for (var s=1; s<mainJson.length; s++) {
-                if (mainJson[s].length > 0) {
+            var minTime = new Date().getTime() + 86400000; // now + 1 day so we don't hit tz issues
+            var maxTime = 0
+            for (var s=0; s<mainJson.length; s++) {
+                if (mainJson[s].dps.length > 0) {
                     minTime = Math.min(minTime, mainJson[s].dps[0][0]);
                     maxTime = Math.max(maxTime, mainJson[s].dps[mainJson[s].dps.length-1][0]);
                 }
             }
             if (baselineJson != null) {
                 for (var s=0; s<baselineJson.length; s++) {
-                    if (baselineJson[s].length > 0) {
+                    if (baselineJson[s].dps.length > 0) {
                         minTime = Math.min(minTime, baselineJson[s].dps[0][0]);
                         maxTime = Math.max(maxTime, baselineJson[s].dps[baselineJson[s].dps.length-1][0]);
                     }
                 }
+            }
+            if (maxTime == 0) {
+                minTime == 0;
             }
             
             var ignoredOptions = [];
