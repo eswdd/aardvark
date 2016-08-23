@@ -125,11 +125,11 @@
                                 </div>
                                 <div ng-show="baselining && baselineDatumStyle == 'from'">
                                     <input type="text" size="10" id="baselineFromDateId" ng-model="baselineFromDate" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
-                                    <input type="text" size="8" id="baselineFromTimeId" ng-model="baselingingFromTime" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                                    <input type="text" size="8" id="baselineFromTimeId" ng-model="baselineFromTime" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
                                 </div>
                                 <div ng-show="baselining && baselineDatumStyle == 'to'">
-                                    <input type="text" size="10" id="baseliToDateId" ng-model="toDate" ng-required ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                    <input type="text" size="8" id="baseliToTimeId" ng-model="toTime" ng-required ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                    <input type="text" size="10" id="baselineToDateId" ng-model="baselineToDate" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                    <input type="text" size="8" id="baselineToTimeId" ng-model="baselineToTime" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                 </div>
                             </div>
                             <div style="border: solid 1px black" ng-show="graphs.length > 1">
