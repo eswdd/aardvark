@@ -155,6 +155,9 @@ aardvark.directive('tagSelection', function() {
         for (var t=0; t<$scope.tagFilters.length; t++) {
             var tag = $scope.tagFilters[t];
             $scope.tag[tag.name] = tag.value;
+            if (tag.id == null) {
+                tag.id = idGenerator.nextId(); 
+            }
         }
         // populate graph options
         if (metric.graphOptions) {
