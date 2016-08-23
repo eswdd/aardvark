@@ -633,6 +633,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 .serverDelay(diff)
                 .step(stepSize)
                 .size(width)
+                .format(".2f")
                 .stop();
 
             var addMetric = function(cMetrics, metricData, name)
