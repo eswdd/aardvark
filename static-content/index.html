@@ -85,30 +85,30 @@
                                     <label for="autoReloadId">Auto reload</label>
                                 </div>
                                 <div ng-show="autoReload">
-                                    <input type="text" size="2" id="autoReloadPeriodId" ng-model="autoReloadPeriod" ng-blur=" saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                    <input type="text" size="2" id="autoReloadPeriodId" ng-model="autoReloadPeriod" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                     <label for="autoReloadPeriodId">seconds</label>
                                 </div>
                                 <div ng-show="!absoluteTimeSpecification">
                                     <label for="relativePeriodId">Previous</label><br/>
-                                    <input type="text" size="10" id="relativePeriodId" ng-model="relativePeriod" ng-blur=" saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                                    <input type="text" size="10" id="relativePeriodId" ng-model="relativePeriod" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
                                 </div>
                                 <div ng-show="absoluteTimeSpecification">
                                     <label for="fromDateId">From</label><br/>
-                                    <input type="text" size="10" id="fromDateId" ng-model="fromDate" ng-blur=" saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
-                                    <input type="text" size="8" id="fromTimeId" ng-model="fromTime" ng-blur=" saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                                    <input type="text" size="10" id="fromDateId" ng-model="fromDate" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                                    <input type="text" size="8" id="fromTimeId" ng-model="fromTime" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
                                 </div>
                                 <div ng-show="!autoReload && absoluteTimeSpecification">
                                     <label for="toDateId">To</label>
                                     <button ng-click="now()" >Now</button>
                                 </div>
                                 <div ng-show="!autoReload && absoluteTimeSpecification">
-                                    <input type="text" size="10" id="toDateId" ng-model="toDate" ng-blur=" saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
-                                    <input type="text" size="8" id="toTimeId" ng-model="toTime" ng-blur=" saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                                    <input type="text" size="10" id="toDateId" ng-model="toDate" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                                    <input type="text" size="8" id="toTimeId" ng-model="toTime" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
                                 </div>
                                 <div>
                                     <input type="checkbox" id="globalDownsamplingId" ng-model="globalDownsampling" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
                                     <label for="globalDownsamplingId">Global downsampling</label><br/>
-                                    <input type="text" size="10" id="globalDownsampleToId" ng-model="globalDownsampleTo" ng-blur=" saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" ng-show="globalDownsampling" />
+                                    <input type="text" size="10" id="globalDownsampleToId" ng-model="globalDownsampleTo" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" ng-show="globalDownsampling" />
                                 </div>
                                 <div>
                                     <input type="checkbox" id="baseliningId" ng-model="baselining" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
@@ -122,15 +122,15 @@
                                     </select>
                                 </div>
                                 <div ng-show="baselining && baselineDatumStyle == 'relative'">
-                                    <input type="text" size="10" id="baselineRelativePeriodId" ng-model="baselineRelativePeriod" ng-blur=" saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                                    <input type="text" size="10" id="baselineRelativePeriodId" ng-model="baselineRelativePeriod" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
                                 </div>
                                 <div ng-show="baselining && baselineDatumStyle == 'from'">
-                                    <input type="text" size="10" id="baselineFromDateId" ng-model="baselineFromDate" ng-blur=" saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
-                                    <input type="text" size="8" id="baselineFromTimeId" ng-model="baselingingFromTime" ng-blur=" saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                                    <input type="text" size="10" id="baselineFromDateId" ng-model="baselineFromDate" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                                    <input type="text" size="8" id="baselineFromTimeId" ng-model="baselineFromTime" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
                                 </div>
                                 <div ng-show="baselining && baselineDatumStyle == 'to'">
-                                    <input type="text" size="10" id="baseliToDateId" ng-model="toDate" ng-required ng-blur=" saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                    <input type="text" size="8" id="baseliToTimeId" ng-model="toTime" ng-required ng-blur=" saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                    <input type="text" size="10" id="baselineToDateId" ng-model="baselineToDate" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                    <input type="text" size="8" id="baselineToTimeId" ng-model="baselineToTime" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                 </div>
                             </div>
                             <div style="border: solid 1px black" ng-show="graphs.length > 1">
@@ -175,24 +175,24 @@
                                                     </tr>
                                                     <tr>
                                                         <td width="5px">&nbsp;</td>
-                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.yAxisLabel" ng-blur=" saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
-                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.y2AxisLabel" ng-blur=" saveAndRenderGraphsIfAutoUpdate()"  aardvark-enter="saveAndRenderGraphs()" /></td>
+                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.yAxisLabel" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.y2AxisLabel" ng-blur="saveAndRenderGraphsIfAutoUpdate()"  aardvark-enter="saveAndRenderGraphs()" /></td>
                                                     </tr>
                                                     <tr>
                                                         <td colspan="3">Format</td>
                                                     </tr>
                                                     <tr>
                                                         <td></td>
-                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.yAxisFormat" ng-blur=" saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
-                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.y2AxisFormat" ng-blur=" saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.yAxisFormat" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.y2AxisFormat" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
                                                     </tr>
                                                     <tr>
                                                         <td colspan="3">Range</td>
                                                     </tr>
                                                     <tr>
                                                         <td></td>
-                                                        <td style="text-align: center"><input type="text" size="2" ng-model="graph.gnuplot.yAxisRange" ng-blur=" saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
-                                                        <td style="text-align: center"><input type="text" size="2" ng-model="graph.gnuplot.y2AxisRange" ng-blur=" saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                                        <td style="text-align: center"><input type="text" size="2" ng-model="graph.gnuplot.yAxisRange" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                                        <td style="text-align: center"><input type="text" size="2" ng-model="graph.gnuplot.y2AxisRange" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
                                                     </tr>
                                                     <tr>
                                                         <td colspan="3">Log&nbsp;scale</td>
@@ -383,7 +383,7 @@
                                                 <option>top</option>
                                                 <option>bottom</option>
                                             </select>
-                                            <input type="text" size="2" ng-model="graph.dygraph.countFilter.count" aardvark-enter="saveAndRenderGraphs()" />
+                                            <input type="text" size="2" ng-model="graph.dygraph.countFilter.count" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                             lines by
                                             <select ng-model="graph.dygraph.countFilter.measure" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
                                                 <option>min</option>
@@ -393,7 +393,7 @@
                                         </div>
                                         <div>
                                             Show only lines which have
-                                            <input type="text" size="2" ng-model="graph.dygraph.valueFilter.lowerBound" ng-blur=" saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                            <input type="text" size="2" ng-model="graph.dygraph.valueFilter.lowerBound" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                             &lt;=
                                             <select ng-model="graph.dygraph.valueFilter.measure" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
                                                 <option>any</option>
@@ -402,7 +402,7 @@
                                                 <option>max</option>
                                             </select>
                                             value &lt;=
-                                            <input type="text" size="2" ng-model="graph.dygraph.valueFilter.upperBound" ng-blur=" saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                            <input type="text" size="2" ng-model="graph.dygraph.valueFilter.upperBound" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                         </div>
                                         <div style="text-decoration: underline; font-weight: 800">
                                             Specials

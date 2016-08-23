@@ -717,14 +717,14 @@ aardvark
                                 graph.dygraph.annotations,
                                 graph.dygraph.globalAnnotations
                             ]);
-                            if (graph.dygraph.countFilter != null && graph.dygraph.countFilter.count != "") {
+                            if (graph.dygraph.countFilter != null && graph.dygraph.countFilter.count != null && graph.dygraph.countFilter.count != "") {
                                 intermediateGraph.dygraph.countFilterEnd = countFilterEnds.valueToId(graph.dygraph.countFilter.end);
                                 intermediateGraph.dygraph.countFilterCount = toInt(graph.dygraph.countFilter.count);
                                 intermediateGraph.dygraph.countFilterMeasure = countFilterMeasures.valueToId(graph.dygraph.countFilter.measure)
                             }
                             if (graph.dygraph.valueFilter != null && 
-                                (graph.dygraph.valueFilter.lowerBound != null && graph.dygraph.valueFilter.lowerBound != "") || 
-                                (graph.dygraph.valueFilter.upperBound != null && graph.dygraph.valueFilter.upperBound != "")) {
+                                ((graph.dygraph.valueFilter.lowerBound != null && graph.dygraph.valueFilter.lowerBound != "") || 
+                                (graph.dygraph.valueFilter.upperBound != null && graph.dygraph.valueFilter.upperBound != ""))) {
                                 if (graph.dygraph.valueFilter.lowerBound != null && graph.dygraph.valueFilter.lowerBound != "") {
                                     intermediateGraph.dygraph.valueFilterLowerBound = toInt(graph.dygraph.valueFilter.lowerBound);
                                 }
