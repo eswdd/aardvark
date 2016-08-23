@@ -623,7 +623,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             // now we have an array of lines, so let's convert them to metrics
 
             var interpolate = graph.horizon && graph.horizon.interpolateGaps;
-            var squash = graph.horizon && graph.horizon.squashNegatives;
+            var squash = graph.horizon && graph.horizon.squashNegative;
 
             var parsed = $scope.cubism_parser(json, start, stepSize, stop, interpolate, squash); // array response
             // construct cMetrics
