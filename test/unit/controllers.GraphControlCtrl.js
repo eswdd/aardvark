@@ -505,7 +505,7 @@ describe('Aardvark controllers', function () {
             expect(scope.fromDate).toEqualData("");
             expect(scope.fromTime).toEqualData("");
 
-            var datum = new Date(2016,7,20,12,10,10);
+            var datum = moment.utc("2016/08/20 12:10:10", "YYYY/MM/DD HH:mm:ss");
             rootScope.model.global.absoluteTimeSpecification = true;
             scope.loadModel(datum);
             expect(scope.relativePeriod).toEqualData("");

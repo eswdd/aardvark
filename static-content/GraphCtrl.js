@@ -51,13 +51,13 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
     $scope.baselineOffset = function(global, datum) {
         switch (global.baselineDatumStyle) {
             case "from":
-                var mainFromDateTime = moment.utc($scope.tsdb_fromTimestampAsDate(global, datum));
+                var mainFromDateTime = $scope.tsdb_fromTimestampAsMoment(global, datum);
                 var fromDate = moment.utc(global.baselineFromDate, "YYYY/MM/DD");
                 var fromTime = moment.utc(global.baselineFromTime, "HH:mm:ss");
                 var baselineFromDateTime = moment.utc(fromDate.format("YYYY/MM/DD") + " " + fromTime.format("HH:mm:ss"), "YYYY/MM/DD HH:mm:ss");
                 return moment.duration(mainFromDateTime.diff(baselineFromDateTime));
             case "to":
-                var mainToDateTime = moment.utc($scope.tsdb_toTimestampAsDate(global, datum));
+                var mainToDateTime = $scope.tsdb_toTimestampAsMoment(global, datum);
                 var toDate = moment.utc(global.baselineToDate, "YYYY/MM/DD");
                 var toTime = moment.utc(global.baselineToTime, "HH:mm:ss");
                 var baselineToDateTime = moment.utc(toDate.format("YYYY/MM/DD") + " " + toTime.format("HH:mm:ss"), "YYYY/MM/DD HH:mm:ss");
@@ -90,8 +90,8 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
     }
     $scope.tsdb_fromTimestampAsTsdbString = function(global) {
         if (global.absoluteTimeSpecification) {
-            var date = moment(global.fromDate, "YYYY/MM/DD");
-            var time = moment(global.fromTime, "HH:mm:ss");
+            var date = moment.utc(global.fromDate, "YYYY/MM/DD");
+            var time = moment.utc(global.fromTime, "HH:mm:ss");
             return date.format("YYYY/MM/DD") + " " + time.format("HH:mm:ss");
         }
         else {
@@ -108,42 +108,43 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             return null;
         }
         else {
-            var date = moment(global.toDate, "YYYY/MM/DD");
-            var time = moment(global.toTime, "HH:mm:ss");
+            var date = moment.utc(global.toDate, "YYYY/MM/DD");
+            var time = moment.utc(global.toTime, "HH:mm:ss");
             return date.format("YYYY/MM/DD") + " " + time.format("HH:mm:ss");
         }
     }
-    $scope.tsdb_fromTimestampAsDate = function(global, datum) {
+    $scope.tsdb_fromTimestampAsMoment = function(global, datum) {
+        var now = datum ? datum.clone() : moment.utc();
         if (global.absoluteTimeSpecification) {
-            var date = moment(global.fromDate, "YYYY/MM/DD");
-            var time = moment(global.fromTime, "HH:mm:ss");
+            var date = moment.utc(global.fromDate, "YYYY/MM/DD");
+            var time = moment.utc(global.fromTime, "HH:mm:ss");
             var dateTime = date.format("YYYY/MM/DD") + " " + time.format("HH:mm:ss");
-            return moment(dateTime, "YYYY/MM/DD HH:mm:ss").toDate();
+            return moment.utc(dateTime, "YYYY/MM/DD HH:mm:ss");
         }
         else {
             if (global.relativePeriod == null || global.relativePeriod == "") {
-                return new Date();
+                return now;
             }
             var numberComponent = global.relativePeriod.match(/^[0-9]+/);
             var stringComponent = global.relativePeriod.match(/[a-zA-Z]+$/);
             if (numberComponent.length == 1 && stringComponent.length == 1) {
-                var now = datum ? moment(datum) : moment();
-                return now.subtract(numberComponent[0], stringComponent[0]).toDate();
+                return now.subtract(numberComponent[0], stringComponent[0]);
             }
-            return new Date();
+            return now;
         }
     }
-    $scope.tsdb_toTimestampAsDate = function(global, datum) {
+    $scope.tsdb_toTimestampAsMoment = function(global, datum) {
+        var now = datum ? datum.clone() : moment.utc();
         if (!global.absoluteTimeSpecification
             || global.toDate == null || global.toDate == ""
             || global.toTime == null || global.toTime == "") {
-            return datum ? datum : new Date();
+            return now;
         }
         else {
-            var date = moment(global.toDate, "YYYY/MM/DD");
-            var time = moment(global.toTime, "HH:mm:ss");
+            var date = moment.utc(global.toDate, "YYYY/MM/DD");
+            var time = moment.utc(global.toTime, "HH:mm:ss");
             var dateTime = date.format("YYYY/MM/DD") + " " + time.format("HH:mm:ss");
-            return moment(dateTime, "YYYY/MM/DD HH:mm:ss").toDate();
+            return moment.utc(dateTime, "YYYY/MM/DD HH:mm:ss");
         }
     }
     $scope.tsdb_baselineFromTimestampAsTsdbString = function(global, datum) {
@@ -155,8 +156,8 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             case "to":
                 var diff;
                 if (global.absoluteTimeSpecification) {
-                    var mainFromDateTime1 = moment.utc($scope.tsdb_fromTimestampAsDate(global, datum));
-                    var mainToDateTime1 = moment.utc($scope.tsdb_toTimestampAsDate(global, datum));
+                    var mainFromDateTime1 = $scope.tsdb_fromTimestampAsMoment(global, datum);
+                    var mainToDateTime1 = $scope.tsdb_toTimestampAsMoment(global, datum);
                     diff = moment.duration(mainToDateTime1.diff(mainFromDateTime1));
                 }
                 else {
@@ -173,10 +174,10 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 var fromDateTime = toDateTime.subtract(diff);
                 return fromDateTime.format("YYYY/MM/DD HH:mm:ss");
             case "relative":
-                var mainFromDateTime2 = $scope.tsdb_fromTimestampAsDate(global, datum);
+                var mainFromDateTime2 = $scope.tsdb_fromTimestampAsMoment(global, datum);
                 var diff1 = $scope.periodToDiff(global.baselineRelativePeriod);
                 if (diff1 != null) {
-                    var dateTime = moment.utc(mainFromDateTime2).subtract(diff1);
+                    var dateTime = mainFromDateTime2.subtract(diff1);
                     return dateTime.format("YYYY/MM/DD HH:mm:ss");
                 }
                 return null;
@@ -187,8 +188,8 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             case "from":
                 var diff;
                 if (global.absoluteTimeSpecification) {
-                    var mainFromDateTime1 = moment.utc($scope.tsdb_fromTimestampAsDate(global, datum));
-                    var mainToDateTime1 = moment.utc($scope.tsdb_toTimestampAsDate(global, datum));
+                    var mainFromDateTime1 = $scope.tsdb_fromTimestampAsMoment(global, datum);
+                    var mainToDateTime1 = $scope.tsdb_toTimestampAsMoment(global, datum);
                     diff = moment.duration(mainToDateTime1.diff(mainFromDateTime1));
                 }
                 else {
@@ -208,10 +209,10 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 var time = moment.utc(global.baselineToTime, "HH:mm:ss");
                 return date.format("YYYY/MM/DD") + " " + time.format("HH:mm:ss");
             case "relative":
-                var mainToDateTime = $scope.tsdb_toTimestampAsDate(global, datum);
+                var mainToDateTime = $scope.tsdb_toTimestampAsMoment(global, datum);
                 var diff1 = $scope.periodToDiff(global.baselineRelativePeriod);
                 if (diff1 != null) {
-                    var dateTime = moment.utc(mainToDateTime).subtract(diff1);
+                    var dateTime = mainToDateTime.subtract(diff1);
                     return dateTime.format("YYYY/MM/DD HH:mm:ss");
                 }
                 return null;
@@ -299,15 +300,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
 
         url += "?start=" + fromTimestamp;
         if (autoReload) {
-            // todo: do we need to do a conversion to utc?
-            var now = new Date();
-            var y = now.getFullYear();
-            var mo = now.getMonth()+1;
-            var d = now.getDate();
-            var h = now.getHours();
-            var mi = now.getMinutes();
-            var s = now.getSeconds();
-            url += "&end="+y+"/"+(mo<10?("0"+mo):mo)+"/"+(d<10?("0"+d):d)+"-"+(h<10?("0"+h):h)+":"+(mi<10?("0"+mi):mi)+":"+(s<10?("0"+s):s);
+            url += "&end="+moment.utc().format("YYYY/MM/DD-HH:mm:ss");
         }
         else {
             if (toTimestamp != null) {
@@ -598,11 +591,11 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         // cubism plots a pixel per step, so we need to calculate step size (we ignore downsampling time measure)
         var width = Math.floor(graph.graphWidth);
         var height = Math.floor(graph.graphHeight);
-        var start = $scope.tsdb_fromTimestampAsDate(global);
-        var stop = $scope.tsdb_toTimestampAsDate(global);
-        var diff = new Date() - start.getTime();
-        var timeWidth = stop.getTime() - start.getTime();
-        var rawStepSize = timeWidth / width;
+        var start = $scope.tsdb_fromTimestampAsMoment(global);
+        var stop = $scope.tsdb_toTimestampAsMoment(global);
+        var diff = moment.utc().subtract(start.getTime());
+        var timeWidth = stop.subtract(start);
+        var rawStepSize = timeWidth.milliseconds() / width;
         var stepSize = steps[0];
         for (var i=0; i<steps.length-1; i++) {
             //console.log("considering "+steps[i]+" < " + rawStepSize + " <= "+steps[i+1]);
@@ -786,15 +779,15 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         var width = Math.floor(graph.graphWidth);
         var height = Math.floor(graph.graphHeight);
 
-        var fromDateTime = $scope.tsdb_fromTimestampAsDate(global);
-        var toDateTime = $scope.tsdb_toTimestampAsDate(global);
+        var fromDateTime = $scope.tsdb_fromTimestampAsMoment(global);
+        var toDateTime = $scope.tsdb_toTimestampAsMoment(global);
         
-        var fromYear = fromDateTime.getYear()+1900;
-        var toYear = toDateTime.getYear()+1900;
+        var fromYear = fromDateTime.year();
+        var toYear = toDateTime.year();
         var numYears = (toYear - fromYear) + 1;
         
-        var fromMonth = fromYear*12 + fromDateTime.getMonth();
-        var toMonth = toYear*12 + toDateTime.getMonth();
+        var fromMonth = fromYear*12 + (fromDateTime.month() - 1);
+        var toMonth = toYear*12 + (toDateTime.month() - 1);
         var numMonths = (toMonth - fromMonth) + 1;
         
         // depending on the heatmap style, the number of squares per row/column will vary, these 
@@ -803,8 +796,8 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         var style = heatmapOptions.style ? heatmapOptions.style : "auto";
         if (style == "auto") {
             // if style is auto, we guess passed on toTimestamp-fromTimestamp
-            var diff = toDateTime.getTime() - fromDateTime.getTime();
-            var year = 86400000 * 365;
+            var diff = toDateTime.subtract(fromDateTime).seconds();
+            var year = moment.duration(1,"year").seconds();
             style = diff > year ? "week_day" : "day_hour";
         }
         // todo: validate style

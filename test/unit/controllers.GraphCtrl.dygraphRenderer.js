@@ -1645,7 +1645,7 @@ describe('Aardvark controllers', function () {
                 [1234481415000, 50]
             ]}]);
 
-            var datum = new Date(2016,0,22,14,10,10);
+            var datum = moment.utc("2016/01/22 14:10:10", "YYYY/MM/DD HH:mm:ss");
             
             scope.renderers.dygraph(global, graph, metrics, datum);
 
@@ -1677,7 +1677,7 @@ describe('Aardvark controllers', function () {
             ]}]);
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=2016/01/20 14:10:10&end=2016/01/21 14:10:10&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([]);
 
-            var datum = new Date(2016,0,22,14,10,10);
+            var datum = moment.utc("2016/01/22 14:10:10", "YYYY/MM/DD HH:mm:ss");
             
             scope.renderers.dygraph(global, graph, metrics, datum);
 
@@ -1730,7 +1730,7 @@ describe('Aardvark controllers', function () {
             scope.renderWarnings = {};
             rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
 
-            var datum = new Date(2016,0,22,14,10,10);
+            var datum = moment.utc("2016/01/22 14:10:10", "YYYY/MM/DD HH:mm:ss");
 
             if (graph == null) {
                 graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -2255,7 +2255,7 @@ describe('Aardvark controllers', function () {
             _annotationTest(false, metrics, null, url, null, responseData, null, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling);
         }
         var annotationBaselineTest = function(responseData, baselineResponseData, expectedRenderData, expectedAnnotations, autoScaling, expectedLabels) {
-            var datum = moment.utc("2016-06-03").toDate();
+            var datum = moment.utc("2016-06-03");
             var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&ms=true&arrays=true&show_query=true";
             var start = moment.utc("2016-06-01").format("YYYY/MM/DD HH:mm:ss");
             var end = moment.utc("2016-06-02").format("YYYY/MM/DD HH:mm:ss");
@@ -2283,7 +2283,7 @@ describe('Aardvark controllers', function () {
             _annotationTest(true, metrics, null, url, null, responseData, null, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling);
         }
         var globalAnnotationBaselineTest = function(responseData, baselineResponseData, expectedRenderData, expectedAnnotations, autoScaling, expectedLabels) {
-            var datum = moment.utc("2016-06-03").toDate();
+            var datum = moment.utc("2016-06-03");
             var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&global_annotations=true&ms=true&arrays=true&show_query=true";
             var start = moment.utc("2016-06-01").format("YYYY/MM/DD HH:mm:ss");
             var end = moment.utc("2016-06-02").format("YYYY/MM/DD HH:mm:ss");

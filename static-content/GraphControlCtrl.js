@@ -76,8 +76,8 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
             $scope.saveAndRenderGraphs();
         }
         else {
-            $scope.toDate = moment(new Date()).format("YYYY/MM/DD");
-            $scope.toTime = moment(new Date()).format("HH:mm:ss");
+            $scope.toDate = moment.utc().format("YYYY/MM/DD");
+            $scope.toTime = moment.utc().format("HH:mm:ss");
             $scope.saveAndRenderGraphsIfAutoUpdate();
         }
         
@@ -119,7 +119,8 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
             $scope.graphs = $scope.deepClone(model.graphs);
     
             if (model.global != null) {
-                var twoHoursAgo = moment((datum != null ? datum : new Date())-7200000);
+                var now = datum ? datum.clone() : moment.utc();
+                var twoHoursAgo = now.subtract(2, "hours");
                 if (model.global.absoluteTimeSpecification) {
                     if (model.global.fromDate != null && model.global.fromDate != "") {
                         $scope.fromDate = model.global.fromDate;
@@ -202,13 +203,6 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
 
         return ret;
     };
-
-
-    // extracted for testing
-    $scope.timeInMillis = function()
-    {
-        return new Date().getTime();
-    }
 
     $scope.addGraph = function() {
         var id = idGenerator.nextId();
