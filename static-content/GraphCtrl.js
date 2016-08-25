@@ -1108,6 +1108,34 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         if (dygraphOptions.valueFilter != null && dygraphOptions.valueFilter.lowerBound != "" && dygraphOptions.valueFilter.upperBound != "" && dygraphOptions.valueFilter.lowerBound == dygraphOptions.valueFilter.upperBound) {
             $scope.renderWarnings[graph.id] = "Lower bound on value filter is same as upper bound";
         }
+        var yAxisRange = [null,null];
+        if (dygraphOptions.yAxisRange != null && dygraphOptions.yAxisRange != "") {
+            var s = dygraphOptions.yAxisRange.replace("[","").replace("]","");
+            var colon = s.indexOf(":");
+            var error = false;
+            if (colon > 0) {
+                try {
+                    var low = s.substring(0,colon);
+                    if (low != "") {
+                        yAxisRange[0] = parseInt(low);
+                    }
+                    var high = s.substring(colon+1);
+                    if (high != "") {
+                        yAxisRange[1] = parseInt(high);
+                    }
+                }
+                catch (parseError) {
+                    error = true;
+                }
+            }
+            else {
+                error = true;
+            }
+            if (error) {
+                $scope.renderWarnings[graph.id] = "Y-axis value range invalid, defaulting to [:]";
+                yAxisRange = [null,null];
+            }
+        }
 
         $scope.renderMessages[graph.id] = "Loading...";
         
@@ -1804,6 +1832,17 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 labelsSeparateLines: true,
                 labelsDiv: labelsDiv,
                 labelsDivWidth: 1000,
+//                series: {
+//                    'cpu.percent{host=host01}': {
+//                        axis: 'y1'
+//                    },
+//                    'cpu.percent{host=host02}': {
+//                        axis: 'y2'
+//                    },
+//                    'cpu.percent{host=host03}': {
+//                        axis: 'y1'
+//                    }
+//                },
                 axes: {
                     y: {
                         valueFormatter: function(y) {
@@ -1817,8 +1856,13 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                                 return "" + Dygraph.round_(y, 3);
                             }
                             return y.toString().replace(/\B(?=(?:\d{3})+(?!\d))/g, ",")
-                        }
+                        },
+                        valueRange: yAxisRange
                     }
+//                    y2: {
+//                        valueRange: [-200, 200]
+//                        
+//                    }
                 }
             };
             if (dygraphOptions.highlightLines) {

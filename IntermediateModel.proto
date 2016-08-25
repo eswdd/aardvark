@@ -51,6 +51,7 @@ message Dygraph {
   optional int32 valueFilterLowerBound = 5;
   optional int32 valueFilterUpperBound = 6;
   optional int32 valueFilterMeasure = 7;
+  optional string yAxisRange = 8 [ default = "[:]" ];
 }
 
 message Heatmap {

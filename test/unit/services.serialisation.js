@@ -33,6 +33,7 @@ describe('AardvarkServices.serialisation', function() {
             {path:"graphs.gnuplot.y2AxisFormat.",sep:" "},
             {path:"graphs.gnuplot.yAxisRange.",sep:":"},
             {path:"graphs.gnuplot.y2AxisRange.",sep:":"},
+            {path:"graphs.dygraph.yAxisRange.",sep:":"},
             {path:"metrics.name.",sep:"."},
             {path:"metrics.tags.name.",sep:"."},
             {path:"metrics.tags.value.",sep:"."}
@@ -228,6 +229,7 @@ describe('AardvarkServices.serialisation', function() {
             model.graphs[1].gnuplot.globalAnnotations = false;
             model.graphs[3].dygraph.annotations = true;
             model.graphs[3].dygraph.globalAnnotations = false;
+            model.graphs[3].dygraph.yAxisRange = "[:]";
         });  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
     }));
     
@@ -404,6 +406,7 @@ describe('AardvarkServices.serialisation', function() {
             model.global.baselining = false;
             model.graphs[0].gnuplot.globalAnnotations = false;
             model.graphs[1].dygraph.globalAnnotations = false;
+            model.graphs[1].dygraph.yAxisRange = "[:]";
         });  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
     }));
     

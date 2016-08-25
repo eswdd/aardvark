@@ -363,6 +363,10 @@
                                             <input type="checkbox" id="ylogDygraph" ng-model="graph.dygraph.ylog" ng-disabled="graph.dygraph.autoScale" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                             <label for="ylogDygraph">Logarithmic y-axis?</label>
                                         </div>
+                                        <div>
+                                            <label for="yRangeDygraph">Range:</label>
+                                            <input id="yRangeDygraph" type="text" size="4" ng-model="graph.dygraph.yAxisRange" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                        </div>
                                         <div style="text-decoration: underline; font-weight: 800">
                                             Annotations
                                         </div>

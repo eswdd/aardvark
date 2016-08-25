@@ -216,7 +216,7 @@ describe('Aardvark controllers', function () {
                 labelsDiv: null,
                 labelsDivWidth: 1000,
                 axes:{
-                    y:{}
+                    y:{ valueRange: [null, null] }
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -270,7 +270,7 @@ describe('Aardvark controllers', function () {
                 labelsDiv: null,
                 labelsDivWidth: 1000,
                 axes:{
-                    y:{}
+                    y:{ valueRange: [null, null] }
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -325,7 +325,7 @@ describe('Aardvark controllers', function () {
                 labelsDiv: null,
                 labelsDivWidth: 1000,
                 axes:{
-                    y:{}
+                    y:{ valueRange: [null, null] }
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -388,7 +388,7 @@ describe('Aardvark controllers', function () {
                 labelsDiv: null,
                 labelsDivWidth: 1000,
                 axes:{
-                    y:{}
+                    y:{ valueRange: [null, null] }
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -516,7 +516,7 @@ describe('Aardvark controllers', function () {
                 labelsDiv: null,
                 labelsDivWidth: 1000,
                 axes:{
-                    y:{}
+                    y:{ valueRange: [null, null] }
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -571,7 +571,7 @@ describe('Aardvark controllers', function () {
                 labelsDiv: null,
                 labelsDivWidth: 1000,
                 axes:{
-                    y:{}
+                    y:{ valueRange: [null, null] }
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -625,7 +625,7 @@ describe('Aardvark controllers', function () {
                 labelsDiv: null,
                 labelsDivWidth: 1000,
                 axes:{
-                    y:{}
+                    y:{ valueRange: [null, null] }
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -684,7 +684,7 @@ describe('Aardvark controllers', function () {
                 labelsDiv: null,
                 labelsDivWidth: 1000,
                 axes:{
-                    y:{}
+                    y:{ valueRange: [null, null] }
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -748,7 +748,7 @@ describe('Aardvark controllers', function () {
                 labelsDiv: null,
                 labelsDivWidth: 1000,
                 axes:{
-                    y:{}
+                    y:{ valueRange: [null, null] }
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -807,7 +807,7 @@ describe('Aardvark controllers', function () {
                 labelsDiv: null,
                 labelsDivWidth: 1000,
                 axes:{
-                    y:{}
+                    y:{ valueRange: [null, null] }
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -871,7 +871,7 @@ describe('Aardvark controllers', function () {
                 labelsDiv: null,
                 labelsDivWidth: 1000,
                 axes:{
-                    y:{}
+                    y:{ valueRange: [null, null] }
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -937,7 +937,7 @@ describe('Aardvark controllers', function () {
                 labelsDiv: null,
                 labelsDivWidth: 1000,
                 axes:{
-                    y:{}
+                    y:{ valueRange: [null, null] }
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -997,7 +997,7 @@ describe('Aardvark controllers', function () {
                 labelsDiv: null,
                 labelsDivWidth: 1000,
                 axes:{
-                    y:{}
+                    y:{ valueRange: [null, null] }
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -1082,7 +1082,7 @@ describe('Aardvark controllers', function () {
                 labelsDiv: null,
                 labelsDivWidth: 1000,
                 axes:{
-                    y:{}
+                    y:{ valueRange: [null, null] }
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -1142,7 +1142,7 @@ describe('Aardvark controllers', function () {
                 labelsDiv: null,
                 labelsDivWidth: 1000,
                 axes:{
-                    y:{}
+                    y:{ valueRange: [null, null] }
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -1202,7 +1202,7 @@ describe('Aardvark controllers', function () {
                 labelsDiv: null,
                 labelsDivWidth: 1000,
                 axes:{
-                    y:{}
+                    y:{ valueRange: [null, null] }
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -1330,7 +1330,7 @@ describe('Aardvark controllers', function () {
                 labelsDiv: null,
                 labelsDivWidth: 1000,
                 axes:{
-                    y:{}
+                    y:{ valueRange: [null, null] }
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -1707,7 +1707,7 @@ describe('Aardvark controllers', function () {
                 labelsDiv: null,
                 labelsDivWidth: 1000,
                 axes:{
-                    y:{}
+                    y:{ valueRange: [null, null] }
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -1765,7 +1765,7 @@ describe('Aardvark controllers', function () {
                 labelsDiv: null,
                 labelsDivWidth: 1000,
                 axes:{
-                    y:{}
+                    y:{ valueRange: [null, null] }
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -2341,7 +2341,7 @@ describe('Aardvark controllers', function () {
                 labelsDiv: null,
                 labelsDivWidth: 1000,
                 axes:{
-                    y:{}
+                    y:{ valueRange: [null, null] }
                 }
             });
             expect(renderAnnotations).toEqualData(expectedAnnotations);

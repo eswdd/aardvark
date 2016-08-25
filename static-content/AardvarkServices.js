@@ -501,6 +501,7 @@ aardvark
                 {prefix:"metrics",sep:"."},
                 {prefix:"graphs.gnuplot.yAxisRange",sep:":"},
                 {prefix:"graphs.gnuplot.y2AxisRange",sep:":"},
+                {prefix:"graphs.dygraph.yAxisRange",sep:":"},
                 {prefix:"graphs",sep:" "}
             ];
             var ret = [];
@@ -704,7 +705,9 @@ aardvark
                         break;
                     case "dygraph":
                         if (graph.dygraph != null) {
-                            intermediateGraph.dygraph = {};
+                            intermediateGraph.dygraph = {
+                                yAxisRange: graph.dygraph.yAxisRange
+                            };
                             intermediateGraph.flags = blitting.toBlittedInt([
                                 graph.dygraph.interpolateGaps,
                                 graph.dygraph.highlightLines,
@@ -820,11 +823,11 @@ aardvark
             return this.split(from).join(to);
         }
         serialiser.serialise = function(model) {
-            var origLen = JSON.stringify(model).length;
+//            var origLen = JSON.stringify(model).length;
             var intermediate = serialiser.generateIntermediateModel(model);
             
             var proto = new serialiser.IntermediateModel(intermediate);
-            var buffer = proto.encode().toArrayBuffer();
+//            var buffer = proto.encode().toArrayBuffer();
             var encoded = proto.toBase64().replaceAll("+","-").replaceAll("/","_").replaceAll("=",",");
 //            console.log("buffer = "+encoded);
 //            console.log("buflen = "+encoded.length);
@@ -1033,6 +1036,7 @@ aardvark
                         graph.dygraph.ratioGraph = dygraphFlags[7];
                         graph.dygraph.annotations = dygraphFlags[8];
                         graph.dygraph.globalAnnotations = dygraphFlags[9];
+                        graph.dygraph.yAxisRange = intermediateGraph.dygraph.yAxisRange;
                         graph.dygraph.countFilter = {
                             end: countFilterEnds.idToValue(intermediateGraph.dygraph.countFilterEnd),
                             measure: countFilterMeasures.idToValue(intermediateGraph.dygraph.countFilterMeasure)
