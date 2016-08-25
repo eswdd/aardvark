@@ -633,7 +633,6 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 .serverDelay(diff)
                 .step(stepSize)
                 .size(width)
-                .format(".2f")
                 .stop();
 
             var addMetric = function(cMetrics, metricData, name)
@@ -701,7 +700,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 .data(cMetrics)
                 .enter().insert("div", ".bottom")
                 .attr("class", "horizon")
-                .call(context.horizon().height(perLineHeight));
+                .call(context.horizon().height(perLineHeight).format(d3.format(".2s")));
 
             // now we can add rule safely as we know height as well
             d3.select(divSelector).append("div")
