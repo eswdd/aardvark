@@ -51,6 +51,33 @@ describe('AardvarkServices.strings', function() {
         expect(s2).toEqualData("a.b.c");
     }));
     
+    it('expects 2 different strings with different seperators to best be served by string references', inject(function(strings) {
+        var mgr = strings.getWriteManager();
+        var r1 = mgr.addString("a.b.c",".");
+        var r2 = mgr.addString("f g h"," ");
+        var dict = mgr.complete();
+        expect(mgr.state.serialisationMode).toEqualData("stringReferences");
+        expect(mgr.state.bytes).toEqualData({
+            chains: 12,
+            chainReferences: 14,
+            stringReferences: 12
+        });
+        
+        expect(r1.resolve()).toEqualData([0]);
+        expect(r2.resolve()).toEqualData([1]);
+        expect(dict).toEqualData({
+            mode: 1,
+            strings: ["a.b.c", "f g h"]
+        });
+
+        var reader = strings.getReadManager(dict);
+        var s1 = reader.getString(r1.resolve(),".");
+        var s2 = reader.getString(r2.resolve()," ");
+
+        expect(s1).toEqualData("a.b.c");
+        expect(s2).toEqualData("f g h");
+    }));
+    
     it('expects 2 overlapping strings to best be served by chains', inject(function(strings) {
         var mgr = strings.getWriteManager();
         var r1 = mgr.addString("a.b.c.d",".");

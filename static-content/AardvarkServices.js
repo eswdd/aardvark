@@ -213,7 +213,7 @@ aardvark
                         pointers[s] = mgr.state.segments.length - 1;
                     }
                 }
-                mgr.state.stringDefinitions.push(pointers);
+                mgr.state.stringDefinitions.push({pointers:pointers,sep:sep});
                 var ret = {};
                 ret[resolverKeyVal] = resolverKeyVal;
                 ret.stringIndex = mgr.state.stringDefinitions.length - 1;
@@ -239,7 +239,7 @@ aardvark
                 
                 for (var s=0; s<mgr.state.stringDefinitions.length; s++) {
                     // chain lengths: assume each segment ref will be stored in 1 byte (int vle = 7 bits = 127 unique segments) - might be invalid, but close enough
-                    bytesForChains += mgr.state.stringDefinitions[s].length;
+                    bytesForChains += mgr.state.stringDefinitions[s].pointers.length;
                     // chain ref lengths
                     bytesForChainReferences++;
                 }
@@ -247,9 +247,9 @@ aardvark
                 var constructOriginalString = function(stringDefIndex) {
                     var key = "";
                     var sep = "";
-                    for (var i=0; i<mgr.state.stringDefinitions[stringDefIndex].length; i++) {
-                        key += sep + mgr.state.segments[mgr.state.stringDefinitions[stringDefIndex][i]];
-                        sep = ".";
+                    for (var i=0; i<mgr.state.stringDefinitions[stringDefIndex].pointers.length; i++) {
+                        key += sep + mgr.state.segments[mgr.state.stringDefinitions[stringDefIndex].pointers[i]];
+                        sep = mgr.state.stringDefinitions[stringDefIndex].sep;
                     }
                     return key;
                 }
@@ -260,9 +260,9 @@ aardvark
                     var key = constructOriginalString(s);
                     if (!seenChains.hasOwnProperty(key)) {
                         bytesForStringReferences += key.length;
-                        bytesForChainReferences += mgr.state.stringDefinitions[s].length;
+                        bytesForChainReferences += mgr.state.stringDefinitions[s].pointers.length;
                         // store for later
-                        seenChains[key] = mgr.state.stringDefinitions[s];
+                        seenChains[key] = mgr.state.stringDefinitions[s].pointers;
                     }
                 }
                 
@@ -324,7 +324,7 @@ aardvark
             mgr.resolve = function(stringIndex) {
                 switch (mgr.state.serialisationMode) {
                     case "chains":
-                        return mgr.state.stringDefinitions[stringIndex]; // array indexing into strings
+                        return mgr.state.stringDefinitions[stringIndex].pointers; // array indexing into strings
                     case "chainReferences":
                         return mgr.state.chainReferences[stringIndex]; // array of len 1 indexing into references
                     case "stringReferences":

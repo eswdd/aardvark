@@ -649,7 +649,6 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 .serverDelay(diff)
                 .step(stepSize)
                 .size(width)
-                .format(".2f")
                 .stop();
 
             var addMetric = function(cMetrics, metricData, name)
@@ -717,7 +716,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 .data(cMetrics)
                 .enter().insert("div", ".bottom")
                 .attr("class", "horizon")
-                .call(context.horizon().height(perLineHeight));
+                .call(context.horizon().height(perLineHeight).format(d3.format(".2s")));
 
             // now we can add rule safely as we know height as well
             d3.select(divSelector).append("div")
@@ -1377,9 +1376,12 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                     // ok, we have definitely removed some results from this query
                     if (str in filteredOutByQuery) {
                         for (var i=0; i<filteredOutByQuery[str].length; i++) {
-                            if (allTagsMatch(baselineJson[s].tags, filteredOutByQuery[str].tags)) {
+                            if (allTagsMatch(baselineJson[s].tags, filteredOutByQuery[str][i].tags)) {
                                 baselineJson.splice(s,1);
-                                delete filteredOutByQuery[str];
+                                filteredOutByQuery[str].splice(i,1);
+                                if (filteredOutByQuery[str].length == 0) {
+                                    delete filteredOutByQuery[str];
+                                }
                                 break;
                             }
                         }
@@ -1795,9 +1797,10 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                     var legendTop = graphBox.top - graphPanelBox.top;
                     // and now we just go find the rule we added and set the top/height
                     d3.select("#dygraphLegend_"+graph.id)
+                      .style("left", "100px")
                       .style("top", legendTop+"px")
                       .style("height",graphBox.height+"px")
-                      .style("width",graphBox.width+"px");
+                      .style("width",(graphBox.width-100)+"px");
                 }
             }
 
