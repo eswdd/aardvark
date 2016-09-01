@@ -173,7 +173,6 @@ aardvark.directive('tagSelection', function() {
             $scope.downsampleTo = metric.graphOptions.downsampleTo;
             $scope.scatterAxis = metric.graphOptions.scatter.axis;
         }
-
     }
 
     $scope.showHideFilterInput = function() {
@@ -390,6 +389,9 @@ aardvark.directive('tagSelection', function() {
     };
 
     $scope.metricSelected = function(metricName, newMetric) {
+        $scope.tagOptions = {};
+        $scope.tag = {};
+        $scope.resetUserMetricOptions();
         var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/search/lookup";
         var requestJson = {"metric": metricName, "limit": 100000, "useMeta": true}; // todo: useMeta should be based on tsdb config
         var postData = JSON.stringify(requestJson);
@@ -441,18 +443,11 @@ aardvark.directive('tagSelection', function() {
             
         });
     };
-
-        // todo: m2: need better way of defining defaulting and copying between scope and model on per graph type basis
-        //           perhaps using skeleton style approach
-    $scope.metricDeselected = function() {
-        $scope.tagOptions = {};
-        $scope.tagValues = {};
-        $scope.tagNames = [];
-        $scope.tag = {};
+        
+    // reset user entered metric state, used when switching between metrics
+    $scope.resetUserMetricOptions = function() {
         $scope.tagFilters = [];
         $scope.graphId = "0";
-        $scope.selectedMetric = "";
-        $scope.selectedMetricId = "0";
         $scope.rate = false;
         $scope.rateCounter = false;
         $scope.rateCounterMax = "";
@@ -463,6 +458,18 @@ aardvark.directive('tagSelection', function() {
         $scope.scatterAxis = "";
         $scope.rightAxis = false;
         $scope.aggregator = "sum";
+    }
+
+        // todo: m2: need better way of defining defaulting and copying between scope and model on per graph type basis
+        //           perhaps using skeleton style approach
+    $scope.metricDeselected = function() {
+        $scope.tagOptions = {};
+        $scope.tagValues = {};
+        $scope.tagNames = [];
+        $scope.tag = {};
+        $scope.selectedMetric = "";
+        $scope.selectedMetricId = "0";
+        $scope.resetUserMetricOptions();
         $scope.nodeSelectionDisabled = false;
     };
 
