@@ -902,7 +902,7 @@ describe('Aardvark controllers', function () {
         });
         
         it('should reset user entered metric options on selecting a new metric', function() {
-            rootScope.config = { tsdbHost: "tsdb", tsdbPort: 4242 };
+            rootScope.config = { tsdbProtocol: "http", tsdbHost: "tsdb", tsdbPort: 4242 };
 
             var node = {id: "name.baldrick", name: "baldrick", isMetric: true, children: []};
             var response = {
