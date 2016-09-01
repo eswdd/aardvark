@@ -900,6 +900,119 @@ describe('Aardvark controllers', function () {
             expect(scope.addButtonVisible()).toEqualData(false);
             expect(scope.saveButtonVisible()).toEqualData(false);
         });
+        
+        it('should reset user entered metric options on selecting a new metric', function() {
+            rootScope.config = { tsdbHost: "tsdb", tsdbPort: 4242 };
+
+            var node = {id: "name.baldrick", name: "baldrick", isMetric: true, children: []};
+            var response = {
+                "type":"LOOKUP",
+                "metric":"name.baldrick",
+                "limit":100000,
+                "time":1,
+                "results":[
+                    {
+                        "metric":"name.baldrick",
+                        "tags":{
+                            "key1":"value1",
+                            "key2":"value3"
+                        },
+                        "tsuid":"000006000001000009"
+                    },
+                    {
+                        "metric":"name.baldrick",
+                        "tags":{
+                            "key1":"value2",
+                            "key2":"value3"
+                        },
+                        "tsuid":"00000600000100000a"
+                    }
+                ],
+                "startIndex":0,
+                "totalResults":2
+            };
+
+            $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', '{"metric":"name.baldrick","limit":100000,"useMeta":true}').respond(response);
+
+            scope.nodeSelectedForAddition(node, true);
+            $httpBackend.flush();
+
+            var checkDefaults = function() {
+                expect(scope.tagFilters).toEqualData([]);
+                expect(scope.graphId).toEqualData("0");
+                expect(scope.selectedMetricId).toEqualData("0");
+                expect(scope.rate).toEqualData(false);
+                expect(scope.rateCounter).toEqualData(false);
+                expect(scope.rateCounterMax).toEqualData("");
+                expect(scope.rateCounterReset).toEqualData("");
+                expect(scope.downsample).toEqualData(false);
+                expect(scope.downsampleBy).toEqualData("avg");
+                expect(scope.downsampleTo).toEqualData("");
+                expect(scope.scatterAxis).toEqualData("");
+                expect(scope.rightAxis).toEqualData(false);
+                expect(scope.aggregator).toEqualData("sum");
+            }
+            
+            checkDefaults();
+            expect(scope.selectedMetric).toEqualData("name.baldrick");
+            expect(scope.tagValues).toEqualData({
+                key1: ["value1","value2"],
+                key2: ["value3"]
+            });
+            expect(scope.tagNames).toEqualData(["key1","key2"]);
+            expect(scope.tag).toEqualData({key1:"",key2:""});
+            expect(scope.tagOptions).toEqualData({key1:{},key2:{}});
+            scope.tagFilters = [
+                {name:"key1",value:"*",groupBy:true}
+            ];
+            scope.tag.key2 = "wibble";
+            scope.rate = true;
+
+            node = {id: "name.blackadder", name: "blackadder", isMetric: true, children: []};
+            response = {
+                "type":"LOOKUP",
+                "metric":"name.blackadder",
+                "limit":100000,
+                "time":1,
+                "results":[
+                    {
+                        "metric":"name.blackadder",
+                        "tags":{
+                            "key1":"value1",
+                            "key3":"value3"
+                        },
+                        "tsuid":"000006000001000009"
+                    },
+                    {
+                        "metric":"name.blackadder",
+                        "tags":{
+                            "key1":"value2",
+                            "key3":"value3"
+                        },
+                        "tsuid":"00000600000100000a"
+                    }
+                ],
+                "startIndex":0,
+                "totalResults":2
+            };
+
+
+            $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', '{"metric":"name.blackadder","limit":100000,"useMeta":true}').respond(response);
+
+            scope.nodeSelectedForAddition(node, true);
+            $httpBackend.flush();
+            checkDefaults();
+            expect(scope.selectedMetric).toEqualData("name.blackadder");
+            expect(scope.tagValues).toEqualData({
+                key1: ["value1","value2"],
+                key3: ["value3"]
+            });
+            expect(scope.tagNames).toEqualData(["key1","key3"]);
+            expect(scope.tag).toEqualData({key1:"",key3:""});
+            expect(scope.tagOptions).toEqualData({key1:{},key3:{}});
+            
+            
+        })
     });
 });
 
