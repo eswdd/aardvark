@@ -700,7 +700,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 .data(cMetrics)
                 .enter().insert("div", ".bottom")
                 .attr("class", "horizon")
-                .call(context.horizon().height(perLineHeight).format(d3.format(".2s")));
+                .call(context.horizon().height(perLineHeight).format(d3.format(".2f")));
 
             // now we can add rule safely as we know height as well
             d3.select(divSelector).append("div")
