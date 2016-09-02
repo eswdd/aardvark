@@ -12,6 +12,7 @@ module.exports = function (config) {
             'node_modules/angular-sanitize/angular-sanitize.js',
             'node_modules/angular-mass-autocomplete/massautocomplete.js',
             'node_modules/d3/d3.js',
+            'node_modules/cubism/cubism.v1.js',
             'node_modules/moment/moment.js',
             'node_modules/long/dist/long.js',
             'node_modules/bytebuffer/dist/bytebuffer.js',

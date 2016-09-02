@@ -593,9 +593,9 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         var height = Math.floor(graph.graphHeight);
         var start = $scope.tsdb_fromTimestampAsMoment(global);
         var stop = $scope.tsdb_toTimestampAsMoment(global);
-        var diff = moment.utc().subtract(start.getTime());
-        var timeWidth = stop.subtract(start);
-        var rawStepSize = timeWidth.milliseconds() / width;
+        var diff = moment.utc().diff(start);
+        var timeWidthMillis = stop.diff(start);
+        var rawStepSize = timeWidthMillis / width;
         var stepSize = steps[0];
         for (var i=0; i<steps.length-1; i++) {
             //console.log("considering "+steps[i]+" < " + rawStepSize + " <= "+steps[i+1]);
@@ -611,7 +611,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                                        stepSize / 1000 + "s";
 
         // now recalculate width so we get the time range requested
-        width = Math.ceil(timeWidth / stepSize);
+        width = Math.ceil(timeWidthMillis / stepSize);
 
         // construct the query string for these metrics, when we have a response, then use that to construct
         //    constant metrics (data already loaded) for time series which are returned.
@@ -665,7 +665,6 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 addMetric(cMetrics, parsed[i], name);
             }
 
-
             // remove old horizon charts
             d3.select(divSelector)
                 .selectAll(".horizon")
@@ -689,12 +688,20 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 : context.step() < 864e5 ? cubism_axisFormatMinutes
                 : cubism_axisFormatDays;
 
-            d3.select(divSelector).selectAll(".axis")
+            d3.select(divSelector)
+                .selectAll(".axis")
                 .data(["top", "bottom"])
-                .enter().append("div")
-                .attr("id", function(d) { return "horizonAxis_" + d + "_" + graph.id; })
-                .attr("class", function(d) { return d + " axis"; })
-                .each(function(d) { d3.select(this).call(context.axis().focusFormat(axisFormat).ticks(12).orient(d)); });
+                .enter()
+                .append("div")
+                .attr("id", function(d) { 
+                    return "horizonAxis_" + d + "_" + graph.id; 
+                })
+                .attr("class", function(d) { 
+                    return d + " axis"; 
+                })
+                .each(function(d) { 
+                    d3.select(this).call(context.axis().focusFormat(axisFormat).ticks(12).orient(d)); 
+                });
 
             context.on("focus", function(i) {
                 d3.selectAll(".value").style("right", "10px");
@@ -795,7 +802,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         var style = heatmapOptions.style ? heatmapOptions.style : "auto";
         if (style == "auto") {
             // if style is auto, we guess passed on toTimestamp-fromTimestamp
-            var diff = toDateTime.subtract(fromDateTime).seconds();
+            var diff = toDateTime.diff(fromDateTime, 'seconds');
             var year = moment.duration(1,"year").seconds();
             style = diff > year ? "week_day" : "day_hour";
         }
