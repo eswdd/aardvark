@@ -447,7 +447,6 @@ aardvark.directive('tagSelection', function() {
     // reset user entered metric state, used when switching between metrics
     $scope.resetUserMetricOptions = function() {
         $scope.tagFilters = [];
-        $scope.graphId = "0";
         $scope.rate = false;
         $scope.rateCounter = false;
         $scope.rateCounterMax = "";

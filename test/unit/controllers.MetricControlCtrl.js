@@ -903,6 +903,9 @@ describe('Aardvark controllers', function () {
         
         it('should reset user entered metric options on selecting a new metric', function() {
             rootScope.config = { tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http" };
+            rootScope.model = {
+                graphs: [{id: "1"}]
+            };
 
             var node = {id: "name.baldrick", name: "baldrick", isMetric: true, children: []};
             var response = {
@@ -939,7 +942,6 @@ describe('Aardvark controllers', function () {
 
             var checkDefaults = function() {
                 expect(scope.tagFilters).toEqualData([]);
-                expect(scope.graphId).toEqualData("0");
                 expect(scope.selectedMetricId).toEqualData("0");
                 expect(scope.rate).toEqualData(false);
                 expect(scope.rateCounter).toEqualData(false);
@@ -954,6 +956,7 @@ describe('Aardvark controllers', function () {
             }
             
             checkDefaults();
+            expect(scope.graphId).toEqualData("1");
             expect(scope.selectedMetric).toEqualData("name.baldrick");
             expect(scope.tagValues).toEqualData({
                 key1: ["value1","value2"],
@@ -1002,6 +1005,7 @@ describe('Aardvark controllers', function () {
             scope.nodeSelectedForAddition(node, true);
             $httpBackend.flush();
             checkDefaults();
+            expect(scope.graphId).toEqualData("1");
             expect(scope.selectedMetric).toEqualData("name.blackadder");
             expect(scope.tagValues).toEqualData({
                 key1: ["value1","value2"],
