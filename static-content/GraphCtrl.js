@@ -917,12 +917,12 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
 
             var scale;
             // todo: fix log scale
-            if (heatmapOptions.ylog) {
-                scale = d3.scale.log();
-            }
-            else {
+//            if (heatmapOptions.ylog) {
+//                scale = d3.scale.log();
+//            }
+//            else {
                 scale = d3.scale.quantize();
-            }
+//            }
             var color = scale
                 .domain([minValue, maxValue])
                 .range(d3.range(11).map(function(d) { return "q" + d + "-11"; }));
