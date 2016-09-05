@@ -489,12 +489,12 @@
                         <div>
                             <input type="button" value="+" ng-click="expandAll()" ng-show="expandAllVisible()" alt="Expand all nodes">
                             <input type="button" value="-" ng-click="collapseAll()" alt="Collapse all nodes">
-                            <input type="button" value="F" ng-click="showHideFilterInput()" alt="Filter...">
+                            <input type="button" value="F" ng-click="showHideFilterInput()" ng-show="treeFilterButtonVisible()" alt="Filter...">
                             <input type="button" value="R" ng-click="updateTree()" alt="Update tree from TSDB">
                             <input type="button" value="S" ng-click="showIgnoredPrefixes()" ng-show="showIgnoredPrefixesVisible()" alt="Show ignored prefixes">
                             <input type="button" value="H" ng-click="hideIgnoredPrefixes()" ng-show="hideIgnoredPrefixesVisible()" alt="Hide ignored prefixes">
                         </div>
-                        <div ng-show="showFilterInput">
+                        <div ng-show="treeFilterVisible()">
                             <input type="text" ng-model="filter">
                             <input type="button" value="C" ng-click="clearFilterInput()">
                         </div>

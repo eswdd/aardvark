@@ -1012,7 +1012,31 @@ describe('Aardvark controllers', function () {
             expect(scope.tagOptions).toEqualData({key1:{},key3:{}});
             
             
-        })
+        });
+        
+        it('should display the tree filter button by default', function() {
+            expect(scope.treeFilterButtonVisible()).toEqualData(true);
+        });
+        
+        it('should hide the tree filter button if the filter input should always be displayed', function() {
+            rootScope.config = { ui: { metrics: { alwaysShowMetricFilter: true }}};
+            expect(scope.treeFilterButtonVisible()).toEqualData(false);
+        });
+        
+        it('should toggle the showing of the tree filter input when the tree filter button is clicked', function() {
+            expect(scope.treeFilterVisible()).toEqualData(false);
+            scope.showHideFilterInput();
+            expect(scope.treeFilterVisible()).toEqualData(true);
+            scope.showHideFilterInput();
+            expect(scope.treeFilterVisible()).toEqualData(false);
+        });
+        
+        it('should not hide the tree filter input when the tree filter button is clicked if the input should always be displayed', function() {
+            rootScope.config = { ui: { metrics: { alwaysShowMetricFilter: true }}};
+            expect(scope.treeFilterVisible()).toEqualData(true);
+            scope.showHideFilterInput();
+            expect(scope.treeFilterVisible()).toEqualData(true);
+        });
     });
 });
 

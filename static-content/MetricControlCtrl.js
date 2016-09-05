@@ -19,7 +19,6 @@ aardvark.directive('tagSelection', function() {
  */
 .controller('MetricControlCtrl', [ '$scope', '$rootScope', '$sce', '$http', 'idGenerator', function MetricControlCtrl($scope, $rootScope, $sce, $http, idGenerator) {
 
-    $scope.showTreeFilter = false;
     $scope.allParentNodes = [];
     $scope.showFilterInput = false;
     $scope.selectedTreeNode = undefined;
@@ -181,12 +180,29 @@ aardvark.directive('tagSelection', function() {
             $scope.scatterAxis = metric.graphOptions.scatter.axis;
         }
     }
+        
+    $scope._alwaysShowTreeFilterInput = function() {
+        if ($rootScope.config && $rootScope.config.ui && $rootScope.config.ui.metrics && $rootScope.config.ui.metrics.alwaysShowMetricFilter != null) {
+            return $rootScope.config.ui.metrics.alwaysShowMetricFilter;
+        }
+        return false;
+    }
+
+    $scope.treeFilterButtonVisible = function() {
+        return !$scope._alwaysShowTreeFilterInput();
+    }
+
+    $scope.treeFilterVisible = function() {
+        return $scope.showFilterInput || $scope._alwaysShowTreeFilterInput();
+    }
 
     $scope.showHideFilterInput = function() {
-        if ($scope.showFilterInput) {
-            $scope.clearFilterInput();
+        if (!$scope._alwaysShowTreeFilterInput()) {
+            if ($scope.showFilterInput) {
+                $scope.clearFilterInput();
+            }
+            $scope.showFilterInput = !$scope.showFilterInput;
         }
-        $scope.showFilterInput = !$scope.showFilterInput;
     }
 
     $scope.clearFilterInput = function() {
