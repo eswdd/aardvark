@@ -792,8 +792,8 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         var toYear = toDateTime.year();
         var numYears = (toYear - fromYear) + 1;
         
-        var fromMonth = fromYear*12 + (fromDateTime.month() - 1);
-        var toMonth = toYear*12 + (toDateTime.month() - 1);
+        var fromMonth = fromYear*12 + (fromDateTime.month());
+        var toMonth = toYear*12 + (toDateTime.month());
         var numMonths = (toMonth - fromMonth) + 1;
         
         // depending on the heatmap style, the number of squares per row/column will vary, these 
