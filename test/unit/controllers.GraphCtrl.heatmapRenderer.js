@@ -136,7 +136,7 @@ describe('Aardvark controllers', function () {
         
         afterEach(function() {
             heatmapMock.tearDown();
-        })
+        });
 
         it('should report an error when trying to render with heatmap and no start time', function() {
             scope.renderedContent = {};
@@ -150,6 +150,98 @@ describe('Aardvark controllers', function () {
             scope.renderers.heatmap(global, graph, metrics);
 
             expect(scope.renderErrors).toEqualData({abc:"No start date specified"});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
+        it('should report an error when trying to render with heatmap and no metrics', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+
+            var global = { relativePeriod: "2h", autoReload: false };
+            var graph = { id: "abc", graphWidth: 640, graphHeight: 100 };
+            var metrics = [  ];
+
+            scope.renderers.heatmap(global, graph, metrics);
+
+            expect(scope.renderErrors).toEqualData({abc:"No metrics specified"});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
+        it('should report an error when trying to render with heatmap and too many metrics', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+
+            var global = { relativePeriod: "2h", autoReload: false };
+            var graph = { id: "abc", graphWidth: 640, graphHeight: 100 };
+            var metrics = [ { id: "123", graphOptions: {} }, { id: "456", graphOptions: {} } ];
+
+            scope.renderers.heatmap(global, graph, metrics);
+
+            expect(scope.renderErrors).toEqualData({abc:"Require exactly 1 metric, currently have 2"});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
+        it('should render with day/hour style when auto requested with a short time period', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+//
+            var global = { fromDate: "2016/09/02", fromTime: "00:00:00", toDate: "2016/09/12", toTime: "00:00:00", absoluteTimeSpecification: true };
+            var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "auto" } };
+            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
+//
+            scope.renderers.heatmap(global, graph, metrics);
+            
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1h-avg:metric1&ms=true&arrays=true").respond([
+                {metric: "metric1", tags: {}, dps:[
+                    [1472783200000, 10],
+                    [1472786800000, 20],
+                    [1472790400000, 30],
+                    [1473136000000, 40],
+                    [1473568000000, 50]
+                ]}
+            ]);
+            $httpBackend.flush();
+            
+            expect(heatmapMock.cellSize()).toEqualData(5);
+            
+            expect(heatmapMock.dayHourRenderParams != null).toEqualData(true);
+            expect(heatmapMock.weekDayRenderParams != null).toEqualData(false);
+            
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
+        it('should render with week/day style when auto requested with a short time period', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+//
+            var global = { fromDate: "2014/09/02", fromTime: "00:00:00", toDate: "2016/09/12", toTime: "00:00:00", absoluteTimeSpecification: true };
+            var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "auto" } };
+            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
+//
+            scope.renderers.heatmap(global, graph, metrics);
+            
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2014/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1d-avg:metric1&ms=true&arrays=true").respond([
+                {metric: "metric1", tags: {}, dps:[
+                    [1472783200000, 10],
+                    [1472786800000, 20],
+                    [1472790400000, 30],
+                    [1473136000000, 40],
+                    [1473568000000, 50]
+                ]}
+            ]);
+            $httpBackend.flush();
+            
+            expect(heatmapMock.cellSize()).toEqualData(5);
+            
+            expect(heatmapMock.dayHourRenderParams != null).toEqualData(false);
+            expect(heatmapMock.weekDayRenderParams != null).toEqualData(true);
+            
+            expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
 

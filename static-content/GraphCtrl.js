@@ -1035,9 +1035,8 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         var style = heatmapOptions.style ? heatmapOptions.style : "auto";
         if (style == "auto") {
             // if style is auto, we guess passed on toTimestamp-fromTimestamp
-            var diff = toDateTime.diff(fromDateTime, 'seconds');
-            var year = moment.duration(1,"year").seconds();
-            style = diff > year ? "week_day" : "day_hour";
+            var diff = toDateTime.diff(fromDateTime, 'years', true);
+            style = diff > 1 ? "week_day" : "day_hour";
         }
         // todo: validate style
         
