@@ -1126,6 +1126,14 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             
             var series = json[0];
             
+            if (heatmapOptions.excludeNegative) {
+                for (var i=0; i<series.dps.length; i++) {
+                    if (series.dps[i][1] < 0) {
+                        series.dps[i][1] = 0;
+                    }
+                }
+            }
+            
             // remove old heatmaps..
             d3.select(divSelector)
                 .selectAll("svg")

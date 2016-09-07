@@ -268,7 +268,53 @@ describe('Aardvark controllers', function () {
             $httpBackend.flush();
             
             expect(heatmapMock.cellSize()).toEqualData(5);
+            expect(heatmapMock.dps()).toEqualData([
+                [1472783200000, 10],
+                [1472786800000, 20],
+                [1472790400000, 30],
+                [1473136000000, 40],
+                [1473568000000, 50]
+            ]);
+            expect(heatmapMock.dayHourRenderParams).toEqualData([
+                "#heatmapDiv_abc",
+                24200,
+                24200
+            ]);
             
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
+        it('should render when day/hour style requested with negative squashing', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+//
+            var global = { fromDate: "2016/09/02", fromTime: "00:00:00", toDate: "2016/09/12", toTime: "00:00:00", absoluteTimeSpecification: true };
+            var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "day_hour", excludeNegative: true } };
+            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
+//
+            scope.renderers.heatmap(global, graph, metrics);
+            
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1h-avg:metric1&ms=true&arrays=true").respond([
+                {metric: "metric1", tags: {}, dps:[
+                    [1472783200000, 10],
+                    [1472786800000, -20],
+                    [1472790400000, 30],
+                    [1473136000000, -40],
+                    [1473568000000, 50]
+                ]}
+            ]);
+            $httpBackend.flush();
+            
+            expect(heatmapMock.cellSize()).toEqualData(5);
+            expect(heatmapMock.dps()).toEqualData([
+                [1472783200000, 10],
+                [1472786800000, 0],
+                [1472790400000, 30],
+                [1473136000000, 0],
+                [1473568000000, 50]
+            ]);
             expect(heatmapMock.dayHourRenderParams).toEqualData([
                 "#heatmapDiv_abc",
                 24200,
@@ -303,7 +349,54 @@ describe('Aardvark controllers', function () {
 
 
             expect(heatmapMock.cellSize()).toEqualData(5);
+            expect(heatmapMock.dps()).toEqualData([
+                [1234483200000, 10],
+                [1234569600000, 20],
+                [1234656000000, 30],
+                [1235001600000, 40],
+                [1235433600000, 50]
+            ]);
+            expect(heatmapMock.weekDayRenderParams).toEqualData([
+                "#heatmapDiv_abc",
+                2016,
+                2016
+            ]);
 
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
+        it('should render when week/day style requested with negative squashing', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+//
+            var global = { relativePeriod: "2w", autoReload: false };
+            var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "week_day", excludeNegative: true } };
+            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
+//
+            scope.renderers.heatmap(global, graph, metrics);
+            
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2w-ago&ignore=1&m=sum:1d-avg:metric1&ms=true&arrays=true").respond([
+                {metric: "metric1", tags: {}, dps:[
+                    [1234483200000, -10],
+                    [1234569600000, 20],
+                    [1234656000000, -30],
+                    [1235001600000, 40],
+                    [1235433600000, -50]
+                ]}
+            ]);
+            $httpBackend.flush();
+
+
+            expect(heatmapMock.cellSize()).toEqualData(5);
+            expect(heatmapMock.dps()).toEqualData([
+                [1234483200000, 0],
+                [1234569600000, 20],
+                [1234656000000, 0],
+                [1235001600000, 40],
+                [1235433600000, 0]
+            ]);
             expect(heatmapMock.weekDayRenderParams).toEqualData([
                 "#heatmapDiv_abc",
                 2016,
