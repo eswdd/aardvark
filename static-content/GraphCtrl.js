@@ -271,6 +271,238 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             return ret;
         });
     };
+    $scope.heatmap = function() {
+
+        var ret = {};
+
+        ret._dps = [];
+        ret._scale = d3.scale.quantize();
+        ret._cellSize = 5;
+        ret._width = null;
+        ret._height = null;
+
+        ret._color = function(dps) {
+            var minValue = null, maxValue = null;
+            for (var p=0; p<dps.length; p++) {
+                if (dps[p][1] < 0) {
+                    dps[p][1] = 0;
+                }
+                if (minValue == null) {
+                    minValue = dps[p][1];
+                    maxValue = dps[p][1];
+                }
+                else {
+                    minValue = Math.min(minValue, dps[p][1]);
+                    maxValue = Math.max(maxValue, dps[p][1]);
+                }
+            }
+
+            return ret._scale
+                .domain([minValue, maxValue])
+                .range(d3.range(11).map(function(d) { return "q" + d + "-11"; }));
+        }
+
+        ret.dps = function(_) {
+            if (!arguments.length) {
+                return ret._dps;
+            }
+            ret._dps = _;
+            return ret;
+        };
+
+        ret.scale = function(_) {
+            if (!arguments.length) {
+                return ret._scale;
+            }
+            ret._scale = _;
+            return ret;
+        };
+
+        ret.cellSize = function(_) {
+            if (!arguments.length) {
+                return ret._cellSize;
+            }
+            ret._cellSize = _;
+            return ret;
+        }
+
+        ret.width = function(_) {
+            if (!arguments.length) {
+                return ret._width;
+            }
+            ret._width = _;
+            return ret;
+        }
+
+        ret.height = function(_) {
+            if (!arguments.length) {
+                return ret._height;
+            }
+            ret._height = _;
+            return ret;
+        }
+
+        ret.weekDayRender = function(divSelector, fromYear, toYear) {
+
+            // render away
+            var format = d3.time.format("%Y-%m-%d");
+
+            var numYears = (toYear - fromYear) + 1;
+            var yearHeight = ret._height / numYears;
+
+            var translateX = ((ret._width - ret._cellSize * 53) / 2);
+            if (translateX < 0) {
+                translateX = 0;
+            }
+            var translateY = (yearHeight - ret._cellSize * 7 - 1);
+            if (translateY < 0) {
+                translateY = 0;
+            }
+
+            var color = ret._color(ret._dps);
+
+            var svg = d3.select(divSelector).selectAll("svg")
+                .data(d3.range(fromYear, toYear+1))
+                .enter().append("svg")
+                .attr("width", ret._width)
+                .attr("height", yearHeight)
+                .attr("class", "RdYlGn")
+                .append("g")
+                .attr("transform", "translate(" + translateX + "," + translateY + ")");
+
+            svg.append("text")
+                .attr("transform", "translate(-6," + ret._cellSize * 3.5 + ")rotate(-90)")
+                .style("text-anchor", "middle")
+                .text(function(d) { return d; });
+
+            var rect = svg.selectAll(".cell")
+                .data(function(d) { return d3.time.days(new Date(d, 0, 1), new Date(d + 1, 0, 1)); })
+                .enter().append("rect")
+                .attr("class", "cell")
+                .attr("width", ret._cellSize)
+                .attr("height", ret._cellSize)
+                .attr("x", function(d) { return d3.time.weekOfYear(d) * ret._cellSize; })
+                .attr("y", function(d) { return d.getDay() * ret._cellSize; })
+                .datum(format);
+
+            rect.append("title")
+                .text(function(d) { return d; });
+
+            svg.selectAll(".path")
+                .data(function(d) { return d3.time.months(new Date(d, 0, 1), new Date(d + 1, 0, 1)); })
+                .enter().append("path")
+                .attr("class", "path")
+                .attr("d", monthPath);
+
+            var data = d3.nest()
+                .key(function(d) {
+                    return format(new Date(d[0]));
+                })
+                .rollup(function(d) {
+                    return d[0][1];
+                })
+                .map(ret._dps);
+
+            rect.filter(function(d) {
+                return d in data;
+            })
+                .attr("class", function(d) {
+                    return "cell " + color(data[d]);
+                })
+                .select("title")
+                .text(function(d) {
+                    return d + ": " + data[d];
+                });
+
+            function monthPath(t0) {
+                var t1 = new Date(t0.getFullYear(), t0.getMonth() + 1, 0),
+                    d0 = t0.getDay(), w0 = d3.time.weekOfYear(t0),
+                    d1 = t1.getDay(), w1 = d3.time.weekOfYear(t1);
+                return "M" + (w0 + 1) * ret._cellSize + "," + d0 * ret._cellSize
+                    + "H" + w0 * ret._cellSize + "V" + 7 * ret._cellSize
+                    + "H" + w1 * ret._cellSize + "V" + (d1 + 1) * ret._cellSize
+                    + "H" + (w1 + 1) * ret._cellSize + "V" + 0
+                    + "H" + (w0 + 1) * ret._cellSize + "Z";
+            }
+        }
+
+        ret.dayHourRender = function(divSelector, fromMonth, toMonth) {
+
+            var color = ret._color(ret._dps);
+
+            // render away
+            var format = d3.time.format("%Y-%m-%d @ %H");
+
+            var monthHeight = ret._cellSize * 25;
+            var monthWidth = (ret._cellSize * 31) + 20;
+
+//                console.log("monthWidth = "+monthWidth);
+//                console.log("monthHeight = "+monthHeight);
+
+            var svg = d3.select(divSelector).selectAll("svg")
+                .data(d3.range(fromMonth, toMonth+1))
+                .enter().append("svg")
+                .attr("width", monthWidth)
+                .attr("height", monthHeight)
+                .attr("class", "RdYlGn")
+                .append("g")
+                .attr("transform", "translate(19," + (ret._cellSize / 2) + ")");
+
+            svg.append("text")
+                .attr("transform", "translate(-6," + ret._cellSize * 12 + ")rotate(-90)")
+                .style("text-anchor", "middle")
+                .text(function(d) {
+                    var month = d%12;
+                    var year = (d-month)/12;
+                    return (month+1)+"/"+year;
+                });
+
+            var rect = svg.selectAll(".cell")
+                .data(function(d) {
+                    var month1 = d%12;
+                    var year1 = (d-month1)/12;
+                    var month2 = (d+1)%12;
+                    var year2 = ((d+1)-month2)/12;
+                    var ret = d3.time.hours(new Date(year1, month1, 1), new Date(year2, month2, 1));
+                    return ret;
+                })
+                .enter().append("rect")
+                .attr("class", "cell")
+                .attr("width", ret._cellSize)
+                .attr("height", ret._cellSize)
+                .attr("x", function(d) { return (d.getDate()-1) * ret._cellSize; })
+                .attr("y", function(d) { return d.getHours() * ret._cellSize; })
+                .datum(format);
+
+            rect.append("title")
+                .text(function(d) {
+                    return d;
+                });
+
+            var data = d3.nest()
+                .key(function(d) {
+                    return format(new Date(d[0]));
+                })
+                .rollup(function(d) {
+                    return d[0][1];
+                })
+                .map(ret._dps);
+
+            rect.filter(function(d) {
+                return d in data;
+            })
+                .attr("class", function(d) {
+                    return "cell " + color(data[d]);
+                })
+                .select("title")
+                .text(function(d) {
+                    return d + ": " + data[d];
+                });
+        }
+
+
+        return ret;
+    }
 
     $scope.tsdb_queryStringForBaseline = function(global, graph, metrics, perLineFn, datum, downsampleOverrideFn) {
         var fromTimestamp = $scope.tsdb_baselineFromTimestampAsTsdbString(global, datum);
@@ -758,6 +990,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             return;
         });
     };
+    
     $scope.renderers["heatmap"] = function(global, graph, metrics) {
         // validation
         var fromTimestamp = $scope.tsdb_fromTimestampAsTsdbString(global);
@@ -792,8 +1025,8 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         var toYear = toDateTime.year();
         var numYears = (toYear - fromYear) + 1;
         
-        var fromMonth = fromYear*12 + (fromDateTime.month());
-        var toMonth = toYear*12 + (toDateTime.month());
+        var fromMonth = fromYear*12 + fromDateTime.month();
+        var toMonth = toYear*12 + toDateTime.month();
         var numMonths = (toMonth - fromMonth) + 1;
         
         // depending on the heatmap style, the number of squares per row/column will vary, these 
@@ -877,8 +1110,6 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             }
         }
 
-        var yearHeight = height / numYears;
-
         // url construction
         var url = $rootScope.config.tsdbProtocol+"://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/query";
 
@@ -895,185 +1126,24 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             }
             
             var series = json[0];
-            var minValue = null, maxValue = null;
-            for (var p=0; p<series.dps.length; p++) {
-                if (heatmapOptions.excludeNegative && series.dps[p][1] < 0) {
-                    series.dps[p][1] = 0;
-                }
-                if (minValue == null) {
-                    minValue = series.dps[p][1];
-                    maxValue = series.dps[p][1];
-                }
-                else {
-                    minValue = Math.min(minValue, series.dps[p][1]);
-                    maxValue = Math.max(maxValue, series.dps[p][1]);
-                }
-            }
             
             // remove old heatmaps..
             d3.select(divSelector)
                 .selectAll("svg")
                 .remove();
-
-            var scale;
-            // todo: fix log scale
-//            if (heatmapOptions.ylog) {
-//                scale = d3.scale.log();
-//            }
-//            else {
-                scale = d3.scale.quantize();
-//            }
-            var color = scale
-                .domain([minValue, maxValue])
-                .range(d3.range(11).map(function(d) { return "q" + d + "-11"; }));
+            
+            var heatmap = $scope.heatmap()
+                .cellSize(cellSize)
+                .scale(d3.scale.quantize())
+                .dps(series.dps)
+                .width(width)
+                .height(height);
             
             if (style == "week_day") {
-                // render away
-                var format = d3.time.format("%Y-%m-%d");
-    
-                var translateX = ((width - cellSize * 53) / 2);
-                if (translateX < 0) {
-                    translateX = 0;
-                }
-                var translateY = (yearHeight - cellSize * 7 - 1);
-                if (translateY < 0) {
-                    translateY = 0;
-                }
-                
-                var svg = d3.select(divSelector).selectAll("svg")
-                    .data(d3.range(fromYear, toYear+1))
-                    .enter().append("svg")
-                    .attr("width", width)
-                    .attr("height", yearHeight)
-                    .attr("class", "RdYlGn")
-                    .append("g")
-                    .attr("transform", "translate(" + translateX + "," + translateY + ")");
-    
-                svg.append("text")
-                    .attr("transform", "translate(-6," + cellSize * 3.5 + ")rotate(-90)")
-                    .style("text-anchor", "middle")
-                    .text(function(d) { return d; });
-    
-                var rect = svg.selectAll(".cell")
-                    .data(function(d) { return d3.time.days(new Date(d, 0, 1), new Date(d + 1, 0, 1)); })
-                    .enter().append("rect")
-                    .attr("class", "cell")
-                    .attr("width", cellSize)
-                    .attr("height", cellSize)
-                    .attr("x", function(d) { return d3.time.weekOfYear(d) * cellSize; })
-                    .attr("y", function(d) { return d.getDay() * cellSize; })
-                    .datum(format);
-    
-                rect.append("title")
-                    .text(function(d) { return d; });
-    
-                svg.selectAll(".path")
-                    .data(function(d) { return d3.time.months(new Date(d, 0, 1), new Date(d + 1, 0, 1)); })
-                    .enter().append("path")
-                    .attr("class", "path")
-                    .attr("d", monthPath);
-    
-                var data = d3.nest()
-                    .key(function(d) { 
-                        return format(new Date(d[0])); 
-                    })
-                    .rollup(function(d) { 
-                        return d[0][1]; 
-                    })
-                    .map(series.dps);
-    
-                rect.filter(function(d) { 
-                        return d in data; 
-                    })
-                    .attr("class", function(d) { 
-                        return "cell " + color(data[d]); 
-                    })
-                    .select("title")
-                    .text(function(d) { 
-                        return d + ": " + data[d]; 
-                    });
-    
-                function monthPath(t0) {
-                    var t1 = new Date(t0.getFullYear(), t0.getMonth() + 1, 0),
-                        d0 = t0.getDay(), w0 = d3.time.weekOfYear(t0),
-                        d1 = t1.getDay(), w1 = d3.time.weekOfYear(t1);
-                    return "M" + (w0 + 1) * cellSize + "," + d0 * cellSize
-                        + "H" + w0 * cellSize + "V" + 7 * cellSize
-                        + "H" + w1 * cellSize + "V" + (d1 + 1) * cellSize
-                        + "H" + (w1 + 1) * cellSize + "V" + 0
-                        + "H" + (w0 + 1) * cellSize + "Z";
-                }
+                heatmap.weekDayRender(divSelector, fromYear, toYear);
             }
             else if (style == "day_hour") {
-                // render away
-                var format = d3.time.format("%Y-%m-%d @ %H");
-
-                var monthHeight = cellSize * 25;
-                var monthWidth = (cellSize * 31) + 20;
-                
-//                console.log("monthWidth = "+monthWidth);
-//                console.log("monthHeight = "+monthHeight);
-
-                var svg = d3.select(divSelector).selectAll("svg")
-                    .data(d3.range(fromMonth, toMonth+1))
-                    .enter().append("svg")
-                    .attr("width", monthWidth)
-                    .attr("height", monthHeight)
-                    .attr("class", "RdYlGn")
-                    .append("g")
-                    .attr("transform", "translate(19," + (cellSize / 2) + ")");
-
-                svg.append("text")
-                    .attr("transform", "translate(-6," + cellSize * 12 + ")rotate(-90)")
-                    .style("text-anchor", "middle")
-                    .text(function(d) {
-                        var month = d%12;
-                        var year = (d-month)/12;
-                        return (month+1)+"/"+year; 
-                    });
-                
-                var rect = svg.selectAll(".cell")
-                    .data(function(d) {
-                        var month1 = d%12;
-                        var year1 = (d-month1)/12;
-                        var month2 = (d+1)%12;
-                        var year2 = ((d+1)-month2)/12;
-                        var ret = d3.time.hours(new Date(year1, month1, 1), new Date(year2, month2, 1));
-                        return ret;
-                    })
-                    .enter().append("rect")
-                    .attr("class", "cell")
-                    .attr("width", cellSize)
-                    .attr("height", cellSize)
-                    .attr("x", function(d) { return (d.getDate()-1) * cellSize; })
-                    .attr("y", function(d) { return d.getHours() * cellSize; })
-                    .datum(format);
-
-                rect.append("title")
-                    .text(function(d) { 
-                        return d; 
-                    });
-
-                var data = d3.nest()
-                    .key(function(d) {
-                        return format(new Date(d[0]));
-                    })
-                    .rollup(function(d) {
-                        return d[0][1];
-                    })
-                    .map(series.dps);
-
-                rect.filter(function(d) {
-                    return d in data;
-                })
-                    .attr("class", function(d) {
-                        return "cell " + color(data[d]);
-                    })
-                    .select("title")
-                    .text(function(d) {
-                        return d + ": " + data[d];
-                    });
-                
+                heatmap.dayHourRender(divSelector, fromMonth, toMonth);
             }
 
             $scope.renderMessages[graph.id] = "";

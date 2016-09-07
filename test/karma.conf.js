@@ -18,6 +18,7 @@ module.exports = function (config) {
             'node_modules/bytebuffer/dist/bytebuffer.js',
             'node_modules/protobufjs/dist/protobuf.js',
             'node_modules/angular-local-storage/dist/angular-local-storage.js',
+            'test/mocks/**/*.js',
             'static-content/aardvark-client.js',
             'static-content/StringSerialisation.js',
             'static-content/IntermediateModel.js',
