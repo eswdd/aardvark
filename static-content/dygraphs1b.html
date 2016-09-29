@@ -1,0 +1,133 @@
+<html>
+<head>
+    <title>Dygraphs testing</title>
+    <script type="application/javascript" src="../node_modules/dygraphs/dygraph-combined-dev.js"></script>
+    
+    <script type="application/javascript">
+        function init() {
+            var divId = "dygraph_6";
+            
+            var click = function(event, x, points) {
+                console.log("click!");
+            };
+            var pClick = function(event, p) {
+                console.log("Point click!");
+            };
+            var aClick = function(ann, point, dg, event) {
+                console.log("Annotation click!");
+            };
+            var bClick = function(ann, point, dg, event) {
+                console.log("Annotation special click!");
+            };
+            
+            var data = [
+                [1470118170000,10,20],
+                [1470118171000,11,21],
+                [1470118172000,12,22],
+                [1470118173000,13,null],
+                [1470118174000,14,null],
+                [1470118175000,15,null],
+                [1470118176000,16,null],
+                [1470118177000,17,27],
+                [1470118178000,18,28],
+                [1470118179000,19,29]
+            ];
+            var annotations = [{
+                startTime: 1470118174000,
+                description: "Some text",
+                series: "series1",
+                clickHandler: function() {
+                    console.log("special");
+                    //bClick
+                }
+            }];
+            var config = {
+                labels: ["x", "series1","series2"],
+                width: 600,
+                height: 200,
+                legend: "always",
+                logscale: false,
+                stackedGraph: false,
+                connectSeparatedPoints: false,
+                drawGapEdgePoints: true,
+                axisLabelFontSize: 9,
+//                labelsDiv: document.getElementById("dygraphLegend_6"),
+                labelsDivStyles: { fontSize: 9, textAlign: 'right' },
+                labelsSeparateLines: true,
+                axes: {
+                    y: {
+                        valueFormatter: function(y) {
+                            if (isNaN(y) || y < 1000) {
+                                return "" + y;
+                            }
+                            return y.toString().replace(/\B(?=(?:\d{3})+(?!\d))/g, ",")
+                        },
+                        axisLabelFormatter: function(y) {
+                            if (isNaN(y) || y < 1000) {
+                                return "" + Dygraph.round_(y, 3);
+                            }
+                            return y.toString().replace(/\B(?=(?:\d{3})+(?!\d))/g, ",")
+                        },
+                        valueRange: [null, null]
+                    }
+//                    y2: {
+//                        valueRange: [-200, 200]
+//                        
+//                    }
+                },
+
+                annotationClickHandler: aClick,
+                pointClickCallback: pClick,
+                annotationMouseOverHandler: function() {
+                    console.log("mouse over");
+                },
+                annotationMouseOutHandler: function() {
+                    console.log("mouse out");
+                },
+                clickCallback: click
+            };
+            
+
+            var g = new Dygraph(
+                    // containing div
+                    document.getElementById(divId),
+                    data,
+                    config
+            );
+
+//            g.canvas_.style["z-index"] = "20";
+            
+            var anns = [];
+            for (var a=0; a<annotations.length; a++) {
+                anns.push({
+                    series: annotations[a].series,
+                    x: annotations[a].startTime,
+//                    icon: "unknown.jpg",
+                    height: 16,
+                    width: 16,
+//                    attachAtBottom: true,
+//                    tickHeight: g.height - 16,
+                    tickHeight: 16,
+                    text: annotations[a].description
+                    ,clickHandler: annotations[a].clickHandler
+                })
+            }
+            g.setAnnotations(anns);
+
+        }
+        
+        
+    </script>
+    
+</head>
+
+<body onload="init()">
+
+<h3>Click callbacks</h3>
+<div id="dygraph_6" style="background-color: white; position: absolute; top: 40px; left: 10px;  width: 600px; height: 200px"></div>
+<!--<div id="dygraphLegend_6" style="background-color: white; position: absolute; z-index: 10; width: 600px; height: 200px; top: 20px; left: 10px; background: rgba(255,255,255,0);"></div>-->
+
+
+</body>
+
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html ng-app="Aardvark" xmlns="http://www.w3.org/1999/html">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+
+    <title>Aardvark - An OpenTSDB Visualiser</title>
+    <!-- Angular JS - keep order in here same as deps in aardvark-client.js -->
+    <script type="application/javascript" src="../node_modules/angular/angular.js"></script>
+    <script type="application/javascript" src="../node_modules/angular-ui-layout/src/ui-layout.js"></script>
+    <script type="application/javascript" src="../node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js"></script>
+    <!-- Angular CSS - keep order in here same as deps in aardvark-client.js -->
+    <link rel="stylesheet" type="text/css" href="../node_modules/angular-ui-layout/src/ui-layout.css">
+    <link rel="stylesheet" type="text/css" href="../node_modules/bootstrap-css-only/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../node_modules/bootstrap-css-only/css/bootstrap-theme.css">
+    
+    <script type="text/javascript">
+        var aardvark = angular.module('Aardvark', ['ui.layout','ui.bootstrap']);
+        aardvark.controller('AardvarkCtrl', [ '$rootScope', '$scope', function AardvarkCtrl($rootScope, $scope) {
+            
+        }]);
+    </script>
+</head>
+
+
+<body ng-controller="AardvarkCtrl">
+
+<div ui-layout>
+    <div ui-layout-container class="top-panel" size="64px">
+    </div>
+    <div ui-layout-container>
+        <div ui-layout="{flow : 'column'}" >
+            <div ui-layout-container size="200px">
+                <div ui-layout="{flow : 'row'}" >
+                    <div ui-layout-container class="graph-control-panel">
+                        <div style="overflow: auto; height: 100%; border-color: black; border-width: 1px; border-style: solid">
+                            <div style="border: solid 1px black">
+                                Common stuff
+                            </div>
+                            <uib-accordion close-others="true">
+                                <div uib-accordion-group heading="Graph 1" is-open="true">
+                                    Graph stuff
+                                </div>
+                                <div uib-accordion-group heading="Graph 2" is-open="false">
+                                    Graph stuff
+                                </div>
+                            </uib-accordion>
+                        </div>
+                    </div>
+                    <div ui-layout-container size="40px" class="graph-control-buttons-panel">
+                        <button>Add graph</button>
+                        <button>Save..</button>
+                    </div>
+                </div>
+            </div>
+            <div ui-layout-container id="graph-panel" style="overflow: auto">
+                Graph
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>

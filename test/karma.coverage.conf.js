@@ -5,7 +5,6 @@ module.exports = function (config) {
 
         files: [
             'node_modules/angular/angular.js',
-            'node_modules/angular-mocks/angular-mocks.js',
             'node_modules/angular-ui-layout/src/ui-layout.js',
             'node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js',
             'node_modules/angular-tree-control/angular-tree-control.js',
@@ -18,14 +17,18 @@ module.exports = function (config) {
             'node_modules/bytebuffer/dist/bytebuffer.js',
             'node_modules/protobufjs/dist/protobuf.js',
             'node_modules/angular-local-storage/dist/angular-local-storage.js',
+            'node_modules/angular-mocks/angular-mocks.js',
             'test/mocks/**/*.js',
             'static-content/aardvark-client.js',
             'static-content/StringSerialisation.js',
             'static-content/IntermediateModel.js',
             'static-content/rawIntermediateModel.js',
             'static-content/AardvarkServices.js',
+            'static-content/TsdbClient.js',
             'static-content/AardvarkCtrl.js',
             'static-content/GraphControlCtrl.js',
+            'static-content/GraphServices.js',
+            'static-content/AnnotationsDialogCtrl.js',
             'static-content/GraphCtrl.js',
             'static-content/MetricControlCtrl.js',
             'test/unit/**/*.js'
@@ -49,7 +52,8 @@ module.exports = function (config) {
 
         preprocessors: { 
             'static-content/*Ctrl.js': ['coverage'], 
-            'static-content/*Services.js': ['coverage'] 
+            'static-content/*Services.js': ['coverage'], 
+            'static-content/TsdbClient.js': ['coverage'] 
         },
 
         junitReporter: {

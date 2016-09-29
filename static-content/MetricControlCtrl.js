@@ -17,7 +17,7 @@ aardvark.directive('tagSelection', function() {
  * - per metric graphing options (timeseries selection, aggregation)
  * - graph type specific graphing options
  */
-.controller('MetricControlCtrl', [ '$scope', '$rootScope', '$sce', '$http', 'idGenerator', function MetricControlCtrl($scope, $rootScope, $sce, $http, idGenerator) {
+.controller('MetricControlCtrl', [ '$scope', '$rootScope', '$sce', '$http', 'idGenerator', 'tsdbClient', 'tsdbUtils', function MetricControlCtrl($scope, $rootScope, $sce, $http, idGenerator, $tsdbClient, tsdbUtils) {
 
     $scope.allParentNodes = [];
     $scope.showFilterInput = false;
@@ -69,7 +69,7 @@ aardvark.directive('tagSelection', function() {
         return $rootScope.config && $rootScope.config.ui.metrics.enableExpandAll;
     };
     $scope.tagFilteringSupported = function() {
-        return $rootScope.tsdbVersion >= $rootScope.TSDB_2_2;
+        return $tsdbClient.versionNumber >= $tsdbClient.TSDB_2_2;
     };
     $scope.clearSelectedTreeNode = function() {
         $scope.selectedTreeNode = undefined;
@@ -340,7 +340,7 @@ aardvark.directive('tagSelection', function() {
     // todo: this needs to not do any work if it's already running a request
     // todo: this needs to have some failure handling
     $scope.updateTree = function() {
-        $http.get('http://'+$rootScope.config.tsdbHost+':'+$rootScope.config.tsdbPort+'/api/suggest?type=metrics&max=1000000').success(function(json) {
+        $http.get($rootScope.config.tsdbBaseReadUrl+'/api/suggest?type=metrics&max=1000000').success(function(json) {
             // right we need to build our tree, we have an array of name, we need to split by "."
 
             var roots = [];
@@ -415,30 +415,10 @@ aardvark.directive('tagSelection', function() {
         $scope.tagOptions = {};
         $scope.tag = {};
         $scope.resetUserMetricOptions();
-        var url = $rootScope.config.tsdbProtocol+"://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/search/lookup";
-        var requestJson = {"metric": metricName, "limit": 100000, "useMeta": true}; // todo: useMeta should be based on tsdb config
-        var postData = JSON.stringify(requestJson);
-        $http.post(url, postData).success(function (data) {
-            var tagValues = {};
-
-//            var tsdbResponse = JSON.parse(data);
-            var tsdbResponse = data;
-            var results = tsdbResponse.results;
-            for (var i=0; i<results.length; i++) {
-                var ts = results[i];
-                for (var tagk in ts.tags) {
-                    if (ts.tags.hasOwnProperty(tagk)) {
-                        if (!(tagk in tagValues)) {
-                            tagValues[tagk] = [];
-                        }
-                        if (tagValues[tagk].indexOf(ts.tags[tagk]) < 0) {
-                            tagValues[tagk].push(ts.tags[tagk]);
-                        }
-                    }
-                }
-            }
+        
+        tsdbUtils.getTags(metricName, function(tagValues) {
             var tagNames = [];
-            
+
             for (var key in tagValues) {
                 if (tagValues.hasOwnProperty(key)) {
                     tagNames.push(key);
@@ -460,17 +440,16 @@ aardvark.directive('tagSelection', function() {
                 }
                 fn(tagNames[i]);
             }
-            // todo: populate tag filters
             $scope.tagNames = tagNames;
             $scope.tagValues = tagValues;
-            
+        }, function(results) {
+            // todo: error handling
         });
     };
         
     // reset user entered metric state, used when switching between metrics
     $scope.resetUserMetricOptions = function() {
         $scope.tagFilters = [];
-        $scope.graphId = "0";
         $scope.rate = false;
         $scope.rateCounter = false;
         $scope.rateCounterMax = "";
@@ -530,45 +509,14 @@ aardvark.directive('tagSelection', function() {
             var negate = false;
             var openBraceIndex = inputText.indexOf("(");
             if (openBraceIndex > -1) {
-                if (inputText.indexOf("literal_or(") == 0 || inputText.indexOf("iliteral_or(") == 0
-                    || inputText.indexOf("not_literal_or(") == 0 || inputText.indexOf("not_iliteral_or(") == 0) {
-                    ignoreCase = inputText.indexOf("iliteral_or(") >= 0;
-                    negate = inputText.indexOf("not_") == 0;
-                    var toMatch = inputText.substring(openBraceIndex+1, inputText.length-1).split("|");
-                    if (ignoreCase) {
-                        for (var m=0; m<toMatch.length; m++) {
-                            toMatch[m] = toMatch[m].toLowerCase();
-                        }
-                    }
+                var closeBraceIndex = inputText.indexOf(")");
+                if (closeBraceIndex == inputText.length - 1) {
+                    var filterFn = inputText.substring(0, openBraceIndex);
+                    negate = filterFn.indexOf("not_") == 0;
+                    var filterValue = inputText.substring(openBraceIndex+1, closeBraceIndex);
                     fn = function(candidateValue) {
-                        var v = ignoreCase ? candidateValue.toLowerCase() : candidateValue;
-                        return toMatch.indexOf(v) >= 0;
-                    };
-                }
-                if (inputText.indexOf("wildcard(") == 0 || inputText.indexOf("iwildcard(") == 0 || inputText.indexOf("regexp(") == 0) {
-                    ignoreCase = inputText.indexOf("iwildcard(") == 0;
-                    var regexp = inputText.substring(openBraceIndex+1, inputText.length-1);
-                    if (inputText.indexOf("wildcard") >= 0) {
-                        regexp = regexp.replaceAll(".","\\\\.");
-                        regexp = regexp.replaceAll("*",".*");
-                        regexp = regexp.replaceAll("\\\\..*","\\\\.");
+                        return $tsdbClient.tagFilterMatchesValue({fn:filterFn,value:filterValue}, candidateValue);
                     }
-                    if (ignoreCase) {
-                        regexp = regexp.toLowerCase();
-                    }
-                    fn = function(candidateValue) {
-                        var v = ignoreCase ? candidateValue.toLowerCase() : candidateValue;
-                        try {
-                            return v.match(new RegExp(regexp)) != null;
-                        }
-                        catch (regexpError) {
-                            // typical user error
-                            if (regexp != "*") {
-                                console.log("regexp("+regexp+") caused an error: "+regexpError);
-                            }
-                            return false;
-                        }
-                    };
                 }
                 if (fn != null && allValues != null) {
                     for (var j=0; j<allValues.length; j++) {

@@ -26,11 +26,13 @@ describe('Aardvark controllers', function () {
         var configUpdateFunc;
         var saveModelCalled = false;
         var idGeneratorRef;
+        var tsdbClientRef;
 
-        beforeEach(inject(function ($rootScope, _$httpBackend_, $browser, $location, $controller, idGenerator) {
+        beforeEach(inject(function ($rootScope, _$httpBackend_, $browser, $location, $controller, idGenerator, tsdbClient) {
             $httpBackend = _$httpBackend_;
             controllerCreator = $controller;
             idGeneratorRef = idGenerator;
+            tsdbClientRef = tsdbClient;
 
             // hmm
             rootScope = $rootScope;
@@ -43,13 +45,10 @@ describe('Aardvark controllers', function () {
             }
             saveModelCalled = false;
             rootScope.model = { global: {}, graphs: [], metrics: [] };
-
-            rootScope.TSDB_2_0 = 2000;
-            rootScope.TSDB_2_1 = 2001;
-            rootScope.TSDB_2_2 = 2002;
-            rootScope.TSDB_2_3 = 2003;
-            // default to 2.0
-            rootScope.tsdbVersion = 2000;
+            $httpBackend.expectGET('http://tsdb:4242/api/config').respond({});
+            $httpBackend.expectGET('http://tsdb:4242/api/version').respond({version: "2.0.0"});
+            tsdbClientRef.init({tsdbBaseReadUrl:"http://tsdb:4242"});
+            $httpBackend.flush();
 
             scope = $rootScope.$new();
             ctrl = $controller('MetricControlCtrl', {$scope: scope, $rootScope: rootScope});
@@ -60,7 +59,7 @@ describe('Aardvark controllers', function () {
         });
 
         it('should load data for the tree on config update', function() {
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
             $httpBackend.expectGET('http://tsdb:4242/api/suggest?type=metrics&max=1000000').respond(
                 [
                     "flob",
@@ -92,7 +91,7 @@ describe('Aardvark controllers', function () {
         });
 
         it('should load data for the tree on config update with prefix exclusions', function() {
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http", hidePrefixes: ["wibble","dave.fred"]};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242", hidePrefixes: ["wibble","dave.fred"]};
             $httpBackend.expectGET('http://tsdb:4242/api/suggest?type=metrics&max=1000000').respond(
                 [
                     "flob",
@@ -125,7 +124,7 @@ describe('Aardvark controllers', function () {
         });
 
         it('should load data for the tree on config update with prefix exclusions disabled in ui', function() {
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http", hidePrefixes: ["wibble","dave.fred"]};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242", hidePrefixes: ["wibble","dave.fred"]};
             scope.showingIgnoredPrefixes = true;
             $httpBackend.expectGET('http://tsdb:4242/api/suggest?type=metrics&max=1000000').respond(
                 [
@@ -181,7 +180,7 @@ describe('Aardvark controllers', function () {
         it('should correctly process a selected node in the tree', function() {
             var node = {id: "name.baldrick", name: "baldrick", isMetric: true, children: []};
             
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var response = {
                 "type":"LOOKUP",
@@ -210,7 +209,7 @@ describe('Aardvark controllers', function () {
                 "totalResults":2
             };
 
-            $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', '{"metric":"name.baldrick","limit":100000,"useMeta":true}').respond(response);
+            $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', {metric:"name.baldrick",limit:100000,useMeta:false}).respond(response);
 
             scope.nodeSelectedForAddition(node, true);
             $httpBackend.flush();
@@ -289,7 +288,7 @@ describe('Aardvark controllers', function () {
         });
         
         it('should correctly count matching tag values when filtering available', function() {
-            rootScope.tsdbVersion = rootScope.TSDB_2_2;
+            tsdbClientRef.versionNumber = tsdbClientRef.TSDB_2_2;
             scope.tagValues = { key1: ["value1","something2","value2","Value3"] };
             
             var tagFilter = {name: 'key1', value: ''};
@@ -451,7 +450,7 @@ describe('Aardvark controllers', function () {
         });
 
         it('should populate the metric form when an existing metric is selected', function() {
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
             rootScope.model = {
                 graphs: [
                     {
@@ -527,7 +526,7 @@ describe('Aardvark controllers', function () {
             };
 
             // todo: check correct metric name requested
-            $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', '{"metric":"some.metric.name","limit":100000,"useMeta":true}').respond(response);
+            $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', '{"metric":"some.metric.name","limit":100000,"useMeta":false}').respond(response);
 
             scope.nodeSelectedForEditing();
             $httpBackend.flush();
@@ -902,7 +901,7 @@ describe('Aardvark controllers', function () {
         });
         
         it('should reset user entered metric options on selecting a new metric', function() {
-            rootScope.config = { tsdbProtocol: "http", tsdbHost: "tsdb", tsdbPort: 4242 };
+            rootScope.config = { tsdbBaseReadUrl: "http://tsdb:4242" };
 
             var node = {id: "name.baldrick", name: "baldrick", isMetric: true, children: []};
             var response = {
@@ -932,14 +931,13 @@ describe('Aardvark controllers', function () {
                 "totalResults":2
             };
 
-            $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', '{"metric":"name.baldrick","limit":100000,"useMeta":true}').respond(response);
+            $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', '{"metric":"name.baldrick","limit":100000,"useMeta":false}').respond(response);
 
             scope.nodeSelectedForAddition(node, true);
             $httpBackend.flush();
 
             var checkDefaults = function() {
                 expect(scope.tagFilters).toEqualData([]);
-                expect(scope.graphId).toEqualData("0");
                 expect(scope.selectedMetricId).toEqualData("0");
                 expect(scope.rate).toEqualData(false);
                 expect(scope.rateCounter).toEqualData(false);
@@ -954,6 +952,7 @@ describe('Aardvark controllers', function () {
             }
             
             checkDefaults();
+            expect(scope.graphId).toEqualData("1");
             expect(scope.selectedMetric).toEqualData("name.baldrick");
             expect(scope.tagValues).toEqualData({
                 key1: ["value1","value2"],
@@ -997,11 +996,12 @@ describe('Aardvark controllers', function () {
             };
 
 
-            $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', '{"metric":"name.blackadder","limit":100000,"useMeta":true}').respond(response);
+            $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', '{"metric":"name.blackadder","limit":100000,"useMeta":false}').respond(response);
 
             scope.nodeSelectedForAddition(node, true);
             $httpBackend.flush();
             checkDefaults();
+            expect(scope.graphId).toEqualData("1");
             expect(scope.selectedMetric).toEqualData("name.blackadder");
             expect(scope.tagValues).toEqualData({
                 key1: ["value1","value2"],

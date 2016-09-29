@@ -47,11 +47,7 @@ describe('Aardvark controllers', function () {
                 metrics: []
             }
 
-            rootScope.config = {
-                tsdbHost: "tsdb",
-                tsdbPort: 4242,
-                tsdbProtocol: "http"
-            }
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             rootScope.formEncode = function(val) {
                 var ret = val.replace(" ","+");
@@ -156,7 +152,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -222,7 +218,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -288,7 +284,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -354,7 +350,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, scatter: {excludeNegative:true}};
@@ -418,7 +414,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, scatter: {excludeNegative:true}};
@@ -474,7 +470,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, scatter: {excludeNegative:true}};

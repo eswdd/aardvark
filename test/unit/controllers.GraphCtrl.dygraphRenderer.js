@@ -48,11 +48,7 @@ describe('Aardvark controllers', function () {
                 metrics: []
             }
 
-            rootScope.config = {
-                tsdbHost: "tsdb",
-                tsdbPort: 4242, 
-                tsdbProtocol: "http"
-            }
+            rootScope.config = { tsdbBaseReadUrl: "http://tsdb:4242" };
 
             rootScope.formEncode = function(val) {
                 var ret = val.replace(" ","+");
@@ -173,7 +169,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -210,11 +206,9 @@ describe('Aardvark controllers', function () {
                 axisLabelFontSize: 9,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "right"
+                    textAlign: "left"
                 },
                 labelsSeparateLines: true,
-                labelsDiv: null,
-                labelsDivWidth: 1000,
                 axes:{
                     y:{ valueRange: [null, null] }
                 }
@@ -227,7 +221,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "https"};
+            rootScope.config = {tsdbBaseReadUrl: "https://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -264,11 +258,9 @@ describe('Aardvark controllers', function () {
                 axisLabelFontSize: 9,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "right"
+                    textAlign: "left"
                 },
                 labelsSeparateLines: true,
-                labelsDiv: null,
-                labelsDivWidth: 1000,
                 axes:{
                     y:{ valueRange: [null, null] }
                 }
@@ -281,7 +273,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { stackedLines: true }};
@@ -319,11 +311,9 @@ describe('Aardvark controllers', function () {
                 axisLabelFontSize: 9,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "right"
+                    textAlign: "left"
                 },
                 labelsSeparateLines: true,
-                labelsDiv: null,
-                labelsDivWidth: 1000,
                 axes:{
                     y:{ valueRange: [null, null] }
                 }
@@ -336,7 +326,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -382,11 +372,9 @@ describe('Aardvark controllers', function () {
                 axisLabelFontSize: 9,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "right"
+                    textAlign: "left"
                 },
                 labelsSeparateLines: true,
-                labelsDiv: null,
-                labelsDivWidth: 1000,
                 axes:{
                     y:{ valueRange: [null, null] }
                 }
@@ -399,7 +387,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -472,7 +460,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { interpolateGaps: true }};
@@ -510,11 +498,9 @@ describe('Aardvark controllers', function () {
                 axisLabelFontSize: 9,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "right"
+                    textAlign: "left"
                 },
                 labelsSeparateLines: true,
-                labelsDiv: null,
-                labelsDivWidth: 1000,
                 axes:{
                     y:{ valueRange: [null, null] }
                 }
@@ -527,7 +513,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { ylog: true }};
@@ -565,11 +551,9 @@ describe('Aardvark controllers', function () {
                 axisLabelFontSize: 9,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "right"
+                    textAlign: "left"
                 },
                 labelsSeparateLines: true,
-                labelsDiv: null,
-                labelsDivWidth: 1000,
                 axes:{
                     y:{ valueRange: [null, null] }
                 }
@@ -582,7 +566,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { squashNegative: true }};
@@ -619,11 +603,9 @@ describe('Aardvark controllers', function () {
                 axisLabelFontSize: 9,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "right"
+                    textAlign: "left"
                 },
                 labelsSeparateLines: true,
-                labelsDiv: null,
-                labelsDivWidth: 1000,
                 axes:{
                     y:{ valueRange: [null, null] }
                 }
@@ -636,7 +618,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
@@ -678,11 +660,9 @@ describe('Aardvark controllers', function () {
                 axisLabelFontSize: 9,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "right"
+                    textAlign: "left"
                 },
                 labelsSeparateLines: true,
-                labelsDiv: null,
-                labelsDivWidth: 1000,
                 axes:{
                     y:{ valueRange: [null, null] }
                 }
@@ -699,7 +679,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { squashNegative: true, meanAdjusted: true }};
@@ -742,11 +722,9 @@ describe('Aardvark controllers', function () {
                 axisLabelFontSize: 9,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "right"
+                    textAlign: "left"
                 },
                 labelsSeparateLines: true,
-                labelsDiv: null,
-                labelsDivWidth: 1000,
                 axes:{
                     y:{ valueRange: [null, null] }
                 }
@@ -759,7 +737,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
@@ -801,11 +779,9 @@ describe('Aardvark controllers', function () {
                 axisLabelFontSize: 9,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "right"
+                    textAlign: "left"
                 },
                 labelsSeparateLines: true,
-                labelsDiv: null,
-                labelsDivWidth: 1000,
                 axes:{
                     y:{ valueRange: [null, null] }
                 }
@@ -822,7 +798,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { squashNegative: true, ratioGraph: true }};
@@ -865,11 +841,9 @@ describe('Aardvark controllers', function () {
                 axisLabelFontSize: 9,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "right"
+                    textAlign: "left"
                 },
                 labelsSeparateLines: true,
-                labelsDiv: null,
-                labelsDivWidth: 1000,
                 axes:{
                     y:{ valueRange: [null, null] }
                 }
@@ -888,7 +862,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { autoScale: true }};
@@ -931,11 +905,9 @@ describe('Aardvark controllers', function () {
                 axisLabelFontSize: 9,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "right"
+                    textAlign: "left"
                 },
                 labelsSeparateLines: true,
-                labelsDiv: null,
-                labelsDivWidth: 1000,
                 axes:{
                     y:{ valueRange: [null, null] }
                 }
@@ -948,7 +920,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { autoScale: true, squashNegative: true }};
@@ -991,11 +963,9 @@ describe('Aardvark controllers', function () {
                 axisLabelFontSize: 9,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "right"
+                    textAlign: "left"
                 },
                 labelsSeparateLines: true,
-                labelsDiv: null,
-                labelsDivWidth: 1000,
                 axes:{
                     y:{ valueRange: [null, null] }
                 }
@@ -1026,7 +996,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { autoScale: true }};
@@ -1076,11 +1046,9 @@ describe('Aardvark controllers', function () {
                 axisLabelFontSize: 9,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "right"
+                    textAlign: "left"
                 },
                 labelsSeparateLines: true,
-                labelsDiv: null,
-                labelsDivWidth: 1000,
                 axes:{
                     y:{ valueRange: [null, null] }
                 }
@@ -1093,7 +1061,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { autoScale: true }};
@@ -1136,11 +1104,9 @@ describe('Aardvark controllers', function () {
                 axisLabelFontSize: 9,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "right"
+                    textAlign: "left"
                 },
                 labelsSeparateLines: true,
-                labelsDiv: null,
-                labelsDivWidth: 1000,
                 axes:{
                     y:{ valueRange: [null, null] }
                 }
@@ -1153,7 +1119,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { autoScale: true, squashNegative: true }};
@@ -1196,11 +1162,9 @@ describe('Aardvark controllers', function () {
                 axisLabelFontSize: 9,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "right"
+                    textAlign: "left"
                 },
                 labelsSeparateLines: true,
-                labelsDiv: null,
-                labelsDivWidth: 1000,
                 axes:{
                     y:{ valueRange: [null, null] }
                 }
@@ -1213,7 +1177,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: dygraphOptions };
@@ -1287,7 +1251,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { countFilter: {count: "", measure: "min", end: "top"} } };
@@ -1324,11 +1288,9 @@ describe('Aardvark controllers', function () {
                 axisLabelFontSize: 9,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "right"
+                    textAlign: "left"
                 },
                 labelsSeparateLines: true,
-                labelsDiv: null,
-                labelsDivWidth: 1000,
                 axes:{
                     y:{ valueRange: [null, null] }
                 }
@@ -1701,11 +1663,9 @@ describe('Aardvark controllers', function () {
                 axisLabelFontSize: 9,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "right"
+                    textAlign: "left"
                 },
                 labelsSeparateLines: true,
-                labelsDiv: null,
-                labelsDivWidth: 1000,
                 axes:{
                     y:{ valueRange: [null, null] }
                 }
@@ -1728,7 +1688,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var datum = moment.utc("2016/01/22 14:10:10", "YYYY/MM/DD HH:mm:ss");
 
@@ -1759,11 +1719,9 @@ describe('Aardvark controllers', function () {
                 axisLabelFontSize: 9,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "right"
+                    textAlign: "left"
                 },
                 labelsSeparateLines: true,
-                labelsDiv: null,
-                labelsDivWidth: 1000,
                 axes:{
                     y:{ valueRange: [null, null] }
                 }
@@ -2243,7 +2201,7 @@ describe('Aardvark controllers', function () {
         });
 
         var annotationTest = function(responseData, expectedRenderData, expectedAnnotations, autoScaling, expectedLabels) {
-            var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&ms=true&arrays=true&show_query=true";
+            var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&show_tsuids=true&ms=true&arrays=true&show_query=true";
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
             if (autoScaling) {
                 metrics.push({ id: "123", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } });
@@ -2256,10 +2214,10 @@ describe('Aardvark controllers', function () {
         }
         var annotationBaselineTest = function(responseData, baselineResponseData, expectedRenderData, expectedAnnotations, autoScaling, expectedLabels) {
             var datum = moment.utc("2016-06-03");
-            var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&ms=true&arrays=true&show_query=true";
+            var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&show_tsuids=true&ms=true&arrays=true&show_query=true";
             var start = moment.utc("2016-06-01").format("YYYY/MM/DD HH:mm:ss");
             var end = moment.utc("2016-06-02").format("YYYY/MM/DD HH:mm:ss");
-            var baselineUrl = "http://tsdb:4242/api/query?start="+start+"&end="+end+"&m=sum:metric1&ms=true&arrays=true&show_query=true";
+            var baselineUrl = "http://tsdb:4242/api/query?start="+start+"&end="+end+"&m=sum:metric1&show_tsuids=true&ms=true&arrays=true&show_query=true";
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
             if (autoScaling) {
                 metrics.push({ id: "123", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } });
@@ -2272,7 +2230,7 @@ describe('Aardvark controllers', function () {
             _annotationTest(false, metrics, datum, url, baselineUrl, responseData, baselineResponseData, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling);
         }
         var globalAnnotationTest = function(responseData, expectedRenderData, expectedAnnotations, autoScaling, expectedLabels) {
-            var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&global_annotations=true&ms=true&arrays=true&show_query=true";
+            var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&show_tsuids=true&global_annotations=true&ms=true&arrays=true&show_query=true";
             var metrics = [ 
                 { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }, 
                 { id: "123", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } 
@@ -2284,10 +2242,10 @@ describe('Aardvark controllers', function () {
         }
         var globalAnnotationBaselineTest = function(responseData, baselineResponseData, expectedRenderData, expectedAnnotations, autoScaling, expectedLabels) {
             var datum = moment.utc("2016-06-03");
-            var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&global_annotations=true&ms=true&arrays=true&show_query=true";
+            var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&show_tsuids=true&global_annotations=true&ms=true&arrays=true&show_query=true";
             var start = moment.utc("2016-06-01").format("YYYY/MM/DD HH:mm:ss");
             var end = moment.utc("2016-06-02").format("YYYY/MM/DD HH:mm:ss");
-            var baselineUrl = "http://tsdb:4242/api/query?start="+start+"&end="+end+"&m=sum:metric1&m=sum:metric2&global_annotations=true&ms=true&arrays=true&show_query=true";
+            var baselineUrl = "http://tsdb:4242/api/query?start="+start+"&end="+end+"&m=sum:metric1&show_tsuids=true&m=sum:metric2&global_annotations=true&ms=true&arrays=true&show_query=true";
             var metrics = [
                 { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                 { id: "123", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }
@@ -2302,7 +2260,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             if (baselineUrl != null && baselineResponseData != null) {
@@ -2335,11 +2293,9 @@ describe('Aardvark controllers', function () {
                 axisLabelFontSize: 9,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "right"
+                    textAlign: "left"
                 },
                 labelsSeparateLines: true,
-                labelsDiv: null,
-                labelsDivWidth: 1000,
                 axes:{
                     y:{ valueRange: [null, null] }
                 }

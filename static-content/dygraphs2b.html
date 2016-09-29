@@ -1,0 +1,146 @@
+<html>
+<head>
+    <title>Dygraphs click testing</title>
+    <script type="application/javascript" src="../node_modules/dygraphs/dygraph-combined-dev.js"></script>
+    <script type="application/javascript">
+        function setup() {
+            var eventDiv = document.getElementById("events");
+            function nameAnnotation(ann) {
+                return "(" + ann.series + ", " + ann.x + ")";
+            }
+    
+            var g = new Dygraph(
+                    document.getElementById("g_div"),
+                    [
+                        [1470118170000,10,20],
+                        [1470118171000,11,21],
+                        [1470118172000,12,22],
+                        [1470118173000,13,null],
+                        [1470118174000,14,null],
+                        [1470118175000,15,null],
+                        [1470118176000,16,null],
+                        [1470118177000,17,27],
+                        [1470118178000,18,28],
+                        [1470118179000,19,29]
+                    ],
+                    {
+                        labels: ["x", "series1","series2"],
+                        width: 1000,
+                        height: 400,
+                        legend: "always",
+                        logscale: false,
+                        stackedGraph: false,
+                        connectSeparatedPoints: false,
+                        drawGapEdgePoints: true,
+                        axisLabelFontSize: 9,
+                        labelsDivStyles: { textAlign: 'right' },
+                        labelsSeparateLines: true,
+                        axes: {
+                            y: {
+                                valueFormatter: function(y) {
+                                    if (isNaN(y) || y < 1000) {
+                                        return "" + y;
+                                    }
+                                    return y.toString().replace(/\B(?=(?:\d{3})+(?!\d))/g, ",")
+                                },
+                                axisLabelFormatter: function(y) {
+                                    if (isNaN(y) || y < 1000) {
+                                        return "" + Dygraph.round_(y, 3);
+                                    }
+                                    return y.toString().replace(/\B(?=(?:\d{3})+(?!\d))/g, ",")
+                                },
+                                valueRange: [null, null]
+                            }
+//                    y2: {
+//                        valueRange: [-200, 200]
+//                        
+//                    }
+                        },
+                        drawCallback: function(g) {
+                            var ann = g.annotations();
+                            var html = "";
+                            for (var i = 0; i < ann.length; i++) {
+                                var name = nameAnnotation(ann[i]);
+                                html += "<span id='" + name + "'>";
+                                html += name + ": " + (ann[i].shortText || '(icon)');
+                                html += " -> " + ann[i].text + "</span><br/>";
+                            }
+                            document.getElementById("list").innerHTML = html;
+                        }
+                    }
+            );
+    
+            var last_ann = 0;
+            var annotations = [];
+            annotations.push( {
+                series: 'series1',
+                x: 1470118173000,
+                shortText: "3k",
+                text: 'Stock Market Crash'
+            } );
+            annotations.push( {
+                series: 'series2',
+                x: 1470118174000,
+                icon: 'config.jpg',
+                width: 18,
+                height: 23,
+                tickHeight: 4,
+                text: 'Another one',
+                cssClass: 'annotation',
+                clickHandler: function() {
+                    eventDiv.innerHTML += "special handler<br/>";
+                }
+            } );
+            g.setAnnotations(annotations);
+    
+    
+            var saveBg = '';
+            var num = 0;
+            g.updateOptions( {
+                annotationClickHandler: function(ann, point, dg, event) {
+                    eventDiv.innerHTML += "click: " + nameAnnotation(ann) + "<br/>";
+                },
+                annotationDblClickHandler: function(ann, point, dg, event) {
+                    eventDiv.innerHTML += "dblclick: " + nameAnnotation(ann) + "<br/>";
+                },
+                annotationMouseOverHandler: function(ann, point, dg, event) {
+                    document.getElementById(nameAnnotation(ann)).style.fontWeight = 'bold';
+                    saveBg = ann.div.style.backgroundColor;
+                    ann.div.style.backgroundColor = '#ddd';
+                },
+                annotationMouseOutHandler: function(ann, point, dg, event) {
+                    document.getElementById(nameAnnotation(ann)).style.fontWeight = 'normal';
+                    ann.div.style.backgroundColor = saveBg;
+                },
+    
+                pointClickCallback: function(event, p) {
+                    // Check if the point is already annotated.
+                    if (p.annotation) return;
+    
+                    // If not, add one.
+                    var ann = {
+                        series: p.name,
+                        xval: p.xval,
+                        shortText: num,
+                        text: "Annotation #" + num
+                    };
+                    var anns = g.annotations();
+                    anns.push(ann);
+                    g.setAnnotations(anns);
+    
+                    num++;
+                }
+            });
+        }
+    </script>
+</head>
+
+<body onload="setup()">
+<p>Click any point to add an annotation to it or click 'Add Annotation'.</p>
+<div id='list'></div>
+<div id='g_div'></div>
+<div id='events'></div>
+
+</body>
+
+</html>

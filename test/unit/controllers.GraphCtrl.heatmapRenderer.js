@@ -110,11 +110,7 @@ describe('Aardvark controllers', function () {
                 metrics: []
             }
 
-            rootScope.config = {
-                tsdbHost: "tsdb",
-                tsdbPort: 4242, 
-                tsdbProtocol: "http"
-            }
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             rootScope.formEncode = function(val) {
                 var ret = val.replace(" ","+");

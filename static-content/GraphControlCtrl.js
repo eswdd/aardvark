@@ -4,7 +4,7 @@
  * - global graph options
  * - per-graph options (shared and type specific)
  */
-aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator', function GraphControlCtrl($scope, $rootScope, idGenerator) {
+aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator', 'tsdbClient', function GraphControlCtrl($scope, $rootScope, idGenerator, $tsdbClient) {
     // accordion openings
     $scope.isOpen={};
 
@@ -45,11 +45,11 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
     });
     
     $scope.showGnuplotStyles = function() {
-        return $rootScope.tsdbVersion >= $rootScope.TSDB_2_2;
+        return $tsdbClient.versionNumber >= $tsdbClient.TSDB_2_2;
     }
     
     $scope.showGnuplotAnnotationOptions = function() {
-        return $rootScope.tsdbVersion >= $rootScope.TSDB_2_3;
+        return $tsdbClient.versionNumber >= $tsdbClient.TSDB_2_3;
     }
     
 

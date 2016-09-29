@@ -22,9 +22,9 @@
     <script type="application/javascript" src="../node_modules/protobufjs/dist/protobuf.js"></script>
     <script type="application/javascript" src="../node_modules/angular-local-storage/dist/angular-local-storage.js"></script>
     <!-- Angular CSS - keep order in here same as deps in aardvark-client.js -->
+    <link rel="stylesheet" type="text/css" href="../node_modules/angular-ui-layout/src/ui-layout.css">
     <link rel="stylesheet" type="text/css" href="../node_modules/bootstrap-css-only/css/bootstrap.css">
     <link rel="stylesheet" type="text/css" href="../node_modules/bootstrap-css-only/css/bootstrap-theme.css">
-    <link rel="stylesheet" type="text/css" href="../node_modules/angular-ui-layout/src/ui-layout.css">
     <link rel="stylesheet" type="text/css" href="../node_modules/angular-tree-control/css/tree-control-attribute.css">
     <link rel="stylesheet" type="text/css" href="../node_modules/angular-mass-autocomplete/massautocomplete.theme.css">
     <!-- App JS -->
@@ -33,8 +33,11 @@
     <script type="text/javascript" src="IntermediateModel.js"></script>
     <script type="text/javascript" src="rawIntermediateModel.js"></script>
     <script type="text/javascript" src="AardvarkServices.js"></script>
+    <script type="text/javascript" src="TsdbClient.js"></script>
     <script type="text/javascript" src="AardvarkCtrl.js"></script>
     <script type="text/javascript" src="GraphControlCtrl.js"></script>
+    <script type="text/javascript" src="GraphServices.js"></script>
+    <script type="text/javascript" src="AnnotationsDialogCtrl.js"></script>
     <script type="text/javascript" src="GraphCtrl.js"></script>
     <script type="text/javascript" src="MetricControlCtrl.js"></script>
     <!-- App CSS -->
@@ -148,7 +151,7 @@
                                 </div>
                             </div>
                             <uib-accordion close-others="true">
-                                <uib-accordion-group heading="{{graph.title}}" is-open="isOpen[graph.id]" ng-repeat="graph in graphs track by graph.id">
+                                <div uib-accordion-group heading="{{graph.title}}" is-open="isOpen[graph.id]" ng-repeat="graph in graphs track by graph.id">
 
                                     <div ng-show="showEdit[graph.id]">
                                         <input type="text" ng-model="graph.title" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
@@ -440,7 +443,7 @@
                                             <!--<label for="ylogHeatmap">Logarithmic y-axis?</label>-->
                                         <!--</div>-->
                                     </div>
-                                </uib-accordion-group>
+                                </div>
                             </uib-accordion>
                         </div>
                     </div>
@@ -468,12 +471,9 @@
                         </div>
                         <!-- content -->
                         <div ng-show="renderErrors[graph.id]==null">
-                            <!--<div id="gnuplotDiv_{{graph.id}}" ng-show="graph.type == 'gnuplot'">-->
-                                <!--<pre>{{renderedContent[graph.id]}}</pre>-->
-                            <!--</div>-->
                             <img id="gnuplotImg_{{graph.id}}" ng-show="graph.type == 'gnuplot'" ng-src="{{renderedContent[graph.id].src}}" aardvark-load="renderMessages[graph.id] = ''; graphRendered(graph.id);" width="{{renderedContent[graph.id].width}}" height="{{renderedContent[graph.id].height}}" />
                             <div id="horizonDiv_{{graph.id}}" ng-show="graph.type == 'horizon'"></div>
-                            <div id="dygraphLegend_{{graph.id}}" ng-show="graph.type == 'dygraph'" style="position: absolute; z-index: 10; top: 20px; left: 100px; line-height: normal; text-align: left; overflow: hidden; background: rgba(255,255,255,0);" class="dygraph-legend"></div>
+                            <!--<div id="dygraphLegend_{{graph.id}}" ng-show="graph.type == 'dygraph'" style="position: absolute; z-index: 10; top: 20px; left: 100px; line-height: normal; text-align: left; overflow: hidden; background: rgba(255,255,255,0);" class="dygraph-legend"></div>-->
                             <div id="dygraphDiv_{{graph.id}}" ng-show="graph.type == 'dygraph'" style="background-color: white"></div>
                             <div id="scatterLegend_{{graph.id}}" ng-show="graph.type == 'scatter'" style="position: absolute; z-index: 10; top: 20px; left: 100px; line-height: normal; text-align: left; overflow: hidden; background: rgba(255,255,255,0);" class="dygraph-legend"></div>
                             <div id="scatterDiv_{{graph.id}}" ng-show="graph.type == 'scatter'" style="background-color: white"></div>
@@ -481,6 +481,78 @@
                             <div id="heatmapDiv_{{graph.id}}" ng-show="graph.type == 'heatmap'" style="background-color: white" class="heatmap-div"></div>
                         </div>
                     </div>
+                    
+                    <script type="text/ng-template" id="annotationsDialog.tmpl.html">
+                        <div class="modal-header">
+                            <h3 class="modal-title" id="modal-title" style="text-align: center">{{$ctrl.adding?"Add":"Edit"}} Annotation</h3>
+                        </div>
+                        <div ng-show="$ctrl.readOnly" style="padding: 10px">
+                            <span>Controls in read only mode as you're trying to add or edit an annotation on a baseline series.</span>
+                        </div>
+                        <div ng-show="$ctrl.loadingMessage != ''" style="padding: 10px">
+                            <span>{{$ctrl.loadingMessage}}</span>
+                        </div>
+                        <div class="modal-body" id="modal-body">
+                            <table>
+                                <tr>
+                                    <td>Start time:</td>
+                                    <td><input type="text" ng-model="$ctrl.startTime" ng-disabled="!$ctrl.allowEditTimeAndSeries()" /></td>
+                                </tr>
+                                <tr>
+                                    <td>End time:</td>
+                                    <td><input type="text" ng-model="$ctrl.endTime" ng-disabled="!$ctrl.allowEditTimeAndSeries()" /></td>
+                                </tr>
+                                <tr ng-hide="$ctrl.adding">
+                                    <td>Time series:</td>
+                                    <td><pre>{{$ctrl.existingSeriesLabel}}</pre></td>
+                                </tr>
+                                <tr ng-show="$ctrl.adding && $ctrl.allowEdit()">
+                                    <td>Time series to add to:</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <label class="btn btn-primary btn-xs" ng-model="$ctrl.metricSourceClick" ng-click="$ctrl.metricSourceUpdated()" uib-btn-radio="true">Only from selected series</label>
+                                            <label class="btn btn-primary btn-xs" ng-model="$ctrl.metricSourceClick" ng-click="$ctrl.metricSourceUpdated()" uib-btn-radio="false">From all displayed series</label>
+                                        </div>
+                                        <div ng-show="$ctrl.metricSourceClick">
+                                            <select multiple="true" ng-model="$ctrl.tsuidsFromClick" style="width: 300px" ng-disabled="!$ctrl.allowEdit()">
+                                                <option value="{{ts.tsuid}}" ng-repeat="ts in $ctrl.clickTimeseries track by ts.tsuid">{{ts.label}}</option>
+                                            </select>
+                                        </div>
+                                        <div ng-hide="$ctrl.metricSourceClick">
+                                            <select multiple="true" ng-model="$ctrl.tsuidsFromAll" style="width: 300px" ng-disabled="!$ctrl.allowEdit()">
+                                                <option value="{{ts.tsuid}}" ng-repeat="ts in $ctrl.allTimeseries track by ts.tsuid">{{ts.label}}</option>
+                                            </select>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Description:</td>
+                                    <td><input type="text" ng-model="$ctrl.description" ng-required="true" ng-disabled="!$ctrl.allowEdit()" /></td>
+                                </tr>
+                                <tr>
+                                    <td>Type:</td>
+                                    <td>
+                                        <select ng-model="$ctrl.custom.type" ng-disabled="!$ctrl.allowEdit()">
+                                            <option value="">Unknown</option>
+                                            <option value="CONFIG">Configuration change</option>
+                                            <option value="DEPLOYMENT">Deployment</option>
+                                            <option value="PROBLEM">Problem</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Notes:</td>
+                                    <td><textarea ng-model="$ctrl.notes" style="width: 300px; height: 100px" ng-disabled="!$ctrl.allowEdit()" /></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!$ctrl.allowEdit()">Save</button>
+                            <button class="btn btn-warning" type="button" ng-click="$ctrl.delete()" ng-show="$ctrl.allowAnnotationDelete()" ng-disabled="!$ctrl.allowEdit()">Delete</button>
+                            <button class="btn btn-warning" type="button" ng-click="$ctrl.cancel()">Cancel</button>
+                        </div>
+                    </script>
+
                 </div>
             </div>
             <div ui-layout-container class="metric-control-panel" size="250px">
@@ -622,6 +694,11 @@
         </div>
     </div>
 </div>
+
+
+
+
+
 
 </body>
 </html>

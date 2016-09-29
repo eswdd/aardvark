@@ -1,7 +1,7 @@
 /*
  * Graph rendering
  */
-aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function GraphCtrl($scope, $rootScope, $http) {
+aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal', 'tsdbClient', 'tsdbUtils', function GraphCtrl($scope, $rootScope, $http, $uibModal, $tsdbClient, $tsdbUtils) {
     $scope.renderedContent = {};
     $scope.renderErrors = {};
     $scope.renderWarnings = {};
@@ -578,7 +578,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 url += "}";
             }
             // tsdb 2.2+ supports filters
-            if ($rootScope.tsdbVersion >= $rootScope.TSDB_2_2) {
+            if ($tsdbClient.versionNumber >= $tsdbClient.TSDB_2_2) {
                 // filters section requires the group by section to have been written out, even if empty
                 if (sep == ",") {
                     sep = "{";
@@ -689,6 +689,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         return g;
     }
     $scope.dygraph_setAnnotations = function(g, annotations) {
+        //annotations.sort(function(a,b){return a.xval - b.xval;})
         g.setAnnotations(annotations);
     }
 
@@ -703,7 +704,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         $scope.renderMessages[graph.id] = "Loading...";
 
 
-        var url = $rootScope.config.tsdbProtocol+"://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/q";
+        var url = $rootScope.config.tsdbBaseReadUrl+"/q";
         var qs = $scope.tsdb_queryString(global, graph, metrics, function(metric) {
             return "&o=axis+"+metric.graphOptions.axis;
         });
@@ -860,7 +861,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         }
 
         // url construction
-        var url = $rootScope.config.tsdbProtocol+"://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/query";
+        var url = $rootScope.config.tsdbBaseReadUrl+"/api/query";
 
         url += $scope.tsdb_queryString(global, graph, metrics, null, function(by) {return downsampleTo+"-"+(by?by:"avg")});
 
@@ -1110,7 +1111,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         }
 
         // url construction
-        var url = $rootScope.config.tsdbProtocol+"://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/query";
+        var url = $rootScope.config.tsdbBaseReadUrl+"/api/query";
 
         url += $scope.tsdb_queryString(global, graph, metrics, null, downsampleTo ? function(by) {return downsampleTo+"-"+(by?by:"avg")} : null);
 
@@ -1223,11 +1224,12 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         $scope.renderMessages[graph.id] = "Loading...";
         
         var constructUrl = function(queryStringFn, datum) {
-            var ret = $rootScope.config.tsdbProtocol+"://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/query";
+            var ret = $rootScope.config.tsdbBaseReadUrl+"/api/query";
 
             ret += queryStringFn(global, graph, metrics, null, datum);
 
             if (dygraphOptions.annotations || dygraphOptions.globalAnnotations) {
+                ret += "&show_tsuids=true";
                 if (dygraphOptions.globalAnnotations) {
                     ret += "&global_annotations=true";
                 }
@@ -1888,11 +1890,11 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                 }
             }
 
-            positionLegend();
+//            positionLegend();
 
             $scope.addGraphRenderListener(function (graphId) {
                 if (graphId != graph.id) {
-                    positionLegend();
+//                    positionLegend();
                 }
             });
 
@@ -1903,22 +1905,34 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
                     labels.push(baselineLabels[s]);
                 }
             }
+            
+            // default to no-op
+            var dygraphPointClickHandler = null;
+            var dygraphAnnotationClickHandler = null;
 
-            var labelsDiv = document.getElementById("dygraphLegend_"+graph.id);
             var config = {
                 labels: labels,
                 width: width,
                 height: height,
                 legend: "always",
+                pointClickCallback: function(event, p) {
+                    if (dygraphPointClickHandler != null) {
+                        dygraphPointClickHandler(event,p);
+                    }
+                },
+                annotationClickHandler: function(ann, point, dg, event) {
+                    if (dygraphAnnotationClickHandler != null) {
+                        dygraphAnnotationClickHandler(ann, point, dg, event);
+                    }
+                },
                 logscale: dygraphOptions.ylog,
                 stackedGraph: dygraphOptions.stackedLines,
                 connectSeparatedPoints: dygraphOptions.interpolateGaps,
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
-                labelsDivStyles: { fontSize: 9, textAlign: 'right' },
+                labelsDivStyles: { fontSize: 9, textAlign: 'left' },
                 labelsSeparateLines: true,
-                labelsDiv: labelsDiv,
-                labelsDivWidth: 1000,
+//                labelsDiv: labelsDiv,
 //                series: {
 //                    'cpu.percent{host=host01}': {
 //                        axis: 'y1'
@@ -1977,8 +1991,6 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
 
             var dygraph = $scope.dygraph_render("dygraphDiv_"+graph.id, graph.id, graphData, config);
 
-            dygraph.canvas_.style["z-index"] = "20";
-
             var createDygraphAnnotation = function(g, seriesAndAnnotation) {
                 var series = seriesAndAnnotation[0];
                 var annotation = seriesAndAnnotation[1];
@@ -2023,13 +2035,139 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
             }
             
             if (dygraphOptions.annotations) {
-                var dygraphAnnotations = [];
-                for (var a=0; a<annotations.length; a++) {
-                    dygraphAnnotations.push(createDygraphAnnotation(dygraph, annotations[a]));
+                var syncDygraphWithAnnotations = function() {
+                    var dygraphAnnotations = [];
+                    for (var a=0; a<annotations.length; a++) {
+                        dygraphAnnotations.push(createDygraphAnnotation(dygraph, annotations[a]));
+                    }
+                    $scope.dygraph_setAnnotations(dygraph, dygraphAnnotations);
                 }
-                $scope.dygraph_setAnnotations(dygraph, dygraphAnnotations);
-            }
+                syncDygraphWithAnnotations();
 
+                var showAnnotationDialog = function(annotationIndex, point) {
+                    var adding = annotationIndex == -1;
+                    var seriesAndQueries = {};
+                    for (var i=0; i<mainJson.length; i++) {
+                        seriesAndQueries[$scope.timeSeriesName(mainJson[i])] = mainJson[i].query;
+                    }
+                    var modalInstance = $uibModal.open({
+                        animation: false,
+                        ariaLabelledBy: 'modal-title',
+                        ariaDescribedBy: 'modal-body',
+                        templateUrl: 'annotationsDialog.tmpl.html',
+                        controller: 'AnnotationsDialogCtrl',
+                        controllerAs: '$ctrl',
+                        size: 'lg',
+                        resolve: {
+                            adding: function() {
+                                return adding; 
+                            },
+                            originalAnnotation: function() {
+                                return annotationIndex >= 0 
+                                    ? annotations[annotationIndex][1] 
+                                    : {
+                                    startTime: point.xval
+                                };
+                            },
+                            readOnly: function() {
+                                return annotationIndex >= 0 
+                                    ? annotations[annotationIndex][2] 
+                                    : seriesAndQueries[point.name] == null;
+                            },
+                            time: function() {
+                                return point ? point.xval : 0;
+                            },
+                            rootConfig: function() {
+                                return $rootScope.config;
+                            },
+                            seriesAndQueries: function() {
+                                return seriesAndQueries;
+                            },
+                            clickedSeries: function() {
+                                return point ? point.name : null;
+                            },
+                            $tsdbClient: function() {
+                                return $tsdbClient;
+                            },
+                            $tsdbUtils: function() {
+                                return $tsdbUtils;
+                            }
+                        }
+                    });
+                    modalInstance.result.then(function (result) {
+                        var action = result.action;
+                        var selectedAnnotations = result.annotations;
+                        if (action == "add") {
+                            $tsdbClient.bulkSaveAnnotations(selectedAnnotations, function() {
+                                for (var a = 0; a<selectedAnnotations.length; a++) {
+                                    var tsuid = selectedAnnotations[a].tsuid;
+                                    for (var t=0; t<mainJson.length; t++) {
+                                        if (mainJson[t].tsuids.indexOf(tsuid) >= 0) {
+                                            // [json[s], json[s].annotations[a], isBaseline]
+                                            annotations.push([mainJson[t],selectedAnnotations[a],false]);
+                                            // don't break - same tsuid could be present in many visible timeseries
+                                        }
+                                    }
+                                }
+                                syncDygraphWithAnnotations();
+                            }, function() {
+                                console.log("failed to add annotation(s)");
+                                // todo: errors?
+                            });
+                        }
+                        else if (action == "edit") {
+                            // use singular endpoint
+                            $tsdbClient.saveAnnotation(selectedAnnotations[0], function() {
+                                annotations[annotationIndex][1] = selectedAnnotations[0];
+                                syncDygraphWithAnnotations();
+                            }, function() {
+                                console.log("failed to save annotation");
+                                // todo: errors?
+                            });
+                            
+                        }
+                        else if (action == "delete") {
+                            // use singular endpoint
+                            $tsdbClient.deleteAnnotation(selectedAnnotations[0], function() {
+                                annotations.splice(annotationIndex, 1);
+                                syncDygraphWithAnnotations();
+                            }, function() {
+                                console.log("failed to delete annotation");
+                                // todo: errors?
+                            });
+                        }
+                        else {
+                            throw 'Unexpected annotation action: '+action;
+                        }
+                    }, function () {
+                        // do nothing
+                    });
+                }
+
+                dygraphPointClickHandler = function(event, p) {
+                    if ((!event.ctrlKey && !event.metaKey/*osx*/) || event.button != 0) {
+                        return;
+                    }
+
+                    showAnnotationDialog(-1, p);
+                };
+                dygraphAnnotationClickHandler = function(ann, point, dg, event) {
+                    var anns = dygraph.annotations();
+
+                    var annIndex = -1;
+                    for (var i=0; i<anns.length; i++) {
+                        if (anns[i].xval == ann.xval) {
+                            annIndex = i;
+                        }
+                    }
+
+                    if (annIndex == -1) {
+                        return;
+                    }
+
+                    showAnnotationDialog(annIndex, null);
+                };
+            }
 
 
             $scope.renderMessages[graph.id] = "";
@@ -2099,7 +2237,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', function Gra
         $scope.renderMessages[graph.id] = "Loading...";
 
         // url construction
-        var url = $rootScope.config.tsdbProtocol+"://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/query";
+        var url = $rootScope.config.tsdbBaseReadUrl+"/api/query";
 
         url += $scope.tsdb_queryString(global, graph, metrics);
 

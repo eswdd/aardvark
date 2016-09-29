@@ -48,9 +48,7 @@ describe('Aardvark controllers', function () {
             }
 
             rootScope.config = {
-                tsdbHost: "tsdb",
-                tsdbPort: 4242,
-                tsdbProtocol: "http"
+                tsdbBaseReadUrl: "http://tsdb:4242"
             }
 
             rootScope.formEncode = function(val) {
@@ -122,7 +120,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -141,7 +139,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -158,7 +156,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -175,7 +173,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -192,7 +190,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -209,7 +207,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -226,7 +224,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -243,7 +241,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -260,7 +258,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -277,7 +275,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -294,7 +292,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -311,7 +309,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -328,7 +326,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -345,7 +343,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisLabel: "Label 1", y2AxisLabel: "Label 2" }};
@@ -362,7 +360,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisLabel: "Label 1", y2AxisLabel: "Label 2" }};
@@ -379,7 +377,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisFormat: "Format 1", y2AxisFormat: "Format 2" }};
@@ -396,7 +394,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisFormat: "Format 1", y2AxisFormat: "Format 2" }};
@@ -413,7 +411,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisRange: "[0:1]", y2AxisRange: "[0:2]" }};
@@ -430,7 +428,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisRange: "[0:1]", y2AxisRange: "[0:2]" }};
@@ -447,7 +445,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisLogScale: true, y2AxisLogScale: true }};
@@ -464,7 +462,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisLogScale: true, y2AxisLogScale: true }};
@@ -481,7 +479,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisLogScale: false, y2AxisLogScale: true }};
@@ -498,7 +496,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisLogScale: true, y2AxisLogScale: false }};
@@ -515,7 +513,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { lineSmoothing: true }};
@@ -532,7 +530,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { showKey: false }};
@@ -549,7 +547,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { showKey: true, keyLocation: "top left", keyAlignment: "vertical" }};
@@ -566,7 +564,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { showKey: true, keyLocation: "", keyAlignment: "vertical" }};
@@ -583,7 +581,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { showKey: true, keyLocation: "bottom right", keyAlignment: "vertical" }};
@@ -600,7 +598,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { showKey: true, keyLocation: "top left", keyAlignment: "horizontal" }};
@@ -617,7 +615,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { showKey: true, keyLocation: "top left", keyAlignment: "vertical", keyBox: true }};
@@ -634,7 +632,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { showKey: true, keyLocation: "top left", keyAlignment: "horizontal", keyBox: true }};

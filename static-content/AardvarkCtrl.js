@@ -26,7 +26,7 @@ aardvark.directive('aardvarkEnter', function() {
             });
         }
     })
-    .controller('AardvarkCtrl', [ '$rootScope', '$scope', '$http', '$location', 'serialisation', 'localStorageService', function AardvarkCtrl($rootScope, $scope, $http, $location, $serialisation, $localStorageService) {
+    .controller('AardvarkCtrl', [ '$rootScope', '$scope', '$http', '$location', 'serialisation', 'localStorageService', 'tsdbClient', function AardvarkCtrl($rootScope, $scope, $http, $location, $serialisation, $localStorageService, $tsdbClient) {
         /*
          * Model persistence - ensures that persistent data is saved to the hash whilst leaving
          * controllers free to litter their own scope with volatile data. Controllers are responsible
@@ -37,14 +37,6 @@ aardvark.directive('aardvarkEnter', function() {
             metrics: [],
             graphs: []
         };
-        
-        // 1000*major + minor
-        $rootScope.TSDB_2_0 = 2000;
-        $rootScope.TSDB_2_1 = 2001;
-        $rootScope.TSDB_2_2 = 2002;
-        $rootScope.TSDB_2_3 = 2003;
-        
-        $rootScope.tsdbVersion = $rootScope.TSDB_2_0;
         
         /*
          * Config management - we have config loaded from the server, plus a capability to enable
@@ -148,38 +140,39 @@ aardvark.directive('aardvarkEnter', function() {
             }
         }
     
-        $rootScope.updateTsdbVersion = function() {
-            if ($rootScope.config) {
-                $http.get($rootScope.config.tsdbProtocol+"://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+'/api/version').success(function(json) {
-                    try {
-                        var versionFromServer = json.version;
-                        var firstDot = versionFromServer.indexOf(".");
-                        var secondDot = versionFromServer.indexOf(".", firstDot+1);
-                        var major = parseInt(versionFromServer.substring(0,firstDot));
-                        var minor = parseInt(versionFromServer.substring(firstDot+1, secondDot));
-                        $rootScope.tsdbVersion = (major * 1000) + minor;
-                    }
-                    catch (e) {
-                        // ignore, use default version
-                    }
-                });
-            }
-            // do it when we're up to date
-            else {
-                $rootScope.onConfigUpdate($rootScope.updateTsdbVersion);
-            }
-        }
-    
         $rootScope.updateConfig = function() {
             $http.get('/aardvark/config').success(function(json) {
                 // apply some defaults..
                 if (!json.tsdbProtocol) {
                     json.tsdbProtocol = "http";
                 }
-                $rootScope.config = json;
-                for (var i=$rootScope.configListeners.length-1; i>=0; i--) {
-                    $rootScope.configListeners[i]();
+                if (!json.annotations) {
+                    json.annotations = {
+                        allowDelete: true
+                    };
                 }
+                
+                json.tsdbBaseReadUrl = json.tsdbProtocol + "://" + json.tsdbHost + ":" + json.tsdbPort;
+                if (json.tsdbWriteHost || json.tsdbWritePort) {
+                    json.tsdbBaseWriteUrl = json.tsdbProtocol + "://" +
+                        (json.tsdbWriteHost ? json.tsdbWriteHost : json.tsdbHost) + ":" +
+                        (json.tsdbWritePort ? json.tsdbWritePort : json.tsdbPort);
+                }
+                else {
+                    json.tsdbBaseWriteUrl = json.tsdbBaseReadUrl;
+                }
+                
+                var applyConfig = function() {
+                    $rootScope.config = json;
+                    for (var i=$rootScope.configListeners.length-1; i>=0; i--) {
+                        $rootScope.configListeners[i]();
+                    }
+                }
+                
+                // not a controller so has no reference to $rootScope to get the config via callback
+                $tsdbClient.init(json);
+                // now give config to everyone else
+                applyConfig();
             });
         };
     
@@ -211,7 +204,6 @@ aardvark.directive('aardvarkEnter', function() {
         }
     
         $scope.bindUserPreferences();
-        $rootScope.updateTsdbVersion();
         $rootScope.loadModel();
         $rootScope.updateConfig();
         $rootScope.resetAutoReload();

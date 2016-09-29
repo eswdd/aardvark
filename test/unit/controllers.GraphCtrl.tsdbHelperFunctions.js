@@ -25,6 +25,7 @@ describe('Aardvark controllers', function () {
         var rootScope, $httpBackend, scope;
         var globals, graphs, metricss;
         var configUpdateFunc;
+        var tsdbClient;
 
         beforeEach(inject(function ($rootScope, _$httpBackend_, $controller) {
             // hmm
@@ -34,6 +35,12 @@ describe('Aardvark controllers', function () {
             globals = [];
             graphs = [];
             metricss = [];
+            tsdbClient = {
+                TSDB_2_0: 2000,
+                TSDB_2_1: 2001,
+                TSDB_2_2: 2002,
+                TSDB_2_3: 2003
+            };
 
             scope.renderers = {};
             scope.renderers["unittest"] = function(global,graph,metrics) {
@@ -46,13 +53,6 @@ describe('Aardvark controllers', function () {
                 graphs: [],
                 metrics: []
             }
-            
-            rootScope.TSDB_2_0 = 2000;
-            rootScope.TSDB_2_1 = 2001;
-            rootScope.TSDB_2_2 = 2002;
-            rootScope.TSDB_2_3 = 2003;
-            // default to 2.0
-            rootScope.tsdbVersion = 2000;
 
             rootScope.formEncode = function(val) {
                 var ret = val.replace(" ","+");
@@ -66,7 +66,7 @@ describe('Aardvark controllers', function () {
                 configUpdateFunc = func;
             }
 
-            $controller('GraphCtrl', {$scope: scope, $rootScope: rootScope});
+            $controller('GraphCtrl', {$scope: scope, $rootScope: rootScope, tsdbClient: tsdbClient});
         }));
 
         // ---------- tsdb helper functions ------
@@ -558,42 +558,42 @@ describe('Aardvark controllers', function () {
         
         it('expects the url to be generated correctly with no graph options and 1 metric with a tag with 2 values with group by false and true on v2.2.0', function() {
             //$scope.tsdb_queryStringInternal = function(fromTimestamp, toTimestamp, autoReload, globalDownsampling, globalDownsampleTo, graph, metrics, perLineFn) {
-            rootScope.tsdbVersion = 2002;
+            tsdbClient.versionNumber = 2002;
             var metrics = [{name: "metric1", tags: [{name: "key", value: "wildcard(a*)", groupBy: true},{name:"key", value: "wildcard(*a)", groupBy: false}], graphOptions: { aggregator: "sum" }}];
             expect(scope.tsdb_queryStringInternal("1d","1h",false, false, null, {id:"abc"}, metrics, null)).toEqualData("?start=1d&end=1h&m=sum:metric1{key=wildcard(a*)}{key=wildcard(*a)}");
         });
         
         it('expects the url to be generated correctly with no graph options and 1 metric with a tag with 2 values with group by true on v2.2.0', function() {
             //$scope.tsdb_queryStringInternal = function(fromTimestamp, toTimestamp, autoReload, globalDownsampling, globalDownsampleTo, graph, metrics, perLineFn) {
-            rootScope.tsdbVersion = 2002;
+            tsdbClient.versionNumber = 2002;
             var metrics = [{name: "metric1", tags: [{name: "key", value: "wildcard(a*)", groupBy: true},{name:"key", value: "wildcard(*a)", groupBy: true}], graphOptions: { aggregator: "sum" }}];
             expect(scope.tsdb_queryStringInternal("1d","1h",false, false, null, {id:"abc"}, metrics, null)).toEqualData("?start=1d&end=1h&m=sum:metric1{key=wildcard(a*),key=wildcard(*a)}");
         });
         
         it('expects the url to be generated correctly with no graph options and 1 metric with a tag with 2 values with group by false on v2.2.0', function() {
             //$scope.tsdb_queryStringInternal = function(fromTimestamp, toTimestamp, autoReload, globalDownsampling, globalDownsampleTo, graph, metrics, perLineFn) {
-            rootScope.tsdbVersion = 2002;
+            tsdbClient.versionNumber = 2002;
             var metrics = [{name: "metric1", tags: [{name: "key", value: "wildcard(a*)", groupBy: false},{name:"key", value: "wildcard(*a)", groupBy: false}], graphOptions: { aggregator: "sum" }}];
             expect(scope.tsdb_queryStringInternal("1d","1h",false, false, null, {id:"abc"}, metrics, null)).toEqualData("?start=1d&end=1h&m=sum:metric1{}{key=wildcard(a*),key=wildcard(*a)}");
         });
         
         it('expects the url to be generated correctly with no graph options and 1 metric with some tags with values with group by false on v2.2.0', function() {
             //$scope.tsdb_queryStringInternal = function(fromTimestamp, toTimestamp, autoReload, globalDownsampling, globalDownsampleTo, graph, metrics, perLineFn) {
-            rootScope.tsdbVersion = 2002;
+            tsdbClient.versionNumber = 2002;
             var metrics = [{name: "metric1", tags: [{name: "key", value: "value", groupBy: true},{name:"host", value: "host1", groupBy: false}], graphOptions: { aggregator: "sum" }}];
             expect(scope.tsdb_queryStringInternal("1d","1h",false, false, null, {id:"abc"}, metrics, null)).toEqualData("?start=1d&end=1h&m=sum:metric1{key=value}{host=host1}");
         });
         
         it('expects the url to be generated correctly with no graph options and 1 metric with tags with values only with group by false on v2.2.0', function() {
             //$scope.tsdb_queryStringInternal = function(fromTimestamp, toTimestamp, autoReload, globalDownsampling, globalDownsampleTo, graph, metrics, perLineFn) {
-            rootScope.tsdbVersion = 2002;
+            tsdbClient.versionNumber = 2002;
             var metrics = [{name: "metric1", tags: [{name:"host", value: "host1", groupBy: false}], graphOptions: { aggregator: "sum" }}];
             expect(scope.tsdb_queryStringInternal("1d","1h",false, false, null, {id:"abc"}, metrics, null)).toEqualData("?start=1d&end=1h&m=sum:metric1{}{host=host1}");
         });
         
         it('expects the url to be generated correctly with no graph options and 1 metric with tags with filter values of all', function() {
             //$scope.tsdb_queryStringInternal = function(fromTimestamp, toTimestamp, autoReload, globalDownsampling, globalDownsampleTo, graph, metrics, perLineFn) {
-            rootScope.tsdbVersion = 2002;
+            tsdbClient.versionNumber = 2002;
             var metrics = [{name: "metric1", tags: [{name:"host", value: "*", groupBy: false}], graphOptions: { aggregator: "sum" }}];
             expect(scope.tsdb_queryStringInternal("1d","1h",false, false, null, {id:"abc"}, metrics, null)).toEqualData("?start=1d&end=1h&m=sum:metric1");
 
