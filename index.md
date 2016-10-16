@@ -1,5 +1,6 @@
 ---
 layout: default
+title: Aardvark
 ---
 
 Welcome to Aardvark!
@@ -12,9 +13,10 @@ It is released under the [GNU General Public License, Version 3.0](http://www.gn
 Documentation
 -------------
 
-* [Why Aardvark?](why-aardvark.html)
+* [Rationale](rationale.html)
 * [Installation](installation.html)
 * [User Guide](user-guide.html)
+* [Developer Guide](development.html)
 
 Releases
 --------
