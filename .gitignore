@@ -1,1 +1,6 @@
 .idea
+*.iml
+coverage
+node_modules
+dev-config.json
+static-content
