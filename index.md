@@ -15,6 +15,7 @@ Documentation
 
 * [Rationale](rationale.html)
 * [Installation](installation.html)
+* [Configuration](config.html)
 * [User Guide](user-guide.html)
 * [Developer Guide](development.html)
 
