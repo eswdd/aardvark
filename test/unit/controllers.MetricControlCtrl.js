@@ -902,6 +902,9 @@ describe('Aardvark controllers', function () {
         
         it('should reset user entered metric options on selecting a new metric', function() {
             rootScope.config = { tsdbBaseReadUrl: "http://tsdb:4242" };
+            rootScope.model = {
+                graphs: [{id: "1"}]
+            };
 
             var node = {id: "name.baldrick", name: "baldrick", isMetric: true, children: []};
             var response = {
