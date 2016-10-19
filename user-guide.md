@@ -60,8 +60,7 @@ When time is relative, then all you need provide is a period to look back over f
  
 When time is absolute, then you must specify a date/time to begin and you may optionally specify a date/time to end (else now is used).
 
-Aardvark also allows you to auto-reload (rerender) the graphs every selected time period.
-
+Aardvark also allows you to auto-reload (rerender) the graphs every entered time period.
 
 ### Downsampling
 
@@ -70,12 +69,42 @@ Aardvark also allows you to auto-reload (rerender) the graphs every selected tim
 
 
 ## Graph Controls
-ipso lorem...
 
+Aardvark supports rendering multiple graphs for the same time period, with the ability to change render engine, chart style and other options independently for each.
+
+### Graph management
+
+Aardvark defaults to a single graph, the renderer for which can be defaulted via (configuration)[config.html].
+
+New graphs can be added by clicking 'Add graph' at the bottom of the graph controls panel.
+
+Individual graphs offer the opportunity to change the title, renderer and also to delete it.
+
+Additions and deletions of graphs are not applied to the render view until 'Save' has been pressed, regardless of render mode. All other changes apply according to the render mode.
+
+### Gnuplot renderer
+
+### Horizon renderer
+
+### Dygraph renderer
+
+### Scatter renderer
+
+### Heatmap renderer
 
 ## Graph Display
-ipso lorem...
 
+This area displays the rendered graphs. For some renderers it is possible to interact with the charts.
+
+### Gnuplot renderer
+
+### Horizon renderer
+
+### Dygraph renderer
+
+### Scatter renderer
+
+### Heatmap renderer
 
 ## Metric Selection
 ipso lorem...
