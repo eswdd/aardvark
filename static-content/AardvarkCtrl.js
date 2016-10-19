@@ -26,7 +26,7 @@ aardvark.directive('aardvarkEnter', function() {
             });
         }
     })
-    .controller('AardvarkCtrl', [ '$rootScope', '$scope', '$http', '$location', 'serialisation', 'localStorageService', 'tsdbClient', function AardvarkCtrl($rootScope, $scope, $http, $location, $serialisation, $localStorageService, $tsdbClient) {
+    .controller('AardvarkCtrl', [ '$rootScope', '$scope', '$http', '$location', 'serialisation', 'localStorageService', 'tsdbClient', '$uibModal', function AardvarkCtrl($rootScope, $scope, $http, $location, $serialisation, $localStorageService, $tsdbClient, $uibModal) {
         /*
          * Model persistence - ensures that persistent data is saved to the hash whilst leaving
          * controllers free to litter their own scope with volatile data. Controllers are responsible
@@ -50,17 +50,56 @@ aardvark.directive('aardvarkEnter', function() {
         $rootScope.activeTimeoutId = null;
 
 
-        /*
-         auto-updating ui when tabbing out of changed fields / changing radio buttons etc
-         */
-        $scope.uiAutoUpdate = false;
+        $scope.userPrefs = {
+            boolFields: ['uiAutoUpdate','dygraphLineHighlighting'],
+            // auto-updating ui when tabbing out of changed fields / changing radio buttons etc
+            uiAutoUpdate: false,
+            dygraphLineHighlighting: false
+        }
+        $scope.userPrefsInputTitles = {
+            uiAutoUpdate: "Auto rerender on change",
+            dygraphLineHighlighting: "Dygraph line highlighting"
+        }
+        
+        $rootScope.getUserPrefs = function() {
+            return $scope.userPrefs;
+        }
         $rootScope.renderGraphsIfAutoUpdate = function() {
-            if ($scope.uiAutoUpdate) {
+            if ($scope.userPrefs.uiAutoUpdate) {
                 $rootScope.renderGraphs();
             }
         }
         $rootScope.autoUpdateEnabled = function() {
-            return $scope.uiAutoUpdate;
+            return $scope.userPrefs.uiAutoUpdate;
+        }
+        
+        $scope.showUserPrefsDialog = function() {
+            var modalInstance = $uibModal.open({
+                animation: false,
+                ariaLabelledBy: 'user-preference-title',
+                ariaDescribedBy: 'user-preference-body',
+                templateUrl: 'userPrefsDialog.tmpl.html',
+                controller: 'UserPrefsDialogCtrl',
+                controllerAs: '$ctrl',
+                size: 'lg',
+                resolve: {
+                    userPrefs: function() {
+                        return $scope.userPrefs;
+                    },
+                    userPrefsInputTitles: function() {
+                        return $scope.userPrefsInputTitles;
+                    }
+                }
+            });
+            modalInstance.result.then(function (updatedPrefs) {
+                for (key in $scope.userPrefs) {
+                    if ($scope.userPrefs.hasOwnProperty(key) && updatedPrefs.hasOwnProperty(key)) {
+                        $scope.userPrefs[key] = updatedPrefs[key];
+                    }
+                }
+            }, function () {
+                // do nothing on cancel
+            });
         }
 
         $rootScope.loadModel = function() {
@@ -197,10 +236,20 @@ aardvark.directive('aardvarkEnter', function() {
         }
         
         $scope.bindUserPreferences = function() {
-            $scope.uiAutoUpdate = $localStorageService.get('uiAutoUpdate') == "true";
-            $scope.$watch('uiAutoUpdate', function() {
-                $localStorageService.set('uiAutoUpdate', $scope.uiAutoUpdate);
-            });
+            var boolFields = $scope.userPrefs.boolFields;
+            for (var key in $scope.userPrefs) {
+                if ($scope.userPrefs.hasOwnProperty(key) && key != "boolFields") {
+                    if (boolFields.indexOf(key) >= 0) {
+                        $scope.userPrefs[key] = $localStorageService.get(key) == "true";
+                    }
+                    else {
+                        $scope.userPrefs[key] = $localStorageService.get(key) == "true";
+                    }
+                    $scope.$watch('userPrefs.'+key, function() {
+                        $localStorageService.set(key, $scope.userPrefs[key]);
+                    });
+                }
+            }
         }
     
         $scope.bindUserPreferences();

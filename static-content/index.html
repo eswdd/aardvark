@@ -40,6 +40,7 @@
     <script type="text/javascript" src="AnnotationsDialogCtrl.js"></script>
     <script type="text/javascript" src="GraphCtrl.js"></script>
     <script type="text/javascript" src="MetricControlCtrl.js"></script>
+    <script type="text/javascript" src="UserPrefsDialogCtrl.js"></script>
     <!-- App CSS -->
     <link rel="stylesheet" href="aardvark.css">
     <link rel="stylesheet" href="aardvark_horizon.css">
@@ -51,27 +52,45 @@
 
 <div ui-layout>
     <div ui-layout-container class="top-panel" size="64px">
-        <table border="0">
+        <table border="0" style="padding: 5px">
             <tr>
-                <td style="padding: 5px">Version:&nbsp;1.4.0</td>
-                <td style="padding: 5px" width="100%" align="center">
+                <td style="padding-top: 5px; padding-left: 5px">Version:&nbsp;1.4.0</td>
+                <td style="padding-top: 5px" width="100%" align="center">
                     <b>Aardvark - An OpenTSDB Visualiser</b>
                 </td>
-                <td style="padding: 5px" align="right">
+                <td style="padding-top: 5px; padding-right: 5px" align="right">
                     <!--button ng-click="undoAll()">Undo</button--><button ng-click="clearAll()">Reset</button>
                 </td>
             </tr>
             <tr>
                 <td style="padding-right: 5px" colspan="3" align="right">
-                    <label>Render:</label>
-                    <div class="btn-group">
-                        <label class="btn btn-primary btn-xs" ng-model="uiAutoUpdate" uib-btn-radio="true">On change</label>
-                        <label class="btn btn-primary btn-xs" ng-model="uiAutoUpdate" uib-btn-radio="false">On enter key</label>
-                    </div>
+                    <button ng-click="showUserPrefsDialog()">User&nbsp;Preferences</button>
                 </td>
             </tr>
         </table>
     </div>
+
+    <script type="text/ng-template" id="userPrefsDialog.tmpl.html">
+        <div class="modal-header">
+            <h3 class="modal-title" id="user-preference-title" style="text-align: center">Edit User Preferences</h3>
+        </div>
+        <div class="modal-body" id="user-preference-body">
+            <table>
+                <tr ng-repeat="boolInput in $ctrl.boolInputs track by boolInput.key">
+                    <td>{{boolInput.title}}</td>
+                    <td><input type="checkbox" ng-model="boolInput.value"/></td>
+                </tr>
+                <tr ng-repeat="stringInput in $ctrl.stringInputs track by stringInput.key">
+                    <td>{{stringInput.title}}</td>
+                    <td><input type="text" ng-model="stringInput.value"/></td>
+                </tr>
+            </table>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">Save</button>
+            <button class="btn btn-warning" type="button" ng-click="$ctrl.cancel()">Cancel</button>
+        </div>
+    </script>
 
     <div ui-layout-container>
         <div ui-layout="{flow : 'column'}" >
@@ -338,10 +357,6 @@
                                         <div>
                                             <input type="checkbox" id="interpolateGapsDygraph" ng-model="graph.dygraph.interpolateGaps" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                             <label for="interpolateGapsDygraph">Interpolate gaps?</label>
-                                        </div>
-                                        <div>
-                                            <input type="checkbox" id="highlightLinesDygraph" ng-model="graph.dygraph.highlightLines" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                            <label for="highlightLinesDygraph">Highlight lines?</label>
                                         </div>
                                         <div>
                                             <input type="checkbox" id="stackedLinesDygraph" ng-model="graph.dygraph.stackedLines" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />

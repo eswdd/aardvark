@@ -1966,7 +1966,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
 //                    }
                 }
             };
-            if (dygraphOptions.highlightLines) {
+            if ($rootScope.getUserPrefs().dygraphLineHighlighting) {
                 config.highlightSeriesOpts = {
                     strokeWidth: 3,
                     strokeBorderWidth: 1,

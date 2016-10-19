@@ -31,6 +31,7 @@ module.exports = function (config) {
             'static-content/AnnotationsDialogCtrl.js',
             'static-content/GraphCtrl.js',
             'static-content/MetricControlCtrl.js',
+            'static-content/UserPrefsDialogCtrl.js',
             'test/unit/**/*.js'
         ],
 
