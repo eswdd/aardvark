@@ -54,11 +54,9 @@ aardvark.directive('aardvarkEnter', function() {
             boolFields: ['uiAutoUpdate','dygraphLineHighlighting'],
             // auto-updating ui when tabbing out of changed fields / changing radio buttons etc
             uiAutoUpdate: false,
-            dygraphLineHighlighting: false
         }
         $scope.userPrefsInputTitles = {
-            uiAutoUpdate: "Auto rerender on change",
-            dygraphLineHighlighting: "Dygraph line highlighting"
+            uiAutoUpdate: "Auto rerender on change"
         }
         
         $rootScope.getUserPrefs = function() {

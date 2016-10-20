@@ -49,12 +49,6 @@ describe('Aardvark controllers', function () {
             }
 
             rootScope.config = { tsdbBaseReadUrl: "http://tsdb:4242" };
-            
-            rootScope.getUserPrefs = function() {
-                return {
-                    dygraphLineHighlighting: false
-                }
-            }
 
             rootScope.formEncode = function(val) {
                 var ret = val.replace(" ","+");

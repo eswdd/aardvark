@@ -92,6 +92,7 @@ describe('Aardvark services', function() {
                     title: "Graph 4",
                     dygraph: {
                         interpolateGaps: true,
+                        highlightLines: true,
                         stackedLines: true,
                         squashNegative: true,
                         autoScale: true,
@@ -270,6 +271,7 @@ describe('Aardvark services', function() {
                     title: "Graph 4",
                     dygraph: {
                         interpolateGaps: true,
+                        highlightLines: true,
                         stackedLines: true,
                         squashNegative: true,
                         autoScale: true,
@@ -630,6 +632,7 @@ describe('Aardvark services', function() {
                         title: "Graph 4",
                         dygraph: {
                             interpolateGaps: true,
+                            highlightLines: true,
                             stackedLines: true,
                             squashNegative: true,
                             autoScale: true,
@@ -808,6 +811,7 @@ describe('Aardvark services', function() {
                         title: "Graph 4",
                         dygraph: {
                             interpolateGaps: true,
+                            highlightLines: true,
                             stackedLines: true,
                             squashNegative: true,
                             autoScale: true,

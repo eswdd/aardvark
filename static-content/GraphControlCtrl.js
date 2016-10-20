@@ -228,6 +228,7 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
             // dygraph defaults
             dygraph: {
                 interpolateGaps: true,
+                highlightLines: true,
                 annotations: true,
                 countFilter: {
                     end: "top",

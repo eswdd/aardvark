@@ -710,7 +710,7 @@ aardvark
                             };
                             intermediateGraph.flags = blitting.toBlittedInt([
                                 graph.dygraph.interpolateGaps,
-                                false, // removed: graph.dygraph.highlightLines
+                                graph.dygraph.highlightLines,
                                 graph.dygraph.stackedLines,
                                 graph.dygraph.squashNegative,
                                 graph.dygraph.autoScale,
@@ -1027,7 +1027,7 @@ aardvark
                         var dygraphFlags = blitting.fromBlittedInt(intermediateGraph.flags, [true, false, false, true, false, false, false, false, true, false]);
                         graph.dygraph = {};
                         graph.dygraph.interpolateGaps = dygraphFlags[0];
-                        //graph.dygraph.highlightLines = dygraphFlags[1];
+                        graph.dygraph.highlightLines = dygraphFlags[1];
                         graph.dygraph.stackedLines = dygraphFlags[2];
                         graph.dygraph.squashNegative = dygraphFlags[3];
                         graph.dygraph.autoScale = dygraphFlags[4];

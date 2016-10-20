@@ -359,6 +359,10 @@
                                             <label for="interpolateGapsDygraph">Interpolate gaps?</label>
                                         </div>
                                         <div>
+                                            <input type="checkbox" id="highlightLinesDygraph" ng-model="graph.dygraph.highlightLines" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                            <label for="highlightLinesDygraph">Highlight lines?</label>
+                                        </div>
+                                        <div>
                                             <input type="checkbox" id="stackedLinesDygraph" ng-model="graph.dygraph.stackedLines" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                             <label for="stackedLinesDygraph">Stacked lines?</label>
                                         </div>

@@ -95,6 +95,7 @@ describe('Aardvark controllers', function () {
                     },
                     dygraph: {
                         interpolateGaps: true,
+                        highlightLines: true,
                         annotations: true,
                         countFilter: {
                             end: "top",
@@ -137,6 +138,7 @@ describe('Aardvark controllers', function () {
                     },
                     dygraph: {
                         interpolateGaps: true,
+                        highlightLines: true,
                         annotations: true,
                         countFilter: {
                             end: "top",
@@ -195,6 +197,7 @@ describe('Aardvark controllers', function () {
                     },
                     dygraph: {
                         interpolateGaps: true,
+                        highlightLines: true,
                         annotations: true,
                         countFilter: {
                             end: "top",
@@ -233,6 +236,7 @@ describe('Aardvark controllers', function () {
                     },
                     dygraph: {
                         interpolateGaps: true,
+                        highlightLines: true,
                         annotations: true,
                         countFilter: {
                             end: "top",
@@ -265,6 +269,7 @@ describe('Aardvark controllers', function () {
                     },
                     dygraph: {
                         interpolateGaps: true,
+                        highlightLines: true,
                         annotations: true,
                         countFilter: {
                             end: "top",
@@ -307,6 +312,7 @@ describe('Aardvark controllers', function () {
                     },
                     dygraph: {
                         interpolateGaps: true,
+                        highlightLines: true,
                         annotations: true,
                         countFilter: {
                             end: "top",
@@ -345,6 +351,7 @@ describe('Aardvark controllers', function () {
                     },
                     dygraph: {
                         interpolateGaps: true,
+                        highlightLines: true,
                         annotations: true,
                         countFilter: {
                             end: "top",
@@ -377,6 +384,7 @@ describe('Aardvark controllers', function () {
                     },
                     dygraph: {
                         interpolateGaps: true,
+                        highlightLines: true,
                         annotations: true,
                         countFilter: {
                             end: "top",
