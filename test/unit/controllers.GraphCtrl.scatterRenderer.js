@@ -208,7 +208,8 @@ describe('Aardvark controllers', function () {
                 },
                 labelsSeparateLines: true,
                 labelsDiv: null,
-                labelsDivWidth: 1000
+                labelsDivWidth: 1000,
+                axes: {y:{},x:{}}
             });
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
@@ -274,7 +275,8 @@ describe('Aardvark controllers', function () {
                 },
                 labelsSeparateLines: true,
                 labelsDiv: null,
-                labelsDivWidth: 1000
+                labelsDivWidth: 1000,
+                axes: {y:{},x:{}}
             });
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
@@ -340,7 +342,8 @@ describe('Aardvark controllers', function () {
                 },
                 labelsSeparateLines: true,
                 labelsDiv: null,
-                labelsDivWidth: 1000
+                labelsDivWidth: 1000,
+                axes: {y:{},x:{}}
             });
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
@@ -404,7 +407,8 @@ describe('Aardvark controllers', function () {
                 },
                 labelsSeparateLines: true,
                 labelsDiv: null,
-                labelsDivWidth: 1000
+                labelsDivWidth: 1000,
+                axes: {y:{},x:{}}
             });
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});

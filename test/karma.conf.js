@@ -18,6 +18,8 @@ module.exports = function (config) {
             'node_modules/protobufjs/dist/protobuf.js',
             'node_modules/angular-local-storage/dist/angular-local-storage.js',
             'node_modules/angular-mocks/angular-mocks.js',
+            'node_modules/clipboard/dist/clipboard.js',
+            'node_modules/ngclipboard/dist/ngclipboard.js',
             'test/mocks/**/*.js',
             'static-content/aardvark-client.js',
             'static-content/StringSerialisation.js',
