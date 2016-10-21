@@ -74,6 +74,23 @@ aardvark.directive('tagSelection', function() {
     $scope.clearSelectedTreeNode = function() {
         $scope.selectedTreeNode = undefined;
     }
+    $scope.currentMetricName = function() {
+        if ($scope.selectedMetric != "") {
+            return $scope.selectedMetric;
+        }
+
+        var metricId = $scope.selectedMetricId;
+        if (metricId == "0") {
+            return null;
+        }
+        for (var i=0; i<$rootScope.model.metrics.length; i++) {
+            var m = $rootScope.model.metrics[i];
+            if (m.id == metricId) {
+                return m.name;
+            }
+        }
+        return null;
+    }
     $scope.addOrSaveMetric = function() {
         if ($scope.addButtonVisible()) {
             $scope.addMetric();

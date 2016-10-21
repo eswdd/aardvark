@@ -21,6 +21,8 @@
     <script type="application/javascript" src="../node_modules/bytebuffer/dist/bytebuffer.js"></script>
     <script type="application/javascript" src="../node_modules/protobufjs/dist/protobuf.js"></script>
     <script type="application/javascript" src="../node_modules/angular-local-storage/dist/angular-local-storage.js"></script>
+    <script type="application/javascript" src="../node_modules/clipboard/dist/clipboard.js"></script>
+    <script type="application/javascript" src="../node_modules/ngclipboard/dist/ngclipboard.js"></script>
     <!-- Angular CSS - keep order in here same as deps in aardvark-client.js -->
     <link rel="stylesheet" type="text/css" href="../node_modules/angular-ui-layout/src/ui-layout.css">
     <link rel="stylesheet" type="text/css" href="../node_modules/bootstrap-css-only/css/bootstrap.css">
@@ -50,7 +52,7 @@
 
 <body ng-controller="AardvarkCtrl">
 
-<div ui-layout>
+<div ui-layout onload="setupClipboard()">
     <div ui-layout-container class="top-panel" size="64px">
         <table border="0" style="padding: 5px">
             <tr>
@@ -610,6 +612,9 @@
                             <select id="metricControl_selectMetric" ng-model="selectedMetricId" ng-change="nodeSelectedForEditing()" ng-disabled="nodeSelectionDisabled">
                                 <option ng-repeat="metric in model.metrics track by metric.id" value="{{metric.id}}">{{metric.name}}</option>
                             </select>
+                            <input type="text" id="metricControl_metricName" ng-model="currentMetricName()" style="width: 0; height: 0; color: rgba(0,0,0,0); background-color: rgba(0,0,0,0); border: none" />
+                            <button style="padding: 1px" class="glyphicon glyphicon-copy" ngclipboard data-clipboard-target="#metricControl_metricName" ng-disabled="currentMetricName() == null">
+                            </button> 
                         </div>
 
                         <div style="border: 1px solid black; overflow: auto">
