@@ -2267,13 +2267,21 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                 ySeries = json[1];
             }
             
+            var timesByValues = {};
             var data = [];
             for (var t in xSeries.dps) {
                 if (xSeries.dps.hasOwnProperty(t) && ySeries.dps.hasOwnProperty(t)) {
                     if (scatterOptions.excludeNegative && (xSeries.dps[t] < 0 || ySeries.dps[t] < 0)) {
                         continue;
                     }
-                    data.push([xSeries.dps[t], ySeries.dps[t]]);
+                    var xval = xSeries.dps[t];
+                    var yval = ySeries.dps[t];
+                    data.push([xval, yval]);
+                    var timesKey = xval + "_" + yval;
+                    if (!timesByValues.hasOwnProperty(timesKey)) {
+                        timesByValues[timesKey] = [];
+                    }
+                    timesByValues[timesKey].push(t);
                 }
             }
             data.sort(function (a,b) {
@@ -2312,7 +2320,35 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                 labelsDivStyles: { fontSize: 9, textAlign: 'right' },
                 labelsSeparateLines: true,
                 labelsDiv: labelsDiv,
-                labelsDivWidth: 1000
+                labelsDivWidth: 1000,
+                axes: {
+                    y: {
+                        valueFormatter: function(num, opts, seriesName, g, row, col) {
+                            var xval = g.getValue(row, 0);
+                            var yval = g.getValue(row, 1);
+                            return xval + " vs " + yval;
+                        }
+                    },
+                    x: {
+                        valueFormatter: function(num, opts, seriesName, g, row, col) {
+                            var xval = g.getValue(row, 0);
+                            var yval = g.getValue(row, 1);
+                            var times = timesByValues[xval+"_"+yval];
+                            var timesText = "";
+                            var sep = "";
+                            for (var t=0; t<times.length; t++) {
+                                try {
+                                    timesText += sep + moment.utc(parseInt(times[t])).format("YYYY/MM/DD HH:mm:ss");
+                                }
+                                catch (e) {
+                                    timesText += sep + times[t];
+                                }
+                                sep = ", "
+                            }
+                            return timesText;
+                        }
+                    }
+                }
             };
 
             $scope.dygraph_render("scatterDiv_"+graph.id, graph.id, data, config);
