@@ -45,13 +45,11 @@ for i in `cat user-guide.html  | grep img | grep -v http | grep -o "src=\".*\"" 
   cp $i user_guide
 done
 
-git clone -b master https://$USER_PASS@github.com/aardvark.git master
+git clone -b master https://$USER_PASS@github.com/eswdd/aardvark.git master
 cp -R user_guide master/static-content
-for i in `ls user_guide | sed -e 's/user_guide\///'`; do
-  git add gh-pages/static-content/$i
-done
+cd master
+git add static-content/user_guide
 #todo: removal of old content
-cd master 
 git commit -m "Auto commit of latest user guide from gh-pages branch build"
 
 
