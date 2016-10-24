@@ -20,7 +20,7 @@ Node.js installation is very simple:
 To run:
 
     cd node_modules/aardvark
-    node aardvark.js -c <config_file>
+    node aardvark.js -c &lt;config_file>
 
 
 
@@ -36,6 +36,6 @@ Installation steps:
 * Create config
 
 
-    gzip -dc aardvark-<version>.tar.gz | tar xv
+    gzip -dc aardvark-&lt;version>.tar.gz | tar xv
     mkdir aardvark
     vi aardvark/config
