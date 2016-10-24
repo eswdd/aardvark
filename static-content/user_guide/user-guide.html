@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-gb">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>Aardvark - User Guide</title>
+	<meta name="author" content="Betfair" />
+	<link rel="stylesheet" href="/aardvark/css/syntax.css" type="text/css" media="all" />
+	<link rel="stylesheet" href="/aardvark/css/screen.css" type="text/css" media="all" />
+	<link rel="stylesheet" href="/aardvark/css/tablet.css" type="text/css" media="screen and (min-width:651px) and (max-width: 1024px), screen and (min-device-width: 768px) and (max-device-width: 1024px)" />
+	<link rel="stylesheet" href="/aardvark/css/mobile.css" type="text/css" media="handheld, screen and (max-width: 650px), screen and (max-device-width: 480px)" />
+</head>
+<body>
+        <div class="site">
+	        <a href='http://github.com/eswdd/aardvark/tree/master'><img alt='Fork me on GitHub' src='https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png' style='position: absolute; top: 0; right: 0; border: 0;' /></a>
+        <div class="title"><a href="/aardvark"><img src="aardvark-header.png" alt="Aardvark Logo" border="0"/></a></div>
+		
+        <div class="home">
+            <h1 id="aardvark_user_guide">Aardvark User Guide</h1>
+
+<p>Aardvark is a general purpose visualiser for OpenTSDB. Its aim is to provide a simple yet rich user interface to explore time series data, however given the wealth of features available, some guidance is necessary in order to be able to get the best out of Aardvark.</p>
+
+<h2 id="overview">Overview</h2>
+
+<p>The Aardvark user interface is split up into 6 main areas:</p>
+<hr />
+<pre><code>|            Title Area               |
+|-------------------------------------|
+| Global  |               |           |
+|---------|               |  Metric   |
+|         |               | Selection |
+|         |     Graph     |           |
+| Graph   |               |-----------|
+|         |    Display    |           |
+| Control |               |  Metric   |
+|         |               |  Control  |
+|         |               |           |</code></pre>
+<hr />
+<h2 id="common_concepts">Common concepts</h2>
+
+<h3 id="time_periods">Time periods</h3>
+
+<p>Various fields allow the specification of time periods. Aardvark uses the same shorthand format as OpenTSDB consisting of a number followed by a character:</p>
+
+<ul>
+<li><strong>s</strong> - seconds</li>
+
+<li><strong>m</strong> - minutes</li>
+
+<li><strong>h</strong> - hours</li>
+
+<li><strong>d</strong> - days</li>
+
+<li><strong>w</strong> - weeks</li>
+
+<li><strong>y</strong> - years</li>
+</ul>
+
+<h3 id="datetime_formats">Date/time formats</h3>
+
+<ul>
+<li><strong>Date</strong> - yyyy/mm/dd</li>
+
+<li><strong>Time</strong> - HH:MM:SS</li>
+</ul>
+
+<h2 id="title_area">Title Area</h2>
+
+<p>Aside from providing a thin header, this provides access to reset the entire app to a blank status, and ability to change render modes.</p>
+
+<ul>
+<li><strong>Reset</strong> - Removes all metrics and graphs, adds back in a single graph with the default settings.</li>
+
+<li><strong>Render</strong> - By default Aardvark only renders graphs when clicking <em>Save</em> within either the graph or metric controls or pressing the enter key whilst focus is on a field. However to provide a more dynamic interface you may select <em>On change</em> in order to render on change of any input on the screen. This is a user preference and stored in the browser.</li>
+</ul>
+
+<h2 id="global_controls">Global Controls</h2>
+
+<p>These are controls which affect either the whole page, all graphs, or all metrics.</p>
+
+<h3 id="datetime_controls">Date/time controls</h3>
+
+<p>Aardvark allows time to be specified as either relative or absolute.</p>
+
+<p>When time is relative, then all you need provide is a period to look back over from now.</p>
+
+<p>When time is absolute, then you must specify a date/time to begin and you may optionally specify a date/time to end (else now is used).</p>
+
+<p>Aardvark also allows you to auto-reload (rerender) the graphs every entered time period.</p>
+
+<h3 id="downsampling">Downsampling</h3>
+
+<h3 id="baselining">Baselining</h3>
+
+<h2 id="graph_controls">Graph Controls</h2>
+
+<p>Aardvark supports rendering multiple graphs for the same time period, with the ability to change render engine, chart style and other options independently for each.</p>
+
+<h3 id="graph_management">Graph management</h3>
+
+<p>Aardvark defaults to a single graph, the renderer for which can be defaulted via (configuration)[config.html].</p>
+
+<p>New graphs can be added by clicking ‘Add graph’ at the bottom of the graph controls panel.</p>
+
+<p>Individual graphs offer the opportunity to change the title, renderer and also to delete it.</p>
+
+<p>Additions and deletions of graphs are not applied to the render view until ‘Save’ has been pressed, regardless of render mode. All other changes apply according to the render mode.</p>
+
+<h3 id="gnuplot_renderer">Gnuplot renderer</h3>
+
+<h3 id="horizon_renderer">Horizon renderer</h3>
+
+<h3 id="dygraph_renderer">Dygraph renderer</h3>
+
+<h3 id="scatter_renderer">Scatter renderer</h3>
+
+<h3 id="heatmap_renderer">Heatmap renderer</h3>
+
+<h2 id="graph_display">Graph Display</h2>
+
+<p>This area displays the rendered graphs. For some renderers it is possible to interact with the charts.</p>
+
+<h3 id="gnuplot_renderer_2">Gnuplot renderer</h3>
+
+<h3 id="horizon_renderer_2">Horizon renderer</h3>
+
+<h3 id="dygraph_renderer_2">Dygraph renderer</h3>
+
+<h3 id="scatter_renderer_2">Scatter renderer</h3>
+
+<h3 id="heatmap_renderer_2">Heatmap renderer</h3>
+
+<h2 id="metric_selection">Metric Selection</h2>
+
+<p>ipso lorem</p>
+
+<h2 id="metric_controls">Metric Controls</h2>
+
+<p>ipso lorem</p>      
+        </div>
+        <div class="footer">
+            <p>
+                <a href="http://github.com/eswdd/aardvark/tree/gh-pages">hosted on github</a>
+                &curren;
+                <a href="http://github.com/mojombo/jekyll">generated by jekyll</a>
+            </p>
+        </div>
+	</div>
+	<!-- Last generated: Mon, 24 Oct 2016 22:45:38 +0100 -->
+</body>
+<html>
