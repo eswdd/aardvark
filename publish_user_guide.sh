@@ -51,5 +51,5 @@ cd master
 git add static-content/user_guide
 #todo: removal of old content
 git commit -m "Auto commit of latest user guide from gh-pages branch build"
-
+git push
 
