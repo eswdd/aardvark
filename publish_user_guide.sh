@@ -35,14 +35,6 @@ if [ ! -z $PASS ]; then
   USER_PASS=$USER_PASS:$PASS
 fi
 
-if [ ! -z $EMAIL ]; then
-  git config user.email "$EMAIL"
-fi
-
-if [ ! -z $NAME ]; then
-  git config user.name "$NAME"
-fi
-
 bundle exec jekyll build --trace --config _config.yml
 cd _site
 mkdir user_guide
@@ -58,5 +50,13 @@ cd master
 git add static-content/user_guide
 #todo: removal of old content
 git commit -m "Auto commit of latest user guide from gh-pages branch build"
+
+if [ ! -z $EMAIL ]; then
+  git config user.email "$EMAIL"
+fi
+if [ ! -z $NAME ]; then
+  git config user.name "$NAME"
+fi
+
 git push
 
