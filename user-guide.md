@@ -137,6 +137,10 @@ This area displays the rendered graphs. For most renderers it is possible to int
 
 ### Horizon renderer
 
+The horizon renderer doesn't provide any opportunities for interaction with a chart.
+
+It will however show series' values on hover along with a vertical bar allowing you to easily see correlations with other series.
+
 ### Dygraph renderer
 
 ### Scatter renderer
