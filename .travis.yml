@@ -16,10 +16,10 @@ env:
   - secure: Rh3DLmnav8cpQwUw2K2GVMvLnsZkcZHDZ7HrkAJxK5unZAjjsQcBDWSGsuFjCQzrcJjCQwsCYPg4pw6qs8Xh2aE0dkfN+DHsnENSBWUpva5vSzmTXii76+c/7Uxg0yMPx9/9BuWEWcoozWXAfffKn+ZdyRL8uBQfGRre6+QK/Do=
   # GITHUB_PASSWORD
   - secure: pGFzXD/EB1oFOTAhxCKwkTg6bawjzAJqwIuBoURSjwZ1krZ87Col+SvvbcPJEkuYmQoTyYXFd+xy7dmUgdpo59gnY3FwJO4HlS91feAqjaJzF33UssN92yUv0mErYA9/jIKEnscw60co1dQNj7eR4FEH/lCkhAsQyafEm6cdQi4=
-  # GIT_NAME
-  - secure: q0tV4cF9YpDnH2EDXXnGmOPwloJSU8fDJVvUFl4pdLO2aHEzpQJi7gDW3s4QZ0iQrPKxOv/tn3wTd5c0HeeGFtUxTtgtkRvyF85BD3lFSSIyvDkuEXF5TpEUqqQibvefH8+0s0Ai8gjI7qdg2PF1HOn2JQAzehbFWtNeMylSMhU=
-  # GIT_EMAIL
-  - secure: M0+Wz0JwXTAhVPyMkzi7flhoXLCHTRxKGY1bAs30LCiPiDq7JsMdAlSoVixE57TJmSqqpg9zydQWt5wEeIwZPoWxOBsCTk1sNEAsdRqsKCOBpHOYr9Lb9kjNMkTXMfD7IMa/CfAu7Fa1FpieM6acI2yh6IdngXO2Zq+BDJdv1TE=
+  # GIT_AUTHOR_NAME
+  - secure: SOrUAtgHhJembxGO0e2Jkfu3ljd3U9Fz98KQaqg84bXYVBOswtxxCI0t723TxKkaDcM0w24+na/9rfciFVTwu3OFDCq9FO2U9tSLJ5O4B6NjXSRIDuOLjijnu7E3gYG6mfxZvCBEggn3f9WyRZERifKStMVjJxau+z8+IIWw5GI=
+  # GIT_AUTHOR_EMAIL
+  - secure: cyD3ZXGGF2V0Vaq1Pvjxsw/qN2UaPxPCmbrFalMz6leKJs5OAEjvJasGETWkYnM8EszU2cYQyzjfC4H7S0IUYlXiaccqk7usBMyN9ZF5kkkyjwe1mKr8vlpcQ9DGQMAkxFLbgkaOF5daM3qVdajBXNq66maQMC1v6/P1x3fV+Gc=
 branches:
   only:
   - gh-pages
