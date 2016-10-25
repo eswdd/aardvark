@@ -51,9 +51,11 @@ Aside from providing a thin header, this provides access to reset the entire app
 * **Render** - By default Aardvark only renders graphs when clicking *Save* within either the graph or metric controls or pressing the enter key whilst focus is on a field. However to provide a more dynamic interface you may select *On change* in order to render on change of any input on the screen. This is a user preference and stored in the browser.
 
 ## Global Controls
+
 These are controls which affect either the whole page, all graphs, or all metrics.
 
 ### Date/time controls
+
 Aardvark allows time to be specified as either relative or absolute.
 
 When time is relative, then all you need provide is a period to look back over from now.
@@ -84,17 +86,27 @@ Additions and deletions of graphs are not applied to the render view until 'Save
 
 ### Gnuplot renderer
 
+The gnuplot renderer uses OpenTSDB to render timeseries charts on the server and the controls available mirror those found on the default OpenTSDB user interface.
+
 ### Horizon renderer
+
+The horizon renderer uses Cubism from Square.io to render horizon charts, horizon charts are particularly useful for spotting event correlations across a large number of timeseries. 
 
 ### Dygraph renderer
 
+The dygraph renderer uses Dygraph to provide client-side rendered time series charts with additional capabilities and flexibility over those provided by gnuplot.
+
 ### Scatter renderer
+
+The scatter renderer uses Dygraph to plot metrics against each other, this is particularly useful for determining strength or manner of correlation.
 
 ### Heatmap renderer
 
+The heatmap renderer uses D3 to render calendar based grids showing the magnitude of a timeseries over time, it is well suited to identifying recurring time-based events.
+
 ## Graph Display
 
-This area displays the rendered graphs. For some renderers it is possible to interact with the charts.
+This area displays the rendered graphs. For most renderers it is possible to interact with the charts.
 
 ### Gnuplot renderer
 
@@ -105,6 +117,10 @@ This area displays the rendered graphs. For some renderers it is possible to int
 ### Scatter renderer
 
 ### Heatmap renderer
+
+The heatmap renderer doesn't provide any opportunities for interaction with a chart.
+
+It will however show cell values on hover.
 
 ## Metric Selection
 ipso lorem...
