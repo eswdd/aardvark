@@ -90,7 +90,9 @@ The gnuplot renderer uses OpenTSDB to render timeseries charts on the server and
 
 ### Horizon renderer
 
-The horizon renderer uses Cubism from Square.io to render horizon charts, horizon charts are particularly useful for spotting event correlations across a large number of timeseries. 
+The horizon renderer uses Cubism from Square.io to render horizon charts, horizon charts are particularly useful for spotting event correlations across a large number of timeseries.
+ 
+The horizon renderer allows you to exclude negative values from the plot and apply linear interpolation to gaps between points.
 
 ### Dygraph renderer
 
@@ -117,6 +119,15 @@ Control over the scatter renderer is currently limited to being able to control 
 ### Heatmap renderer
 
 The heatmap renderer uses D3 to render calendar based grids showing the magnitude of a timeseries over time, it is well suited to identifying recurring time-based events.
+
+The heatmap renderer requires exactly 1 time series to be able to render.
+
+The style of calendar grid is selectable between:
+ * Automatic - Selects week columns and day cells for periods over one year, day columns and hour cells otherwise
+ * Week columns, day cells - shows a row per year with months highlighted
+ * Day columns, hour cells - shows a grid per month
+ 
+The heatmap renderer also allows you to exclude negative values from the plot.
 
 ## Graph Display
 
