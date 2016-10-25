@@ -96,9 +96,23 @@ The horizon renderer uses Cubism from Square.io to render horizon charts, horizo
 
 The dygraph renderer uses Dygraph to provide client-side rendered time series charts with additional capabilities and flexibility over those provided by gnuplot.
 
+#### Rendering controls
+
+#### y-Axis controls
+
+#### Annotations
+
+#### Filtering controls
+
+#### Specials
+
 ### Scatter renderer
 
 The scatter renderer uses Dygraph to plot metrics against each other, this is particularly useful for determining strength or manner of correlation.
+
+The scatter renderer requires exactly 2 time series to be able to render and will show a point for a point in time where a value exists for both plotted series. If you have time series which don't often have points at the same time you may find downsampling will help.
+
+Control over the scatter renderer is currently limited to being able to control whether to exclude negative values from the plot. If a negative is found in either series' value for a point then the point will be excluded. 
 
 ### Heatmap renderer
 
