@@ -35,6 +35,13 @@ if [ ! -z $PASS ]; then
   USER_PASS=$USER_PASS:$PASS
 fi
 
+if [ ! -z $EMAIL ]; then
+  git config user.email "$EMAIL"
+fi
+
+if [ ! -z $NAME ]; then
+  git config user.name "$NAME"
+fi
 
 bundle exec jekyll build --trace --config _config.yml
 cd _site
