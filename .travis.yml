@@ -20,3 +20,8 @@ env:
   - secure: dox0oZDAp3dkU8Otyga3cpkCa3dL9TJgjKe1iwqH5UU33FEDkpY9mz0AtQE82o9O8r52j6w/uFUBRvvfbVFz7F3pl+zIVTV16of+zU/6k3D0Ovo/HuWaJYupxiNLnJhVjIfP3xtSYstDky0Af5mlMyUgmtl5x2BZykBxM0ID+cI=
   # GITHUB_EMAIL
   - secure: ZX2g8rXruFqd488gZoRUD1De3cJV4geKbpW6PDiPlB01v4ydkwIWhSALlWYkJs3xDYH2MLx8Q2OXP0j+5UvMVPNBWpQQkouXYCPbyrgq9paPK3m7Dy+MRrPF5jmfMqLz8BS9F1zADmiRVsDfleTz587gD/G9RVw9Z49KoL8wAjM=
+branches:
+  only:
+  - gh-pages
+  - master
+  - 1.3
