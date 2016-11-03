@@ -81,7 +81,7 @@ describe('Aardvark controllers', function () {
                     title: "Graph 1",
                     type: null,
                     gnuplot: {
-                        yAxisRange: "[0:]",
+                        y1AxisRange: "[0:]",
                         y2AxisRange: "[0:]",
                         showKey: true,
                         keyAlignment: "columnar",
@@ -124,7 +124,7 @@ describe('Aardvark controllers', function () {
                     title: "Graph 1",
                     type: "unittest1",
                     gnuplot: {
-                        yAxisRange: "[0:]",
+                        y1AxisRange: "[0:]",
                         y2AxisRange: "[0:]",
                         showKey: true,
                         keyAlignment: "columnar",
@@ -183,7 +183,7 @@ describe('Aardvark controllers', function () {
                     title: "Graph 1",
                     type: null,
                     gnuplot: {
-                        yAxisRange: "[0:]",
+                        y1AxisRange: "[0:]",
                         y2AxisRange: "[0:]",
                         showKey: true,
                         keyAlignment: "columnar",
@@ -222,7 +222,7 @@ describe('Aardvark controllers', function () {
                     title: "Graph 1",
                     type: null,
                     gnuplot: {
-                        yAxisRange: "[0:]",
+                        y1AxisRange: "[0:]",
                         y2AxisRange: "[0:]",
                         showKey: true,
                         keyAlignment: "columnar",
@@ -255,7 +255,7 @@ describe('Aardvark controllers', function () {
                     title: "Graph 2",
                     type: null,
                     gnuplot: {
-                        yAxisRange: "[0:]",
+                        y1AxisRange: "[0:]",
                         y2AxisRange: "[0:]",
                         showKey: true,
                         keyAlignment: "columnar",
@@ -298,7 +298,7 @@ describe('Aardvark controllers', function () {
                     title: "Graph 1",
                     type: "unittest1",
                     gnuplot: {
-                        yAxisRange: "[0:]",
+                        y1AxisRange: "[0:]",
                         y2AxisRange: "[0:]",
                         showKey: true,
                         keyAlignment: "columnar",
@@ -337,7 +337,7 @@ describe('Aardvark controllers', function () {
                     title: "Graph 1",
                     type: "unittest1",
                     gnuplot: {
-                        yAxisRange: "[0:]",
+                        y1AxisRange: "[0:]",
                         y2AxisRange: "[0:]",
                         showKey: true,
                         keyAlignment: "columnar",
@@ -370,7 +370,7 @@ describe('Aardvark controllers', function () {
                     title: "Graph 2",
                     type: "unittest1",
                     gnuplot: {
-                        yAxisRange: "[0:]",
+                        y1AxisRange: "[0:]",
                         y2AxisRange: "[0:]",
                         showKey: true,
                         keyAlignment: "columnar",

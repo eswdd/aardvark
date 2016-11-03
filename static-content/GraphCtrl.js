@@ -731,16 +731,16 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
         }
 
         if (usingLeftAxis) {
-            if (graph.gnuplot != null && graph.gnuplot.yAxisLabel != null && graph.gnuplot.yAxisLabel != "") {
-                url += "&ylabel=" + $rootScope.formEncode(graph.gnuplot.yAxisLabel);
+            if (graph.gnuplot != null && graph.gnuplot.y1AxisLabel != null && graph.gnuplot.y1AxisLabel != "") {
+                url += "&ylabel=" + $rootScope.formEncode(graph.gnuplot.y1AxisLabel);
             }
-            if (graph.gnuplot != null && graph.gnuplot.yAxisFormat != null && graph.gnuplot.yAxisFormat != "") {
-                url += "&yformat=" + $rootScope.formEncode(graph.gnuplot.yAxisFormat);
+            if (graph.gnuplot != null && graph.gnuplot.y1AxisFormat != null && graph.gnuplot.y1AxisFormat != "") {
+                url += "&yformat=" + $rootScope.formEncode(graph.gnuplot.y1AxisFormat);
             }
-            if (graph.gnuplot != null && graph.gnuplot.yAxisRange != null && graph.gnuplot.yAxisRange != "") {
-                url += "&yrange=" + $rootScope.formEncode(graph.gnuplot.yAxisRange);
+            if (graph.gnuplot != null && graph.gnuplot.y1AxisRange != null && graph.gnuplot.y1AxisRange != "") {
+                url += "&yrange=" + $rootScope.formEncode(graph.gnuplot.y1AxisRange);
             }
-            if (graph.gnuplot != null && graph.gnuplot.yAxisLogScale != null && graph.gnuplot.yAxisLogScale) {
+            if (graph.gnuplot != null && graph.gnuplot.y1AxisLogScale != null && graph.gnuplot.y1AxisLogScale) {
                 url += "&ylog";
             }
 
@@ -1192,53 +1192,92 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
         if (dygraphOptions.valueFilter != null && dygraphOptions.valueFilter.lowerBound != "" && dygraphOptions.valueFilter.upperBound != "" && dygraphOptions.valueFilter.lowerBound == dygraphOptions.valueFilter.upperBound) {
             $scope.renderWarnings[graph.id] = "Lower bound on value filter is same as upper bound";
         }
-        var yAxisRange = [null,null];
-        if (dygraphOptions.yAxisRange != null && dygraphOptions.yAxisRange != "") {
-            var s = dygraphOptions.yAxisRange.replace("[","").replace("]","");
-            var colon = s.indexOf(":");
-            var error = false;
-            if (colon > 0) {
-                try {
-                    var low = s.substring(0,colon);
-                    if (low != "") {
-                        yAxisRange[0] = parseInt(low);
+        var parseAxisRange = function(axisRangeString) {
+            var toReturn = [null, null]
+            if (axisRangeString != null && axisRangeString != "") {
+                var s = axisRangeString.replace("[","").replace("]","");
+                var colon = s.indexOf(":");
+                var error = false;
+                if (colon > 0) {
+                    try {
+                        var low = s.substring(0,colon);
+                        if (low != "") {
+                            toReturn[0] = parseInt(low);
+                        }
+                        var high = s.substring(colon+1);
+                        if (high != "") {
+                            toReturn[1] = parseInt(high);
+                        }
                     }
-                    var high = s.substring(colon+1);
-                    if (high != "") {
-                        yAxisRange[1] = parseInt(high);
+                    catch (parseError) {
+                        error = true;
                     }
                 }
-                catch (parseError) {
+                else {
                     error = true;
                 }
+                if (error) {
+                    $scope.renderWarnings[graph.id] = "Y-axis value range invalid, defaulting to [:]";
+                    toReturn = [null,null];
+                }
             }
-            else {
-                error = true;
-            }
-            if (error) {
-                $scope.renderWarnings[graph.id] = "Y-axis value range invalid, defaulting to [:]";
-                yAxisRange = [null,null];
-            }
+            return toReturn;
+            
         }
+        var y1AxisRange = parseAxisRange(dygraphOptions.y1AxisRange);
+        var y2AxisRange = parseAxisRange(dygraphOptions.y2AxisRange);
 
         $scope.renderMessages[graph.id] = "Loading...";
         
-        var constructUrl = function(queryStringFn, datum) {
-            var ret = $rootScope.config.tsdbBaseReadUrl+"/api/query";
-
-            ret += queryStringFn(global, graph, metrics, null, datum);
-
-            if (dygraphOptions.annotations || dygraphOptions.globalAnnotations) {
-                ret += "&show_tsuids=true";
-                if (dygraphOptions.globalAnnotations) {
-                    ret += "&global_annotations=true";
+        var constructUrls = function(queryStringFn, datum) {
+            // split metrics up so that we end up with only a single instance of each metric in each set of queries
+            var metricIndexes = {};
+            var maxCount = 0;
+            for (var m=0; m<metrics.length; m++) {
+                if (!metricIndexes.hasOwnProperty(metrics[m].name)) {
+                    metricIndexes[metrics[m].name] = [];
                 }
+                metricIndexes[metrics[m].name].push(m);
+                maxCount = Math.max(maxCount, metricIndexes[metrics[m].name].length);
             }
-            else {
-                ret += "&no_annotations=true";
+            var seperatedMetricsDicts = [];
+            var seperatedMetricsArrays = [];
+            for (var i=0; i<maxCount; i++) {
+                var dict = {};
+                var arr = [];
+                for (var metricName in metricIndexes) {
+                    if (metricIndexes.hasOwnProperty(metricName)) {
+                        if (metricIndexes[metricName].length > i) {
+                            var metric = metrics[metricIndexes[metricName][i]];
+                            dict[metricName] = metric;
+                            arr.push(metric)
+                        }
+                    }
+                }
+                seperatedMetricsDicts.push(dict);
+                seperatedMetricsArrays.push(arr);
             }
+            
+            var ret = [];
+            for (var i=0; i<maxCount; i++) {
+                
+                var url = $rootScope.config.tsdbBaseReadUrl+"/api/query";
 
-            ret += "&ms=true&arrays=true&show_query=true";
+                url += queryStringFn(global, graph, seperatedMetricsArrays[i], null, datum);
+    
+                if (dygraphOptions.annotations || dygraphOptions.globalAnnotations) {
+                    url += "&show_tsuids=true";
+                    if (dygraphOptions.globalAnnotations) {
+                        url += "&global_annotations=true";
+                    }
+                }
+                else {
+                    url += "&no_annotations=true";
+                }
+
+                url += "&ms=true&arrays=true&show_query=true";
+                ret.push({metrics: seperatedMetricsDicts[i], url: url});
+            }
             return ret;
         }
         
@@ -1616,58 +1655,81 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                 }
             }
 
-            // 4. initial label setting (both sets)
+            var isY1Axis = function (axis) {
+                return axis==null || axis=="x1y1";
+            }
+
+            var isY2Axis = function (axis) {
+                return axis=="x1y2";
+            }
+
+            // 4. initial label setting (both sets) and axis allocation
             var mainLabels = ["x"];
             var baselineLabels = ["x"];
+            var seriesOptions = {};
             for (var t=0; t<mainJson.length; t++) {
                 var name = $scope.timeSeriesName(mainJson[t]);
                 mainLabels.push(name);
+                var axis = isY1Axis(mainJson[t].aardvark_metric.graphOptions.axis) ? "y1" : "y2";
+                seriesOptions[name] = { axis: axis };
             }
             if (baselining) {
                 for (var t=0; t<baselineJson.length; t++) {
                     var name = $scope.timeSeriesName(baselineJson[t]);
                     baselineLabels.push(name+"[BL]");
+                    var axis = isY1Axis(baselineJson[t].aardvark_metric.graphOptions.axis) ? "y1" : "y2";
+                    seriesOptions[name+"[BL]"] = { axis: axis };
                 }
             }
 
-            // 5. auto-scaling and label adjustment (both together)
-            var scaleMultiplierByMetricName = {}; // default 1
-            
-            var initScaleMultipliers = function(json) {
-                for (var s=0; s<json.length; s++) {
-                    scaleMultiplierByMetricName[json[s].metric] = 1;
-                }
+            var isNegativeSquashingEnabled = function(json) {
+                return (isY1Axis(json.aardvark_metric.graphOptions.axis) && dygraphOptions.y1SquashNegative)
+                    || (isY2Axis(json.aardvark_metric.graphOptions.axis) && dygraphOptions.y2SquashNegative);
             }
-            initScaleMultipliers(mainJson);
-            if (baselining) {
-                initScaleMultipliers(baselineJson);
-            }
-            
-            if (dygraphOptions.autoScale) {
-                var maxValueByMetricName = {};
-                
-                var calcMaxValues = function(json) {
+
+            var scaleMultiplierByMetricNameY1 = {}; // default 1
+            var scaleMultiplierByMetricNameY2 = {}; // default 1
+            var autoScale = function(axisMatchFn, perAxisScaleMultipliers) {
+                // 5. auto-scaling and label adjustment (both together)
+
+                var initScaleMultipliers = function(json) {
                     for (var s=0; s<json.length; s++) {
-                        scaleMultiplierByMetricName[json[s].metric] = 1;
-                        var max = 0;
-                        var min = Number.MAX_VALUE;
-                        for (var p=0; p<json[s].dps.length; p++) {
-                            max = Math.max(max, json[s].dps[p][1]);
-                            min = Math.min(min, json[s].dps[p][1]);
-                        }
-                        if (!dygraphOptions.squashNegative && min < 0) {
-                            max = Math.max(max, Math.abs(min));
-                        }
-                        if (maxValueByMetricName[json[s].metric] == null)
-                        {
-                            maxValueByMetricName[json[s].metric] = max;
-                        }
-                        else {
-                            maxValueByMetricName[json[s].metric] = Math.max(maxValueByMetricName[json[s].metric], max);
+                        if (axisMatchFn(json[s].aardvark_metric.graphOptions.axis)) {
+                            perAxisScaleMultipliers[json[s].metric] = 1;
                         }
                     }
                 }
+                initScaleMultipliers(mainJson);
+                if (baselining) {
+                    initScaleMultipliers(baselineJson);
+                }
                 
+                var maxValueByMetricName = {};
+
+                var calcMaxValues = function(json) {
+                    for (var s=0; s<json.length; s++) {
+                        if (axisMatchFn(json[s].aardvark_metric.graphOptions.axis)) {
+                            perAxisScaleMultipliers[json[s].metric] = 1;
+                            var max = 0;
+                            var min = Number.MAX_VALUE;
+                            for (var p=0; p<json[s].dps.length; p++) {
+                                max = Math.max(max, json[s].dps[p][1]);
+                                min = Math.min(min, json[s].dps[p][1]);
+                            }
+                            if (!isNegativeSquashingEnabled(json[s]) && min < 0) {
+                                max = Math.max(max, Math.abs(min));
+                            }
+                            if (maxValueByMetricName[json[s].metric] == null)
+                            {
+                                maxValueByMetricName[json[s].metric] = max;
+                            }
+                            else {
+                                maxValueByMetricName[json[s].metric] = Math.max(maxValueByMetricName[json[s].metric], max);
+                            }
+                        }
+                    }
+                }
+
                 calcMaxValues(mainJson);
                 if (baselining) {
                     calcMaxValues(baselineJson);
@@ -1680,27 +1742,41 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                         maxl = logMax;
                     }
                 }
-                
+
                 for (var metric in maxValueByMetricName) {
                     var pow = parseInt(Math.log(maxValueByMetricName[metric])/Math.log(10));
                     var l = maxl - pow;
                     if (l > 0) {
-                        scaleMultiplierByMetricName[metric] = Math.pow(10, l);
+                        perAxisScaleMultipliers[metric] = Math.pow(10, l);
                     }
                 }
 
                 var updateScaleFactors = function(json, labels) {
                     for (var s=0;s<json.length;s++) {
-                        var scale = scaleMultiplierByMetricName[json[s].metric];
-                        if (scale > 1) {
-                            labels[s+1] = scale+"x "+labels[s+1];
-                        }
+                        if (axisMatchFn(json[s].aardvark_metric.graphOptions.axis)) {
+                            var scale = perAxisScaleMultipliers[json[s].metric];
+                            if (scale > 1) {
+                                var oldLabel = labels[s+1];
+                                var newLabel = scale+"x "+labels[s+1];
+                                labels[s+1] = newLabel;
+                                seriesOptions[newLabel] = seriesOptions[oldLabel];
+                                delete seriesOptions[oldLabel];
+                            }
+                        }   
                     }
                 }
                 updateScaleFactors(mainJson, mainLabels);
                 if (baselining) {
                     updateScaleFactors(baselineJson, baselineLabels);
                 }
+            }
+            
+            if (dygraphOptions.y1AutoScale) {
+                autoScale(isY1Axis, scaleMultiplierByMetricNameY1);
+            }
+            
+            if (dygraphOptions.y2AutoScale) {
+                autoScale(isY2Axis, scaleMultiplierByMetricNameY2);
             }
 
             // 6. baseline time adjustment
@@ -1739,17 +1815,17 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                 if (dygraphOptions.meanAdjusted) {
                     ignoredOptions.push("mean adjustment");
                 }
-                if (dygraphOptions.autoScale) {
+                if (dygraphOptions.y1AutoScale || dygraphOptions.y2AutoScale) {
                     ignoredOptions.push("auto scaling");
                 }
             }
             else if (dygraphOptions.meanAdjusted) {
-                if (dygraphOptions.autoScale) {
+                if (dygraphOptions.y1AutoScale || dygraphOptions.y2AutoScale) {
                     ignoredOptions.push("auto scaling");
                 }
             }
             var ignoredBecause = null;
-
+            
             // 8. seperate processing
             //  a. ratio graphs
             //  b. mean adjustment
@@ -1770,7 +1846,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                         else if (json[s].dps[indices[s]][0] == t) {
                             hadValue[s] = true;
                             var val = json[s].dps[indices[s]][1];
-                            if (dygraphOptions.squashNegative && val < 0) {
+                            if (isNegativeSquashingEnabled(json[s]) && val < 0) {
                                 json[s].dps[indices[s]][1] = 0;
                                 val = 0;
                             }
@@ -1811,13 +1887,27 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                         }
                         ignoredBecause = "mean adjustment";
                     }
-                    else if (dygraphOptions.autoScale) {
-                        for (var s=0; s<json.length; s++) {
-                            if (hadValue[s] && json[s].dps[indices[s]-1][1]!=null && !isNaN(json[s].dps[indices[s]-1][1])) {
-                                json[s].dps[indices[s]-1][1] *= scaleMultiplierByMetricName[json[s].metric];
+                    else {
+                        if (dygraphOptions.y1AutoScale) {
+                            for (var s=0; s<json.length; s++) {
+                                if (isY1Axis(json[s].aardvark_metric.graphOptions.axis)) {
+                                    if (hadValue[s] && json[s].dps[indices[s]-1][1]!=null && !isNaN(json[s].dps[indices[s]-1][1])) {
+                                        json[s].dps[indices[s]-1][1] *= scaleMultiplierByMetricNameY1[json[s].metric];
+                                    }
+                                }
                             }
+                            ignoredBecause = "auto scaling";
                         }
-                        ignoredBecause = "auto scaling";
+                        if (dygraphOptions.y2AutoScale) {
+                            for (var s=0; s<json.length; s++) {
+                                if (isY2Axis(json[s].aardvark_metric.graphOptions.axis)) {
+                                    if (hadValue[s] && json[s].dps[indices[s]-1][1]!=null && !isNaN(json[s].dps[indices[s]-1][1])) {
+                                        json[s].dps[indices[s]-1][1] *= scaleMultiplierByMetricNameY2[json[s].metric];
+                                    }
+                                }
+                            }
+                            ignoredBecause = "auto scaling";
+                        }
                     }
                     t = nextTime;
                 }
@@ -1873,31 +1963,6 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                 t = nextTime;
             }
 
-            var positionLegend = function() {
-                var container = d3.select("#scrollable-graph-panel").node();
-                // null in unt tests
-                if (container != null) {
-                    var graphPanelBox = container.getBoundingClientRect();
-                    var graphBox = d3.select("#dygraphDiv_"+graph.id).node().getBoundingClientRect();
-                    // top needs to be relative to this panel, not whole window
-                    var legendTop = graphBox.top - graphPanelBox.top;
-                    // and now we just go find the rule we added and set the top/height
-                    d3.select("#dygraphLegend_"+graph.id)
-                      .style("left", "100px")
-                      .style("top", legendTop+"px")
-                      .style("height",graphBox.height+"px")
-                      .style("width",(graphBox.width-100)+"px");
-                }
-            }
-
-//            positionLegend();
-
-            $scope.addGraphRenderListener(function (graphId) {
-                if (graphId != graph.id) {
-//                    positionLegend();
-                }
-            });
-
             // 10. merge labels
             var labels = mainLabels;
             if (baselining) {
@@ -1925,25 +1990,13 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                         dygraphAnnotationClickHandler(ann, point, dg, event);
                     }
                 },
-                logscale: dygraphOptions.ylog,
                 stackedGraph: dygraphOptions.stackedLines,
                 connectSeparatedPoints: dygraphOptions.interpolateGaps,
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
                 labelsDivStyles: { fontSize: 9, textAlign: 'left' },
                 labelsSeparateLines: true,
-//                labelsDiv: labelsDiv,
-//                series: {
-//                    'cpu.percent{host=host01}': {
-//                        axis: 'y1'
-//                    },
-//                    'cpu.percent{host=host02}': {
-//                        axis: 'y2'
-//                    },
-//                    'cpu.percent{host=host03}': {
-//                        axis: 'y1'
-//                    }
-//                },
+                series: seriesOptions,
                 axes: {
                     y: {
                         valueFormatter: function(y) {
@@ -1958,12 +2011,26 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                             }
                             return y.toString().replace(/\B(?=(?:\d{3})+(?!\d))/g, ",")
                         },
-                        valueRange: yAxisRange
+                        valueRange: y1AxisRange,
+                        logscale: dygraphOptions.y1Log
+                    },
+                    y2: {
+                        valueFormatter: function(y) {
+                            if (isNaN(y) || y < 1000) {
+                                return "" + y;
+                            }
+                            return y.toString().replace(/\B(?=(?:\d{3})+(?!\d))/g, ",")
+                        },
+                        axisLabelFormatter: function(y) {
+                            if (isNaN(y) || y < 1000) {
+                                return "" + Dygraph.round_(y, 3);
+                            }
+                            return y.toString().replace(/\B(?=(?:\d{3})+(?!\d))/g, ",")
+                        },
+                        valueRange: y2AxisRange,
+                        logscale: dygraphOptions.y2Log
+                        
                     }
-//                    y2: {
-//                        valueRange: [-200, 200]
-//                        
-//                    }
                 }
             };
             if (dygraphOptions.highlightLines) {
@@ -2008,7 +2075,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                 }
                 
                 var label = $scope.timeSeriesName(series);
-                var scale = scaleMultiplierByMetricName[seriesAndAnnotation[0].metric];
+                var scale = isY1Axis(seriesAndAnnotation[0].aardvark_metric.graphOptions.axis) ? scaleMultiplierByMetricNameY1[seriesAndAnnotation[0].metric] : scaleMultiplierByMetricNameY1[seriesAndAnnotation[0].metric];
                 if (scale > 1) {
                     label = scale+"x "+label;
                 }
@@ -2048,7 +2115,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                     var adding = annotationIndex == -1;
                     var seriesAndQueries = {};
                     for (var i=0; i<mainJson.length; i++) {
-                        seriesAndQueries[$scope.timeSeriesName(mainJson[i])] = mainJson[i].query;
+                        seriesAndQueries[$scope.timeSeriesName(mainJson[i])] = mainJson[i].aardvark_metric;
                     }
                     var modalInstance = $uibModal.open({
                         animation: false,
@@ -2176,41 +2243,85 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
             
         }
 
-        // 1. make both queries
-        var url = constructUrl($scope.tsdb_queryString, null);
-        var baselineUrl = global.baselining ? constructUrl($scope.tsdb_queryStringForBaseline, datum) : null;
-
-        // now we have the url, so call it!
-        $http.get(url).success(function (json) {
-            if (errorResponse) {
-                return;
-            }
-            mainJson = json;
-            if (!global.baselining || baselineJson != null) {
-                processJson();
-            }
-            // else wait for baseline data
-        }).error(function (arg) {
-            $scope.renderMessages[graph.id] = "Error loading data: "+arg;
-            errorReponse = true;
-            return;
-        });
+        // 1. make both queries, todo: such that we can tie up original query with results 
+        var urls = constructUrls($scope.tsdb_queryString, null);
+        var baselineUrls = global.baselining ? constructUrls($scope.tsdb_queryStringForBaseline, datum) : null;
         
-        if (global.baselining) {
-            $http.get(baselineUrl).success(function (json) {
+        var expectedNormalResponses = urls.length;
+        var receivedNormalResponses = 0;
+        var expectedBaselineResponses = global.baselining ? urls.length : 0;
+        var receivedBaselineResponses = 0;
+        
+        var mainJsons = [];
+        var baselineJsons = [];
+        
+        var mergeJsons = function(jsons) {
+            var ret = [];
+            for (var j=0; j<jsons.length; j++) {
+                var metricsAndJson = jsons[j];
+                var json = metricsAndJson.response;
+                var metricsByMetric = metricsAndJson.metrics;
+                for (var i=0; i<json.length; i++) {
+                    var metric = json[i].metric;
+                    json[i].aardvark_metric = metricsByMetric[metric];
+                    ret.push(json[i]);
+                }
+            }
+            return ret;
+        };
+        
+        var doMain = function(metricsAndUrl) {
+            $http.get(metricsAndUrl.url).success(function (json) {
                 if (errorResponse) {
                     return;
                 }
-                baselineJson = json;
-                if (mainJson != null) {
-                    processJson();
+                mainJsons.push({metrics:metricsAndUrl.metrics, response: json});
+                receivedNormalResponses++;
+                if (expectedNormalResponses == receivedNormalResponses) {
+                    //console.log("got all my responses")
+                    mainJson = mergeJsons(mainJsons);
+                    if (expectedBaselineResponses == receivedBaselineResponses) {
+                        processJson();
+                    }
                 }
-                // else wait for main data
+                // else wait for baseline data
             }).error(function (arg) {
-                $scope.renderMessages[graph.id] = "Error loading data: "+arg;
-                errorReponse = true;
-                return;
-            });
+                    $scope.renderMessages[graph.id] = "Error loading data: "+arg;
+                    errorReponse = true;
+                    return;
+                });
+            
+        }
+        var doBaseline = function(metricsAndUrl) {
+            $http.get(metricsAndUrl.url).success(function (json) {
+                if (errorResponse) {
+                    return;
+                }
+                baselineJsons.push({metrics:metricsAndUrl.metrics, response: json});
+                receivedBaselineResponses++;
+                if (expectedBaselineResponses == receivedBaselineResponses) {
+                    baselineJson = mergeJsons(baselineJsons);
+                    if (expectedNormalResponses == receivedNormalResponses) {
+                        processJson();
+                    }
+                }
+                // else wait for baseline data
+            }).error(function (arg) {
+                    $scope.renderMessages[graph.id] = "Error loading data: "+arg;
+                    errorReponse = true;
+                    return;
+                });
+            
+        }
+        
+        for (var u=0; u<urls.length; u++) {
+            doMain(urls[u]);
+        }
+        
+        if (global.baselining) {
+            for (var u=0; u<baselineUrls.length; u++) {
+                doBaseline(baselineUrls[u]);
+            }
         }
     };
     $scope.renderers["scatter"] = function(global, graph, metrics) {

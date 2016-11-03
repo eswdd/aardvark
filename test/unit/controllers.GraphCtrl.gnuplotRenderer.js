@@ -346,7 +346,7 @@ describe('Aardvark controllers', function () {
             rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisLabel: "Label 1", y2AxisLabel: "Label 2" }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { y1AxisLabel: "Label 1", y2AxisLabel: "Label 2" }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
@@ -363,7 +363,7 @@ describe('Aardvark controllers', function () {
             rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisLabel: "Label 1", y2AxisLabel: "Label 2" }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { y1AxisLabel: "Label 1", y2AxisLabel: "Label 2" }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
@@ -380,7 +380,7 @@ describe('Aardvark controllers', function () {
             rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisFormat: "Format 1", y2AxisFormat: "Format 2" }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { y1AxisFormat: "Format 1", y2AxisFormat: "Format 2" }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
@@ -397,7 +397,7 @@ describe('Aardvark controllers', function () {
             rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisFormat: "Format 1", y2AxisFormat: "Format 2" }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { y1AxisFormat: "Format 1", y2AxisFormat: "Format 2" }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
@@ -414,7 +414,7 @@ describe('Aardvark controllers', function () {
             rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisRange: "[0:1]", y2AxisRange: "[0:2]" }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { y1AxisRange: "[0:1]", y2AxisRange: "[0:2]" }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
@@ -431,7 +431,7 @@ describe('Aardvark controllers', function () {
             rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisRange: "[0:1]", y2AxisRange: "[0:2]" }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { y1AxisRange: "[0:1]", y2AxisRange: "[0:2]" }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
@@ -448,7 +448,7 @@ describe('Aardvark controllers', function () {
             rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisLogScale: true, y2AxisLogScale: true }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { y1AxisLogScale: true, y2AxisLogScale: true }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
@@ -465,7 +465,7 @@ describe('Aardvark controllers', function () {
             rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisLogScale: true, y2AxisLogScale: true }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { y1AxisLogScale: true, y2AxisLogScale: true }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
@@ -482,7 +482,7 @@ describe('Aardvark controllers', function () {
             rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisLogScale: false, y2AxisLogScale: true }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { y1AxisLogScale: false, y2AxisLogScale: true }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);
@@ -499,7 +499,7 @@ describe('Aardvark controllers', function () {
             rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { yAxisLogScale: true, y2AxisLogScale: false }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { y1AxisLogScale: true, y2AxisLogScale: false }};
             var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2", rate: false } } ]
 
             scope.renderers.gnuplot(global, graph, metrics);

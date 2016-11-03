@@ -200,7 +200,7 @@
                                                     </tr>
                                                     <tr>
                                                         <td width="5px">&nbsp;</td>
-                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.yAxisLabel" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.y1AxisLabel" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
                                                         <td><input type="text" size="5" ng-model="graph.gnuplot.y2AxisLabel" ng-blur="saveAndRenderGraphsIfAutoUpdate()"  aardvark-enter="saveAndRenderGraphs()" /></td>
                                                     </tr>
                                                     <tr>
@@ -208,7 +208,7 @@
                                                     </tr>
                                                     <tr>
                                                         <td></td>
-                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.yAxisFormat" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                                        <td><input type="text" size="5" ng-model="graph.gnuplot.y1AxisFormat" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
                                                         <td><input type="text" size="5" ng-model="graph.gnuplot.y2AxisFormat" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
                                                     </tr>
                                                     <tr>
@@ -216,7 +216,7 @@
                                                     </tr>
                                                     <tr>
                                                         <td></td>
-                                                        <td style="text-align: center"><input type="text" size="2" ng-model="graph.gnuplot.yAxisRange" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                                        <td style="text-align: center"><input type="text" size="2" ng-model="graph.gnuplot.y1AxisRange" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
                                                         <td style="text-align: center"><input type="text" size="2" ng-model="graph.gnuplot.y2AxisRange" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
                                                     </tr>
                                                     <tr>
@@ -224,7 +224,7 @@
                                                     </tr>
                                                     <tr>
                                                         <td></td>
-                                                        <td style="text-align: center"><input type="checkbox" ng-model="graph.gnuplot.yAxisLogScale" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                                        <td style="text-align: center"><input type="checkbox" ng-model="graph.gnuplot.y1AxisLogScale" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
                                                         <td style="text-align: center"><input type="checkbox" ng-model="graph.gnuplot.y2AxisLogScale" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
                                                     </tr>
                                                 </table>
@@ -376,22 +376,48 @@
                                         <div style="text-decoration: underline; font-weight: 800">
                                             y-Axis Control
                                         </div>
-                                        <div>
-                                            <input type="checkbox" id="squashNegativeDygraph" ng-model="graph.dygraph.squashNegative" ng-disabled="graph.dygraph.meanAdjusted" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                            <label for="squashNegativeDygraph">Squash -ve?</label>
-                                        </div>
-                                        <div>
-                                            <input type="checkbox" id="autoScaleDygraph" ng-model="graph.dygraph.autoScale" ng-disabled="graph.dygraph.ylog" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                            <label for="autoScaleDygraph">Auto scale?</label>
-                                        </div>
-                                        <div>
-                                            <input type="checkbox" id="ylogDygraph" ng-model="graph.dygraph.ylog" ng-disabled="graph.dygraph.autoScale" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                            <label for="ylogDygraph">Logarithmic y-axis?</label>
-                                        </div>
-                                        <div>
-                                            <label for="yRangeDygraph">Range:</label>
-                                            <input id="yRangeDygraph" type="text" size="4" ng-model="graph.dygraph.yAxisRange" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                        </div>
+                                        <table>
+                                            <tr>
+                                                <th style="text-align: center">Y</th>
+                                                <th style="text-align: center">Y2</th>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2">
+                                                    Squash -ve?
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><input type="checkbox" id="y1SquashNegativeDygraph" ng-model="graph.dygraph.y1SquashNegative" ng-disabled="graph.dygraph.meanAdjusted" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                                <td><input type="checkbox" id="y2SquashNegativeDygraph" ng-model="graph.dygraph.y2SquashNegative" ng-disabled="graph.dygraph.meanAdjusted" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2">
+                                                    Auto scale?
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><input type="checkbox" id="autoscaleDygraph" ng-model="graph.dygraph.y1AutoScale" ng-disabled="graph.dygraph.y1Log" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                                <td><input type="checkbox" id="autoscaleDygraphw" ng-model="graph.dygraph.y2AutoScale" ng-disabled="graph.dygraph.y2Log" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2">
+                                                    Logarithmic y-axis?
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><input type="checkbox" id="y1LogDygraph" ng-model="graph.dygraph.y1Log" ng-disabled="graph.dygraph.y1AutoScale" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                                <td><input type="checkbox" id="y2LogDygraph" ng-model="graph.dygraph.y2Log" ng-disabled="graph.dygraph.y2AutoScale" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2">
+                                                    Range:
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><input id="y1RangeDygraph" type="text" size="4" ng-model="graph.dygraph.y1AxisRange" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                                <td><input id="y2RangeDygraph" type="text" size="4" ng-model="graph.dygraph.y2AxisRange" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                            </tr>
+                                        </table>
                                         <div style="text-decoration: underline; font-weight: 800">
                                             Annotations
                                         </div>
@@ -437,7 +463,7 @@
                                             Specials
                                         </div>
                                         <div>
-                                            <input type="checkbox" id="meanAdjustedDygraph" ng-model="graph.dygraph.meanAdjusted" ng-disabled="graph.dygraph.squashNegative" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                            <input type="checkbox" id="meanAdjustedDygraph" ng-model="graph.dygraph.meanAdjusted" ng-disabled="graph.dygraph.y1SquashNegative || graph.dygraph.y2SquashNegative" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                             <label for="meanAdjustedDygraph">Mean adjusted?</label>
                                         </div>
                                     </div>

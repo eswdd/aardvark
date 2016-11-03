@@ -52,25 +52,6 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
         return $tsdbClient.versionNumber >= $tsdbClient.TSDB_2_3;
     }
     
-
-    // gnuplot stuff - nothing global in here
-//    $scope.gnuplot = {};
-    // axes
-//    $scope.gnuplot.yAxisLabel = "";
-//    $scope.gnuplot.y2AxisLabel = "";
-//    $scope.gnuplot.yAxisFormat = "";
-//    $scope.gnuplot.y2AxisFormat = "";
-//    $scope.gnuplot.yAxisRange = "[:]";
-//    $scope.gnuplot.y2AxisRange = "[:]";
-//    $scope.gnuplot.yAxisLogScale = false;
-//    $scope.gnuplot.y2AxisLogScale = false;
-    // key
-//    $scope.gnuplot.showKey = true;
-//    $scope.gnuplot.keyAlignment = "columnar";
-//    $scope.gnuplot.keyLocation = "top left";
-    // style
-//    $scope.gnuplot.lineSmoothing = false;
-
     $scope.now = function() {
         if ($scope.autoReload) {
             $scope.saveAndRenderGraphs();
@@ -212,7 +193,7 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
             type: $rootScope.graphTypes.length == 1 ? $rootScope.graphTypes[0] : $rootScope.config ? $rootScope.config.defaultGraphType : null,
             // gnuplot defaults
             gnuplot: {
-                yAxisRange: "[0:]",
+                y1AxisRange: "[0:]",
                 y2AxisRange: "[0:]",
                 showKey: true,
                 keyAlignment: "columnar",

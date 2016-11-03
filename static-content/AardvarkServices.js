@@ -502,6 +502,7 @@ aardvark
                 {prefix:"graphs.gnuplot.yAxisRange",sep:":"},
                 {prefix:"graphs.gnuplot.y2AxisRange",sep:":"},
                 {prefix:"graphs.dygraph.yAxisRange",sep:":"},
+                {prefix:"graphs.dygraph.y2AxisRange",sep:":"},
                 {prefix:"graphs",sep:" "}
             ];
             var ret = [];
@@ -670,7 +671,7 @@ aardvark
                     case "gnuplot":
                         if (graph.gnuplot != null) {
                             intermediateGraph.flags = blitting.toBlittedInt([
-                                graph.gnuplot.yAxisLogScale,
+                                graph.gnuplot.y1AxisLogScale,
                                 graph.gnuplot.y2AxisLogScale,
                                 graph.gnuplot.showKey,
                                 graph.gnuplot.keyBox,
@@ -679,11 +680,11 @@ aardvark
                                 graph.gnuplot.globalAnnotations
                             ]);
                             intermediateGraph.gnuplot = {
-                                yAxisLabel: graph.gnuplot.yAxisLabel,
+                                yAxisLabel: graph.gnuplot.y1AxisLabel,
                                 y2AxisLabel: graph.gnuplot.y2AxisLabel,
-                                yAxisFormat: graph.gnuplot.yAxisFormat, // todo: can be a mapping
+                                yAxisFormat: graph.gnuplot.y1AxisFormat, // todo: can be a mapping
                                 y2AxisFormat: graph.gnuplot.y2AxisFormat, // todo: can be a mapping
-                                yAxisRange: graph.gnuplot.yAxisRange,
+                                yAxisRange: graph.gnuplot.y1AxisRange,
                                 y2AxisRange: graph.gnuplot.y2AxisRange
                             };
                             if (graph.gnuplot.showKey) {
@@ -706,19 +707,23 @@ aardvark
                     case "dygraph":
                         if (graph.dygraph != null) {
                             intermediateGraph.dygraph = {
-                                yAxisRange: graph.dygraph.yAxisRange
+                                yAxisRange: graph.dygraph.y1AxisRange,
+                                y2AxisRange: graph.dygraph.y2AxisRange
                             };
                             intermediateGraph.flags = blitting.toBlittedInt([
                                 graph.dygraph.interpolateGaps,
                                 graph.dygraph.highlightLines,
                                 graph.dygraph.stackedLines,
-                                graph.dygraph.squashNegative,
-                                graph.dygraph.autoScale,
-                                graph.dygraph.ylog,
+                                graph.dygraph.y1SquashNegative,
+                                graph.dygraph.y1AutoScale,
+                                graph.dygraph.y1Log,
                                 graph.dygraph.meanAdjusted,
                                 graph.dygraph.ratioGraph,
                                 graph.dygraph.annotations,
-                                graph.dygraph.globalAnnotations
+                                graph.dygraph.globalAnnotations,
+                                graph.dygraph.y2SquashNegative,
+                                graph.dygraph.y2AutoScale,
+                                graph.dygraph.y2Log
                             ]);
                             if (graph.dygraph.countFilter != null && graph.dygraph.countFilter.count != null && graph.dygraph.countFilter.count != "") {
                                 intermediateGraph.dygraph.countFilterEnd = countFilterEnds.valueToId(graph.dygraph.countFilter.end);
@@ -829,6 +834,7 @@ aardvark
             var proto = new serialiser.IntermediateModel(intermediate);
 //            var buffer = proto.encode().toArrayBuffer();
             var encoded = proto.toBase64().replaceAll("+","-").replaceAll("/","_").replaceAll("=",",");
+            
 //            console.log("buffer = "+encoded);
 //            console.log("buflen = "+encoded.length);
 //            console.log("orilen = "+origLen);
@@ -999,18 +1005,18 @@ aardvark
                     case "gnuplot":
                         var gnuplotFlags = blitting.fromBlittedInt(intermediateGraph.flags, [false, false, true, false, false, true, false]);
                         graph.gnuplot = {};
-                        graph.gnuplot.yAxisLogScale = gnuplotFlags[0];
+                        graph.gnuplot.y1AxisLogScale = gnuplotFlags[0];
                         graph.gnuplot.y2AxisLogScale = gnuplotFlags[1];
                         graph.gnuplot.showKey = gnuplotFlags[2];
                         graph.gnuplot.keyBox = gnuplotFlags[3];
                         graph.gnuplot.lineSmoothing = gnuplotFlags[4];
                         graph.gnuplot.keyAlignment = gnuplotFlags[5] ? "columnar" : "horizontal";
                         graph.gnuplot.globalAnnotations = gnuplotFlags[6];
-                        graph.gnuplot.yAxisLabel = intermediateGraph.gnuplot.yAxisLabel;
+                        graph.gnuplot.y1AxisLabel = intermediateGraph.gnuplot.yAxisLabel;
                         graph.gnuplot.y2AxisLabel = intermediateGraph.gnuplot.y2AxisLabel;
-                        graph.gnuplot.yAxisFormat = intermediateGraph.gnuplot.yAxisFormat;
+                        graph.gnuplot.y1AxisFormat = intermediateGraph.gnuplot.yAxisFormat;
                         graph.gnuplot.y2AxisFormat = intermediateGraph.gnuplot.y2AxisFormat;
-                        graph.gnuplot.yAxisRange = intermediateGraph.gnuplot.yAxisRange;
+                        graph.gnuplot.y1AxisRange = intermediateGraph.gnuplot.yAxisRange;
                         graph.gnuplot.y2AxisRange = intermediateGraph.gnuplot.y2AxisRange;
                         if (graph.gnuplot.showKey) {
                             graph.gnuplot.keyLocation = gnuplotKeyLocations.idToValue(intermediateGraph.gnuplot.keyLocation);
@@ -1024,19 +1030,23 @@ aardvark
                         graph.horizon.squashNegative = horizonFlags[1];
                         break;
                     case "dygraph":
-                        var dygraphFlags = blitting.fromBlittedInt(intermediateGraph.flags, [true, false, false, true, false, false, false, false, true, false]);
+                        var dygraphFlags = blitting.fromBlittedInt(intermediateGraph.flags, [true, false, false, true, false, false, false, false, true, false, false, false, false]);
                         graph.dygraph = {};
                         graph.dygraph.interpolateGaps = dygraphFlags[0];
                         graph.dygraph.highlightLines = dygraphFlags[1];
                         graph.dygraph.stackedLines = dygraphFlags[2];
-                        graph.dygraph.squashNegative = dygraphFlags[3];
-                        graph.dygraph.autoScale = dygraphFlags[4];
-                        graph.dygraph.ylog = dygraphFlags[5];
+                        graph.dygraph.y1SquashNegative = dygraphFlags[3];
+                        graph.dygraph.y1AutoScale = dygraphFlags[4];
+                        graph.dygraph.y1Log = dygraphFlags[5];
                         graph.dygraph.meanAdjusted = dygraphFlags[6];
                         graph.dygraph.ratioGraph = dygraphFlags[7];
                         graph.dygraph.annotations = dygraphFlags[8];
                         graph.dygraph.globalAnnotations = dygraphFlags[9];
-                        graph.dygraph.yAxisRange = intermediateGraph.dygraph.yAxisRange;
+                        graph.dygraph.y2SquashNegative = dygraphFlags[10];
+                        graph.dygraph.y2AutoScale = dygraphFlags[11];
+                        graph.dygraph.y2Log = dygraphFlags[12];
+                        graph.dygraph.y1AxisRange = intermediateGraph.dygraph.yAxisRange;
+                        graph.dygraph.y2AxisRange = intermediateGraph.dygraph.y2AxisRange;
                         graph.dygraph.countFilter = {
                             end: countFilterEnds.idToValue(intermediateGraph.dygraph.countFilterEnd),
                             measure: countFilterMeasures.idToValue(intermediateGraph.dygraph.countFilterMeasure)
@@ -1129,7 +1139,7 @@ aardvark
             return model;
         }
         serialiser.deserialise = function(ser) {
-            var b64str = ser.replace(",","=").replace("_","/").replace("-","+");
+            var b64str = ser.replaceAll(",","=").replaceAll("_","/").replaceAll("-","+");
             // first char is an indicator into serialisation mode - 0 = version 0
             b64str = b64str.substring(1); 
             var intermediateModel = serialiser.IntermediateModel.decode64(b64str);

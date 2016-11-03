@@ -85,6 +85,46 @@ describe('Aardvark controllers', function () {
             }
         }));
 
+        var checkResponseAsExpected = function(expectedDivId, expectedGraphId, expectedConfigExcludingLabels, expectedLabelsAndData, expectedRenderErrors, expectedRenderWarnings) {
+
+            expect(renderDivId).toEqualData(expectedDivId);
+            expect(renderGraphId).toEqualData(expectedGraphId);
+            var actualLabels = null;
+            if (renderConfig.hasOwnProperty('labels')) {
+                actualLabels = renderConfig['labels'];
+                delete renderConfig['labels'];
+            }
+
+            var actualDataByLabel = {};
+            for (var l=0; l<actualLabels.length; l++) {
+                var label = actualLabels[l];
+                var data = [];
+                for (var i=0; i<renderData.length; i++) {
+                    data.push(renderData[i][l]);
+                }
+                actualDataByLabel[label] = data;
+            }
+            var expectedLabelCount = 0;
+            for (var label in expectedLabelsAndData) {
+                if (expectedLabelsAndData.hasOwnProperty(label)) {
+                    expectedLabelCount++;
+                    if (actualDataByLabel.hasOwnProperty(label)) {
+                        expect(actualDataByLabel[label]).toEqualData(expectedLabelsAndData[label]);
+                    }
+                    else {
+                        fail("actualData didn't have entry for label: "+label);
+                    }
+                }
+            }
+
+            expect(actualLabels.length).toEqualData(expectedLabelCount);
+
+            // labels: ["x", "metric1{host=host1}", "metric1{host=host2}", "100x metric2"],
+            expect(renderConfig).toEqualData(expectedConfigExcludingLabels);
+            expect(scope.renderErrors).toEqualData(expectedRenderErrors);
+            expect(scope.renderWarnings).toEqualData(expectedRenderWarnings);
+        }
+
         it('should report an error when trying to render with dygraph and no start time', function() {
             scope.renderedContent = {};
             scope.renderErrors = {};
@@ -210,7 +250,11 @@ describe('Aardvark controllers', function () {
                 },
                 labelsSeparateLines: true,
                 axes:{
-                    y:{ valueRange: [null, null] }
+                    y:{ valueRange: [null, null] },
+                    y2:{ valueRange: [null, null] }
+                },
+                series:{
+                    "metric1":{"axis":"y1"}
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -262,7 +306,11 @@ describe('Aardvark controllers', function () {
                 },
                 labelsSeparateLines: true,
                 axes:{
-                    y:{ valueRange: [null, null] }
+                    y:{ valueRange: [null, null] },
+                    y2:{ valueRange: [null, null] }
+                },
+                series:{
+                    "metric1":{"axis":"y1"}
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -315,7 +363,89 @@ describe('Aardvark controllers', function () {
                 },
                 labelsSeparateLines: true,
                 axes:{
-                    y:{ valueRange: [null, null] }
+                    y:{ valueRange: [null, null] },
+                    y2:{ valueRange: [null, null] }
+                },
+                series:{
+                    "metric1":{"axis":"y1"}
+                }
+            });
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+
+        it('should render with dygraph multiple axes', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbBaseReadUrl: "https://tsdb:4242"};
+
+            var global = { relativePeriod: "1d", autoReload: false };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }, 
+                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum" } }, 
+                { id: "125", name: "metric3", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2" } } ];
+
+            $httpBackend.expectGET('https://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&m=sum:metric3&no_annotations=true&ms=true&arrays=true&show_query=true').respond(
+                [
+                    {metric: "metric1", tags: {}, dps:[
+                        [1234567811000, 10],
+                        [1234567812000, 20],
+                        [1234567813000, 30],
+                        [1234567814000, 40],
+                        [1234567815000, 50]
+                    ]},
+                    {metric: "metric2", tags: {}, dps:[
+                        [1234567811000, 20],
+                        [1234567812000, 20],
+                        [1234567813000, 30],
+                        [1234567814000, 40],
+                        [1234567815000, 50]
+                    ]},
+                    {metric: "metric3", tags: {}, dps:[
+                        [1234567811000, 30],
+                        [1234567812000, 20],
+                        [1234567813000, 30],
+                        [1234567814000, 40],
+                        [1234567815000, 50]
+                    ]}
+                ]
+            );
+
+            scope.renderers.dygraph(global, graph, metrics);
+
+
+            $httpBackend.flush();
+
+            expect(renderDivId).toEqualData("dygraphDiv_abc");
+            expect(renderGraphId).toEqualData("abc");
+            expect(renderData).toEqualData([
+                [new Date(1234567811000), 10, 20, 30],
+                [new Date(1234567812000), 20, 20, 20],
+                [new Date(1234567813000), 30, 30, 30],
+                [new Date(1234567814000), 40, 40, 40],
+                [new Date(1234567815000), 50, 50, 50]
+            ]);
+            expect(renderConfig).toEqualData({
+                labels: ["x", "metric1", "metric2", "metric3"],
+                width: 0,
+                height: 0,
+                legend: "always",
+                drawGapEdgePoints: true,
+                axisLabelFontSize: 9,
+                labelsDivStyles: {
+                    fontSize: 9,
+                    textAlign: "left"
+                },
+                labelsSeparateLines: true,
+                axes:{
+                    y:{ valueRange: [null, null] },
+                    y2:{ valueRange: [null, null] }
+                },
+                series:{
+                    "metric1":{"axis":"y1"},
+                    "metric2":{"axis":"y1"},
+                    "metric3":{"axis":"y2"}
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -376,7 +506,12 @@ describe('Aardvark controllers', function () {
                 },
                 labelsSeparateLines: true,
                 axes:{
-                    y:{ valueRange: [null, null] }
+                    y:{ valueRange: [null, null] },
+                    y2:{ valueRange: [null, null] }
+                },
+                series:{
+                    "metric1":{"axis":"y1"},
+                    "metric2":{"axis":"y1"}
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -502,7 +637,11 @@ describe('Aardvark controllers', function () {
                 },
                 labelsSeparateLines: true,
                 axes:{
-                    y:{ valueRange: [null, null] }
+                    y:{ valueRange: [null, null] },
+                    y2:{ valueRange: [null, null] }
+                },
+                series:{
+                    "metric1":{"axis":"y1"}
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -516,7 +655,7 @@ describe('Aardvark controllers', function () {
             rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { ylog: true }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1Log: true }};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
@@ -546,7 +685,6 @@ describe('Aardvark controllers', function () {
                 width: 0,
                 height: 0,
                 legend: "always",
-                logscale: true,
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
                 labelsDivStyles: {
@@ -555,7 +693,11 @@ describe('Aardvark controllers', function () {
                 },
                 labelsSeparateLines: true,
                 axes:{
-                    y:{ valueRange: [null, null] }
+                    y:{ valueRange: [null, null], logscale: true },
+                    y2:{ valueRange: [null, null] }
+                },
+                series:{
+                    "metric1":{"axis":"y1"}
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -569,7 +711,7 @@ describe('Aardvark controllers', function () {
             rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { squashNegative: true }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: true }};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
@@ -607,7 +749,79 @@ describe('Aardvark controllers', function () {
                 },
                 labelsSeparateLines: true,
                 axes:{
-                    y:{ valueRange: [null, null] }
+                    y:{ valueRange: [null, null] },
+                    y2:{ valueRange: [null, null] }
+                },
+                series:{
+                    "metric1":{"axis":"y1"}
+                }
+            });
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+        
+        it('should render with dygraph with negative squashing and 2 axes', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+
+            var global = { relativePeriod: "1d", autoReload: false };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: false, y2SquashNegative: true }};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2" } }];
+
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond(
+                [
+                    {metric: "metric1", tags: {}, dps:[
+                        [1234567811000, 10],
+                        [1234567812000, -20],
+                        [1234567813000, 30],
+                        [1234567814000, -40],
+                        [1234567815000, 50]
+                    ]},
+                    {metric: "metric2", tags: {}, dps:[
+                        [1234567811000, 10],
+                        [1234567812000, -20],
+                        [1234567813000, 30],
+                        [1234567814000, -40],
+                        [1234567815000, 50]
+                    ]}
+                ]);
+
+            scope.renderers.dygraph(global, graph, metrics);
+
+
+            $httpBackend.flush();
+
+            expect(renderDivId).toEqualData("dygraphDiv_abc");
+            expect(renderGraphId).toEqualData("abc");
+            expect(renderData).toEqualData([
+                [new Date(1234567811000), 10, 10],
+                [new Date(1234567812000), -20, 0],
+                [new Date(1234567813000), 30, 30],
+                [new Date(1234567814000), -40, 0],
+                [new Date(1234567815000), 50, 50]
+            ]);
+            expect(renderConfig).toEqualData({
+                labels: ["x", "metric1", "metric2"],
+                width: 0,
+                height: 0,
+                legend: "always",
+                drawGapEdgePoints: true,
+                axisLabelFontSize: 9,
+                labelsDivStyles: {
+                    fontSize: 9,
+                    textAlign: "left"
+                },
+                labelsSeparateLines: true,
+                axes:{
+                    y:{ valueRange: [null, null] },
+                    y2:{ valueRange: [null, null] }
+                },
+                series:{
+                    "metric1":{"axis":"y1"},
+                    "metric2":{"axis":"y2"}
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -664,14 +878,19 @@ describe('Aardvark controllers', function () {
                 },
                 labelsSeparateLines: true,
                 axes:{
-                    y:{ valueRange: [null, null] }
+                    y:{ valueRange: [null, null] },
+                    y2:{ valueRange: [null, null] }
+                },
+                series:{
+                    "metric1":{"axis":"y1"},
+                    "metric2":{"axis":"y1"}
                 }
             });
             expect(scope.renderErrors).toEqualData({});
         }
         
         it('should render with dygraph with mean adjustment', function() {
-            dygraphMeanAdjustedTest({id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { squashNegative: false, meanAdjusted: true }});
+            dygraphMeanAdjustedTest({id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: false, meanAdjusted: true }});
             expect(scope.renderWarnings).toEqualData({});
         });
         
@@ -682,7 +901,7 @@ describe('Aardvark controllers', function () {
             rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { squashNegative: true, meanAdjusted: true }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: true, meanAdjusted: true }};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                             { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
@@ -726,7 +945,12 @@ describe('Aardvark controllers', function () {
                 },
                 labelsSeparateLines: true,
                 axes:{
-                    y:{ valueRange: [null, null] }
+                    y:{ valueRange: [null, null] },
+                    y2:{ valueRange: [null, null] }
+                },
+                series:{
+                    "metric1":{"axis":"y1"},
+                    "metric2":{"axis":"y1"}
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -783,14 +1007,19 @@ describe('Aardvark controllers', function () {
                 },
                 labelsSeparateLines: true,
                 axes:{
-                    y:{ valueRange: [null, null] }
+                    y:{ valueRange: [null, null] },
+                    y2:{ valueRange: [null, null] }
+                },
+                series:{
+                    "metric1":{"axis":"y1"},
+                    "metric2":{"axis":"y1"}
                 }
             });
             expect(scope.renderErrors).toEqualData({});
         };
 
         it('should render with dygraph with ratio graph', function() { 
-            dygraphRatioTest({id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { squashNegative: false, ratioGraph: true }});
+            dygraphRatioTest({id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: false, ratioGraph: true }});
             expect(scope.renderWarnings).toEqualData({});
         });
         
@@ -801,7 +1030,7 @@ describe('Aardvark controllers', function () {
             rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { squashNegative: true, ratioGraph: true }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: true, ratioGraph: true }};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
@@ -845,7 +1074,12 @@ describe('Aardvark controllers', function () {
                 },
                 labelsSeparateLines: true,
                 axes:{
-                    y:{ valueRange: [null, null] }
+                    y:{ valueRange: [null, null] },
+                    y2:{ valueRange: [null, null] }
+                },
+                series:{
+                    "metric1":{"axis":"y1"},
+                    "metric2":{"axis":"y1"}
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -865,7 +1099,7 @@ describe('Aardvark controllers', function () {
             rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { autoScale: true }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true }};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                             { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
@@ -909,7 +1143,83 @@ describe('Aardvark controllers', function () {
                 },
                 labelsSeparateLines: true,
                 axes:{
-                    y:{ valueRange: [null, null] }
+                    y:{ valueRange: [null, null] },
+                    y2:{ valueRange: [null, null] }
+                },
+                series:{
+                    "metric1":{"axis":"y1"},
+                    "100x metric2":{"axis":"y1"}
+                }
+            });
+            expect(scope.renderErrors).toEqualData({});
+            expect(scope.renderWarnings).toEqualData({});
+        });
+        
+        it('should render with dygraph with auto scaling and 2 axes', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+
+            var global = { relativePeriod: "1d", autoReload: false };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true, y2AutoScale: false }};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                            { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                            { id: "125", name: "metric3", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2" } }];
+
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&m=sum:metric3&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 1000],
+                [1234567812000, 2000],
+                [1234567813000, 3000],
+                [1234567814000, 4000],
+                [1234567815000, 5000]
+            ]},{metric: "metric2", tags: {}, dps:[
+                [1234567811000, 20],
+                    [1234567812000, 20],
+                    [1234567813000, 30],
+                    [1234567814000, 40],
+                    [1234567815000, 10]
+                ]},{metric: "metric3", tags: {}, dps:[
+                [1234567811000, 20],
+                    [1234567812000, 20],
+                    [1234567813000, 30],
+                    [1234567814000, 40],
+                    [1234567815000, 10]
+                ]}]);
+
+            scope.renderers.dygraph(global, graph, metrics);
+
+            $httpBackend.flush();
+
+            expect(renderDivId).toEqualData("dygraphDiv_abc");
+            expect(renderGraphId).toEqualData("abc");
+            expect(renderData).toEqualData([
+                [new Date(1234567811000), 1000, 2000, 20],
+                [new Date(1234567812000), 2000, 2000, 20],
+                [new Date(1234567813000), 3000, 3000, 30],
+                [new Date(1234567814000), 4000, 4000, 40],
+                [new Date(1234567815000), 5000, 1000, 10]
+            ]);
+            expect(renderConfig).toEqualData({
+                labels: ["x", "metric1", "100x metric2", "metric3"],
+                width: 0,
+                height: 0,
+                legend: "always",
+                drawGapEdgePoints: true,
+                axisLabelFontSize: 9,
+                labelsDivStyles: {
+                    fontSize: 9,
+                    textAlign: "left"
+                },
+                labelsSeparateLines: true,
+                axes:{
+                    y:{ valueRange: [null, null] },
+                    y2:{ valueRange: [null, null] }
+                },
+                series:{
+                    "metric1":{"axis":"y1"},
+                    "100x metric2":{"axis":"y1"},
+                    "metric3":{"axis":"y2"}
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -923,7 +1233,7 @@ describe('Aardvark controllers', function () {
             rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { autoScale: true, squashNegative: true }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true, y1SquashNegative: true }};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
@@ -967,62 +1277,56 @@ describe('Aardvark controllers', function () {
                 },
                 labelsSeparateLines: true,
                 axes:{
-                    y:{ valueRange: [null, null] }
+                    y:{ valueRange: [null, null] },
+                    y2:{ valueRange: [null, null] }
+                },
+                series:{
+                    "metric1":{"axis":"y1"},
+                    "metric2":{"axis":"y1"}
                 }
             });
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
 
-        // identical to mean adjusted only - should ignore auto scaling as not compatible
-        it('should render with dygraph with auto scaling & mean adjustment', function() {
-            dygraphMeanAdjustedTest({id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { autoScale: true, meanAdjusted: true }});
-            expect(scope.renderWarnings).toEqualData({abc:"Ignored auto scaling as not compatible with mean adjustment"});
-        });
-
-        // identical to ratio only - should ignore auto scaling as not compatible
-        it('should render with dygraph with auto scaling & ratio graph', function() {
-            dygraphRatioTest({id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { autoScale: true, ratioGraph: true }});
-            expect(scope.renderWarnings).toEqualData({abc:"Ignored auto scaling as not compatible with ratio graphs"});
-        });
-
-        // identical to ratio only - should ignore auto scaling as not compatible
-        it('should render with dygraph with auto scaling & ratio graph & mean adjustment', function() {
-            dygraphRatioTest({id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { autoScale: true, ratioGraph: true, meanAdjusted: true }});
-            expect(scope.renderWarnings).toEqualData({abc:"Ignored mean adjustment and auto scaling as not compatible with ratio graphs"});
-        });
-        
-        it('should render with dygraph with auto scaling and scale same metrics same amount', function() {
+        it('should render with dygraph with auto scaling and negative squashing on 2 axes', function() {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
             rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { autoScale: true }};
-            var metrics = [ { id: "123", name: "metric1", tags: [{name: "host", value: "host1"}], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                            { id: "124", name: "metric1", tags: [{name: "host", value: "host2"}], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                            { id: "125", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true, y1SquashNegative: false, y2AutoScale: true, y2SquashNegative: true }};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2" } },
+                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2" } },
+                { id: "124", name: "metric3", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", name: "metric4", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1{host=host1}&m=sum:metric1{host=host2}&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {host: "host1"}, dps:[
-                [1234567811000, 1000],
-                [1234567812000, 2000],
-                [1234567813000, 3000],
-                [1234567814000, 4000],
-                [1234567815000, 5000]
-            ]},{metric: "metric1", tags: {host: "host2"}, dps:[
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&m=sum:metric3&m=sum:metric4&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
+                [1234567811000, -1000],
+                [1234567812000, -2000],
+                [1234567813000, -3000],
+                [1234567814000, -4000],
+                [1234567815000, -5000]
+            ]},{metric: "metric2", tags: {}, dps:[
                 [1234567811000, 20],
-                    [1234567812000, 20],
-                    [1234567813000, 30],
-                    [1234567814000, 40],
-                    [1234567815000, 10]
-                ]},{metric: "metric2", tags: {}, dps:[
-                [1234567811000, 20],
-                    [1234567812000, 20],
-                    [1234567813000, 30],
-                    [1234567814000, 40],
-                    [1234567815000, 10]
-                ]}]);
+                [1234567812000, 20],
+                [1234567813000, 30],
+                [1234567814000, 40],
+                [1234567815000, 10]
+            ]},{metric: "metric3", tags: {}, dps:[
+                [1234567811000, -200],
+                [1234567812000, -200],
+                [1234567813000, -300],
+                [1234567814000, -400],
+                [1234567815000, -100]
+            ]},{metric: "metric4", tags: {}, dps:[
+                [1234567811000, 40],
+                [1234567812000, 40],
+                [1234567813000, 50],
+                [1234567814000, 60],
+                [1234567815000, 30]
+            ]}]);
 
             scope.renderers.dygraph(global, graph, metrics);
 
@@ -1031,14 +1335,14 @@ describe('Aardvark controllers', function () {
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData([
-                [new Date(1234567811000), 1000, 20, 2000],
-                [new Date(1234567812000), 2000, 20, 2000],
-                [new Date(1234567813000), 3000, 30, 3000],
-                [new Date(1234567814000), 4000, 40, 4000],
-                [new Date(1234567815000), 5000, 10, 1000]
+                [new Date(1234567811000), 0, 20, -200, 400],
+                [new Date(1234567812000), 0, 20, -200, 400],
+                [new Date(1234567813000), 0, 30, -300, 500],
+                [new Date(1234567814000), 0, 40, -400, 600],
+                [new Date(1234567815000), 0, 10, -100, 300]
             ]);
             expect(renderConfig).toEqualData({
-                labels: ["x", "metric1{host=host1}", "metric1{host=host2}", "100x metric2"],
+                labels: ["x", "metric1", "metric2", "metric3", "10x metric4"],
                 width: 0,
                 height: 0,
                 legend: "always",
@@ -1050,11 +1354,132 @@ describe('Aardvark controllers', function () {
                 },
                 labelsSeparateLines: true,
                 axes:{
-                    y:{ valueRange: [null, null] }
+                    y:{ valueRange: [null, null] },
+                    y2:{ valueRange: [null, null] }
+                },
+                series:{
+                    "metric1":{"axis":"y2"},
+                    "metric2":{"axis":"y2"},
+                    "metric3":{"axis":"y1"},
+                    "10x metric4":{"axis":"y1"}
                 }
             });
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
+        });
+
+        // identical to mean adjusted only - should ignore auto scaling as not compatible
+        it('should render with dygraph with auto scaling & mean adjustment', function() {
+            dygraphMeanAdjustedTest({id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true, meanAdjusted: true }});
+            expect(scope.renderWarnings).toEqualData({abc:"Ignored auto scaling as not compatible with mean adjustment"});
+        });
+
+        // identical to ratio only - should ignore auto scaling as not compatible
+        it('should render with dygraph with auto scaling & ratio graph', function() {
+            dygraphRatioTest({id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true, ratioGraph: true }});
+            expect(scope.renderWarnings).toEqualData({abc:"Ignored auto scaling as not compatible with ratio graphs"});
+        });
+
+        // identical to ratio only - should ignore auto scaling as not compatible
+        it('should render with dygraph with auto scaling & ratio graph & mean adjustment', function() {
+            dygraphRatioTest({id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true, ratioGraph: true, meanAdjusted: true }});
+            expect(scope.renderWarnings).toEqualData({abc:"Ignored mean adjustment and auto scaling as not compatible with ratio graphs"});
+        });
+        
+        it('should render with dygraph with auto scaling and scale same metrics same amount', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+
+            var global = { relativePeriod: "1d", autoReload: false };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true }};
+            var metrics = [ { id: "123", name: "metric1", tags: [{name: "host", value: "host1"}], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                            { id: "124", name: "metric1", tags: [{name: "host", value: "host2"}], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                            { id: "125", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1{host=host1}&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {host: "host1"}, dps:[
+                [1234567811000, 1000],
+                [1234567812000, 2000],
+                [1234567813000, 3000],
+                [1234567814000, 4000],
+                [1234567815000, 5000]
+            ]},{metric: "metric2", tags: {}, dps:[
+                [1234567811000, 20],
+                    [1234567812000, 20],
+                    [1234567813000, 30],
+                    [1234567814000, 40],
+                    [1234567815000, 10]
+                ]}]);
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=2&m=sum:metric1{host=host2}&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {host: "host2"}, dps:[
+                [1234567811000, 20],
+                    [1234567812000, 20],
+                    [1234567813000, 30],
+                    [1234567814000, 40],
+                    [1234567815000, 10]
+                ]}]);
+
+            scope.renderers.dygraph(global, graph, metrics);
+
+            $httpBackend.flush();
+
+            var expectedDivId = "dygraphDiv_abc";
+            var expectedGraphId = "abc";
+            var expectedConfig = {
+                width: 0,
+                height: 0,
+                legend: "always",
+                drawGapEdgePoints: true,
+                axisLabelFontSize: 9,
+                labelsDivStyles: {
+                    fontSize: 9,
+                    textAlign: "left"
+                },
+                labelsSeparateLines: true,
+                axes:{
+                    y:{ valueRange: [null, null] },
+                    y2:{ valueRange: [null, null] }
+                },
+                series:{
+                    "metric1{host=host1}":{"axis":"y1"},
+                    "metric1{host=host2}":{"axis":"y1"},
+                    "100x metric2":{"axis":"y1"}
+                }
+            };
+            var expectedLabelsAndData = {
+                "x": [
+                    new Date(1234567811000),
+                    new Date(1234567812000),
+                    new Date(1234567813000),
+                    new Date(1234567814000),
+                    new Date(1234567815000)
+                ],
+                "metric1{host=host1}": [
+                    1000,
+                    2000,
+                    3000,
+                    4000,
+                    5000
+                ],
+                "metric1{host=host2}": [
+                    20,
+                    20,
+                    30,
+                    40,
+                    10
+                ],
+                "100x metric2": [
+                    2000,
+                    2000,
+                    3000,
+                    4000,
+                    1000
+                ]
+            };
+            var expectedErrors = {};
+            var expectedWarnings = {};
+            
+            checkResponseAsExpected(expectedDivId, expectedGraphId, expectedConfig, expectedLabelsAndData, expectedErrors, expectedWarnings);
         });
 
         it('should render with dygraph with auto scaling of absolute values', function() {
@@ -1064,7 +1489,7 @@ describe('Aardvark controllers', function () {
             rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { autoScale: true }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true }};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
@@ -1108,7 +1533,12 @@ describe('Aardvark controllers', function () {
                 },
                 labelsSeparateLines: true,
                 axes:{
-                    y:{ valueRange: [null, null] }
+                    y:{ valueRange: [null, null] },
+                    y2:{ valueRange: [null, null] }
+                },
+                series:{
+                    "metric1":{"axis":"y1"},
+                    "100x metric2":{"axis":"y1"}
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -1122,7 +1552,7 @@ describe('Aardvark controllers', function () {
             rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { autoScale: true, squashNegative: true }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true, y1SquashNegative: true }};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
@@ -1166,7 +1596,12 @@ describe('Aardvark controllers', function () {
                 },
                 labelsSeparateLines: true,
                 axes:{
-                    y:{ valueRange: [null, null] }
+                    y:{ valueRange: [null, null] },
+                    y2:{ valueRange: [null, null] }
+                },
+                series:{
+                    "metric1":{"axis":"y1"},
+                    "metric2":{"axis":"y1"}
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -1292,7 +1727,11 @@ describe('Aardvark controllers', function () {
                 },
                 labelsSeparateLines: true,
                 axes:{
-                    y:{ valueRange: [null, null] }
+                    y:{ valueRange: [null, null] },
+                    y2:{ valueRange: [null, null] }
+                },
+                series:{
+                    "metric1":{"axis":"y1"}
                 }
             });
             expect(scope.renderErrors).toEqualData({});
@@ -1667,14 +2106,18 @@ describe('Aardvark controllers', function () {
                 },
                 labelsSeparateLines: true,
                 axes:{
-                    y:{ valueRange: [null, null] }
+                    y:{ valueRange: [null, null] },
+                    y2:{ valueRange: [null, null] }
+                },
+                series:{
+                    "metric1":{"axis":"y1"}
                 }
             });
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({abc:"Empty response from TSDB for baseline query"});
         });
 
-        var baselineTest = function(url1, data1, url2, data2, global, graph, metrics, expectedRenderData, labels) {
+        var baselineTest = function(url1, data1, url2, data2, global, graph, metrics, expectedRenderData, labels, seriesAxes) {
             if (url1 == null) {
                 url1 = 'http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true';
             }
@@ -1710,6 +2153,15 @@ describe('Aardvark controllers', function () {
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData(expectedRenderData);
+            var expectedSeries = {};
+            for (var i=1; i<labels.length; i++) {
+                if (seriesAxes && seriesAxes.hasOwnProperty(labels[i])) {
+                    expectedSeries[labels[i]] = seriesAxes[labels[i]];
+                }
+                else {
+                    expectedSeries[labels[i]] = {axis: "y1"};
+                }
+            }
             expect(renderConfig).toEqualData({
                 labels: labels,
                 width: 0,
@@ -1722,9 +2174,11 @@ describe('Aardvark controllers', function () {
                     textAlign: "left"
                 },
                 labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null] }
-                }
+                axes: {
+                    y:{ valueRange: [null, null] },
+                    y2:{ valueRange: [null, null] }
+                },
+                series: expectedSeries
             });
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
@@ -1795,7 +2249,7 @@ describe('Aardvark controllers', function () {
         
         it('should render with dygraph when baselining is enabled with negative squashing', function() {
             var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { squashNegative: true }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: true }};
 
             var data1 = [{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
@@ -1825,7 +2279,7 @@ describe('Aardvark controllers', function () {
         
         it('should render with dygraph when baselining is enabled with mean adjustment', function() {
             var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { squashNegative: false, meanAdjusted: true }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: false, meanAdjusted: true }};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
@@ -1873,7 +2327,7 @@ describe('Aardvark controllers', function () {
         it('should render with dygraph when baselining is enabled with mean adjustment & negative squashing', function() {
 
             var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { squashNegative: true, meanAdjusted: true }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: true, meanAdjusted: true }};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
@@ -1921,7 +2375,7 @@ describe('Aardvark controllers', function () {
         
         it('should render with dygraph when baselining is enabled with ratio graph', function() {
             var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { squashNegative: false, ratioGraph: true }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: false, ratioGraph: true }};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
@@ -1969,7 +2423,7 @@ describe('Aardvark controllers', function () {
         it('should render with dygraph when baselining is enabled with ratio graph & negative squashing', function() {
 
             var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { squashNegative: true, ratioGraph: true }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: true, ratioGraph: true }};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
@@ -2017,7 +2471,7 @@ describe('Aardvark controllers', function () {
         
         it('should render with dygraph when baselining is enabled with auto scaling', function() {
             var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { autoScale: true }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true }};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
@@ -2066,7 +2520,7 @@ describe('Aardvark controllers', function () {
         it('should render with dygraph when baselining is enabled with auto scaling & negative squashing', function() {
 
             var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { autoScale: true, squashNegative: true }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true, y1SquashNegative: true }};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
@@ -2255,7 +2709,7 @@ describe('Aardvark controllers', function () {
             }
             _annotationTest(true, metrics, datum, url, baselineUrl, responseData, baselineResponseData, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling);
         }
-        var _annotationTest = function(globalAnnotations, metrics, datum, url, baselineUrl, responseData, baselineResponseData, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling) {
+        var _annotationTest = function(globalAnnotations, metrics, datum, url, baselineUrl, responseData, baselineResponseData, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling, seriesAxes) {
 
             scope.renderedContent = {};
             scope.renderErrors = {};
@@ -2268,7 +2722,7 @@ describe('Aardvark controllers', function () {
                 global.baselineDatumStyle = "relative";
                 global.baselineRelativePeriod = "1d";
             }
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: {annotations: true, globalAnnotations: globalAnnotations, autoScale: autoScaling }};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: {annotations: true, globalAnnotations: globalAnnotations, y1AutoScale: autoScaling }};
             
 
             $httpBackend.expectGET(url).respond(responseData);
@@ -2284,6 +2738,15 @@ describe('Aardvark controllers', function () {
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData(expectedRenderData);
+            var expectedSeries = {};
+            for (var i=1; i<expectedLabels.length; i++) {
+                if (seriesAxes && seriesAxes.hasOwnProperty(expectedLabels[i])) {
+                    expectedSeries[expectedLabels[i]] = seriesAxes[expectedLabels[i]];
+                }
+                else {
+                    expectedSeries[expectedLabels[i]] = {axis: "y1"};
+                }
+            }
             expect(renderConfig).toEqualData({
                 labels: expectedLabels,
                 width: 0,
@@ -2297,8 +2760,10 @@ describe('Aardvark controllers', function () {
                 },
                 labelsSeparateLines: true,
                 axes:{
-                    y:{ valueRange: [null, null] }
-                }
+                    y:{ valueRange: [null, null] },
+                    y2:{ valueRange: [null, null] }
+                },
+                series: expectedSeries
             });
             expect(renderAnnotations).toEqualData(expectedAnnotations);
             expect(scope.renderErrors).toEqualData({});
