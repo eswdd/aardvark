@@ -232,7 +232,7 @@ aardvark
             $http.post(url, postData).success(successFn).error(errorFn);
         };
         tsdb.getTSMetaByTsuid = function(tsuid, successFn, errorFn) {
-            var url = tsdb.tsdbBaseWriteUrl+"/api/uid/tsmeta?tsuid="+tsuid;
+            var url = tsdb.tsdbBaseReadUrl+"/api/uid/tsmeta?tsuid="+tsuid;
             $http.get(url).success(successFn).error(errorFn);
         };
         tsdb.getUidMeta = function(uid, type, successFn, errorFn) {
@@ -245,7 +245,7 @@ aardvark
                     errorFn("Unrecognised type: "+type);
                     return;
             }
-            var url = tsdb.tsdbBaseWriteUrl+"/api/uid/uidmeta?uid="+uid+"&type="+type;
+            var url = tsdb.tsdbBaseReadUrl+"/api/uid/uidmeta?uid="+uid+"&type="+type;
             $http.get(url).success(successFn).error(errorFn);
         };
         tsdb.deleteAnnotation = function(tsuid, successFn, errorFn) {
