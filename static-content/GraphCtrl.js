@@ -2039,6 +2039,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                     strokeBorderWidth: 1,
                     highlightCircleSize: 5
                 };
+                /*
                 config.highlightCallback = function(event, x, points, row, seriesName) {
                     if (labelsDiv) {
                         //find the y val
@@ -2052,7 +2053,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                         labelsDiv.innerHTML = "<span><b>" + seriesName + "</b>" + " "
                             + Dygraph.hmsString_(x) + ", " + yval + "</span>";
                     }
-                }
+                }*/
 
             }
 
