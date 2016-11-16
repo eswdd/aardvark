@@ -14,6 +14,8 @@ aardvark
         tsdb.init = function(rootConfig) {
             tsdb.tsdbBaseReadUrl = rootConfig.tsdbBaseReadUrl;
             tsdb.tsdbBaseWriteUrl = rootConfig.tsdbBaseWriteUrl;
+            tsdb.authenticatedReads = rootConfig.authenticatedReads;
+            tsdb.authenticatedWrites = rootConfig.authenticatedWrites;
             // ignore outputs in both cases, ensures we cache the responses 
             tsdb.getConfig(null, null, true);
             tsdb.getVersion(null, null, true);
@@ -24,7 +26,7 @@ aardvark
                 return;
             }
 
-            $http.get(tsdb.tsdbBaseReadUrl+'/api/config').success(function(json) {
+            $http.get(tsdb.tsdbBaseReadUrl+'/api/config', {withCredentials:tsdb.authenticatedReads}).success(function(json) {
                 tsdb.config = json;
                 if (successFn) {
                     successFn(json);
@@ -126,7 +128,7 @@ aardvark
                 // search/lookup doesn't support filter queries: todo: raise this
                 // so for now we have to request all and then filter in client. sigh.
                 var postData = JSON.stringify(requestJson);
-                $http.post(url, postData).success(postFilteringRequired ? filterResultsFn : successFn)
+                $http.post(url, postData, {withCredentials:tsdb.authenticatedReads}).success(postFilteringRequired ? filterResultsFn : successFn)
                     .error(errorFn);
             }
             tsdb.getConfig(function(config) {
@@ -229,11 +231,11 @@ aardvark
         tsdb.saveAnnotation = function(annotation, successFn, errorFn) {
             var url = tsdb.tsdbBaseWriteUrl+"/api/annotation";
             var postData = JSON.stringify(annotation);
-            $http.post(url, postData).success(successFn).error(errorFn);
+            $http.post(url, postData, {withCredentials:tsdb.authenticatedWrites}).success(successFn).error(errorFn);
         };
         tsdb.getTSMetaByTsuid = function(tsuid, successFn, errorFn) {
             var url = tsdb.tsdbBaseReadUrl+"/api/uid/tsmeta?tsuid="+tsuid;
-            $http.get(url).success(successFn).error(errorFn);
+            $http.get(url, {withCredentials:tsdb.authenticatedReads}).success(successFn).error(errorFn);
         };
         tsdb.getUidMeta = function(uid, type, successFn, errorFn) {
             switch (type) {
@@ -246,11 +248,11 @@ aardvark
                     return;
             }
             var url = tsdb.tsdbBaseReadUrl+"/api/uid/uidmeta?uid="+uid+"&type="+type;
-            $http.get(url).success(successFn).error(errorFn);
+            $http.get(url, {withCredentials:tsdb.authenticatedReads}).success(successFn).error(errorFn);
         };
         tsdb.deleteAnnotation = function(tsuid, successFn, errorFn) {
             var url = tsdb.tsdbBaseWriteUrl+"/api/annotation?tsuid="+tsuid;
-            $http.delete(url).success(successFn).error(errorFn);
+            $http.delete(url, {withCredentials:tsdb.authenticatedWrites}).success(successFn).error(errorFn);
         };
         tsdb.bulkSaveAnnotations = function(annotations, successFn, errorFn) {
             // make sure we have the version available
@@ -258,7 +260,7 @@ aardvark
                 if (versionNumber >= tsdb.TSDB_2_1) {
                     var url = tsdb.tsdbBaseWriteUrl+"/api/annotation/bulk";
                     var postData = JSON.stringify(annotations);
-                    $http.post(url, postData).success(successFn).error(errorFn);
+                    $http.post(url, postData, {withCredentials:tsdb.authenticatedWrites}).success(successFn).error(errorFn);
                 }
                 else {
                     var expectedResponses = annotations.length;
@@ -299,7 +301,7 @@ aardvark
                 successFn(tsdb.versionInfo, tsdb.versionNumber);
                 return;
             }
-            $http.get(tsdb.tsdbBaseReadUrl+'/api/version').success(function(json) {
+            $http.get(tsdb.tsdbBaseReadUrl+'/api/version', {withCredentials:tsdb.authenticatedReads}).success(function(json) {
                 try {
                     var versionFromServer = json.version;
                     var firstDot = versionFromServer.indexOf(".");

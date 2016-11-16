@@ -50,7 +50,8 @@ describe('Aardvark controllers', function () {
 
             expect(rootScope.config).toEqualData({
                 key: "value", tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http","annotations":{"allowDelete":true},
-                tsdbBaseReadUrl: "http://tsdb:4242", tsdbBaseWriteUrl: "http://tsdb:4242"
+                tsdbBaseReadUrl: "http://tsdb:4242", tsdbBaseWriteUrl: "http://tsdb:4242",
+                authenticatedReads: false, authenticatedWrites: false
             });
         });
 
@@ -60,7 +61,8 @@ describe('Aardvark controllers', function () {
 
             expect(rootScope.config).toEqualData({
                 key: "value", tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http","annotations":{"allowDelete":true},
-                tsdbBaseReadUrl: "http://tsdb:4242", tsdbBaseWriteUrl: "http://tsdb:4242"
+                tsdbBaseReadUrl: "http://tsdb:4242", tsdbBaseWriteUrl: "http://tsdb:4242",
+                authenticatedReads: false, authenticatedWrites: false
             });
 
             var configReceived = false;

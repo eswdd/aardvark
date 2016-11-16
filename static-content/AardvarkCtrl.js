@@ -199,6 +199,13 @@ aardvark.directive('aardvarkEnter', function() {
                     json.tsdbBaseWriteUrl = json.tsdbBaseReadUrl;
                 }
                 
+                if (json.authenticatedReads == null) {
+                    json.authenticatedReads = false;
+                }
+                if (json.authenticatedWrites == null) {
+                    json.authenticatedWrites = false;
+                }
+                
                 var applyConfig = function() {
                     $rootScope.config = json;
                     for (var i=$rootScope.configListeners.length-1; i>=0; i--) {
