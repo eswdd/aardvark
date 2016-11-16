@@ -31,9 +31,7 @@ aardvark
             // first we need to know if tsmeta is enabled by reading config
             // if not we need to make individual requests for the uid data
             tsdbClient.getConfig(function (config) {
-                var useTsMeta = config && (config["tsd.core.meta.enable_tsuid_tracking"] == "true"
-                    || config["tsd.core.meta.enable_tsuid_incrementing"] == "true"
-                    || config["tsd.core.meta.enable_realtime_ts"] == "true");
+                var useTsMeta = config && (config["tsd.core.meta.enable_realtime_ts"] == "true");
                 if (useTsMeta) {
                     tsdbClient.getTSMetaByTsuid(tsuid, function(data) {
                         successFn({metric: data.metric, tags: data.tags});
