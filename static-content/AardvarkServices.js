@@ -1074,7 +1074,9 @@ aardvark
                         graph.heatmap = {};
                         graph.heatmap.excludeNegative = heatmapFlags[0];
                         graph.heatmap.ylog = heatmapFlags[1];
-                        graph.heatmap.style = heatmapStyles.idToValue(intermediateGraph.heatmap.style);
+                        if (intermediateGraph.heatmap != null) {
+                            graph.heatmap.style = heatmapStyles.idToValue(intermediateGraph.heatmap.style);
+                        }
                         break;
                 }
                 
