@@ -47,22 +47,22 @@ aardvark
                 var postFilteringRequired = false;
                 var tagsRequiringPostFiltering = {};
                 if (query.filters) {
-                    requestJson.tags = {};
+                    var tags = {};
                     for (var f=0; f<query.filters.length; f++) {
                         var filter = query.filters[f];
                         if (filter.type == "literal_or") {
-                            if (requestJson.tags[filter.tagk] == null) {
-                                requestJson.tags[filter.tagk] = filter.filter;
+                            if (tags[filter.tagk] == null) {
+                                tags[filter.tagk] = filter.filter;
                             }
                             else if (tagsRequiringPostFiltering[filter.tagk] == null) {
                                 // filters ANDed together
                                 // first if it was a * then this filter wins
-                                if (requestJson.tags[filter.tagk] == "*") {
-                                    requestJson.tags[filter.tagk] = filter.filter;
+                                if (tags[filter.tagk] == "*") {
+                                    tags[filter.tagk] = filter.filter;
                                 }
                                 // otherwise we need to only include the elements in boths lists
                                 else {
-                                    var list1 = requestJson.tags[filter.tagk].split("|");
+                                    var list1 = tags[filter.tagk].split("|");
                                     var list2 = filter.filter.split("|");
                                     var sep = "";
                                     var result = "";
@@ -79,20 +79,24 @@ aardvark
                                             sep = "|";
                                         }
                                     }
-                                    requestJson.tags[filter.tagk] = result;
+                                    tags[filter.tagk] = result;
                                 }
                             }
                         }
                         else if (filter.type == "wildcard" && filter.filter == "*") {
-                            if (requestJson.tags[filter.tagk] == null) {
-                                requestJson.tags[filter.tagk] = filter.filter;
+                            if (tags[filter.tagk] == null) {
+                                tags[filter.tagk] = filter.filter;
                             }
                         }
                         else {
-                            requestJson.tags[filter.tagk] = "*";
+                            tags[filter.tagk] = "*";
                             tagsRequiringPostFiltering[filter.tagk] = true;
                             postFilteringRequired = true;
                         }
+                    }
+                    requestJson.tags = [];
+                    for (var tagk in tags) {
+                        requestJson.tags.push({key: tagk, value: tags[tagk]});
                     }
                 }
                 
