@@ -635,7 +635,6 @@ aardvark
                 intermediateModel.global.fromDateTime = toSingleDateAsLong(model.global.fromDate, model.global.fromTime);
                 if (!model.global.autoReload) {
                     intermediateModel.global.toDateTime = toSingleDateAsLong(model.global.toDate, model.global.toTime);
-                    console.log("intermediate in :"+intermediateModel.global.toDateTime)
                 }
             }
             else {
@@ -973,7 +972,6 @@ aardvark
                 model.global.fromDate = fromSingleDateToDatePart(intermediateModel.global.fromDateTime.toNumber());
                 model.global.fromTime = fromSingleDateToTimePart(intermediateModel.global.fromDateTime.toNumber());
                 if (!model.global.autoReload) {
-                    console.log("intermediate out :"+intermediateModel.global.toDateTime)
                     model.global.toDate = fromSingleDateToDatePart(intermediateModel.global.toDateTime.toNumber());
                     model.global.toTime = fromSingleDateToTimePart(intermediateModel.global.toDateTime.toNumber());
                 }

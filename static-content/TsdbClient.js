@@ -16,6 +16,7 @@ aardvark
             tsdb.tsdbBaseWriteUrl = rootConfig.tsdbBaseWriteUrl;
             tsdb.authenticatedReads = rootConfig.authenticatedReads;
             tsdb.authenticatedWrites = rootConfig.authenticatedWrites;
+            tsdb.allowBulkAnnotationsCall = rootConfig.allowBulkAnnotationsCall;
             // ignore outputs in both cases, ensures we cache the responses 
             tsdb.getConfig(null, null, true);
             tsdb.getVersion(null, null, true);
@@ -255,45 +256,53 @@ aardvark
             $http.delete(url, {withCredentials:tsdb.authenticatedWrites}).success(successFn).error(errorFn);
         };
         tsdb.bulkSaveAnnotations = function(annotations, successFn, errorFn) {
-            // make sure we have the version available
-            tsdb.getVersion(function(versionInfo, versionNumber) {
-                if (versionNumber >= tsdb.TSDB_2_1) {
-                    var url = tsdb.tsdbBaseWriteUrl+"/api/annotation/bulk";
-                    var postData = JSON.stringify(annotations);
-                    $http.post(url, postData, {withCredentials:tsdb.authenticatedWrites}).success(successFn).error(errorFn);
-                }
-                else {
-                    var expectedResponses = annotations.length;
-                    var receivedResponses = 0;
-                    var errorsReceived = [];
-                    
-                    for (var a=0; a<annotations.length; a++) {
-                        // nasty inner function to get around closure issues
-                        var fn = function(index) {
-                            tsdb.saveAnnotation(annotations[index], function(data) {
-                                annotations[index] = data;
-                                receivedResponses++;
-                                if (receivedResponses == expectedResponses) {
-                                    if (errorsReceived.length > 0) {
-                                        errorFn(annotations, errorsReceived);
-                                    }
-                                    else {
-                                        successFn(annotations);
-                                    }
-                                }
-                            }, function(error) {
-                                receivedResponses++;
-                                errorsReceived.push(error);
-                                if (receivedResponses == expectedResponses) {
+            var synthesisedBulkCall = function() {
+                var expectedResponses = annotations.length;
+                var receivedResponses = 0;
+                var errorsReceived = [];
+
+                for (var a=0; a<annotations.length; a++) {
+                    // nasty inner function to get around closure issues
+                    var fn = function(index) {
+                        tsdb.saveAnnotation(annotations[index], function(data) {
+                            annotations[index] = data;
+                            receivedResponses++;
+                            if (receivedResponses == expectedResponses) {
+                                if (errorsReceived.length > 0) {
                                     errorFn(annotations, errorsReceived);
                                 }
-                            })
-                        }
-                        fn(a);
+                                else {
+                                    successFn(annotations);
+                                }
+                            }
+                        }, function(error) {
+                            receivedResponses++;
+                            errorsReceived.push(error);
+                            if (receivedResponses == expectedResponses) {
+                                errorFn(annotations, errorsReceived);
+                            }
+                        })
                     }
+                    fn(a);
                 }
-                successFn();
-            }, errorFn);
+            }
+            
+            if (tsdb.allowBulkAnnotationsCall) {
+                // make sure we have the version available
+                tsdb.getVersion(function(versionInfo, versionNumber) {
+                    if (versionNumber >= tsdb.TSDB_2_1) {
+                        var url = tsdb.tsdbBaseWriteUrl+"/api/annotation/bulk";
+                        var postData = JSON.stringify(annotations);
+                        $http.post(url, postData, {withCredentials:tsdb.authenticatedWrites}).success(successFn).error(errorFn);
+                    }
+                    else {
+                        synthesisedBulkCall();
+                    }
+                }, errorFn);
+            }
+            else {
+                synthesisedBulkCall();
+            }
 
         }
         tsdb.getVersion = function(successFn, failFn, force) {

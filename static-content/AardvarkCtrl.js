@@ -205,6 +205,9 @@ aardvark.directive('aardvarkEnter', function() {
                 if (json.authenticatedWrites == null) {
                     json.authenticatedWrites = false;
                 }
+                if (json.allowBulkAnnotationsCall == null) {
+                    json.allowBulkAnnotationsCall = true;
+                }
                 
                 var applyConfig = function() {
                     $rootScope.config = json;
