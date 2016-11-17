@@ -230,11 +230,11 @@ describe('Aardvark services', function() {
             };
             var postBody = {
                 metric:"a.b.c",
-                tags: {
-                    a:"value1|value2",
-                    b:"value3",
-                    c:"*"
-                },
+                tags: [
+                    {key:"a",value:"value1|value2"},
+                    {key:"b",value:"value3"},
+                    {key:"c",value:"*"}
+                ],
                 limit: 1000,
                 useMeta: false
             };

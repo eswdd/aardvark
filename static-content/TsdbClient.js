@@ -39,7 +39,10 @@ aardvark
                 var url = tsdb.tsdbBaseReadUrl+"/api/search/lookup";
                 var requestJson = {"metric": query.metric, "limit": query.limit, "useMeta": useMeta};
                 if (query.tags) {
-                    requestJson.tags = query.tags;
+                    requestJson.tags = [];
+                    for (var tagk in query.tags) {
+                        requestJson.tags.push({key: tagk, value: query.tags[tagk]});
+                    }
                 }
                 var postFilteringRequired = false;
                 var tagsRequiringPostFiltering = {};
