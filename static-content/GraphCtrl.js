@@ -868,7 +868,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
         url += "&ms=true&arrays=true&show_query=true";
 
         // now we have the url, so call it!
-        $http.get(url).success(function (json) {
+        $http.get(url, {withCredentials:$rootScope.config.authenticatedReads}).success(function (json) {
             // now we have an array of lines, so let's convert them to metrics
 
             var interpolate = graph.horizon && graph.horizon.interpolateGaps;
@@ -1118,7 +1118,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
         url += "&ms=true&arrays=true";
 
         // now we have the url, so call it!
-        $http.get(url).success(function (json) {
+        $http.get(url, {withCredentials:$rootScope.config.authenticatedReads}).success(function (json) {
             if (json.length != 1) {
                 $scope.renderErrors[graph.id] = "TSDB results doesn't contain exactly 1 metric, was "+json.length;
                 $scope.renderMessages[graph.id] = "";
@@ -2272,7 +2272,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
         };
         
         var doMain = function(metricsAndUrl) {
-            $http.get(metricsAndUrl.url).success(function (json) {
+            $http.get(metricsAndUrl.url, {withCredentials:$rootScope.config.authenticatedReads}).success(function (json) {
                 if (errorResponse) {
                     return;
                 }
@@ -2294,7 +2294,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
             
         }
         var doBaseline = function(metricsAndUrl) {
-            $http.get(metricsAndUrl.url).success(function (json) {
+            $http.get(metricsAndUrl.url, {withCredentials:$rootScope.config.authenticatedReads}).success(function (json) {
                 if (errorResponse) {
                     return;
                 }
