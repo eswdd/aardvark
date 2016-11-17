@@ -562,12 +562,12 @@
                                             <label class="btn btn-primary btn-xs" ng-model="$ctrl.metricSourceClick" ng-click="$ctrl.metricSourceUpdated()" uib-btn-radio="false">From all displayed series</label>
                                         </div>
                                         <div ng-show="$ctrl.metricSourceClick">
-                                            <select multiple="true" ng-model="$ctrl.tsuidsFromClick" style="width: 300px" ng-disabled="!$ctrl.allowEdit()">
+                                            <select multiple="true" ng-model="$ctrl.tsuidsFromClick" style="width: 600px" ng-disabled="!$ctrl.allowEdit()">
                                                 <option value="{{ts.tsuid}}" ng-repeat="ts in $ctrl.clickTimeseries track by ts.tsuid">{{ts.label}}</option>
                                             </select>
                                         </div>
                                         <div ng-hide="$ctrl.metricSourceClick">
-                                            <select multiple="true" ng-model="$ctrl.tsuidsFromAll" style="width: 300px" ng-disabled="!$ctrl.allowEdit()">
+                                            <select multiple="true" ng-model="$ctrl.tsuidsFromAll" style="width: 600px" ng-disabled="!$ctrl.allowEdit()">
                                                 <option value="{{ts.tsuid}}" ng-repeat="ts in $ctrl.allTimeseries track by ts.tsuid">{{ts.label}}</option>
                                             </select>
                                         </div>
