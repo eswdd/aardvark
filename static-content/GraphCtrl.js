@@ -281,19 +281,21 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
         ret._width = null;
         ret._height = null;
 
-        ret._color = function(dps) {
+        ret._color = function(dps, isFilteredOutFn) {
             var minValue = null, maxValue = null;
             for (var p=0; p<dps.length; p++) {
-                if (dps[p][1] < 0) {
-                    dps[p][1] = 0;
-                }
-                if (minValue == null) {
-                    minValue = dps[p][1];
-                    maxValue = dps[p][1];
-                }
-                else {
-                    minValue = Math.min(minValue, dps[p][1]);
-                    maxValue = Math.max(maxValue, dps[p][1]);
+//                if (dps[p][1] < 0) {
+//                    dps[p][1] = 0;
+//                }
+                if (!isFilteredOutFn(dps[p][1])) {
+                    if (minValue == null) {
+                        minValue = dps[p][1];
+                        maxValue = dps[p][1];
+                    }
+                    else {
+                        minValue = Math.min(minValue, dps[p][1]);
+                        maxValue = Math.max(maxValue, dps[p][1]);
+                    }
                 }
             }
 
@@ -342,7 +344,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
             return ret;
         }
 
-        ret.weekDayRender = function(divSelector, fromYear, toYear) {
+        ret.weekDayRender = function(divSelector, fromYear, toYear, isFilteredOutFn) {
 
             // render away
             var format = d3.time.format("%Y-%m-%d");
@@ -359,7 +361,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                 translateY = 0;
             }
 
-            var color = ret._color(ret._dps);
+            var color = ret._color(ret._dps, isFilteredOutFn);
 
             var svg = d3.select(divSelector).selectAll("svg")
                 .data(d3.range(fromYear, toYear+1))
@@ -407,7 +409,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                 return d in data;
             })
                 .attr("class", function(d) {
-                    return "cell " + color(data[d]);
+                    return "cell " + (isFilteredOutFn(data[d]) ? "filteredOut" : color(data[d]));
                 })
                 .select("title")
                 .text(function(d) {
@@ -426,9 +428,9 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
             }
         }
 
-        ret.dayHourRender = function(divSelector, fromMonth, toMonth) {
+        ret.dayHourRender = function(divSelector, fromMonth, toMonth, isFilteredOutFn) {
 
-            var color = ret._color(ret._dps);
+            var color = ret._color(ret._dps, isFilteredOutFn);
 
             // render away
             var format = d3.time.format("%Y-%m-%d @ %H");
@@ -492,7 +494,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                 return d in data;
             })
                 .attr("class", function(d) {
-                    return "cell " + color(data[d]);
+                    return "cell " + (isFilteredOutFn(data[d]) ? "filteredOut" : color(data[d]));
                 })
                 .select("title")
                 .text(function(d) {
@@ -1134,6 +1136,46 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                     }
                 }
             }
+
+            var isFilteredOutFn = function(value) { 
+                return false; 
+            }
+            if ((heatmapOptions.filterLowerBound != null && heatmapOptions.filterLowerBound != "") || (heatmapOptions.filterUpperBound != null && heatmapOptions.filterUpperBound != "")) {
+                if (heatmapOptions.filterUpperBound == null || heatmapOptions.filterUpperBound == "") {
+                    try {
+                        var lower = parseInt(heatmapOptions.filterLowerBound);
+                        isFilteredOutFn = function(value) { 
+                            return value < lower 
+                        };
+                    }
+                    catch (e) {
+                        // ignore
+                    }
+                }
+                else if (heatmapOptions.filterLowerBound == null || heatmapOptions.filterLowerBound == "") {
+                    try {
+                        var upper = parseInt(heatmapOptions.filterUpperBound);
+                        isFilteredOutFn = function(value) { 
+                            return value > upper 
+                        };
+                    }
+                    catch (e) {
+                        // ignore
+                    }
+                }
+                else {
+                    try {
+                        var lower = parseInt(heatmapOptions.filterLowerBound);
+                        var upper = parseInt(heatmapOptions.filterUpperBound);
+                        isFilteredOutFn = function(value) { 
+                            return value < lower || value > upper 
+                        };
+                    }
+                    catch (e) {
+                        // ignore
+                    }
+                }
+            }
             
             // remove old heatmaps..
             d3.select(divSelector)
@@ -1148,10 +1190,10 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                 .height(height);
             
             if (style == "week_day") {
-                heatmap.weekDayRender(divSelector, fromYear, toYear);
+                heatmap.weekDayRender(divSelector, fromYear, toYear, isFilteredOutFn);
             }
             else if (style == "day_hour") {
-                heatmap.dayHourRender(divSelector, fromMonth, toMonth);
+                heatmap.dayHourRender(divSelector, fromMonth, toMonth, isFilteredOutFn);
             }
 
             $scope.renderMessages[graph.id] = "";

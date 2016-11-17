@@ -779,6 +779,12 @@ aardvark
                             intermediateGraph.heatmap = {
                                 style: heatmapStyles.valueToId(graph.heatmap.style)
                             };
+                            if (graph.heatmap.filterLowerBound != null) {
+                                intermediateGraph.heatmap.valueFilterLowerBound = toInt(graph.heatmap.filterLowerBound);
+                            }
+                            if (graph.heatmap.filterUpperBound != null) {
+                                intermediateGraph.heatmap.valueFilterUpperBound = toInt(graph.heatmap.filterUpperBound);
+                            }
                         }
                         break;
                 }
@@ -1092,6 +1098,12 @@ aardvark
                         graph.heatmap.ylog = heatmapFlags[1];
                         if (intermediateGraph.heatmap != null) {
                             graph.heatmap.style = heatmapStyles.idToValue(intermediateGraph.heatmap.style);
+                            if (intermediateGraph.heatmap.valueFilterLowerBound != null) {
+                                graph.heatmap.filterLowerBound = intermediateGraph.heatmap.valueFilterLowerBound + "";
+                            }
+                            if (intermediateGraph.heatmap.valueFilterUpperBound != null) {
+                                graph.heatmap.filterUpperBound = intermediateGraph.heatmap.valueFilterUpperBound + "";
+                            }
                         }
                         break;
                 }

@@ -84,12 +84,12 @@ describe('Aardvark controllers', function () {
                 return ret;
             }
 
-            ret.weekDayRender = function(divSelector, fromYear, toYear) {
-                ret.weekDayRenderParams = [divSelector, fromYear, toYear];
+            ret.weekDayRender = function(divSelector, fromYear, toYear, isFilteredOutFn) {
+                ret.weekDayRenderParams = [divSelector, fromYear, toYear, isFilteredOutFn];
             }
 
-            ret.dayHourRender = function(divSelector, fromMonth, toMonth) {
-                ret.dayHourRenderParams = [divSelector, fromMonth, toMonth];
+            ret.dayHourRender = function(divSelector, fromMonth, toMonth, isFilteredOutFn) {
+                ret.dayHourRenderParams = [divSelector, fromMonth, toMonth, isFilteredOutFn];
             }
 
             globalHeatmap = ret;
@@ -271,11 +271,9 @@ describe('Aardvark controllers', function () {
                 [1473136000000, 40],
                 [1473568000000, 50]
             ]);
-            expect(heatmapMock.dayHourRenderParams).toEqualData([
-                "#heatmapDiv_abc",
-                24200,
-                24200
-            ]);
+            expect(heatmapMock.dayHourRenderParams[0]).toEqualData("#heatmapDiv_abc");
+            expect(heatmapMock.dayHourRenderParams[1]).toEqualData(24200);
+            expect(heatmapMock.dayHourRenderParams[2]).toEqualData(24200);
             
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
@@ -311,11 +309,9 @@ describe('Aardvark controllers', function () {
                 [1473136000000, 0],
                 [1473568000000, 50]
             ]);
-            expect(heatmapMock.dayHourRenderParams).toEqualData([
-                "#heatmapDiv_abc",
-                24200,
-                24200
-            ]);
+            expect(heatmapMock.dayHourRenderParams[0]).toEqualData("#heatmapDiv_abc");
+            expect(heatmapMock.dayHourRenderParams[1]).toEqualData(24200);
+            expect(heatmapMock.dayHourRenderParams[2]).toEqualData(24200);
             
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
@@ -352,11 +348,9 @@ describe('Aardvark controllers', function () {
                 [1235001600000, 40],
                 [1235433600000, 50]
             ]);
-            expect(heatmapMock.weekDayRenderParams).toEqualData([
-                "#heatmapDiv_abc",
-                2016,
-                2016
-            ]);
+            expect(heatmapMock.weekDayRenderParams[0]).toEqualData("#heatmapDiv_abc");
+            expect(heatmapMock.weekDayRenderParams[1]).toEqualData(2016);
+            expect(heatmapMock.weekDayRenderParams[2]).toEqualData(2016);
 
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
@@ -393,14 +387,96 @@ describe('Aardvark controllers', function () {
                 [1235001600000, 40],
                 [1235433600000, 0]
             ]);
-            expect(heatmapMock.weekDayRenderParams).toEqualData([
-                "#heatmapDiv_abc",
-                2016,
-                2016
-            ]);
+            expect(heatmapMock.weekDayRenderParams[0]).toEqualData("#heatmapDiv_abc");
+            expect(heatmapMock.weekDayRenderParams[1]).toEqualData(2016);
+            expect(heatmapMock.weekDayRenderParams[2]).toEqualData(2016);
 
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
+        });
+
+        it('should use an appropriate filter when requested with only a lower bound', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+//
+            var global = { relativePeriod: "2w", autoReload: false };
+            var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "week_day", filterLowerBound: "30" } };
+            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
+//
+            scope.renderers.heatmap(global, graph, metrics);
+            
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2w-ago&ignore=1&m=sum:1d-avg:metric1&ms=true&arrays=true").respond([
+                {metric: "metric1", tags: {}, dps:[
+                    [1234483200000, 10],
+                    [1234569600000, 20],
+                    [1234656000000, 30],
+                    [1235001600000, 40],
+                    [1235433600000, 50]
+                ]}
+            ]);
+            $httpBackend.flush();
+
+            var filterFn = heatmapMock.weekDayRenderParams[3];
+            expect(filterFn(10)).toEqualData(true);
+            expect(filterFn(30)).toEqualData(false);
+            expect(filterFn(50)).toEqualData(false);
+        });
+
+        it('should use an appropriate filter when requested with only an upper bound', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+//
+            var global = { relativePeriod: "2w", autoReload: false };
+            var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "week_day", filterUpperBound: "30" } };
+            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
+//
+            scope.renderers.heatmap(global, graph, metrics);
+            
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2w-ago&ignore=1&m=sum:1d-avg:metric1&ms=true&arrays=true").respond([
+                {metric: "metric1", tags: {}, dps:[
+                    [1234483200000, 10],
+                    [1234569600000, 20],
+                    [1234656000000, 30],
+                    [1235001600000, 40],
+                    [1235433600000, 50]
+                ]}
+            ]);
+            $httpBackend.flush();
+
+            var filterFn = heatmapMock.weekDayRenderParams[3];
+            expect(filterFn(10)).toEqualData(false);
+            expect(filterFn(30)).toEqualData(false);
+            expect(filterFn(50)).toEqualData(true);
+        });
+
+        it('should use an appropriate filter when requested with both a lower and upper bound', function() {
+            scope.renderedContent = {};
+            scope.renderErrors = {};
+            scope.renderWarnings = {};
+//
+            var global = { relativePeriod: "2w", autoReload: false };
+            var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "day_hour", filterLowerBound: "30", filterUpperBound: "30" } };
+            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
+//
+            scope.renderers.heatmap(global, graph, metrics);
+            
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2w-ago&ignore=1&m=sum:1h-avg:metric1&ms=true&arrays=true").respond([
+                {metric: "metric1", tags: {}, dps:[
+                    [1234483200000, 10],
+                    [1234569600000, 20],
+                    [1234656000000, 30],
+                    [1235001600000, 40],
+                    [1235433600000, 50]
+                ]}
+            ]);
+            $httpBackend.flush();
+
+            var filterFn = heatmapMock.dayHourRenderParams[3];
+            expect(filterFn(10)).toEqualData(true);
+            expect(filterFn(30)).toEqualData(false);
+            expect(filterFn(50)).toEqualData(true);
         });
     });
 });

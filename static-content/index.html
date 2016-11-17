@@ -52,7 +52,7 @@
 
 <body ng-controller="AardvarkCtrl">
 
-<div ui-layout onload="setupClipboard()">
+<div ui-layout>
     <div ui-layout-container class="top-panel" size="64px">
         <table border="0" style="padding: 5px">
             <tr>
@@ -485,6 +485,12 @@
                                         <div>
                                             <input type="checkbox" id="excludeNegativeHeatmap" ng-model="graph.heatmap.excludeNegative" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                             <label for="excludeNegativeHeatmap">Squash -ve?</label>
+                                        </div>
+                                        <div>
+                                            <label for="filterLowerBoundHeatmap">Colour only cells with values between </label>
+                                            <input id="filterLowerBoundHeatmap" type="text" size="2" ng-model="graph.heatmap.filterLowerBound" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                            <label for="filterUpperBoundHeatmap">and</label>
+                                            <input id="filterUpperBoundHeatmap" type="text" size="2" ng-model="graph.heatmap.filterUpperBound" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                         </div>
                                         <!--<div>-->
                                             <!--<input type="checkbox" id="ylogHeatmap" ng-model="graph.heatmap.ylog" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />-->
