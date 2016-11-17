@@ -240,6 +240,27 @@ describe('Aardvark services', function() {
             });  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
         }));
         
+        it('expects the serialisation module to be able to round an absolute time specification with an open end - issue #158', inject(function(serialisation) {
+            var model = {
+                global: {
+                    absoluteTimeSpecification: true,
+                    fromDate:"2016/10/11",
+                    fromTime:"10:11:12",
+                    toDate:"",
+                    toTime:"",
+                    autoReload: false,
+                    autoGraphHeight: true,
+                    minGraphHeight: 300
+                },
+                graphs: [],
+                metrics: []
+            };
+            checkRoundTrips(serialisation, model, 460, function(model) {
+                model.global.globalDownsampling = false;
+                model.global.baselining = false;
+            });  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
+        }));
+        
         it('expects the serialisation module to be able to round trip a fully populated model with 5 metrics on 2 graphs in a small amount of space', inject(function(serialisation) {
             var model = {
                 global: {
