@@ -639,7 +639,7 @@
                             <select id="metricControl_selectMetric" ng-model="selectedMetricId" ng-change="nodeSelectedForEditing()" ng-disabled="nodeSelectionDisabled">
                                 <option ng-repeat="metric in model.metrics track by metric.id" value="{{metric.id}}">{{metric.name}}</option>
                             </select>
-                            <input type="text" id="metricControl_metricName" ng-model="currentMetricName()" style="width: 0; height: 0; color: rgba(0,0,0,0); background-color: rgba(0,0,0,0); border: none" />
+                            <input type="text" id="metricControl_metricName"  style="width: 0; height: 0; color: rgba(0,0,0,0); background-color: rgba(0,0,0,0); border: none" value="{{currentMetricName()}}" />
                             <button style="padding: 1px" class="glyphicon glyphicon-copy" ngclipboard data-clipboard-target="#metricControl_metricName" ng-disabled="currentMetricName() == null">
                             </button> 
                         </div>

@@ -75,13 +75,13 @@ aardvark.directive('tagSelection', function() {
         $scope.selectedTreeNode = undefined;
     }
     $scope.currentMetricName = function() {
-        if ($scope.selectedMetric != "") {
+        if ($scope.selectedMetric != null && $scope.selectedMetric != "") {
             return $scope.selectedMetric;
         }
 
         var metricId = $scope.selectedMetricId;
         if (metricId == "0") {
-            return null;
+            return "";
         }
         for (var i=0; i<$rootScope.model.metrics.length; i++) {
             var m = $rootScope.model.metrics[i];
@@ -89,7 +89,7 @@ aardvark.directive('tagSelection', function() {
                 return m.name;
             }
         }
-        return null;
+        return "";
     }
     $scope.addOrSaveMetric = function() {
         if ($scope.addButtonVisible()) {
