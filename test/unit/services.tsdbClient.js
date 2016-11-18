@@ -66,7 +66,7 @@ describe('Aardvark services', function() {
                     }
                 ]
             };
-            $tsdbClient.searchLookup({metric:"a.b.c", limit: 1000},function(data){
+            $tsdbClient.searchLookup({name:"a.b.c",tags:[]},false,1000,function(data){
                 expect(data).toEqualData(expectedJson);
             },function(){});
             $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', {metric:"a.b.c", limit: 1000, useMeta: false}).respond(expectedJson);
@@ -99,7 +99,7 @@ describe('Aardvark services', function() {
                 ]
             };
             $tsdbClient.config["tsd.core.meta.enable_tsuid_tracking"] = "true";
-            $tsdbClient.searchLookup({metric:"a.b.c", limit: 1000},function(data){
+            $tsdbClient.searchLookup({name:"a.b.c",tags:[]},false,1000,function(data){
                 expect(data).toEqualData(expectedJson);
             },function(){});
             $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', {metric:"a.b.c", limit: 1000, useMeta: true}).respond(expectedJson);
@@ -132,7 +132,7 @@ describe('Aardvark services', function() {
                 ]
             };
             $tsdbClient.config["tsd.core.meta.enable_tsuid_incrementing"] = "true";
-            $tsdbClient.searchLookup({metric:"a.b.c", limit: 1000},function(data){
+            $tsdbClient.searchLookup({name:"a.b.c",tags:[]},false,1000,function(data){
                 expect(data).toEqualData(expectedJson);
             },function(){});
             $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', {metric:"a.b.c", limit: 1000, useMeta: true}).respond(expectedJson);
@@ -165,7 +165,7 @@ describe('Aardvark services', function() {
                 ]
             };
             $tsdbClient.config["tsd.core.meta.enable_realtime_ts"] = "true";
-            $tsdbClient.searchLookup({metric:"a.b.c", limit: 1000},function(data){
+            $tsdbClient.searchLookup({name:"a.b.c",tags:[]},false,1000,function(data){
                 expect(data).toEqualData(expectedJson);
             },function(){});
             $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', {metric:"a.b.c", limit: 1000, useMeta: true}).respond(expectedJson);
@@ -219,14 +219,13 @@ describe('Aardvark services', function() {
                     }
                 ]
             };
-            var request = {
-                metric:"a.b.c", 
-                tags: {
-                    a:"value1|value2",
-                    b:"value3",
-                    c:"*"
-                }, 
-                limit: 1000
+            var metric = {
+                name:"a.b.c", 
+                tags: [
+                    {name:"a",value:"value1|value2"},
+                    {name:"b",value:"value3"},
+                    {name:"c",value:"*"}
+                ]
             };
             var postBody = {
                 metric:"a.b.c",
@@ -238,7 +237,7 @@ describe('Aardvark services', function() {
                 limit: 1000,
                 useMeta: false
             };
-            $tsdbClient.searchLookup(request,function(data){
+            $tsdbClient.searchLookup(metric,false,1000,function(data){
                 expect(data).toEqualData(expectedJson);
             },function(){});
             $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', postBody).respond(expectedJson);
@@ -292,14 +291,13 @@ describe('Aardvark services', function() {
                     }
                 ]
             };
-            var request = {
-                metric:"a.b.c",
-                filters: [
-                    {tagk:"a",filter:"value1|value2",type:"literal_or",groupBy:true},
-                    {tagk:"b",filter:"value3",type:"literal_or",groupBy:true},
-                    {tagk:"c",filter:"*",type:"wildcard",groupBy:true}
-                ],
-                limit: 1000
+            var metric = {
+                name:"a.b.c",
+                tags: [
+                    {name:"a",value:"literal_or(value1|value2)",groupBy:true},
+                    {name:"b",value:"literal_or(value3)",groupBy:true},
+                    {name:"c",value:"wildcard(*)",groupBy:true}
+                ]
             };
             var postBody = {
                 metric:"a.b.c",
@@ -311,7 +309,7 @@ describe('Aardvark services', function() {
                 limit: 1000,
                 useMeta: false
             };
-            $tsdbClient.searchLookup(request,function(data){
+            $tsdbClient.searchLookup(metric,true,1000,function(data){
                 expect(data).toEqualData(expectedJson);
             },function(){});
             $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', postBody).respond(expectedJson);
@@ -357,17 +355,16 @@ describe('Aardvark services', function() {
                     }
                 ]
             };
-            var request = {
-                metric:"a.b.c",
-                filters: [
-                    {tagk:"a",filter:"value1|value2",type:"literal_or",groupBy:true},
-                    {tagk:"a",filter:"value2|value3",type:"literal_or",groupBy:true},
-                    {tagk:"b",filter:"value3",type:"literal_or",groupBy:true},
-                    {tagk:"b",filter:"*",type:"wildcard",groupBy:true},
-                    {tagk:"c",filter:"*",type:"wildcard",groupBy:true},
-                    {tagk:"c",filter:"value4",type:"literal_or",groupBy:true}
-                ],
-                limit: 1000
+            var metric = {
+                name:"a.b.c",
+                tags: [
+                    {name:"a",value:"literal_or(value1|value2)",groupBy:true},
+                    {name:"a",value:"literal_or(value2|value3)",groupBy:true},
+                    {name:"b",value:"literal_or(value3)",groupBy:true},
+                    {name:"b",value:"wildcard(*)",groupBy:true},
+                    {name:"c",value:"wildcard(*)",groupBy:true},
+                    {name:"c",value:"literal_or(value4)",groupBy:true}
+                ]
             };
             var postBody = {
                 metric:"a.b.c",
@@ -379,7 +376,7 @@ describe('Aardvark services', function() {
                 limit: 1000,
                 useMeta: false
             };
-            $tsdbClient.searchLookup(request,function(data){
+            $tsdbClient.searchLookup(metric,true,1000,function(data){
                 expect(data).toEqualData(expectedJson);
             },function(){});
             $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', postBody).respond(response);
@@ -461,14 +458,13 @@ describe('Aardvark services', function() {
                     }
                 ]
             };
-            var request = {
-                metric:"a.b.c",
-                filters: [
-                    {tagk:"a",filter:"value1|value2",type:"iliteral_or",groupBy:true},
-                    {tagk:"b",filter:"value3*",type:"wildcard",groupBy:true},
-                    {tagk:"c",filter:".*4",type:"regexp",groupBy:true}
-                ],
-                limit: 1000
+            var metric = {
+                name:"a.b.c",
+                tags: [
+                    {name:"a",value:"iliteral_or(value1|value2)",groupBy:true},
+                    {name:"b",value:"wildcard(value3*)",groupBy:true},
+                    {name:"c",value:"regexp(.*4)",groupBy:true}
+                ]
             };
             var postBody = {
                 metric:"a.b.c",
@@ -480,7 +476,7 @@ describe('Aardvark services', function() {
                 limit: 1000,
                 useMeta: false
             };
-            $tsdbClient.searchLookup(request,function(data){
+            $tsdbClient.searchLookup(metric,true,1000,function(data){
                 expect(data).toEqualData(expectedJson);
             },function(){});
             $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', postBody).respond(response);

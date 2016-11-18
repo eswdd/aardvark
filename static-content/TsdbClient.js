@@ -34,36 +34,45 @@ aardvark
                 }
             }).error(errorFn ? errorFn : function() {});
         };
-        tsdb.searchLookup = function(query, successFn, errorFn) {
+        tsdb.searchLookup = function(metric, tagsCanBeFilters, limit, successFn, errorFn) {
             var doSearchLookup = function(useMeta) { 
                 var url = tsdb.tsdbBaseReadUrl+"/api/search/lookup";
-                var requestJson = {"metric": query.metric, "limit": query.limit, "useMeta": useMeta};
-                if (query.tags) {
+                var requestJson = {"metric": metric.name, "limit": limit, "useMeta": useMeta};
+                if (!tagsCanBeFilters) {
                     requestJson.tags = [];
-                    for (var tagk in query.tags) {
-                        requestJson.tags.push({key: tagk, value: query.tags[tagk]});
+                    for (var t=0; t<metric.tags.length; t++) {
+                        requestJson.tags.push({key: metric.tags[t].name, value: metric.tags[t].value});
                     }
                 }
                 var postFilteringRequired = false;
                 var tagsRequiringPostFiltering = {};
-                if (query.filters) {
+                var tagsAsFilters = [];
+                if (tagsCanBeFilters) {
                     var tags = {};
-                    for (var f=0; f<query.filters.length; f++) {
-                        var filter = query.filters[f];
-                        if (filter.type == "literal_or") {
-                            if (tags[filter.tagk] == null) {
-                                tags[filter.tagk] = filter.filter;
+                    for (var t=0; t<metric.tags.length; t++) {
+                        var filter = metric.tags[t];
+                        var type = "literal_or";
+                        var value = filter.value;
+                        if (value.indexOf("(") > 0) {
+                            var openBrace = value.indexOf("(");
+                            type = value.substring(0, openBrace);
+                            value = value.substring(openBrace+1, value.indexOf(")", openBrace));
+                        }
+                        tagsAsFilters.push({name:filter.name, value:value, type:type});
+                        if (type == "literal_or") {
+                            if (tags[filter.name] == null) {
+                                tags[filter.name] = value;
                             }
-                            else if (tagsRequiringPostFiltering[filter.tagk] == null) {
+                            else if (tagsRequiringPostFiltering[filter.name] == null) {
                                 // filters ANDed together
                                 // first if it was a * then this filter wins
-                                if (tags[filter.tagk] == "*") {
-                                    tags[filter.tagk] = filter.filter;
+                                if (tags[filter.name] == "*") {
+                                    tags[filter.name] = value;
                                 }
                                 // otherwise we need to only include the elements in boths lists
                                 else {
-                                    var list1 = tags[filter.tagk].split("|");
-                                    var list2 = filter.filter.split("|");
+                                    var list1 = tags[filter.name].split("|");
+                                    var list2 = value.split("|");
                                     var sep = "";
                                     var result = "";
                                     for (var l1=0; l1<list1.length; l1++) {
@@ -79,18 +88,18 @@ aardvark
                                             sep = "|";
                                         }
                                     }
-                                    tags[filter.tagk] = result;
+                                    tags[filter.name] = result;
                                 }
                             }
                         }
-                        else if (filter.type == "wildcard" && filter.filter == "*") {
-                            if (tags[filter.tagk] == null) {
-                                tags[filter.tagk] = filter.filter;
+                        else if (type == "wildcard" && value == "*") {
+                            if (tags[filter.name] == null) {
+                                tags[filter.name] = value;
                             }
                         }
                         else {
-                            tags[filter.tagk] = "*";
-                            tagsRequiringPostFiltering[filter.tagk] = true;
+                            tags[filter.name] = "*";
+                            tagsRequiringPostFiltering[filter.name] = true;
                             postFilteringRequired = true;
                         }
                     }
@@ -98,6 +107,10 @@ aardvark
                     for (var tagk in tags) {
                         requestJson.tags.push({key: tagk, value: tags[tagk]});
                     }
+                }
+                
+                if (requestJson.tags.length == 0) {
+                    delete requestJson["tags"];
                 }
                 
                 var filterResultsFn = function(data) {
@@ -112,10 +125,10 @@ aardvark
                                     break;
                                 }
                                 else {
-                                    for (var f=0; f<query.filters.length; f++) {
-                                        var filter = query.filters[f];
-                                        if (filter.tagk == tagk) {
-                                            if (!tsdb.tagFilterMatchesValue({fn:filter.type, value:filter.filter}, ts.tags[tagk])) {
+                                    for (var t=0; t<tagsAsFilters.length; t++) {
+                                        var filter = tagsAsFilters[t];
+                                        if (filter.name == tagk) {
+                                            if (!tsdb.tagFilterMatchesValue({fn:filter.type, value:filter.value}, ts.tags[tagk])) {
                                                 filteredOut = true;
                                                 break;
                                             }
