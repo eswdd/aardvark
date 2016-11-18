@@ -225,7 +225,8 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
             // heatmap defaults
             heatmap: {
                 filterLowerBound: "",
-                filterUpperBound: ""
+                filterUpperBound: "",
+                colourScheme: 'RdYlGn'
             }
         });
         $scope.showEdit[id] = true;

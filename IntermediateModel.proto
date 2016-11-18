@@ -59,6 +59,7 @@ message Heatmap {
   optional int32 style = 1 [ default = "auto" ];
   optional int32 valueFilterLowerBound = 2;
   optional int32 valueFilterUpperBound = 3;
+  optional int32 colourScheme = 4 [ default = "RdYlGn" ];
   
 }
 

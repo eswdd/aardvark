@@ -441,6 +441,7 @@ aardvark
         var units = mapping.generateBiDiMapping(["s", "m", "h", "d", "w", "y"]); // todo: incomplete
         var datumStyles = mapping.generateBiDiMapping(["relative","from","to"]);
         var heatmapStyles = mapping.generateBiDiMapping(["auto","week_day","day_hour"]);
+        var heatmapColourSchemes = mapping.generateBiDiMapping(["RdYlGn","Gn","Bl","Rd"]);
         var ProtoBuf = dcodeIO.ProtoBuf;
         var builder = ProtoBuf.loadJson(intermediateModelJson);
         // helper data structures
@@ -777,14 +778,16 @@ aardvark
                                 graph.heatmap.ylog
                             ]);
                             intermediateGraph.heatmap = {
-                                style: heatmapStyles.valueToId(graph.heatmap.style)
+                                style: heatmapStyles.valueToId(graph.heatmap.style),
+                                colourScheme: heatmapColourSchemes.valueToId(graph.heatmap.colourScheme)
                             };
-                            if (graph.heatmap.filterLowerBound != null) {
+                            if (graph.heatmap.filterLowerBound != null && graph.heatmap.filterLowerBound != "") {
                                 intermediateGraph.heatmap.valueFilterLowerBound = toInt(graph.heatmap.filterLowerBound);
                             }
-                            if (graph.heatmap.filterUpperBound != null) {
+                            if (graph.heatmap.filterUpperBound != null && graph.heatmap.filterUpperBound != "") {
                                 intermediateGraph.heatmap.valueFilterUpperBound = toInt(graph.heatmap.filterUpperBound);
                             }
+                            
                         }
                         break;
                 }
@@ -1098,6 +1101,7 @@ aardvark
                         graph.heatmap.ylog = heatmapFlags[1];
                         if (intermediateGraph.heatmap != null) {
                             graph.heatmap.style = heatmapStyles.idToValue(intermediateGraph.heatmap.style);
+                            graph.heatmap.colourScheme = heatmapColourSchemes.idToValue(intermediateGraph.heatmap.colourScheme);
                             if (intermediateGraph.heatmap.valueFilterLowerBound != null) {
                                 graph.heatmap.filterLowerBound = intermediateGraph.heatmap.valueFilterLowerBound + "";
                             }

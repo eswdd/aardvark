@@ -280,6 +280,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
         ret._cellSize = 5;
         ret._width = null;
         ret._height = null;
+        ret._colourScheme = "RdYlGn";
 
         ret._color = function(dps, isFilteredOutFn) {
             var minValue = null, maxValue = null;
@@ -344,6 +345,14 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
             return ret;
         }
 
+        ret.colourScheme = function(_) {
+            if (!arguments.length) {
+                return ret._colourScheme;
+            }
+            ret._colourScheme = _;
+            return ret;
+        }
+
         ret.weekDayRender = function(divSelector, fromYear, toYear, isFilteredOutFn) {
 
             // render away
@@ -368,7 +377,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                 .enter().append("svg")
                 .attr("width", ret._width)
                 .attr("height", yearHeight)
-                .attr("class", "RdYlGn")
+                .attr("class", ret._colourScheme)
                 .append("g")
                 .attr("transform", "translate(" + translateX + "," + translateY + ")");
 
@@ -446,7 +455,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                 .enter().append("svg")
                 .attr("width", monthWidth)
                 .attr("height", monthHeight)
-                .attr("class", "RdYlGn")
+                .attr("class", ret._colourScheme)
                 .append("g")
                 .attr("transform", "translate(19," + (ret._cellSize / 2) + ")");
 
@@ -1187,7 +1196,8 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                 .scale(d3.scale.quantize())
                 .dps(series.dps)
                 .width(width)
-                .height(height);
+                .height(height)
+                .colourScheme(heatmapOptions.colourScheme);
             
             if (style == "week_day") {
                 heatmap.weekDayRender(divSelector, fromYear, toYear, isFilteredOutFn);

@@ -492,6 +492,15 @@
                                             <label for="filterUpperBoundHeatmap">and</label>
                                             <input id="filterUpperBoundHeatmap" type="text" size="2" ng-model="graph.heatmap.filterUpperBound" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                         </div>
+                                        <div>
+                                            <label for="colourSchemeHeatmap">Colour scheme</label>
+                                            <select id="colourSchemeHeatmap" ng-model="graph.heatmap.colourScheme" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
+                                                <option value="RdYlGn">Diverging - Red/Yellow/Green</option>
+                                                <option value="Gn">Sequential - Green</option>
+                                                <option value="Bl">Sequential - Blue</option>
+                                                <option value="Rd">Sequential - Red</option>
+                                            </select>
+                                        </div>
                                         <!--<div>-->
                                             <!--<input type="checkbox" id="ylogHeatmap" ng-model="graph.heatmap.ylog" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />-->
                                             <!--<label for="ylogHeatmap">Logarithmic y-axis?</label>-->

@@ -39,6 +39,7 @@ describe('Aardvark controllers', function () {
             ret._cellSize = null;
             ret._width = null;
             ret._height = null;
+            ret._colourScheme = null;
 
             ret.tearDown = function() {
                 globalHeatmap = null;
@@ -81,6 +82,14 @@ describe('Aardvark controllers', function () {
                     return ret._height;
                 }
                 ret._height = _;
+                return ret;
+            }
+
+            ret.colourScheme = function(_) {
+                if (!arguments.length) {
+                    return ret._colourScheme;
+                }
+                ret._colourScheme = _;
                 return ret;
             }
 
