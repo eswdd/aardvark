@@ -1,4 +1,4 @@
-aardvark.controller('AnnotationsDialogCtrl', function ($uibModalInstance, $http, rootConfig, adding, originalAnnotation, time, seriesAndQueries, clickedSeries, $tsdbClient, $tsdbUtils, readOnly) {
+aardvark.controller('AnnotationsDialogCtrl', function ($uibModalInstance, rootConfig, adding, originalAnnotation, time, seriesAndQueries, clickedSeries, $tsdbClient, $tsdbUtils, readOnly) {
     var $ctrl = this;
     $ctrl.adding = adding;
     $ctrl.time = time;
@@ -85,7 +85,6 @@ aardvark.controller('AnnotationsDialogCtrl', function ($uibModalInstance, $http,
             }
             $ctrl.loadingMessage = s;
         }
-
         $tsdbClient.searchLookupBulk(queries, perResultFn, successFn, errorFn);
     }
 
