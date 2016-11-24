@@ -123,16 +123,16 @@ aardvark.controller('AnnotationsDialogCtrl', function ($uibModalInstance, rootCo
         }
     }
 
-    $ctrl.createResultsArray = function(editing) {
+    $ctrl.createResultsArray = function(action) {
         var tsuids = $ctrl.metricSourceClick ? $ctrl.tsuidsFromClick : $ctrl.tsuidsFromAll;
-        var anns = editing ? [{tsuid: originalAnnotation.tsuid}] : new Array(tsuids.length);
+        var anns = action == "add" ? new Array(tsuids.length) : action == "edit" ? [{tsuid: originalAnnotation.tsuid}] : [originalAnnotation];
         for (var a=0; a<anns.length; a++) {
             var ann = anns[a];
-            if (editing) {
+            if (action == "edit") {
                 ann.startTime = originalAnnotation.startTime;
                 ann.endTime = originalAnnotation.endTime;
             }
-            else {
+            else if (action == "add") {
                 ann = {};
                 anns[a] = ann;
                 ann.tsuid = tsuids[a];
@@ -145,20 +145,28 @@ aardvark.controller('AnnotationsDialogCtrl', function ($uibModalInstance, rootCo
                     ann.endTime = 0;
                 }
             }
-            ann.description = $ctrl.description;
-            ann.notes = $ctrl.notes;
-            ann.custom = $ctrl.custom;
+            
+            if (action != "delete") {
+                ann.description = $ctrl.description;
+                ann.notes = $ctrl.notes;
+                ann.custom = $ctrl.custom;
+            }
         }
         return anns;
     }
 
     $ctrl.ok = function () {
         var action = adding ? "add" : "edit";
-        $uibModalInstance.close({action:action, annotations:$ctrl.createResultsArray(!adding)});
+        $uibModalInstance.close({action:action, annotations:$ctrl.createResultsArray(action)});
     };
 
     $ctrl.delete = function() {
-        $uibModalInstance.close({action:"delete", annotations:$ctrl.createResultsArray(false)});
+        if ($ctrl.allowAnnotationDelete()) {
+            $uibModalInstance.close({action:"delete", annotations:$ctrl.createResultsArray("delete")});
+        }
+        else {
+            $ctrl.cancel();
+        }
     }
 
     $ctrl.cancel = function () {

@@ -60,7 +60,11 @@ describe('Aardvark controllers', function () {
         }
         
         var setupController = function($controller, adding, originalAnnotation, time, seriesAndQueries, clickedSeries) {
-            rootConfig = {};
+            rootConfig = {
+                annotations: {
+                    allowDelete: true
+                }
+            };
             mockTsdbClient = {
                 searchLookupBulk: mockMethod("$tsdbClient.searchLookupBulk", searchLookupBulkCalls)
             };
@@ -143,7 +147,27 @@ describe('Aardvark controllers', function () {
                 expect(args[0]).toEqualData('cancel');
             });
             ctrl.cancel();
-            // todo: delete (fail) and ok
+            dismissCalls.push(function(args) {
+                expect(args[0]).toEqualData('cancel');
+            });
+            ctrl.delete();
+            ctrl.tsuidsFromAll = ["001001"];
+            ctrl.description = "test";
+            ctrl.notes = "testing";
+            closeCalls.push(function(args) {
+                var ann = {
+                    tsuid: "001001",
+                    startTime: 1234567000,
+                    endTime: 0,
+                    description: "test",
+                    notes: "testing",
+                    custom: {
+                        type: ""
+                    }
+                };
+                expect(args[0]).toEqualData({action:'add',annotations:[ann]});
+            });
+            ctrl.ok();
         }));
         
         it('should function correctly when editing an existing annotation', inject(function($controller) {
@@ -154,6 +178,7 @@ describe('Aardvark controllers', function () {
             var existingAnnotation = {
                 tsuid: "001001",
                 startTime: 1234567890,
+                endTime: 2234567890,
                 description: "test",
                 notes: "testing"
             };
@@ -172,7 +197,35 @@ describe('Aardvark controllers', function () {
                 expect(args[0]).toEqualData('cancel');
             });
             ctrl.cancel();
-            // todo: delete and ok
+            ctrl.description = "test2";
+            ctrl.notes = "testing2";
+            ctrl.startTime = "1970-01-15 06:56:08";
+            ctrl.startTime = "1970-01-26 20:42:48";
+            closeCalls.push(function(args) {
+                var ann = {
+                    tsuid: "001001",
+                    startTime: 1234567890,
+                    endTime: 2234567890,
+                    description: "test",
+                    notes: "testing"
+                };
+                expect(args[0]).toEqualData({action:'delete',annotations:[ann]});
+            });
+            ctrl.delete();
+            closeCalls.push(function(args) {
+                var ann = {
+                    tsuid: "001001",
+                    startTime: 1234567890,
+                    endTime: 2234567890,
+                    description: "test2",
+                    notes: "testing2",
+                    custom: {
+                        type: ""
+                    }
+                };
+                expect(args[0]).toEqualData({action:'edit',annotations:[ann]});
+            });
+            ctrl.ok();
         }));
         
 
