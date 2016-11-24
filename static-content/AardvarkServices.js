@@ -831,7 +831,7 @@ aardvark
                         intermediateMetric.rateCounterMax = toInt(metric.graphOptions.rateCounterMax);
                     }
                     intermediateMetric.aggregator = aggregationFunctions.valueToId(metric.graphOptions.aggregator);
-                    if (metric.graphOptions.downsample) {
+                    if (metric.graphOptions.downsample || model.global.globalDownsampling) {
                         intermediateMetric.downsampleBy = aggregationFunctions.valueToId(metric.graphOptions.downsampleBy);
                         intermediateMetric.downsampleTo = toTimePeriod(metric.graphOptions.downsampleTo);
                     }
@@ -1151,9 +1151,11 @@ aardvark
                     metric.graphOptions.rateCounterMax = "";
                 }
                 metric.graphOptions.aggregator = aggregationFunctions.idToValue(intermediateMetric.aggregator);
-                if (metric.graphOptions.downsample) {
+                if (metric.graphOptions.downsample || model.global.globalDownsampling) {
                     metric.graphOptions.downsampleBy = aggregationFunctions.idToValue(intermediateMetric.downsampleBy);
-                    metric.graphOptions.downsampleTo = fromTimePeriod(intermediateMetric.downsampleTo, "");
+                    if (metric.graphOptions.downsample) {
+                        metric.graphOptions.downsampleTo = fromTimePeriod(intermediateMetric.downsampleTo, "");
+                    }
                 }
                 else {
                     metric.graphOptions.downsampleBy = "";

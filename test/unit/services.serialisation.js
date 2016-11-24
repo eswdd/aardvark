@@ -595,6 +595,73 @@ describe('Aardvark services', function() {
             });
         }));
     
+        it('expects the serialisation module to be able to round trip a model using global downsampling and metric downsample functions', inject(function(serialisation) {
+            var toDate = "2016/01/01";
+            var toTime = "12:34:22";
+            var model = {
+                global: {
+                    absoluteTimeSpecification: false,
+                    relativePeriod: "2h",
+                    baselining: false,
+                    globalDownsampling: true,
+                    globalDownsampleTo: "1h"
+                    
+                },
+                graphs: [
+                    {
+                        id: "1462986273915",
+                        type: "scatter",
+                        title: "Graph 5",
+                        scatter: {
+                            excludeNegative: true
+                        }
+                    }
+                ],
+                metrics: [
+                    {
+                        id: "1462986273912",
+                        name: "cpu.interrupts",
+                        tags: [{name:"host",value:"*",groupBy:true}],
+                        graphOptions: {
+                            graphId: "1462986273915",
+                            rate: true,
+                            rateCounter: true,
+                            rateCounterReset: 1234,
+                            rateCounterMax: 12345,
+                            aggregator: "sum",
+                            downsample: false,
+                            downsampleBy: "avg",
+                            scatter: null
+                        }
+                    },
+                    {
+                        id: "1462986273913",
+                        name: "some.app.metric1",
+                        tags: [{name:"host",value:"host1|host2",groupBy:true}],
+                        graphOptions: {
+                            graphId: "1462986273915",
+                            rate: false,
+                            rateCounter: false,
+                            rateCounterReset: "",
+                            rateCounterMax: "",
+                            aggregator: "sum",
+                            downsample: false,
+                            downsampleBy: "sum",
+                            scatter: null
+                        }
+                    }
+                ]
+            };
+            checkRoundTrips(serialisation, model, 470, function(model) {
+                // defaults
+                model.global.autoReload = false;
+                model.global.autoGraphHeight = false;
+                model.global.graphHeight = null;
+                model.metrics[0].graphOptions.downsample = false;
+                model.metrics[1].graphOptions.downsample = false;
+            });
+        }));
+    
 
     });
 });
