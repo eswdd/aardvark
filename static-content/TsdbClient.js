@@ -323,7 +323,6 @@ aardvark
             else {
                 synthesisedBulkCall();
             }
-
         }
         tsdb.getVersion = function(successFn, failFn, force) {
             if (tsdb.versionInfo != null && !force) {
