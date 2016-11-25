@@ -2430,6 +2430,11 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                 xSeries = json[0];
                 ySeries = json[1];
             }
+            if (scatterOptions.swapAxes) {
+                var tmp = xSeries;
+                xSeries = ySeries;
+                ySeries = tmp;
+            }
             
             var timesByValues = {};
             var data = [];

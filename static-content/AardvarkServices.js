@@ -767,7 +767,8 @@ aardvark
                     case "scatter":
                         if (graph.scatter != null) {
                             intermediateGraph.flags = blitting.toBlittedInt([
-                                graph.scatter.excludeNegative
+                                graph.scatter.excludeNegative,
+                                graph.scatter.swapAxes
                             ]);
                         }
                         break;
@@ -1090,9 +1091,10 @@ aardvark
                         }
                         break;
                     case "scatter":
-                        var scatterFlags = blitting.fromBlittedInt(intermediateGraph.flags, [false]);
+                        var scatterFlags = blitting.fromBlittedInt(intermediateGraph.flags, [false, false]);
                         graph.scatter = {};
                         graph.scatter.excludeNegative = scatterFlags[0];
+                        graph.scatter.swapAxes = scatterFlags[1];
                         break;
                     case "heatmap":
                         var heatmapFlags = blitting.fromBlittedInt(intermediateGraph.flags, [false,false]);

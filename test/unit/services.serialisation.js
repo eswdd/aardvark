@@ -237,6 +237,7 @@ describe('Aardvark services', function() {
                 model.graphs[3].dygraph.y2SquashNegative = false;
                 model.graphs[3].dygraph.y2AutoScale = false;
                 model.graphs[3].dygraph.y2Log = false;
+                model.graphs[4].scatter.swapAxes = false;
             });  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
         }));
         
@@ -440,6 +441,7 @@ describe('Aardvark services', function() {
                 model.graphs[0].gnuplot.globalAnnotations = false;
                 model.graphs[1].dygraph.globalAnnotations = false;
                 model.graphs[1].dygraph.y1Log = false;
+                model.graphs[2].scatter.swapAxes = false;
             });  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
         }));
         
@@ -657,6 +659,7 @@ describe('Aardvark services', function() {
                 model.global.autoReload = false;
                 model.global.autoGraphHeight = false;
                 model.global.graphHeight = null;
+                model.graphs[0].scatter.swapAxes = false;
                 model.metrics[0].graphOptions.downsample = false;
                 model.metrics[1].graphOptions.downsample = false;
             });

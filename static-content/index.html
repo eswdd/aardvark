@@ -472,6 +472,10 @@
                                             <input type="checkbox" id="excludeNegativeScatter" ng-model="graph.scatter.excludeNegative" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                             <label for="excludeNegativeScatter">Exclude negative values?</label>
                                         </div>
+                                        <div>
+                                            <input type="checkbox" id="swapAxesScatter" ng-model="graph.scatter.swapAxes" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                            <label for="swapAxesScatter">Swap axes?</label>
+                                        </div>
                                     </div>
                                     <div ng-show="graph.type == 'heatmap'">
                                         <div>
