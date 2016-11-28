@@ -22,17 +22,44 @@ describe('Aardvark controllers', function () {
     beforeEach(module('Aardvark'));
 
     describe('MetricControlCtrl', function() {
-        var rootScope, scope, ctrl, $httpBackend, controllerCreator;
+        var rootScope, scope, ctrl, controllerCreator;
         var configUpdateFunc;
         var saveModelCalled = false;
         var idGeneratorRef;
-        var tsdbClientRef;
+        var mockTsdbClient;
+        var mockTsdbUtils;
 
-        beforeEach(inject(function ($rootScope, _$httpBackend_, $browser, $location, $controller, idGenerator, tsdbClient) {
-            $httpBackend = _$httpBackend_;
+        var callArraysToCheckAndCleanAfter = [];
+
+        var suggestCalls = [];
+        var getTagsCalls = [];
+
+        var mockMethod = function(name, callArray) {
+            callArraysToCheckAndCleanAfter.push({name:name, calls: callArray});
+            return function() {
+                if (callArray.length == 0) {
+                    fail("Unexpected call to "+name+": "+arguments);
+                }
+                else {
+                    var call = callArray[0];
+                    callArray.splice(0,1);
+                    return call(arguments);
+                }
+            }
+        }
+
+        beforeEach(inject(function ($rootScope, $browser, $location, $controller, tsdbClient, idGenerator) {
             controllerCreator = $controller;
             idGeneratorRef = idGenerator;
-            tsdbClientRef = tsdbClient;
+            mockTsdbClient = {
+                versionNumber: 20,
+                TSDB_2_2: 22,
+                suggest: mockMethod("$tsdbClient.suggest", suggestCalls),
+                tagFilterMatchesValue: tsdbClient.tagFilterMatchesValue
+            };
+            mockTsdbUtils = {
+                getTags: mockMethod("$tsdbUtils.getTags", getTagsCalls)
+            };
 
             // hmm
             rootScope = $rootScope;
@@ -45,14 +72,21 @@ describe('Aardvark controllers', function () {
             }
             saveModelCalled = false;
             rootScope.model = { global: {}, graphs: [], metrics: [] };
-            $httpBackend.expectGET('http://tsdb:4242/api/config').respond({});
-            $httpBackend.expectGET('http://tsdb:4242/api/version').respond({version: "2.0.0"});
-            tsdbClientRef.init({tsdbBaseReadUrl:"http://tsdb:4242"});
-            $httpBackend.flush();
 
             scope = $rootScope.$new();
-            ctrl = $controller('MetricControlCtrl', {$scope: scope, $rootScope: rootScope});
+            ctrl = $controller('MetricControlCtrl', {$scope: scope, $rootScope: rootScope, $tsdbClient: mockTsdbClient, $tsdbUtils: mockTsdbUtils});
         }));
+
+        afterEach(function() {
+            for (var c=0; c<callArraysToCheckAndCleanAfter.length; c++) {
+                var name = callArraysToCheckAndCleanAfter[c].name;
+                var calls = callArraysToCheckAndCleanAfter[c].calls;
+                if (calls.length != 0) {
+                    fail("Expected calls array for "+name+" to be empty after test execution");
+                    calls.splice(0, calls.length);
+                }
+            }
+        });
 
         it('should register for config loads on start', function () {
             expect(configUpdateFunc).not.toEqual(null);
@@ -60,18 +94,20 @@ describe('Aardvark controllers', function () {
 
         it('should load data for the tree on config update', function() {
             rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
-            $httpBackend.expectGET('http://tsdb:4242/api/suggest?type=metrics&max=1000000').respond(
-                [
+            suggestCalls.push(function(args) {
+                expect(args[0]).toEqualData("metrics");
+                expect(args[1]).toEqualData("");
+                expect(args[2]).toEqualData(1000000);
+                args[3]([
                     "flob",
                     "name.baldrick",
                     "name.blackadder",
                     "wibble",
                     "wibble.wobble"
-                ]
-            );
+                ]);
+            });
 
             configUpdateFunc();
-            $httpBackend.flush();
 
             var expectedDataForTheTree = [
                 {id: "flob", name: "flob", isMetric: true, children: []},
@@ -91,9 +127,12 @@ describe('Aardvark controllers', function () {
         });
 
         it('should load data for the tree on config update with prefix exclusions', function() {
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242", hidePrefixes: ["wibble","dave.fred"]};
-            $httpBackend.expectGET('http://tsdb:4242/api/suggest?type=metrics&max=1000000').respond(
-                [
+            rootScope.config = {hidePrefixes: ["wibble","dave.fred"]};
+            suggestCalls.push(function(args) {
+                expect(args[0]).toEqualData("metrics");
+                expect(args[1]).toEqualData("");
+                expect(args[2]).toEqualData(1000000);
+                args[3]([
                     "flob",
                     "dave.fred.jim",
                     "dave.jim.fred",
@@ -101,11 +140,10 @@ describe('Aardvark controllers', function () {
                     "name.blackadder",
                     "wibble",
                     "wibble.wobble"
-                ]
-            );
+                ]); 
+            });
 
             configUpdateFunc();
-            $httpBackend.flush();
 
             var expectedDataForTheTree = [
                 {id: "flob", name: "flob", isMetric: true, children: []},
@@ -126,8 +164,12 @@ describe('Aardvark controllers', function () {
         it('should load data for the tree on config update with prefix exclusions disabled in ui', function() {
             rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242", hidePrefixes: ["wibble","dave.fred"]};
             scope.showingIgnoredPrefixes = true;
-            $httpBackend.expectGET('http://tsdb:4242/api/suggest?type=metrics&max=1000000').respond(
-                [
+
+            suggestCalls.push(function(args) {
+                expect(args[0]).toEqualData("metrics");
+                expect(args[1]).toEqualData("");
+                expect(args[2]).toEqualData(1000000);
+                args[3]([
                     "flob",
                     "dave.fred.jim",
                     "dave.jim.fred",
@@ -135,11 +177,10 @@ describe('Aardvark controllers', function () {
                     "name.blackadder",
                     "wibble",
                     "wibble.wobble"
-                ]
-            );
+                ]);
+            });
 
             configUpdateFunc();
-            $httpBackend.flush();
 
             var expectedDataForTheTree = [
                 {id: "flob", name: "flob", isMetric: true, children: []},
@@ -179,40 +220,13 @@ describe('Aardvark controllers', function () {
 
         it('should correctly process a selected node in the tree', function() {
             var node = {id: "name.baldrick", name: "baldrick", isMetric: true, children: []};
-            
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
-            var response = {
-                "type":"LOOKUP",
-                "metric":"name.baldrick",
-                "limit":100000,
-                "time":1,
-                "results":[
-                    {
-                        "metric":"name.baldrick",
-                        "tags":{
-                            "key1":"value1",
-                            "key2":"value3"
-                        },
-                        "tsuid":"000006000001000009"
-                    },
-                    {
-                        "metric":"name.baldrick",
-                        "tags":{
-                            "key1":"value2",
-                            "key2":"value3"
-                        },
-                        "tsuid":"00000600000100000a"
-                    }
-                ],
-                "startIndex":0,
-                "totalResults":2
-            };
-
-            $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', {metric:"name.baldrick",limit:100000,useMeta:false}).respond(response);
+            getTagsCalls.push(function(args) {
+                expect(args[0]).toEqualData("name.baldrick");
+                args[1]({key1: ["value1","value2"], key2: ["value3"]});
+            });
 
             scope.nodeSelectedForAddition(node, true);
-            $httpBackend.flush();
 
             // simple results
             expect(scope.addButtonVisible()).toEqualData(true);
@@ -237,7 +251,6 @@ describe('Aardvark controllers', function () {
 
             scope.nodeSelectedForAddition(node, false);
             // no calls should be made
-            $httpBackend.verifyNoOutstandingRequest();
 
             // simple results
             expect(scope.addButtonVisible()).toEqualData(false);
@@ -268,6 +281,23 @@ describe('Aardvark controllers', function () {
             expect(scope.suggestTagValues('value1|value2|something2|','key1')).toEqualData([]);
         });
         
+        it('should add a second tag row when filtering is supported', function() {
+            mockTsdbClient.versionNumber = mockTsdbClient.TSDB_2_2;
+            expect(scope.tagFilters.length).toEqualData(0);
+            scope.addTagRow("tag1");
+            expect(scope.tagFilters.length).toEqualData(1);
+            scope.addTagRow("tag1");
+            expect(scope.tagFilters.length).toEqualData(2);
+        });
+        
+        it('should not add a second tag row when filtering is supported', function() {
+            expect(scope.tagFilters.length).toEqualData(0);
+            scope.addTagRow("tag1");
+            expect(scope.tagFilters.length).toEqualData(1);
+            scope.addTagRow("tag1");
+            expect(scope.tagFilters.length).toEqualData(1);
+        });
+        
         it('should correctly count matching tag values', function() {
             scope.tagValues = { key1: ["value1","something2","value2"] };
 
@@ -288,7 +318,7 @@ describe('Aardvark controllers', function () {
         });
         
         it('should correctly count matching tag values when filtering available', function() {
-            tsdbClientRef.versionNumber = tsdbClientRef.TSDB_2_2;
+            mockTsdbClient.versionNumber = mockTsdbClient.TSDB_2_2;
             scope.tagValues = { key1: ["value1","something2","value2","Value3"] };
             
             var tagFilter = {name: 'key1', value: ''};
@@ -349,7 +379,7 @@ describe('Aardvark controllers', function () {
 
         it('should add the metric to the model when addMetric() is called', function() {
             scope.tagNames = ["tag1","tag2","tag3"];
-            scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
+            scope.tagFilters = [{name:"tag1", value: ''}, {name:"tag2", value: '*'}, {name:"tag3",value: 'value'}];
             scope.selectedMetric = "some.metric.name";
             scope.rate = true;
             scope.rateCounter = true;
@@ -525,11 +555,12 @@ describe('Aardvark controllers', function () {
                 "totalResults":2
             };
 
-            // todo: check correct metric name requested
-            $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', '{"metric":"some.metric.name","limit":100000,"useMeta":false}').respond(response);
+            getTagsCalls.push(function(args) {
+                expect(args[0]).toEqualData("some.metric.name");
+                args[1]({tag1: ["value1","value2"], tag2: ["value3"], tag3: ["value"]});
+            });
 
             scope.nodeSelectedForEditing();
-            $httpBackend.flush();
 
             expect(scope.tagNames).toEqualData(["tag1","tag2","tag3"]);
             expect(scope.tag).toEqualData({tag1:"",tag2:"*",tag3:"value"});
@@ -582,7 +613,7 @@ describe('Aardvark controllers', function () {
                 };
 
             scope.tagNames = ["tag1","tag2","tag3"];
-            scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
+            scope.tagFilters = [{name:"tag1",value: ''}, {name:"tag2", value: '*'}, {name:"tag3",value: 'value'}];
             scope.selectedMetricId = "123";
             scope.aggregator = 'zimsum';
             scope.rightAxis = false;
@@ -598,7 +629,7 @@ describe('Aardvark controllers', function () {
 
             expect(saveModelCalled).toEqualData(true);
             expect(scope.tagNames).toEqualData(["tag1","tag2","tag3"]);
-            expect(scope.tag).toEqualData({tag1: '', tag2: '*', tag3: 'value'});
+            expect(scope.tagFilters).toEqualData([{name:"tag1",value: ''}, {name:"tag2", value: '*'}, {name:"tag3",value: 'value'}]);
             expect(scope.selectedMetricId).toEqualData('123');
             expect(scope.selectedMetric).toEqualData('');
             expect(scope.aggregator).toEqualData('zimsum');
@@ -934,10 +965,12 @@ describe('Aardvark controllers', function () {
                 "totalResults":2
             };
 
-            $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', '{"metric":"name.baldrick","limit":100000,"useMeta":false}').respond(response);
+            getTagsCalls.push(function(args) {
+                expect(args[0]).toEqualData("name.baldrick");
+                args[1]({key1: ["value1","value2"], key2: ["value3"]});
+            });
 
             scope.nodeSelectedForAddition(node, true);
-            $httpBackend.flush();
 
             var checkDefaults = function() {
                 expect(scope.tagFilters).toEqualData([]);
@@ -998,11 +1031,12 @@ describe('Aardvark controllers', function () {
                 "totalResults":2
             };
 
-
-            $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', '{"metric":"name.blackadder","limit":100000,"useMeta":false}').respond(response);
+            getTagsCalls.push(function(args) {
+                expect(args[0]).toEqualData("name.blackadder");
+                args[1]({key1: ["value1","value2"], key3: ["value3"]});
+            });
 
             scope.nodeSelectedForAddition(node, true);
-            $httpBackend.flush();
             checkDefaults();
             expect(scope.graphId).toEqualData("1");
             expect(scope.selectedMetric).toEqualData("name.blackadder");

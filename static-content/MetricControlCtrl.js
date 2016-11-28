@@ -1,11 +1,7 @@
 /*
  * Used to render the tag value rows in the metrics control panel.
  */
-aardvark.directive('tagSelection', function() {
-    return {
-        template: '<div mass-autocomplete><input type="text" ng-model="tag[tagk]" mass-autocomplete-item="tagOptions[tagk]" size="15" ng-blur="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" /> {{tagValuesMatchCount(tagk)}}</div>'
-    }
-}).directive('tagFilterSelection', function() {
+aardvark.directive('tagFilterSelection', function() {
     return {
         template: '<div mass-autocomplete><input type="text" ng-model="tag.value" mass-autocomplete-item="tagOptions[tag.name]" size="15" ng-blur="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" /> {{tagValuesMatchCountFiltering(tag)}}</div>'
     }
@@ -17,7 +13,7 @@ aardvark.directive('tagSelection', function() {
  * - per metric graphing options (timeseries selection, aggregation)
  * - graph type specific graphing options
  */
-.controller('MetricControlCtrl', [ '$scope', '$rootScope', '$sce', '$http', 'idGenerator', 'tsdbClient', 'tsdbUtils', function MetricControlCtrl($scope, $rootScope, $sce, $http, idGenerator, $tsdbClient, tsdbUtils) {
+.controller('MetricControlCtrl', [ '$scope', '$rootScope', '$sce', 'idGenerator', '$tsdbClient', '$tsdbUtils', function MetricControlCtrl($scope, $rootScope, $sce, idGenerator, $tsdbClient, $tsdbUtils) {
 
     $scope.allParentNodes = [];
     $scope.showFilterInput = false;
@@ -25,9 +21,7 @@ aardvark.directive('tagSelection', function() {
     $scope.selectedMetric = "";
     $scope.filter = "";
     $scope.expandedNodes = [];
-    $scope.tag = {};
     $scope.tagOptions = {};
-    $scope.tagNames = [];
     $scope.tagValues = {};
     $scope.tagFilters = [];
     $scope.selectedMetricId = 0;
@@ -300,23 +294,18 @@ aardvark.directive('tagSelection', function() {
         $scope.clearSelectedTreeNode();
     }
 
-    // todo: m1: how to do tag expansion with regexes? here or in graph rendering? here i suspect..
     $scope.persistViewToExistingMetric = function(metric) {
-        var tArray = [];
-        if ($scope.tagFilteringSupported()) {
-            tArray = $scope.tagFilters;
-        }
-        else {
-            for (var i=0; i<$scope.tagNames.length; i++) {
-                var tName = $scope.tagNames[i];
-                tArray.push({
-                    name: tName,
-                    value: $scope.tag[tName],
-                    groupBy: true
-                });
+        metric.tags = [];
+        for (var t=0; t<$scope.tagFilters.length; t++) {
+            var tag = {name:$scope.tagFilters[t].name,value:$scope.tagFilters[t].value};
+            if ($scope.tagFilters[t].groupBy != null) {
+                tag.groupBy = $scope.tagFilters[t].groupBy;
             }
+            else { // older versions
+                tag.groupBy = true;
+            }
+            metric.tags.push(tag);
         }
-        metric.tags = tArray;
         metric.graphOptions = {
             graphId: $scope.graphId,
             rate: $scope.rate,
@@ -338,6 +327,13 @@ aardvark.directive('tagSelection', function() {
     }
 
     $scope.addTagRow = function(tagk) {
+        if (!$scope.tagFilteringSupported()) {
+            for (var t=0; t<$scope.tagFilters.length; t++) {
+                if ($scope.tagFilters[t].name == tagk) {
+                    return;
+                }
+            }
+        }
         $scope.tagFilters.push({id:idGenerator.nextId(),name:tagk,value:"",groupBy:true});
     }
 
@@ -357,7 +353,7 @@ aardvark.directive('tagSelection', function() {
     // todo: this needs to not do any work if it's already running a request
     // todo: this needs to have some failure handling
     $scope.updateTree = function() {
-        $http.get($rootScope.config.tsdbBaseReadUrl+'/api/suggest?type=metrics&max=1000000', {withCredentials:$rootScope.config.authenticatedReads}).success(function(json) {
+        $tsdbClient.suggest("metrics", "", 1000000, function(json) {
             // right we need to build our tree, we have an array of name, we need to split by "."
 
             var roots = [];
@@ -425,7 +421,7 @@ aardvark.directive('tagSelection', function() {
                 }
             }
             $scope.allParentNodes = parentNodes;
-        });
+        }, function() {});
     };
 
     $scope.metricSelected = function(metricName, newMetric) {
@@ -433,7 +429,7 @@ aardvark.directive('tagSelection', function() {
         $scope.tag = {};
         $scope.resetUserMetricOptions();
         
-        tsdbUtils.getTags(metricName, function(tagValues) {
+        $tsdbUtils.getTags(metricName, function(tagValues) {
             var tagNames = [];
 
             for (var key in tagValues) {
