@@ -41,6 +41,44 @@ describe('Aardvark services', function() {
         it('expects the tsdb utils to exist', function() {
             expect($tsdbUtils).toBeDefined();
         });
+
+        it('expects to correctly extract available tag values from a search/lookup request', function() {
+            $tsdbClient.searchLookup = function(metricAndTags, tagsCanBeFilters, limit, successFn, errorFn) {
+                expect(metricAndTags).toEqualData({name: "baldrick", tags: []});
+                expect(limit).toEqualData(100000);
+                successFn({
+                    "type":"LOOKUP",
+                    "metric":"name.baldrick",
+                    "limit":100000,
+                    "time":1,
+                    "results":[
+                        {
+                            "metric":"name.baldrick",
+                            "tags":{
+                                "key1":"value1",
+                                "key2":"value3"
+                            },
+                            "tsuid":"000006000001000009"
+                        },
+                        {
+                            "metric":"name.baldrick",
+                            "tags":{
+                                "key1":"value2",
+                                "key2":"value3"
+                            },
+                            "tsuid":"00000600000100000a"
+                        }
+                    ],
+                    "startIndex":0,
+                    "totalResults":2
+                });
+            }
+            $tsdbUtils.getTags("baldrick", function(tagValues) {
+                expect(tagValues).toEqualData({key1:["value1","value2"],key2:["value3"]});
+            }, function(error) {
+                fail("didn't expect error: "+error);
+            });
+        });
         
         var getMetricAndTagsViaTsMeta = function(configKey) {
             $tsdbClient.config = {};
