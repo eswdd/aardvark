@@ -2027,6 +2027,8 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
             var dygraphPointClickHandler = null;
             var dygraphAnnotationClickHandler = null;
 
+
+            var width = Math.floor(graph.graphWidth);
             var config = {
                 labels: labels,
                 width: width,
@@ -2046,7 +2048,8 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                 connectSeparatedPoints: dygraphOptions.interpolateGaps,
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
-                labelsDivStyles: { fontSize: 9, textAlign: 'left' },
+                labelsDivStyles: { fontSize: 9, textAlign: 'left', left: '100px', width: (width-100)+'px', "background-color": 'rgba(255,255,255,0)', "padding-top": '20px' },
+                labelsDivWidth: (width-100),
                 labelsSeparateLines: true,
                 series: seriesOptions,
                 axes: {

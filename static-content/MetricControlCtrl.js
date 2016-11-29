@@ -13,7 +13,7 @@ aardvark.directive('tagFilterSelection', function() {
  * - per metric graphing options (timeseries selection, aggregation)
  * - graph type specific graphing options
  */
-.controller('MetricControlCtrl', [ '$scope', '$rootScope', '$sce', 'idGenerator', '$tsdbClient', '$tsdbUtils', function MetricControlCtrl($scope, $rootScope, $sce, idGenerator, $tsdbClient, $tsdbUtils) {
+.controller('MetricControlCtrl', [ '$scope', '$rootScope', '$sce', 'idGenerator', 'tsdbClient', 'tsdbUtils', function MetricControlCtrl($scope, $rootScope, $sce, idGenerator, $tsdbClient, $tsdbUtils) {
 
     $scope.allParentNodes = [];
     $scope.showFilterInput = false;

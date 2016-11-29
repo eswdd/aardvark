@@ -351,11 +351,11 @@ aardvark
                 }
             }).error(failFn ? failFn : function() {});
             tsdb.suggest = function(type, query, max, successFn, errorFn) {
-                var url = $rootScope.config.tsdbBaseReadUrl+'/api/suggest?type='+type+'&max='+max;
+                var url = tsdb.tsdbBaseReadUrl+'/api/suggest?type='+type+'&max='+max;
                 if (query != null) {
                     url += "&q="+query;
                 }
-                $http.get(url, {withCredentials:$rootScope.config.authenticatedReads})
+                $http.get(url, {withCredentials:tsdb.authenticatedReads})
                     .success(successFn).error(errorFn);
             }
         };
