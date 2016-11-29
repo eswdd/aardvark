@@ -32,7 +32,7 @@ describe('Aardvark controllers', function () {
         var callArraysToCheckAndCleanAfter = [];
 
         var suggestCalls = [];
-        var getTagsCalls = [];
+        var getTagsCalls = []
 
         var mockMethod = function(name, callArray) {
             callArraysToCheckAndCleanAfter.push({name:name, calls: callArray});
@@ -74,7 +74,7 @@ describe('Aardvark controllers', function () {
             rootScope.model = { global: {}, graphs: [], metrics: [] };
 
             scope = $rootScope.$new();
-            ctrl = $controller('MetricControlCtrl', {$scope: scope, $rootScope: rootScope, $tsdbClient: mockTsdbClient, $tsdbUtils: mockTsdbUtils});
+            ctrl = $controller('MetricControlCtrl', {$scope: scope, $rootScope: rootScope, tsdbClient: mockTsdbClient, tsdbUtils: mockTsdbUtils});
         }));
 
         afterEach(function() {
