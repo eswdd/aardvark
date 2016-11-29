@@ -244,9 +244,14 @@ describe('Aardvark controllers', function () {
                 legend: "always",
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes:{
@@ -300,9 +305,14 @@ describe('Aardvark controllers', function () {
                 legend: "always",
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes:{
@@ -357,9 +367,14 @@ describe('Aardvark controllers', function () {
                 stackedGraph: true,
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes:{
@@ -433,9 +448,14 @@ describe('Aardvark controllers', function () {
                 legend: "always",
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes:{
@@ -500,9 +520,14 @@ describe('Aardvark controllers', function () {
                 legend: "always",
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes:{
@@ -631,9 +656,14 @@ describe('Aardvark controllers', function () {
                 connectSeparatedPoints: true,
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes:{
@@ -687,9 +717,14 @@ describe('Aardvark controllers', function () {
                 legend: "always",
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes:{
@@ -743,9 +778,14 @@ describe('Aardvark controllers', function () {
                 legend: "always",
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes:{
@@ -810,9 +850,14 @@ describe('Aardvark controllers', function () {
                 legend: "always",
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes:{
@@ -872,9 +917,14 @@ describe('Aardvark controllers', function () {
                 legend: "always",
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes:{
@@ -939,9 +989,14 @@ describe('Aardvark controllers', function () {
                 legend: "always",
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes:{
@@ -1001,9 +1056,14 @@ describe('Aardvark controllers', function () {
                 legend: "always",
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes:{
@@ -1068,9 +1128,14 @@ describe('Aardvark controllers', function () {
                 legend: "always",
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes:{
@@ -1137,9 +1202,14 @@ describe('Aardvark controllers', function () {
                 legend: "always",
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes:{
@@ -1207,9 +1277,14 @@ describe('Aardvark controllers', function () {
                 legend: "always",
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes:{
@@ -1271,9 +1346,14 @@ describe('Aardvark controllers', function () {
                 legend: "always",
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes:{
@@ -1348,9 +1428,14 @@ describe('Aardvark controllers', function () {
                 legend: "always",
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes:{
@@ -1431,9 +1516,14 @@ describe('Aardvark controllers', function () {
                 legend: "always",
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes:{
@@ -1527,9 +1617,14 @@ describe('Aardvark controllers', function () {
                 legend: "always",
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes:{
@@ -1590,9 +1685,14 @@ describe('Aardvark controllers', function () {
                 legend: "always",
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes:{
@@ -1721,9 +1821,14 @@ describe('Aardvark controllers', function () {
                 legend: "always",
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes:{
@@ -2100,9 +2205,14 @@ describe('Aardvark controllers', function () {
                 legend: "always",
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes:{
@@ -2169,9 +2279,14 @@ describe('Aardvark controllers', function () {
                 legend: "always",
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes: {
@@ -2754,9 +2869,14 @@ describe('Aardvark controllers', function () {
                 legend: "always",
                 drawGapEdgePoints: true,
                 axisLabelFontSize: 9,
+                labelsDivWidth: -100,
                 labelsDivStyles: {
                     fontSize: 9,
-                    textAlign: "left"
+                    textAlign: "left",
+                    left:"100px",
+                    width:"-100px",
+                    "background-color":"rgba(255,255,255,0)",
+                    "padding-top":"20px"
                 },
                 labelsSeparateLines: true,
                 axes:{
