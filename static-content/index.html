@@ -676,14 +676,35 @@
                             <div>
                                 <label for="metricControl_editMetric_aggregator">Aggregator</label>
                                 <select id="metricControl_editMetric_aggregator" ng-model="aggregator" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()">
-                                    <option>sum</option>
-                                    <option>min</option>
-                                    <option>max</option>
                                     <option>avg</option>
+                                    <option>count</option>
                                     <option>dev</option>
-                                    <option>zimsum</option>
+                                    <option>min</option>
                                     <option>mimmin</option>
+                                    <option>max</option>
                                     <option>mimmax</option>
+                                    <option>sum</option>
+                                    <option>zimsum</option>
+                                    <option>dev</option>
+                                    <option>p999</option>
+                                    <option>p99</option>
+                                    <option>p95</option>
+                                    <option>p90</option>
+                                    <option>p75</option>
+                                    <option>p50</option>
+                                    <option>ep999r7</option>
+                                    <option>ep99r7</option>
+                                    <option>ep95r7</option>
+                                    <option>ep90r7</option>
+                                    <option>ep75r7</option>
+                                    <option>ep50r7</option>
+                                    <option>ep999r7</option>
+                                    <option>ep99r7</option>
+                                    <option>ep95r7</option>
+                                    <option>ep90r7</option>
+                                    <option>ep75r7</option>
+                                    <option>ep50r7</option>
+                                    <option>raw</option>
                                     <!-- TODO load aggregators from /aggregators on tsdb.. -->
                                 </select>
                             </div>

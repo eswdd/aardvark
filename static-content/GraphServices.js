@@ -20,7 +20,7 @@ aardvark
                 }
                 successFn(tagValues);
             }
-            tsdbClient.searchLookup({name: metric, tags: []},false,100000, // todo: looks like a silly limit 
+            tsdbClient.searchLookup({name: metric, tags: []},false, null, 
                 function (data) { resultsFn(data); }, 
                 errorFn);
             

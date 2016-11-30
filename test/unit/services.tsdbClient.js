@@ -73,6 +73,38 @@ describe('Aardvark services', function() {
             $httpBackend.flush();
         });
         
+        it('expects a search/lookup call to handle requests with no limit specified appropriately', function() {
+            var expectedJson = {
+                type: "LOOKUP",
+                metric: "a.b.c",
+                limit: 2147483647,
+                time: 1,
+                startIndex: 0,
+                totalResults: 2,
+                results: [
+                    {
+                        metric: "a.b.c",
+                        tags: {
+                            host: "host1"
+                        },
+                        tsuid: '000001000001000001'
+                    },
+                    {
+                        metric: "a.b.c",
+                        tags: {
+                            host: "host2"
+                        },
+                        tsuid: '000001000001000002'
+                    }
+                ]
+            };
+            $tsdbClient.searchLookup({name:"a.b.c",tags:[]},false,null,function(data){
+                expect(data).toEqualData(expectedJson);
+            },function(){});
+            $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', {metric:"a.b.c", limit: 2147483647, useMeta: false}).respond(expectedJson);
+            $httpBackend.flush();
+        });
+        
         it('expects a search/lookup call to useMeta if tsd.core.meta.enable_tsuid_tracking is enabled and return the correct json', function() {
             var expectedJson = {
                 type: "LOOKUP",

@@ -37,6 +37,10 @@ aardvark
         tsdb.searchLookup = function(metric, tagsCanBeFilters, limit, successFn, errorFn) {
             var doSearchLookup = function(useMeta) { 
                 var url = tsdb.tsdbBaseReadUrl+"/api/search/lookup";
+                if (limit == null) {
+                    // Java Integer.MAX_VALUE
+                    limit = 2147483647;
+                }
                 var requestJson = {"metric": metric.name, "limit": limit, "useMeta": useMeta};
                 if (!tagsCanBeFilters) {
                     requestJson.tags = [];

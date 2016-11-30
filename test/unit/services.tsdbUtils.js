@@ -45,7 +45,7 @@ describe('Aardvark services', function() {
         it('expects to correctly extract available tag values from a search/lookup request', function() {
             $tsdbClient.searchLookup = function(metricAndTags, tagsCanBeFilters, limit, successFn, errorFn) {
                 expect(metricAndTags).toEqualData({name: "baldrick", tags: []});
-                expect(limit).toEqualData(100000);
+                expect(limit).toEqualData(null);
                 successFn({
                     "type":"LOOKUP",
                     "metric":"name.baldrick",

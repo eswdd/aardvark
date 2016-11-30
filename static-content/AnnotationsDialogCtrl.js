@@ -91,7 +91,6 @@ aardvark.controller('AnnotationsDialogCtrl', function ($uibModalInstance, rootCo
     $ctrl.loadExistingSeriesLabel = function()
     {
         $ctrl.loadingMessage = "Resolving source timeseries...";
-        // todo: would need to call tsmeta, or if not enabled, many calls to uid meta
         $tsdbUtils.tsuidToMetricAndTags(originalAnnotation.tsuid, function(metricAndTags) {
             $ctrl.loadingMessage = "";
             $ctrl.existingSeriesLabel = $ctrl.formatLabel(metricAndTags.metric, metricAndTags.tags);
