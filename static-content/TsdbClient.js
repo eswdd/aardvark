@@ -355,6 +355,10 @@ aardvark
                 }
             }).error(failFn ? failFn : function() {});
             tsdb.suggest = function(type, query, max, successFn, errorFn) {
+                if (max == null) {
+                    // Java Integer.MAX_VALUE
+                    max = 2147483647;
+                }
                 var url = tsdb.tsdbBaseReadUrl+'/api/suggest?type='+type+'&max='+max;
                 if (query != null) {
                     url += "&q="+query;

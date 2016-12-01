@@ -192,7 +192,7 @@
 
                     $rootScope.metricSelected = function(metricName, newMetric) {
                         var url = "http://"+$rootScope.config.tsdbHost+":"+$rootScope.config.tsdbPort+"/api/search/lookup";
-                        var requestJson = {"metric": metricName, "limit": 100000, "useMeta": true}; // todo: useMeta should be based on tsdb config
+                        var requestJson = {"metric": metricName, "limit": 100000, "useMeta": true};
                         var postData = JSON.stringify(requestJson);
                         $http.post(url, postData).success(function (data) {
                             var tagValues = {};
@@ -612,7 +612,6 @@
                         </div>
 
                         <div style="overflow: auto; height: auto; padding: 3px" >
-                            <!-- todo: m1: start -> 1 graph -> add metric -> save -> delete graph -> save -> add graph -> save -> graph, edit metric -> no graph selection -->
                             <div>
                                 <label for="metricControl_editMetric_selectGraph">Graph</label>
                                 <select id="metricControl_editMetric_selectGraph" ng-model="graphId" ng-disabled="!clearButtonEnabled()">
@@ -635,7 +634,6 @@
                                             <option>zimsum</option>
                                             <option>mimmin</option>
                                             <option>mimmax</option>
-                                            <!-- TODO load aggregators from /aggregators on tsdb.. -->
                                         </select>
                                     </div>
                                     <div>
@@ -663,7 +661,6 @@
                                             <option>zimsum</option>
                                             <option>mimmin</option>
                                             <option>mimmax</option>
-                                            <!-- TODO load aggregators from /aggregators on tsdb.. -->
                                         </select>
                                         <input type="text" ng-model="downsampleTo" ng-disabled="!downsample" />
                                     </div>

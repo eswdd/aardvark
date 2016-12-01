@@ -1050,7 +1050,14 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
             var diff = toDateTime.diff(fromDateTime, 'years', true);
             style = diff > 1 ? "week_day" : "day_hour";
         }
-        // todo: validate style
+        switch (style) {
+            case 'week_day':
+            case 'day_hour':
+                break;
+            default:
+                $scope.renderErrors[graph.id] = "Unsupported graph style: "+style;
+                return;
+        }
         
         // calculate max cell size that fits data in width and height
         var minCellSize = 5;
@@ -1342,7 +1349,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
         // baseline approach
         // 1. make both queries
         // 2. link results together so that we have a way of mapping from main to baseline
-        // 3. perform filtering based on main, but remove matching baseline if exclude (todo removal)
+        // 3. perform filtering based on main, but remove matching baseline if exclude
         // 4. initial label setting (both sets)
         // 5. auto-scaling and label adjustment (both together)
         // 6. baseline time adjustment
@@ -2299,7 +2306,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
             
         }
 
-        // 1. make both queries, todo: such that we can tie up original query with results 
+        // 1. make both queries 
         var urls = constructUrls($scope.tsdb_queryString, null);
         var baselineUrls = global.baselining ? constructUrls($scope.tsdb_queryStringForBaseline, datum) : null;
         

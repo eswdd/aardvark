@@ -97,7 +97,7 @@ describe('Aardvark controllers', function () {
             suggestCalls.push(function(args) {
                 expect(args[0]).toEqualData("metrics");
                 expect(args[1]).toEqualData("");
-                expect(args[2]).toEqualData(1000000);
+                expect(args[2]).toEqualData(null);
                 args[3]([
                     "flob",
                     "name.baldrick",
@@ -131,7 +131,7 @@ describe('Aardvark controllers', function () {
             suggestCalls.push(function(args) {
                 expect(args[0]).toEqualData("metrics");
                 expect(args[1]).toEqualData("");
-                expect(args[2]).toEqualData(1000000);
+                expect(args[2]).toEqualData(null);
                 args[3]([
                     "flob",
                     "dave.fred.jim",
@@ -168,7 +168,7 @@ describe('Aardvark controllers', function () {
             suggestCalls.push(function(args) {
                 expect(args[0]).toEqualData("metrics");
                 expect(args[1]).toEqualData("");
-                expect(args[2]).toEqualData(1000000);
+                expect(args[2]).toEqualData(null);
                 args[3]([
                     "flob",
                     "dave.fred.jim",

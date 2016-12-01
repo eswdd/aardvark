@@ -663,7 +663,6 @@
                         </div>
 
                         <div style="border: 1px solid black; overflow: auto">
-                            <!-- todo: m1: start -> 1 graph -> add metric -> save -> delete graph -> save -> add graph -> save -> graph, edit metric -> no graph selection -->
                             <div  >
                                 <label for="metricControl_editMetric_selectGraph">Graph</label>
                                 <select id="metricControl_editMetric_selectGraph" ng-model="graphId" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()">
@@ -676,36 +675,7 @@
                             <div>
                                 <label for="metricControl_editMetric_aggregator">Aggregator</label>
                                 <select id="metricControl_editMetric_aggregator" ng-model="aggregator" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()">
-                                    <option>avg</option>
-                                    <option>count</option>
-                                    <option>dev</option>
-                                    <option>min</option>
-                                    <option>mimmin</option>
-                                    <option>max</option>
-                                    <option>mimmax</option>
-                                    <option>sum</option>
-                                    <option>zimsum</option>
-                                    <option>dev</option>
-                                    <option>p999</option>
-                                    <option>p99</option>
-                                    <option>p95</option>
-                                    <option>p90</option>
-                                    <option>p75</option>
-                                    <option>p50</option>
-                                    <option>ep999r7</option>
-                                    <option>ep99r7</option>
-                                    <option>ep95r7</option>
-                                    <option>ep90r7</option>
-                                    <option>ep75r7</option>
-                                    <option>ep50r7</option>
-                                    <option>ep999r7</option>
-                                    <option>ep99r7</option>
-                                    <option>ep95r7</option>
-                                    <option>ep90r7</option>
-                                    <option>ep75r7</option>
-                                    <option>ep50r7</option>
-                                    <option>raw</option>
-                                    <!-- TODO load aggregators from /aggregators on tsdb.. -->
+                                    <option ng-repeat="aggregator in allAggregators">{{aggregator}}</option>
                                 </select>
                             </div>
                             <div>
@@ -729,15 +699,7 @@
                                 <input id="metricControl_editMetric_downsample" type="checkbox" ng-model="downsample" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
                                 <label for="metricControl_editMetric_downsampleBy">by</label>
                                 <select id="metricControl_editMetric_downsampleBy" ng-model="downsampleBy" ng-disabled="!downsampleByEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()">
-                                    <option>sum</option>
-                                    <option>min</option>
-                                    <option>max</option>
-                                    <option>avg</option>
-                                    <option>dev</option>
-                                    <option>zimsum</option>
-                                    <option>mimmin</option>
-                                    <option>mimmax</option>
-                                    <!-- TODO load aggregators from /aggregators on tsdb.. -->
+                                    <option ng-repeat="aggregator in allAggregators">{{aggregator}}</option>
                                 </select>
                                 <input type="text" ng-model="downsampleTo" ng-disabled="!downsample" ng-blur="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
                             </div>

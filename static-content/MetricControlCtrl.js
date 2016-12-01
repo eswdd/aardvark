@@ -15,6 +15,7 @@ aardvark.directive('tagFilterSelection', function() {
  */
 .controller('MetricControlCtrl', [ '$scope', '$rootScope', '$sce', 'idGenerator', 'tsdbClient', 'tsdbUtils', function MetricControlCtrl($scope, $rootScope, $sce, idGenerator, $tsdbClient, $tsdbUtils) {
 
+    $scope.treeUpdateInProgress = false;
     $scope.allParentNodes = [];
     $scope.showFilterInput = false;
     $scope.selectedTreeNode = undefined;
@@ -26,6 +27,9 @@ aardvark.directive('tagFilterSelection', function() {
     $scope.tagFilters = [];
     $scope.selectedMetricId = 0;
     $scope.nodeSelectionDisabled = false;
+
+    // TODO load aggregators from /aggregators on tsdb..
+    $scope.allAggregators = ["avg","min","max","sum","zimsum","mimmax","mimmin","raw","dev","count","p999","p99","p95","p90","p75","p50","ep999r7","ep99r7","ep95r7","ep90r7","ep75r7","ep50r7","ep999r7","ep99r7","ep95r7","ep90r7","ep75r7","ep50r7"];
 
     $scope.graphId = "0";
     $scope.aggregator = "sum";
@@ -350,10 +354,14 @@ aardvark.directive('tagFilterSelection', function() {
         }
     }
 
-    // todo: this needs to not do any work if it's already running a request
     // todo: this needs to have some failure handling
     $scope.updateTree = function() {
-        $tsdbClient.suggest("metrics", "", 1000000, function(json) {
+        if ($scope.treeUpdateInProgress) {
+            return;
+        }
+        $scope.treeUpdateInProgress = true;
+        $tsdbClient.suggest("metrics", "", null, function(json) {
+            $scope.treeUpdateInProgress = false;
             // right we need to build our tree, we have an array of name, we need to split by "."
 
             var roots = [];
@@ -421,7 +429,9 @@ aardvark.directive('tagFilterSelection', function() {
                 }
             }
             $scope.allParentNodes = parentNodes;
-        }, function() {});
+        }, function() {
+            $scope.treeUpdateInProgress = false;
+        });
     };
 
     $scope.metricSelected = function(metricName, newMetric) {
@@ -475,8 +485,8 @@ aardvark.directive('tagFilterSelection', function() {
         $scope.aggregator = "sum";
     }
 
-        // todo: m2: need better way of defining defaulting and copying between scope and model on per graph type basis
-        //           perhaps using skeleton style approach
+    // todo: m2: need better way of defining defaulting and copying between scope and model on per graph type basis
+    //           perhaps using skeleton style approach
     $scope.metricDeselected = function() {
         $scope.tagOptions = {};
         $scope.tagValues = {};
