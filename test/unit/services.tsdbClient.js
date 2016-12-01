@@ -601,6 +601,89 @@ describe('Aardvark services', function() {
                 expect(error).toEqualData("Unrecognised type: wibble");
             });
         });
+        
+        it('expects searchLookupBulk to make multiple queries and merge the results together', function() {
+            var queries = [
+                { id: "123", name: "metric1", tags: [] },
+                { id: "124", name: "metric2", tags: [ { name: "tag1", value: "*" } ] }
+            ];
+            var perResultCalls = 0;
+            var singleResults = {};
+
+            var metricResponse1 = {
+                type: "LOOKUP",
+                metric: "metric1",
+                limit: 1000,
+                time: 1,
+                startIndex: 0,
+                totalResults: 2,
+                results: [
+                    {
+                        metric: "metric1",
+                        tags: {
+                            a: "value1",
+                            b: "value3",
+                            c: "value4"
+                        },
+                        tsuid: '000001000001000001000002000003000003000004'
+                    },
+                    {
+                        metric: "metric1",
+                        tags: {
+                            a: "value2",
+                            b: "value3",
+                            c: "value4"
+                        },
+                        tsuid: '000001000001000002000002000003000003000004'
+                    }
+                ]
+            };
+            var metricResponse2 = {
+                type: "LOOKUP",
+                metric: "metric2",
+                limit: 1000,
+                time: 1,
+                startIndex: 0,
+                totalResults: 2,
+                results: [
+                    {
+                        metric: "metric2",
+                        tags: {
+                            tag1: "value1",
+                            b: "value3",
+                            c: "value5"
+                        },
+                        tsuid: '000001000001000001000002000003000003000005'
+                    },
+                    {
+                        metric: "metric2",
+                        tags: {
+                            tag1: "value2",
+                            b: "value3",
+                            c: "value5"
+                        },
+                        tsuid: '000001000001000002000002000003000003000005'
+                    }
+                ]
+            };
+
+            $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', {metric:"metric1",limit:2147483647,useMeta:false}).respond(metricResponse1);
+            $httpBackend.expectPOST('http://tsdb:4242/api/search/lookup', {metric:"metric2", tags: [{key:"tag1",value:"*"}],limit:2147483647,useMeta:false}).respond(metricResponse2);
+            
+            $tsdbClient.searchLookupBulk(queries, function(query,data) {
+                singleResults[query.name] = data;
+                perResultCalls++;
+                return null;
+            }, function(finalResult) {
+                expect(perResultCalls).toEqualData(2);
+                expect(singleResults.metric1).toEqualData(metricResponse1);
+                expect(singleResults.metric2).toEqualData(metricResponse2);
+            }, function(err) {
+                fail("Didn't expect an error");
+            });
+
+            $httpBackend.flush();
+        });
 
     });
     

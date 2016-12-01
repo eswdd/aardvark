@@ -226,7 +226,7 @@ aardvark
             for (var i=0; i<queries.length; i++) {
                 // nasty inner function to get around closure issues
                 var fn = function(query) {
-                    tsdb.searchLookup(query, function (data) {
+                    tsdb.searchLookup(query, true, null, function (data) {
                         receivedResponses++;
                         results.push(perResultFn(query,data));
                         if (receivedResponses == expectedResponses) {
@@ -354,18 +354,18 @@ aardvark
                     }
                 }
             }).error(failFn ? failFn : function() {});
-            tsdb.suggest = function(type, query, max, successFn, errorFn) {
-                if (max == null) {
-                    // Java Integer.MAX_VALUE
-                    max = 2147483647;
-                }
-                var url = tsdb.tsdbBaseReadUrl+'/api/suggest?type='+type+'&max='+max;
-                if (query != null) {
-                    url += "&q="+query;
-                }
-                $http.get(url, {withCredentials:tsdb.authenticatedReads})
-                    .success(successFn).error(errorFn);
-            }
         };
+        tsdb.suggest = function(type, query, max, successFn, errorFn) {
+            if (max == null) {
+                // Java Integer.MAX_VALUE
+                max = 2147483647;
+            }
+            var url = tsdb.tsdbBaseReadUrl+'/api/suggest?type='+type+'&max='+max;
+            if (query != null) {
+                url += "&q="+query;
+            }
+            $http.get(url, {withCredentials:tsdb.authenticatedReads})
+                .success(successFn).error(errorFn);
+        }
         return tsdb;
     }]);
