@@ -485,7 +485,7 @@ aardvark.directive('tagFilterSelection', function() {
         $scope.aggregator = "sum";
     }
 
-    // todo: m2: need better way of defining defaulting and copying between scope and model on per graph type basis
+    // todo: need better way of defining defaulting and copying between scope and model on per graph type basis
     //           perhaps using skeleton style approach
     $scope.metricDeselected = function() {
         $scope.tagOptions = {};
