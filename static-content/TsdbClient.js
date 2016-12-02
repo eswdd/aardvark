@@ -361,7 +361,7 @@ aardvark
                 max = 2147483647;
             }
             var url = tsdb.tsdbBaseReadUrl+'/api/suggest?type='+type+'&max='+max;
-            if (query != null) {
+            if (query != null & query != "") {
                 url += "&q="+query;
             }
             $http.get(url, {withCredentials:tsdb.authenticatedReads})

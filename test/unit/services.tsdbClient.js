@@ -684,6 +684,90 @@ describe('Aardvark services', function() {
 
             $httpBackend.flush();
         });
+        
+        var bulkSaveAnnotationsSyntheticTest = function(tsdbVersion, allowBulk) {
+            $tsdbClient.versionNumber = tsdbVersion;
+            $tsdbClient.allowBulkAnnotationsCall = allowBulk;
+            var anns = [
+                { tsuid: "123", startTime: 12344567800, description: "qibble" },
+                { tsuid: "124", startTime: 12344567890, description: "wibble" }
+            ];
+            $httpBackend.expectPOST('http://tsdb:4242/api/annotation', anns[0]).respond(anns[0]);
+            $httpBackend.expectPOST('http://tsdb:4242/api/annotation', anns[1]).respond(anns[1]);
+
+            $tsdbClient.bulkSaveAnnotations(anns, function(finalResult) {
+                expect(finalResult).toEqualData(anns);
+            }, function(err) {
+                fail("Didn't expect an error");
+            });
+
+            $httpBackend.flush();
+            
+        }
+        
+        it('expects bulkSaveAnnotations to make multiple saves and merge the results together when explicitly disabled', function() {
+            bulkSaveAnnotationsSyntheticTest($tsdbClient.TSDB_2_2, false);
+        });
+        
+        it('expects bulkSaveAnnotations to make multiple saves and merge the results together when running a version which does not support it', function() {
+            bulkSaveAnnotationsSyntheticTest($tsdbClient.TSDB_2_0, true);
+        });
+        
+        it('expects bulkSaveAnnotations to make a single bulk save when running a version which supports it and it is enabled', function() {
+            $tsdbClient.versionNumber = $tsdbClient.TSDB_2_1;
+            $tsdbClient.allowBulkAnnotationsCall = true;
+            var anns = [
+                { tsuid: "123", startTime: 12344567800, description: "qibble" },
+                { tsuid: "124", startTime: 12344567890, description: "wibble" }
+            ];
+            $httpBackend.expectPOST('http://tsdb:4242/api/annotation/bulk', anns).respond(anns);
+
+            $tsdbClient.bulkSaveAnnotations(anns, function(finalResult) {
+                expect(finalResult).toEqualData(anns);
+            }, function(err) {
+                fail("Didn't expect an error");
+            });
+
+            $httpBackend.flush();
+        });
+        
+        it('expects suggest to apply a default limit when none specified', function() {
+            $tsdbClient.versionNumber = $tsdbClient.TSDB_2_1;
+            $tsdbClient.allowBulkAnnotationsCall = true;
+            var result = [
+                "some.metric",
+                "some.metric1",
+                "some.metric2"
+            ];
+            $httpBackend.expectGET('http://tsdb:4242/api/suggest?type=metrics&max=2147483647').respond(result);
+
+            $tsdbClient.suggest("metrics", "", null, function(finalResult) {
+                expect(finalResult).toEqualData(result);
+            }, function(err) {
+                fail("Didn't expect an error");
+            });
+
+            $httpBackend.flush();
+        });
+        
+        it('expects suggest to send all parameters when specified', function() {
+            $tsdbClient.versionNumber = $tsdbClient.TSDB_2_1;
+            $tsdbClient.allowBulkAnnotationsCall = true;
+            var result = [
+                "some.metric",
+                "some.metric1",
+                "some.metric2"
+            ];
+            $httpBackend.expectGET('http://tsdb:4242/api/suggest?type=metrics&max=3&q=some').respond(result);
+
+            $tsdbClient.suggest("metrics", "some", 3, function(finalResult) {
+                expect(finalResult).toEqualData(result);
+            }, function(err) {
+                fail("Didn't expect an error");
+            });
+
+            $httpBackend.flush();
+        });
 
     });
     
