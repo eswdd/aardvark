@@ -22,6 +22,11 @@ Configuration json structure with defaults:
            metrics: {
              enableExpandAll: false,
              alwaysShowMetricFilter: false
+           },
+           graphs: {
+             dygraph: {
+               highlightingDefault: false
+             }
            }
          },
          hidePrefixes: []
