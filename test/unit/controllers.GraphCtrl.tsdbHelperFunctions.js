@@ -632,14 +632,10 @@ describe('Aardvark controllers', function () {
                     rate: true,
                     explicitTags: false,
                     filters: [],
-                    rateOptions: null,
-                    tags: {
-                        tag2: "value2",
-                        tag4: "*"
-                    }
+                    rateOptions: null
                 }
             };
-            expect(scope.timeSeriesName(ts)).toEqualData("fred{tag2=value2,tag4=value4}");
+            expect(scope.timeSeriesName(ts)).toEqualData("fred");
         });
         
         it('should generate a reduced time series name when the query is provided using filters', function() {
@@ -659,11 +655,10 @@ describe('Aardvark controllers', function () {
                     rate: true,
                     explicitTags: false,
                     filters: [
-                        {tagk:"tag2",type:"wildcard",filter:"value*",groupBy:true},
-                        {tagk:"tag4",type:"literal_or",filter:"value4",groupBy:true}
+                        {tagk:"tag2",type:"wildcard",filter:"value*",group_by:true},
+                        {tagk:"tag4",type:"literal_or",filter:"value4",group_by:true}
                     ],
-                    rateOptions: null,
-                    tags: {}
+                    rateOptions: null
                 }
             };
             expect(scope.timeSeriesName(ts)).toEqualData("fred{tag2=value2,tag4=value4}");
@@ -686,11 +681,10 @@ describe('Aardvark controllers', function () {
                     rate: true,
                     explicitTags: false,
                     filters: [
-                        {tagk:"tag2",type:"wildcard",filter:"value*",groupBy:false},
-                        {tagk:"tag4",type:"regexp",filter:"value4",groupBy:false}
+                        {tagk:"tag2",type:"wildcard",filter:"value*",group_by:false},
+                        {tagk:"tag4",type:"regexp",filter:"value4",group_by:false}
                     ],
-                    rateOptions: null,
-                    tags: {}
+                    rateOptions: null
                 }
             };
             expect(scope.timeSeriesName(ts)).toEqualData("fred{}{tag2=wildcard(value*),tag4=regexp(value4)}");
@@ -713,42 +707,203 @@ describe('Aardvark controllers', function () {
                     rate: true,
                     explicitTags: false,
                     filters: [
-                        {tagk:"tag2",type:"wildcard",filter:"value*",groupBy:true},
-                        {tagk:"tag2",type:"regexp",filter:"value4",groupBy:false}
+                        {tagk:"tag2",type:"wildcard",filter:"value*",group_by:true},
+                        {tagk:"tag2",type:"regexp",filter:"value4",group_by:false}
                     ],
-                    rateOptions: null,
-                    tags: {}
+                    rateOptions: null
                 }
             };
             expect(scope.timeSeriesName(ts)).toEqualData("fred{tag2=value2}");
         });
         
-        it('should generate a reduced time series name when the query is provided using mixed filters and tags', function() {
-            var ts = {
-                metric: "fred",
-                tags: {
-                    tag1: "value1",
-                    tag2: "value2",
-                    tag3: "value3",
-                    tag4: "value4"
-                },
-                aggregatedTags: ["tag5","tag6"],
-                query: {
-                    aggregator: "sum",
-                    tsuids: null,
-                    downsample: null,
-                    rate: true,
-                    explicitTags: false,
-                    filters: [
-                        {tagk:"tag2",type:"wildcard",filter:"value*",groupBy:true}
+        it('should generate the correct time series names when the query specified in issue #156 is supplied', function() {
+            var ts = [
+                {
+                    "metric": "tsd.rpc.received",
+                    "tags": {
+                        "host": "hadoopdata2"
+                    },
+                    "aggregateTags": [
+                        "type"
                     ],
-                    rateOptions: null,
-                    tags: {
-                        tag4: "*"
-                    }
+                    "query": {
+                        "aggregator": "sum",
+                        "metric": "tsd.rpc.received",
+                        "tsuids": null,
+                        "downsample": null,
+                        "rate": false,
+                        "filters": [
+                            {
+                                "tagk": "host",
+                                "filter": "*",
+                                "group_by": true,
+                                "type": "wildcard"
+                            }
+                        ],
+                        "rateOptions": null,
+                        "tags": {
+                            "host": "wildcard(*)"
+                        }
+                    },
+                    "tsuids": [
+                        "6D8DA1000001000000940000040000009C",
+                        "6D8DA1000001000000940000040000009D",
+                        "6D8DA1000001000000940000040000009E",
+                        "6D8DA100000100000094000004000000A4"
+                    ],
+                    "dps": [
+                    ]
+                },
+                {
+                    "metric": "tsd.rpc.received",
+                    "tags": {
+                        "host": "hadoopdata4"
+                    },
+                    "aggregateTags": [
+                        "type"
+                    ],
+                    "query": {
+                        "aggregator": "sum",
+                        "metric": "tsd.rpc.received",
+                        "tsuids": null,
+                        "downsample": null,
+                        "rate": false,
+                        "filters": [
+                            {
+                                "tagk": "host",
+                                "filter": "*",
+                                "group_by": true,
+                                "type": "wildcard"
+                            }
+                        ],
+                        "rateOptions": null,
+                        "tags": {
+                            "host": "wildcard(*)"
+                        }
+                    },
+                    "tsuids": [
+                        "6D8DA1000001000000950000040000009C",
+                        "6D8DA1000001000000950000040000009D",
+                        "6D8DA1000001000000950000040000009E",
+                        "6D8DA100000100000095000004000000A4"
+                    ],
+                    "dps": [
+                    ]
+                },
+                {
+                    "metric": "tsd.rpc.received",
+                    "tags": {
+                        "host": "hadoopdata1"
+                    },
+                    "aggregateTags": [
+                        "type"
+                    ],
+                    "query": {
+                        "aggregator": "sum",
+                        "metric": "tsd.rpc.received",
+                        "tsuids": null,
+                        "downsample": null,
+                        "rate": false,
+                        "filters": [
+                            {
+                                "tagk": "host",
+                                "filter": "*",
+                                "group_by": true,
+                                "type": "wildcard"
+                            }
+                        ],
+                        "rateOptions": null,
+                        "tags": {
+                            "host": "wildcard(*)"
+                        }
+                    },
+                    "tsuids": [
+                        "6D8DA1000001000000960000040000009C",
+                        "6D8DA1000001000000960000040000009D",
+                        "6D8DA1000001000000960000040000009E",
+                        "6D8DA100000100000096000004000000A4"
+                    ],
+                    "dps": [
+                    ]
+                },
+                {
+                    "metric": "tsd.rpc.received",
+                    "tags": {
+                        "host": "hadoopdata3"
+                    },
+                    "aggregateTags": [
+                        "type"
+                    ],
+                    "query": {
+                        "aggregator": "sum",
+                        "metric": "tsd.rpc.received",
+                        "tsuids": null,
+                        "downsample": null,
+                        "rate": false,
+                        "filters": [
+                            {
+                                "tagk": "host",
+                                "filter": "*",
+                                "group_by": true,
+                                "type": "wildcard"
+                            }
+                        ],
+                        "rateOptions": null,
+                        "tags": {
+                            "host": "wildcard(*)"
+                        }
+                    },
+                    "tsuids": [
+                        "6D8DA1000001000000970000040000009C",
+                        "6D8DA1000001000000970000040000009D",
+                        "6D8DA1000001000000970000040000009E",
+                        "6D8DA100000100000097000004000000A4"
+                    ],
+                    "dps": [
+                    ]
+                },
+                {
+                    "metric": "tsd.rpc.received",
+                    "tags": {
+                        "host": "hadoopdata5"
+                    },
+                    "aggregateTags": [
+                        "type"
+                    ],
+                    "query": {
+                        "aggregator": "sum",
+                        "metric": "tsd.rpc.received",
+                        "tsuids": null,
+                        "downsample": null,
+                        "rate": false,
+                        "filters": [
+                            {
+                                "tagk": "host",
+                                "filter": "*",
+                                "group_by": true,
+                                "type": "wildcard"
+                            }
+                        ],
+                        "rateOptions": null,
+                        "tags": {
+                            "host": "wildcard(*)"
+                        }
+                    },
+                    "tsuids": [
+                        "6D8DA1000001000001D30000040000009C",
+                        "6D8DA1000001000001D30000040000009D",
+                        "6D8DA1000001000001D30000040000009E",
+                        "6D8DA1000001000001D3000004000000A4"
+                    ],
+                    "dps": [
+                    ]
                 }
-            };
-            expect(scope.timeSeriesName(ts)).toEqualData("fred{tag2=value2,tag4=value4}");
+            ];
+            expect(scope.timeSeriesName(ts[0])).toEqualData("tsd.rpc.received{host=hadoopdata2}");
+            expect(scope.timeSeriesName(ts[1])).toEqualData("tsd.rpc.received{host=hadoopdata4}");
+            expect(scope.timeSeriesName(ts[2])).toEqualData("tsd.rpc.received{host=hadoopdata1}");
+            expect(scope.timeSeriesName(ts[3])).toEqualData("tsd.rpc.received{host=hadoopdata3}");
+            expect(scope.timeSeriesName(ts[4])).toEqualData("tsd.rpc.received{host=hadoopdata5}");
         });
         
         // todo: finish url generation

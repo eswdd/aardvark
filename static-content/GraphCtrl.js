@@ -625,13 +625,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
         var ungroupedSep = "";
         var tagNames = [];
         if (metric.query != null) {
-            if (metric.query.tags != null) {
-                for (var tk in metric.query.tags) {
-                    if (metric.query.tags.hasOwnProperty(tk)) {
-                        tagNames.push(tk);
-                    }
-                }
-            }
+            // metric.query.tags is deprecated
             if (metric.query.filters != null) {
                 var filtersByTagk = {};
                 for (var f=0; f<metric.query.filters.length; f++) {
@@ -640,14 +634,14 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                     }
                     filtersByTagk[metric.query.filters[f].tagk].push(metric.query.filters[f]);
                 }
-                // type/tagk/filter/groupBy
+                // type/tagk/filter/group_by
                 for (var tagk in filtersByTagk) {
                     var exclude = false;
                     var groupBy = false;
                     var tagkUngroupedString = "";
                     var tagkUngroupedSep = "";
                     for (var f=0; f<filtersByTagk[tagk].length; f++) {
-                        if (filtersByTagk[tagk][f].groupBy) {
+                        if (filtersByTagk[tagk][f].group_by) {
                             groupBy = true;
                         }
                         tagkUngroupedString += tagkUngroupedSep + tagk + "=" + filtersByTagk[tagk][f].type + "(" + filtersByTagk[tagk][f].filter + ")";
