@@ -51,7 +51,19 @@ describe('Aardvark controllers', function () {
             expect(rootScope.config).toEqualData({
                 key: "value", tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http","annotations":{"allowDelete":true},
                 tsdbBaseReadUrl: "http://tsdb:4242", tsdbBaseWriteUrl: "http://tsdb:4242",
-                authenticatedReads: false, authenticatedWrites: false, allowBulkAnnotationsCall: true
+                authenticatedReads: false, authenticatedWrites: false, allowBulkAnnotationsCall: true,
+                ui: {
+                    metrics: {
+                        enableExpandAll:false,
+                        alwaysShowMetricFilter:false
+                    },
+                    graphs: {
+                        dygraph: {
+                            highlightingDefault:false
+                        }
+                    }
+                },
+                hidePrefixes:[]
             });
         });
 
@@ -62,7 +74,19 @@ describe('Aardvark controllers', function () {
             expect(rootScope.config).toEqualData({
                 key: "value", tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http","annotations":{"allowDelete":true},
                 tsdbBaseReadUrl: "http://tsdb:4242", tsdbBaseWriteUrl: "http://tsdb:4242",
-                authenticatedReads: false, authenticatedWrites: false, allowBulkAnnotationsCall: true
+                authenticatedReads: false, authenticatedWrites: false, allowBulkAnnotationsCall: true,
+                ui: {
+                    metrics: {
+                        enableExpandAll:false,
+                        alwaysShowMetricFilter:false
+                    },
+                    graphs: {
+                        dygraph: {
+                            highlightingDefault:false
+                        }
+                    }
+                },
+                hidePrefixes:[]
             });
 
             var configReceived = false;

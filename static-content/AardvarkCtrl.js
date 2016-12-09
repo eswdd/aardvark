@@ -53,7 +53,7 @@ aardvark.directive('aardvarkEnter', function() {
         $scope.userPrefs = {
             boolFields: ['uiAutoUpdate','dygraphLineHighlighting'],
             // auto-updating ui when tabbing out of changed fields / changing radio buttons etc
-            uiAutoUpdate: false,
+            uiAutoUpdate: false
         }
         $scope.userPrefsInputTitles = {
             uiAutoUpdate: "Auto rerender on change"
@@ -180,20 +180,23 @@ aardvark.directive('aardvarkEnter', function() {
         $rootScope.updateConfig = function() {
             $http.get('/aardvark/config').success(function(json) {
                 // apply some defaults..
-                if (!json.tsdbProtocol) {
+                if (json.tsdbProtocol == null) {
                     json.tsdbProtocol = "http";
                 }
-                if (!json.annotations) {
+                if (json.tsdbPort == null) {
+                    json.tsdbPort = 4242;
+                }
+                if (json.annotations == null) {
                     json.annotations = {
                         allowDelete: true
                     };
                 }
                 
                 json.tsdbBaseReadUrl = json.tsdbProtocol + "://" + json.tsdbHost + ":" + json.tsdbPort;
-                if (json.tsdbWriteHost || json.tsdbWritePort) {
+                if (json.tsdbWriteHost != null || json.tsdbWritePort != null) {
                     json.tsdbBaseWriteUrl = json.tsdbProtocol + "://" +
-                        (json.tsdbWriteHost ? json.tsdbWriteHost : json.tsdbHost) + ":" +
-                        (json.tsdbWritePort ? json.tsdbWritePort : json.tsdbPort);
+                        (json.tsdbWriteHost != null ? json.tsdbWriteHost : json.tsdbHost) + ":" +
+                        (json.tsdbWritePort != null ? json.tsdbWritePort : json.tsdbPort);
                 }
                 else {
                     json.tsdbBaseWriteUrl = json.tsdbBaseReadUrl;
@@ -208,6 +211,37 @@ aardvark.directive('aardvarkEnter', function() {
                 if (json.allowBulkAnnotationsCall == null) {
                     json.allowBulkAnnotationsCall = true;
                 }
+
+                if (!json.defaultGraphType == null) {
+                    json.defaultGraphType = "";
+                }
+                
+                if (json.ui == null) {
+                    json.ui = {};
+                }
+                if (json.ui.metrics == null) {
+                    json.ui.metrics = {};
+                }
+                if (json.ui.metrics.enableExpandAll == null) {
+                    json.ui.metrics.enableExpandAll = false;
+                }
+                if (json.ui.metrics.alwaysShowMetricFilter == null) {
+                    json.ui.metrics.alwaysShowMetricFilter = false;
+                }
+                if (json.ui.graphs == null) {
+                    json.ui.graphs = {};
+                }
+                if (json.ui.graphs.dygraph == null) {
+                    json.ui.graphs.dygraph = {};
+                }
+                if (json.ui.graphs.dygraph.highlightingDefault == null) {
+                    json.ui.graphs.dygraph.highlightingDefault = false;
+                }
+                
+                if (json.hidePrefixes == null) {
+                    json.hidePrefixes = [];
+                }
+                
                 
                 var applyConfig = function() {
                     $rootScope.config = json;

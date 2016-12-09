@@ -44,6 +44,10 @@ describe('Aardvark controllers', function () {
             saveModelRenderArg = false;
             rootScope.model = { global: {}, graphs: [], metrics: [] };
             rootScope.graphTypes = [ "unittest1", "unittest2" ];
+            rootScope.config = {
+                ui:{graphs:{dygraph:{highlightingDefault:true}}},
+                defaultGraphType: "dygraph"
+            };
 
             $controller('GraphControlCtrl', {$scope: scope, $rootScope: rootScope});
         }));
@@ -79,7 +83,7 @@ describe('Aardvark controllers', function () {
                 {
                     id: idGeneratorRef.prev(),
                     title: "Graph 1",
-                    type: null,
+                    type: "dygraph",
                     gnuplot: {
                         y1AxisRange: "[0:]",
                         y2AxisRange: "[0:]",
@@ -191,7 +195,7 @@ describe('Aardvark controllers', function () {
                 {
                     id: firstId,
                     title: "Graph 1",
-                    type: null,
+                    type: "dygraph",
                     gnuplot: {
                         y1AxisRange: "[0:]",
                         y2AxisRange: "[0:]",
@@ -235,7 +239,7 @@ describe('Aardvark controllers', function () {
                 {
                     id: firstId,
                     title: "Graph 1",
-                    type: null,
+                    type: "dygraph",
                     gnuplot: {
                         y1AxisRange: "[0:]",
                         y2AxisRange: "[0:]",
@@ -273,7 +277,7 @@ describe('Aardvark controllers', function () {
                 {
                     id: secondId,
                     title: "Graph 2",
-                    type: null,
+                    type: "dygraph",
                     gnuplot: {
                         y1AxisRange: "[0:]",
                         y2AxisRange: "[0:]",

@@ -209,7 +209,7 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
             // dygraph defaults
             dygraph: {
                 interpolateGaps: true,
-                highlightLines: true,
+                highlightLines: $rootScope.config ? $rootScope.config.ui.graphs.dygraph.highlightingDefault : true,
                 annotations: true,
                 countFilter: {
                     end: "top",
@@ -235,6 +235,7 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
         }
         $scope.isOpen[id] = true;
     };
+    
     $scope.deleteGraph = function(id) {
         var index = -1;
         for (var i=0; i<$scope.graphs.length; i++) {
