@@ -29,7 +29,7 @@ aardvark.directive('tagFilterSelection', function() {
     $scope.nodeSelectionDisabled = false;
 
     // TODO load aggregators from /aggregators on tsdb..
-    $scope.allAggregators = ["avg","min","max","sum","zimsum","mimmax","mimmin","raw","dev","count","p999","p99","p95","p90","p75","p50","ep999r7","ep99r7","ep95r7","ep90r7","ep75r7","ep50r7","ep999r7","ep99r7","ep95r7","ep90r7","ep75r7","ep50r7"];
+    $scope.allAggregators = ["avg","min","max","sum","zimsum","mimmax","mimmin","raw","dev","count","p999","p99","p95","p90","p75","p50","ep999r7","ep99r7","ep95r7","ep90r7","ep75r7","ep50r7","ep999r3","ep99r3","ep95r3","ep90r3","ep75r3","ep50r3"];
 
     $scope.graphId = "0";
     $scope.aggregator = "sum";
