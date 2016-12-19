@@ -1,6 +1,40 @@
+@charset 'UTF-8';
+
+html, body { margin: 0; height: 100%; width: 100%; }
+
+.body-container {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-between;
+    align-items: stretch;
+    
+    height: 100%;
+}
 .top-panel {
-    background-color: #eee;
+    background-color: #fff;
     text-align: center;
+    width: 100%;
+    flex: none;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+}
+.top-panel-item {
+    flex: none;
+}
+.top-panel-title {
+    flex: 1 1 auto;
+    font-weight: bold;
+}
+.content-panel {
+    flex: 1 1 auto;
+    
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: stretch
 }
 .graph-control-buttons-panel {
     background-color: #eee;
@@ -10,7 +44,7 @@
     background-color: #eee;
 }
 .graph-panel {
-    background-color: #eee;
+    background-color: #fff;
 }
 .metric-control-panel {
     background-color: #eee;
@@ -44,4 +78,12 @@
     top: 100% !important;
     left: 0 !important;
     width: 100% !important;
+}
+
+.rg-top {
+    margin-top: -15px;
+}
+
+.rg-top, .rg-bottom, .rg-left, .rg-right {
+    background-color: #fff;
 }

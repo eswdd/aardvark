@@ -5,7 +5,6 @@ module.exports = function (config) {
 
         files: [
             'node_modules/angular/angular.js',
-            'node_modules/angular-ui-layout/src/ui-layout.js',
             'node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js',
             'node_modules/angular-tree-control/angular-tree-control.js',
             'node_modules/angular-sanitize/angular-sanitize.js',
@@ -20,6 +19,7 @@ module.exports = function (config) {
             'node_modules/angular-mocks/angular-mocks.js',
             'node_modules/clipboard/dist/clipboard.js',
             'node_modules/ngclipboard/dist/ngclipboard.js',
+            'node_modules/angular-resizable/src/angular-resizable.js',
             'test/mocks/**/*.js',
             'static-content/aardvark-client.js',
             'static-content/StringSerialisation.js',

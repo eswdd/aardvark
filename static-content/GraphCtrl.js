@@ -682,9 +682,13 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
         return name;
     }
     $scope.dygraph_render = function(divId, graphId, data, config) {
+        var div = document.getElementById(divId);
+        // dygraph uses these as gospel, unfortunately it also sets them, so making it impossible to change size later
+        div.style.width = '';
+        div.style.height = '';
         var g = new Dygraph(
             // containing div
-            document.getElementById(divId),
+            div,
             data,
             config
         );
@@ -2029,7 +2033,6 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
             var dygraphAnnotationClickHandler = null;
 
 
-            var width = Math.floor(graph.graphWidth);
             var config = {
                 labels: labels,
                 width: width,
@@ -2542,7 +2545,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
         var height = 0;
         // simple for now - this would have to change if we do dashboarding
         if (boundingBox == null) {
-            boundingBox = document.getElementById("graph-panel");
+            boundingBox = document.getElementById("graph-content-panel");
         }
         if (boundingBox != null) {
             // extra 20px off in both dirs to account for scroll bars
