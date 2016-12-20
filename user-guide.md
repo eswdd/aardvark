@@ -26,17 +26,26 @@ The Aardvark user interface is split up into 6 main areas:
     |         |               |           |
     ---------------------------------------
     
+* Title area - Identifies version, link to (this) user guide, reset and user preferences
+* Global control - Date/time selection, reloading, global downsampling
+* Graph controls - Per graph settings
+* Graph display - Graphs are rendered here
+* Metric selection - Metric discovery, selection populates metric control
+* Metric control - Selection of metric query parameters, mapping to graphs
+    
 ## Common concepts
 
 ### Time periods
 
 Various fields allow the specification of time periods. Aardvark uses the same shorthand format as OpenTSDB consisting of a number followed by a character:
 
+* **ms** - milliseconds
 * **s** - seconds
 * **m** - minutes
 * **h** - hours
 * **d** - days
 * **w** - weeks
+* **n** - months
 * **y** - years
 
 ### Date/time formats
