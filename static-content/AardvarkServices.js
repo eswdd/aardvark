@@ -438,7 +438,7 @@ aardvark
         var aggregationFunctions = mapping.generateBiDiMapping(["min","avg","max","sum","zimsum","mimmax","mimmin","raw","dev","count","p999","p99","p95","p90","p75","p50","ep999r7","ep99r7","ep95r7","ep90r7","ep75r7","ep50r7","ep999r3","ep99r3","ep95r3","ep90r3","ep75r3","ep50r3"]);
         var axes = mapping.generateBiDiMapping(["x1y1","x1y2"]);
         var scatterAxes = mapping.generateBiDiMapping(["x","y"]);
-        var units = mapping.generateBiDiMapping(["s", "m", "h", "d", "w", "y"]); // todo: incomplete
+        var units = mapping.generateBiDiMapping(["s", "m", "h", "d", "w", "y", "ms", "n"]);
         var datumStyles = mapping.generateBiDiMapping(["relative","from","to"]);
         var heatmapStyles = mapping.generateBiDiMapping(["auto","week_day","day_hour"]);
         var heatmapColourSchemes = mapping.generateBiDiMapping(["RdYlGn","Gn","Bl","Rd"]);
