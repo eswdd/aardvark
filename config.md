@@ -14,6 +14,7 @@ Configuration json structure with defaults:
          authenticatedReads: false,
          authenticatedWrites: false,
          annotations: {
+           allowAddEdit: true,
            allowDelete: true
          },
          allowBulkAnnotationsCall: true,
