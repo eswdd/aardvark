@@ -2271,29 +2271,31 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                     });
                 }
 
-                dygraphPointClickHandler = function(event, p) {
-                    if ((!event.ctrlKey && !event.metaKey/*osx*/) || event.button != 0) {
-                        return;
-                    }
-
-                    showAnnotationDialog(-1, p);
-                };
-                dygraphAnnotationClickHandler = function(ann, point, dg, event) {
-                    var anns = dygraph.annotations();
-
-                    var annIndex = -1;
-                    for (var i=0; i<anns.length; i++) {
-                        if (anns[i].xval == ann.xval) {
-                            annIndex = i;
+                if ($rootScope.config.annotations.allowAddEdit) {
+                    dygraphPointClickHandler = function(event, p) {
+                        if ((!event.ctrlKey && !event.metaKey/*osx*/) || event.button != 0) {
+                            return;
                         }
-                    }
-
-                    if (annIndex == -1) {
-                        return;
-                    }
-
-                    showAnnotationDialog(annIndex, null);
-                };
+    
+                        showAnnotationDialog(-1, p);
+                    };
+                    dygraphAnnotationClickHandler = function(ann, point, dg, event) {
+                        var anns = dygraph.annotations();
+    
+                        var annIndex = -1;
+                        for (var i=0; i<anns.length; i++) {
+                            if (anns[i].xval == ann.xval) {
+                                annIndex = i;
+                            }
+                        }
+    
+                        if (annIndex == -1) {
+                            return;
+                        }
+    
+                        showAnnotationDialog(annIndex, null);
+                    };
+                }
             }
 
 

@@ -188,8 +188,15 @@ aardvark.directive('aardvarkEnter', function() {
                 }
                 if (json.annotations == null) {
                     json.annotations = {
+                        allowAddEdit: true,
                         allowDelete: true
                     };
+                }
+                if (json.annotations.allowAddEdit == null) {
+                    json.annotations.allowAddEdit = true;
+                }
+                if (json.annotations.allowDelete == null) {
+                    json.annotations.allowDelete = true;
                 }
                 
                 json.tsdbBaseReadUrl = json.tsdbProtocol + "://" + json.tsdbHost + ":" + json.tsdbPort;

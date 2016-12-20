@@ -49,7 +49,7 @@ describe('Aardvark controllers', function () {
             $httpBackend.flush();
 
             expect(rootScope.config).toEqualData({
-                key: "value", tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http","annotations":{"allowDelete":true},
+                key: "value", tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http","annotations":{"allowDelete":true, allowAddEdit: true},
                 tsdbBaseReadUrl: "http://tsdb:4242", tsdbBaseWriteUrl: "http://tsdb:4242",
                 authenticatedReads: false, authenticatedWrites: false, allowBulkAnnotationsCall: true,
                 ui: {
@@ -72,7 +72,7 @@ describe('Aardvark controllers', function () {
             $httpBackend.flush();
 
             expect(rootScope.config).toEqualData({
-                key: "value", tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http","annotations":{"allowDelete":true},
+                key: "value", tsdbHost: "tsdb", tsdbPort: 4242, tsdbProtocol: "http","annotations":{"allowDelete":true, allowAddEdit: true},
                 tsdbBaseReadUrl: "http://tsdb:4242", tsdbBaseWriteUrl: "http://tsdb:4242",
                 authenticatedReads: false, authenticatedWrites: false, allowBulkAnnotationsCall: true,
                 ui: {

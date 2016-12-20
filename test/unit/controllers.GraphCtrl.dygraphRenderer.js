@@ -48,7 +48,12 @@ describe('Aardvark controllers', function () {
                 metrics: []
             }
 
-            rootScope.config = { tsdbBaseReadUrl: "http://tsdb:4242" };
+            rootScope.config = {
+                annotations: {
+                    allowAddEdit: true
+                },
+                tsdbBaseReadUrl: "http://tsdb:4242"
+            };
 
             rootScope.formEncode = function(val) {
                 var ret = val.replace(" ","+");
@@ -2829,7 +2834,7 @@ describe('Aardvark controllers', function () {
             scope.renderedContent = {};
             scope.renderErrors = {};
             scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242",annotations:{allowAddEdit: true}};
 
             var global = { relativePeriod: "1d", autoReload: false };
             if (baselineUrl != null && baselineResponseData != null) {
