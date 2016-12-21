@@ -54,10 +54,15 @@ Various fields allow the specification of time periods. Aardvark uses the same s
 * **Time** - HH:MM:SS
     
 ## Title Area
-Aside from providing a thin header, this provides access to reset the entire app to a blank status, and ability to change render modes.
+Aside from providing a thin header, this provides access to reset the entire app to a blank status, and links to the manual and user preferences.
 
 * **Reset** - Removes all metrics and graphs, adds back in a single graph with the default settings.
-* **Render** - By default Aardvark only renders graphs when clicking *Save* within either the graph or metric controls or pressing the enter key whilst focus is on a field. However to provide a more dynamic interface you may select *On change* in order to render on change of any input on the screen. This is a user preference and stored in the browser.
+
+### User Preferences
+
+This dialog provides the ability to customize the Aardvark interface to your own tastes. Changes here are persisted in browser storage.
+
+* **Auto re-render on change** - By default Aardvark only renders graphs when clicking *Save* within either the graph or metric controls or pressing the enter key whilst focus is on a field. However to provide a more dynamic interface you may select this option in order to render on change of any input on the screen.
 
 ## Global Controls
 
@@ -123,7 +128,9 @@ The scatter renderer uses Dygraph to plot metrics against each other, this is pa
 
 The scatter renderer requires exactly 2 time series to be able to render and will show a point for a point in time where a value exists for both plotted series. If you have time series which don't often have points at the same time you may find downsampling will help.
 
-Control over the scatter renderer is currently limited to being able to control whether to exclude negative values from the plot. If a negative is found in either series' value for a point then the point will be excluded. 
+Control over the scatter renderer is currently limited to:
+* Squash negatives - if a negative is found in either series' value for a point then the point will be excluded.
+* Swap axes - changes metric assignment between the 2 axes. 
 
 ### Heatmap renderer
 
@@ -132,17 +139,21 @@ The heatmap renderer uses D3 to render calendar based grids showing the magnitud
 The heatmap renderer requires exactly 1 time series to be able to render.
 
 The style of calendar grid is selectable between:
- * Automatic - Selects week columns and day cells for periods over one year, day columns and hour cells otherwise
- * Week columns, day cells - shows a row per year with months highlighted
- * Day columns, hour cells - shows a grid per month
+* Automatic - Selects week columns and day cells for periods over one year, day columns and hour cells otherwise
+* Week columns, day cells - shows a row per year with months highlighted
+* Day columns, hour cells - shows a grid per month
  
-The heatmap renderer also allows you to exclude negative values from the plot.
+Filtering allows you to exclude values outside the selected range from the range of values included in the colour scheme, allowing you to see finer differences. Cells excluded by the filter are rendered in an off colour to distinguish from cells with no value.
+ 
+The heatmap renderer also allows you to exclude negative values from the plot and to choose your colour scheme.
 
 ## Graph Display
 
 This area displays the rendered graphs. For most renderers it is possible to interact with the charts.
 
 ### Gnuplot renderer
+
+The gnuplot renderer doesn't provide any opportunities for interaction with a chart.
 
 ### Horizon renderer
 
@@ -152,7 +163,20 @@ It will however show series' values on hover along with a vertical bar allowing 
 
 ### Dygraph renderer
 
+The dygraph renderer offers some basic controls to interact with your graph:
+* Click and drag to zoom in either axis
+* Hold down Alt, click and drag to move along the x-axis
+
+Additionally, there are some extra capabilities around annotations:
+* Hovering over an existing annotation will display it's summary text
+* Clicking an annotation will pop up a dialog allowing you to edit certain properties of the annotation
+* Holding Ctrl (or Cmd on OSX) and clicking a point on a time series line will pop up a dialog allowing you to add an annotation
+
 ### Scatter renderer
+
+The scatter renderer uses the same chart library as the dygraph renderer and so offers the same interaction options:
+* Click and drag to zoom in either axis
+* Hold down Alt, click and drag to move along the x-axis
 
 ### Heatmap renderer
 
@@ -161,8 +185,10 @@ The heatmap renderer doesn't provide any opportunities for interaction with a ch
 It will however show cell values on hover.
 
 ## Metric Selection
+
 ipso lorem...
 
 
 ## Metric Controls
+
 ipso lorem...
