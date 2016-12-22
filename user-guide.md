@@ -12,19 +12,7 @@ the best out of Aardvark.
 
 The Aardvark user interface is split up into 6 main areas:
 
-    ---------------------------------------
-    |            Title Area               |
-    |-------------------------------------|
-    | Global  |               |           |
-    |---------|               |  Metric   |
-    |         |               | Selection |
-    |         |     Graph     |           |
-    | Graph   |               |-----------|
-    |         |    Display    |           |
-    | Control |               |  Metric   |
-    |         |               |  Control  |
-    |         |               |           |
-    ---------------------------------------
+![screen layout](screen_layout.png)
     
 * Title area - Identifies version, link to (this) user guide, reset and user preferences
 * Global control - Date/time selection, reloading, global downsampling
@@ -186,7 +174,11 @@ It will however show cell values on hover.
 
 ## Metric Selection
 
-ipso lorem...
+Aardvark allows selection of metrics to graph via a tree view which is constructed from the set of available metrics on your instance on OpenTSDB, splitting using the "." character.
+
+Select a metric to graph by selecting an underlined node, which may be present at any level (not just leaf nodes).
+
+The 
 
 
 ## Metric Controls
