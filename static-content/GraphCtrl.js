@@ -271,6 +271,86 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
             return ret;
         });
     };
+    var my_cubism_id = 0;
+    $scope.cubism_rule = function(context, leftOffsetContainer) {
+        var metric = function(d) { return d; }
+
+        function rule(selection) {
+            var id = ++my_cubism_id;
+
+            var line = selection.append("div")
+                .datum({id: id})
+                .attr("class", "line")
+                .call(cubism_ruleStyle);
+
+            selection.each(function(d, i) {
+                var that = this,
+                    id = ++my_cubism_id,
+                    metric_ = typeof metric === "function" ? metric.call(that, d, i) : metric;
+
+                if (!metric_) return;
+
+                function change(start, stop) {
+                    var values = [];
+
+                    for (var i = 0, n = context.size(); i < n; ++i) {
+                        if (metric_.valueAt(i)) {
+                            values.push(i);
+                        }
+                    }
+
+                    var lines = selection.selectAll(".metric").data(values);
+                    lines.exit().remove();
+                    lines.enter().append("div").attr("class", "metric line").call(cubism_ruleStyle);
+                    lines.style("left", cubism_offsetRuleLeft(offset));
+                }
+
+                context.on("change.rule-" + id, change);
+                metric_.on("change.rule-" + id, change);
+            });
+
+            context.on("focus.rule-" + id, function(i) {
+                line.datum(i)
+                    .style("display", i == null ? "none" : null)
+                    .style("left", i == null ? null : cubism_offsetRuleLeft(leftOffsetContainer));
+            });
+        }
+
+        rule.remove = function(selection) {
+
+            selection.selectAll(".line")
+                .each(remove)
+                .remove();
+
+            function remove(d) {
+                context.on("focus.rule-" + d.id, null);
+            }
+        };
+
+        rule.metric = function(_) {
+            if (!arguments.length) return metric;
+            metric = _;
+            return rule;
+        };
+
+        return rule;
+    };
+    function cubism_ruleStyle(line) {
+        line
+            .style("position", "absolute")
+            .style("top", 0)
+            .style("bottom", 0)
+            .style("width", "1px")
+            .style("pointer-events", "none");
+    }
+    function cubism_offsetRuleLeft(leftOffsetContainer) {
+        return function(i) {
+            return (leftOffsetContainer.leftOffset + i) + "px";
+        }
+    }
+    function cubism_ruleLeft(i) {
+        return i + "px";
+    }
     $scope.heatmap = function() {
 
         var ret = {};
@@ -966,21 +1046,35 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                 .enter().insert("div", ".bottom")
                 .attr("class", "horizon")
                 .call(context.horizon().height(perLineHeight).format(d3.format(".2f")));
+            
+            var leftOffsetContainer = {
+                leftOffset: 0
+            }
 
+            // rendering of graphs doesn't change horizontal location
+            // NOTE: resizing of window does, but we don't try and handle that (yet)
+            var graphContentPanel = d3.select("#graph-content-panel").node().getBoundingClientRect();
+            var ruleLeft = graphContentPanel.left;
+            leftOffsetContainer.leftOffset = ruleLeft;
             // now we can add rule safely as we know height as well
             d3.select(divSelector).append("div")
                 .attr("class", "rule")
                 .attr("id","horizonRule_"+graph.id)
-                .call(context.rule());
+                .call($scope.cubism_rule(context, leftOffsetContainer));
+//                .call(context.rule());
 
+            
             var resizeFocusRule = function() {
-                var graphPanelBox = d3.select("#scrollable-graph-panel").node().getBoundingClientRect();
-                var topAxisBox = d3.select("#horizonAxis_top_"+graph.id).node().getBoundingClientRect();
-                // top needs to be relative to this panel, not whole window
-                var ruleTop = topAxisBox.top - graphPanelBox.top;
+                //var graphPanelBox = d3.select("#graph-content-panel").node().getBoundingClientRect();
+                // top needs to be relative to the whole window
+                var ruleTop = topAxisBox.top;
                 var ruleHeight = totalAxesHeight + (perLineHeight * cMetrics.length);
                 // and now we just go find the rule we added and set the top/height
-                d3.select("#horizonRule_"+graph.id).select(".line").style("top", ruleTop+"px").style("height",ruleHeight+"px").style("bottom",null);
+                d3.select("#horizonRule_"+graph.id)
+                    .select(".line")
+                    .style("top", ruleTop+"px")
+                    .style("height",ruleHeight+"px")
+                    .style("bottom",null);
             }
 
             resizeFocusRule();
@@ -2467,15 +2561,17 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
             });
 
             var positionLegend = function() {
-                var container = d3.select("#scrollable-graph-panel").node();
+                var graphBoxNode = d3.select("#scatterDiv_"+graph.id).node();
                 // null in unt tests
-                if (container != null) {
-                    var graphPanelBox = container.getBoundingClientRect();
-                    var graphBox = d3.select("#scatterDiv_"+graph.id).node().getBoundingClientRect();
-                    // top needs to be relative to this panel, not whole window
-                    var legendTop = graphBox.top - graphPanelBox.top;
+                if (graphBoxNode != null) {
+                    var graphBox = graphBoxNode.getBoundingClientRect();
+                    // top needs to be relative to the whole window
+                    var legendTop = graphBox.top;
+                    var legendLeft = graphBox.left + 80;
                     // and now we just go find the rule we added and set the top/height
-                    d3.select("#scatterLegend_"+graph.id).style("top", legendTop+"px");
+                    d3.select("#scatterLegend_"+graph.id)
+                        .style("top", legendTop+"px")
+                        .style("left", legendLeft+"px");
                 }
             }
 

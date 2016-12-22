@@ -59,7 +59,7 @@ describe('Aardvark controllers', function () {
             renderDiv.setAttribute("id","horizonDiv_abc");
             document.body.appendChild(renderDiv);
             graphPanel = document.createElement("div");
-            graphPanel.setAttribute("id","scrollable-graph-panel");
+            graphPanel.setAttribute("id","graph-content-panel");
             document.body.appendChild(graphPanel);
         }));
         

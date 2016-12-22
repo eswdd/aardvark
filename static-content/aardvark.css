@@ -52,6 +52,7 @@ html, body { margin: 0; height: 100%; width: 100%; }
 
 .panel-body {
     padding: 0;
+    background-color: #eee;
 }
 
 .btn-xs .badge {
