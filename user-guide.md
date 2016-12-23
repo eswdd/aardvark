@@ -73,9 +73,11 @@ Aardvark also allows you to auto-reload (rerender) the graphs every entered time
 
 ### Downsampling
 
+TODO
 
 ### Baselining
 
+TODO
 
 ### Graph height
 
@@ -84,7 +86,6 @@ If you have only one graph then this will be stretched to use up all the vertica
 Once you have more than one, then you will be provided with more control over how the vertical space is used:
 * *Auto graph-height* will ensure a minimum height for each graph and will distribute extra space to each
 * *Fixed graph-height* will force the height of each graph to a specific value
-
 
 ## Graph Controls
 
@@ -192,8 +193,11 @@ Aardvark allows selection of metrics to graph via a tree view which is construct
 
 Select a metric to graph by selecting an underlined node, which may be present at any level (not just leaf nodes).
 
-The 
+The tree may be filtered using a text search (press the F button to show the filter).
 
+The tree may also be fully expanded (+ button - honouring filters) and fully collapsed (- button). A word of caution though - if you have a large tree this can lock your browser up, so it can be disabled via a config option (see the [config reference](config.html)).
+
+If UI wide exclusions have been configured then the show (S) and hide (H) buttons allow you to include/exclude them from the tree. This is useful if you have old metrics or namespaces you no longer use in normal use.
 
 ## Metric Controls
 
