@@ -189,6 +189,8 @@ It will however show cell values on hover.
 
 ## Metric Selection
 
+![metric selection screenshot](metric_selection.png)
+
 Aardvark allows selection of metrics to graph via a tree view which is constructed from the set of available metrics on your instance on OpenTSDB, splitting using the "." character.
 
 Select a metric to graph by selecting an underlined node, which may be present at any level (not just leaf nodes).
@@ -200,5 +202,7 @@ The tree may also be fully expanded (+ button - honouring filters) and fully col
 If UI wide exclusions have been configured then the show (S) and hide (H) buttons allow you to include/exclude them from the tree. This is useful if you have old metrics or namespaces you no longer use in normal use.
 
 ## Metric Controls
+
+![metric controls screenshot](metric_controls.png)
 
 ipso lorem...
