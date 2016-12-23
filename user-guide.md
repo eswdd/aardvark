@@ -42,6 +42,9 @@ Various fields allow the specification of time periods. Aardvark uses the same s
 * **Time** - HH:MM:SS
     
 ## Title Area
+
+![title area screenshot](title_area.png)
+
 Aside from providing a thin header, this provides access to reset the entire app to a blank status, and links to the manual and user preferences.
 
 * **Reset** - Removes all metrics and graphs, adds back in a single graph with the default settings.
@@ -53,6 +56,8 @@ This dialog provides the ability to customize the Aardvark interface to your own
 * **Auto re-render on change** - By default Aardvark only renders graphs when clicking *Save* within either the graph or metric controls or pressing the enter key whilst focus is on a field. However to provide a more dynamic interface you may select this option in order to render on change of any input on the screen.
 
 ## Global Controls
+
+![global controls screenshot](global_controls.png)
 
 These are controls which affect either the whole page, all graphs, or all metrics.
 
@@ -70,6 +75,15 @@ Aardvark also allows you to auto-reload (rerender) the graphs every entered time
 
 
 ### Baselining
+
+
+### Graph height
+
+If you have only one graph then this will be stretched to use up all the vertical space on the screen.
+
+Once you have more than one, then you will be provided with more control over how the vertical space is used:
+* *Auto graph-height* will ensure a minimum height for each graph and will distribute extra space to each
+* *Fixed graph-height* will force the height of each graph to a specific value
 
 
 ## Graph Controls
