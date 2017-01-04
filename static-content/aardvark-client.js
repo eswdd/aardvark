@@ -1,1 +1,1 @@
-var aardvark = angular.module('Aardvark', ['ui.bootstrap','treeControl','ngSanitize','MassAutoComplete','LocalStorageModule','ngclipboard','angularResizable']);
+var aardvark = angular.module('Aardvark', ['ui.bootstrap', 'treeControl', 'ngSanitize', 'MassAutoComplete', 'LocalStorageModule', 'ngclipboard', 'angularResizable']);

@@ -37,11 +37,11 @@ html, body { margin: 0; height: 100%; width: 100%; }
     align-items: stretch
 }
 .graph-control-buttons-panel {
-    background-color: #eee;
+    background-color: #fff;
     text-align: right;
 }
 .graph-control-panel {
-    background-color: #eee;
+    background-color: #fff;
 }
 .graph-panel {
     background-color: #fff;
@@ -52,7 +52,7 @@ html, body { margin: 0; height: 100%; width: 100%; }
 
 .panel-body {
     padding: 0;
-    background-color: #eee;
+    background-color: #fff;
 }
 
 .btn-xs .badge {
@@ -87,4 +87,34 @@ html, body { margin: 0; height: 100%; width: 100%; }
 
 .rg-top, .rg-bottom, .rg-left, .rg-right {
     background-color: #fff;
+}
+
+.form-label {
+    font-weight: normal;
+}
+
+.label {
+    font-weight: normal;
+}
+
+label {
+    font-weight: normal;
+}
+
+.tooltip {
+    z-index: 2000;
+}
+
+.form-control-xs {
+    height: 22px;
+    padding: 3px 6px;
+}
+
+.form-control-inline {
+    display: inline-block;
+}
+
+.btn-group {
+    padding-top: 3px;
+    padding-bottom: 3px;
 }

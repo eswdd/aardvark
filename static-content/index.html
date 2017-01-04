@@ -87,92 +87,96 @@
     <div class="content-panel">
         <div id="left-panel" style="flex: 0 0 auto; flex-basis: 200px" resizable r-directions="['right']" r-flex="true" >
             <div ng-controller="GraphControlCtrl" style="height: 100%; display: flex; flex-flow: column nowrap; justify-content: space-between; align-items: stretch">
-                <div class="graph-control-panel" style="border-color: black; border-width: 1px; border-style: solid; flex: none">
+                <div class="graph-control-panel" style="border-color: black; border-width: 1px; border-style: solid; flex: none; background-color: #fff">
                     <!-- todo: m1: calendar controls incl date/time -->
-                    <div id="global-graph-controls">
+                    <aa-collapsible-panel title="Time" icon="glyphicon-time">
                         <div>
-                            <input type="checkbox" id="timeIsAbsoluteId" ng-model="absoluteTimeSpecification" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
-                            <label for="timeIsAbsoluteId">Absolute?</label>
-                            <input type="checkbox" id="autoReloadId" ng-model="autoReload" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
-                            <label for="autoReloadId">Auto reload</label>
-                        </div>
-                        <div ng-show="autoReload">
-                            <input type="text" size="2" id="autoReloadPeriodId" ng-model="autoReloadPeriod" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                            <label for="autoReloadPeriodId">seconds</label>
-                        </div>
-                        <div ng-show="!absoluteTimeSpecification">
-                            <label for="relativePeriodId">Previous</label><br/>
-                            <input type="text" size="10" id="relativePeriodId" ng-model="relativePeriod" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
-                        </div>
-                        <div ng-show="absoluteTimeSpecification">
-                            <label for="fromDateId">From</label><br/>
-                            <input type="text" size="10" id="fromDateId" ng-model="fromDate" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
-                            <input type="text" size="8" id="fromTimeId" ng-model="fromTime" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
-                        </div>
-                        <div ng-show="!autoReload && absoluteTimeSpecification">
-                            <label for="toDateId">To</label>
-                            <button ng-click="now()" >Now</button>
-                        </div>
-                        <div ng-show="!autoReload && absoluteTimeSpecification">
-                            <input type="text" size="10" id="toDateId" ng-model="toDate" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
-                            <input type="text" size="8" id="toTimeId" ng-model="toTime" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                            <div class="btn-group">
+                                <label class="btn btn-primary btn-xs" ng-model="model.absoluteTimeSpecification" uib-btn-radio="true">Absolute</label>
+                                <label class="btn btn-primary btn-xs" ng-model="model.absoluteTimeSpecification" uib-btn-radio="false">Relative</label>
+                            </div>
                         </div>
                         <div>
-                            <input type="checkbox" id="globalDownsamplingId" ng-model="globalDownsampling" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
-                            <label for="globalDownsamplingId">Global downsampling</label><br/>
-                            <input type="text" size="10" id="globalDownsampleToId" ng-model="globalDownsampleTo" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" ng-show="globalDownsampling" />
+                            <input type="checkbox" id="autoReloadId" ng-model="model.autoReload" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
+                            <label for="autoReloadId" class="form-label">Auto reload</label>
+                            <span ng-show="model.autoReload">
+                                <input class="form-control form-control-xs form-control-inline" type="text" style="width: 40px" id="autoReloadPeriodId" ng-model="model.autoReloadPeriod" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                <label for="autoReloadPeriodId" class="form-label">secs</label>
+                            </span>
+                        </div>
+                        <div ng-show="!model.absoluteTimeSpecification">
+                            <label for="relativePeriodId" class="form-label">Previous: </label>
+                            <input type="text" style="width: 50px" class="form-control form-control-xs form-control-inline" id="relativePeriodId" ng-model="model.relativePeriod" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                        </div>
+                        <div ng-show="model.absoluteTimeSpecification">
+                            <label for="fromDateId" class="form-label">From</label><br/>
+                            <input type="text" style="width: 85px" class="form-control form-control-xs form-control-inline" id="fromDateId" ng-model="model.fromDate" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                            <input type="text" style="width: 70px" class="form-control form-control-xs form-control-inline" id="fromTimeId" ng-model="model.fromTime" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                        </div>
+                        <div ng-show="!model.autoReload && model.absoluteTimeSpecification">
+                            <label for="toDateId" class="form-label">To</label><br/>
+                            <!--button class="btn btn-primary btn-xs" ng-click="now()">Now</button-->
+                        </div>
+                        <div ng-show="!model.autoReload && model.absoluteTimeSpecification">
+                            <input type="text" style="width: 85px" class="form-control form-control-xs form-control-inline" size="10" id="toDateId" ng-model="model.toDate" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                            <input type="text" style="width: 70px" class="form-control form-control-xs form-control-inline" size="8" id="toTimeId" ng-model="model.toTime" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
                         </div>
                         <div>
-                            <input type="checkbox" id="baseliningId" ng-model="baselining" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
+                            <input type="checkbox" id="globalDownsamplingId" ng-model="model.globalDownsampling" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
+                            <label for="globalDownsamplingId" class="form-label">Global downsampling</label><br/>
+                            <input type="text" size="10" id="globalDownsampleToId" ng-model="model.globalDownsampleTo" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" ng-show="globalDownsampling" />
+                        </div>
+                        <div>
+                            <input type="checkbox" id="baseliningId" ng-model="model.baselining" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
                             <label for="baseliningId">Baselining</label><br/>
                         </div>
-                        <div ng-show="baselining">
-                            <select id="baselineDatumStyleId" ng-model="baselineDatumStyle" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
+                        <div ng-show="model.baselining">
+                            <select id="baselineDatumStyleId" ng-model="model.baselineDatumStyle" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
                                 <option value="relative">Relative offset</option>
                                 <option value="from">From date/time</option>
                                 <option value="to">To date/time</option>
                             </select>
                         </div>
-                        <div ng-show="baselining && baselineDatumStyle == 'relative'">
-                            <input type="text" size="10" id="baselineRelativePeriodId" ng-model="baselineRelativePeriod" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                        <div ng-show="model.baselining && model.baselineDatumStyle == 'relative'">
+                            <input type="text" size="10" id="baselineRelativePeriodId" ng-model="model.baselineRelativePeriod" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
                         </div>
-                        <div ng-show="baselining && baselineDatumStyle == 'from'">
-                            <input type="text" size="10" id="baselineFromDateId" ng-model="baselineFromDate" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
-                            <input type="text" size="8" id="baselineFromTimeId" ng-model="baselineFromTime" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                        <div ng-show="model.baselining && model.baselineDatumStyle == 'from'">
+                            <input type="text" size="10" id="baselineFromDateId" ng-model="model.baselineFromDate" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                            <input type="text" size="8" id="baselineFromTimeId" ng-model="model.baselineFromTime" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
                         </div>
-                        <div ng-show="baselining && baselineDatumStyle == 'to'">
-                            <input type="text" size="10" id="baselineToDateId" ng-model="baselineToDate" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                            <input type="text" size="8" id="baselineToTimeId" ng-model="baselineToTime" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                        <div ng-show="model.baselining && model.baselineDatumStyle == 'to'">
+                            <input type="text" size="10" id="baselineToDateId" ng-model="model.baselineToDate" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                            <input type="text" size="8" id="baselineToTimeId" ng-model="model.baselineToTime" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                         </div>
-                    </div>
-                    <div id="global-multigraph-controls" style="border-top: solid 1px black; " ng-show="graphs.length > 1">
-                        <div>
-                            <label for="autoGraphHeight">Auto-height graphs</label>
-                            <input type="checkbox" id="autoGraphHeight" ng-model="autoGraphHeight" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
-                        </div>
-                        <div ng-show="autoGraphHeight">
-                            <label for="minGraphHeight">Min height (pixels)</label>
-                            <input type="text" id="minGraphHeight" ng-model="minGraphHeight" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
-                        </div>
-                        <div ng-show="!autoGraphHeight">
-                            <label for="graphHeight">Fixed height (pixels)</label>
-                            <input type="text" id="graphHeight" ng-model="graphHeight" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
-                        </div>
+                    </aa-collapsible-panel>
+                    <div id="global-multigraph-controls" ng-show="graphs.length > 1">
+                        <aa-collapsible-panel title="Graph sizing" icon="glyphicon-resize-vertical" initial-collapsed="true">
+                            <div class="btn-group">
+                                <label class="btn btn-primary btn-xs" ng-model="model.autoGraphHeight" uib-btn-radio="true">Auto-height</label>
+                                <label class="btn btn-primary btn-xs" ng-model="model.autoGraphHeight" uib-btn-radio="false">Fixed height</label>
+                            </div>
+                            <div ng-show="model.autoGraphHeight">
+                                <label for="minGraphHeight" class="form-label">Min:</label>
+                                <input style="width: 100px" class="form-control form-control-xs form-control-inline" type="text" id="minGraphHeight" ng-model="model.minGraphHeight" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
+                                <span>px</span>
+                            </div>
+                            <div ng-show="!model.autoGraphHeight">
+                                <input style="width: 100px" class="form-control form-control-xs form-control-inline" type="text" id="graphHeight" ng-model="model.graphHeight" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
+                                <span>px</span>
+                            </div>
+                        </aa-collapsible-panel>
                     </div>
                 </div>
-                <uib-accordion close-others="true" style="border-right: solid 1px black; border-left: solid 1px black; flex: 1 1 auto; overflow: auto; height: 10px" class="graph-control-panel">
+                <uib-accordion close-others="true" style="border-right: solid 1px black; flex: 1 1 auto; overflow: auto; height: 10px" class="graph-control-panel">
                     <div uib-accordion-group heading="{{graph.title}}" is-open="isOpen[graph.id]" ng-repeat="graph in graphs track by graph.id">
-    
-                        <div ng-show="showEdit[graph.id]">
+
+                        <aa-collapsible-panel title="Title / Type" initial-collapsed="showEdit[graph.id]">
                             <input type="text" ng-model="graph.title" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-        
+
                             <select ng-model="graph.type" ng-show="graphTypes.length > 1" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
                                 <option ng-repeat="type in graphTypes">{{type}}</option>
                             </select>
-                        </div>
-                        <div>
-                            <button ng-click="showEdit[graph.id] = !showEdit[graph.id]">Edit title/type</button> <button ng-click="deleteGraph(graph.id)">Delete</button>
-                        </div>
+                        </aa-collapsible-panel>
         
                         <div ng-show="graph.type == 'gnuplot'">
                             <uib-tabset>
@@ -342,118 +346,128 @@
                             </div>
                         </div>
                         <div ng-show="graph.type == 'dygraph'">
-                            <div style="text-decoration: underline; font-weight: 800">
-                                Rendering
-                            </div>
-                            <div>
-                                <input type="checkbox" id="interpolateGapsDygraph" ng-model="graph.dygraph.interpolateGaps" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                <label for="interpolateGapsDygraph">Interpolate gaps?</label>
-                            </div>
-                            <div>
-                                <input type="checkbox" id="highlightLinesDygraph" ng-model="graph.dygraph.highlightLines" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                <label for="highlightLinesDygraph">Highlight lines?</label>
-                            </div>
-                            <div>
-                                <input type="checkbox" id="stackedLinesDygraph" ng-model="graph.dygraph.stackedLines" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                <label for="stackedLinesDygraph">Stacked lines?</label>
-                            </div>
-                            <div>
-                                <input type="checkbox" id="ratioDygraph" ng-model="graph.dygraph.ratioGraph" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                <label for="ratioDygraph">Ratio graph?</label>
-                            </div>
-                            <div style="text-decoration: underline; font-weight: 800">
-                                y-Axis Control
-                            </div>
-                            <table>
-                                <tr>
-                                    <th style="text-align: center">Y</th>
-                                    <th style="text-align: center">Y2</th>
-                                </tr>
-                                <tr>
-                                    <td colspan="2">
-                                        Squash -ve?
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><input type="checkbox" id="y1SquashNegativeDygraph" ng-model="graph.dygraph.y1SquashNegative" ng-disabled="graph.dygraph.meanAdjusted" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
-                                    <td><input type="checkbox" id="y2SquashNegativeDygraph" ng-model="graph.dygraph.y2SquashNegative" ng-disabled="graph.dygraph.meanAdjusted" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2">
-                                        Auto scale?
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><input type="checkbox" id="autoscaleDygraph" ng-model="graph.dygraph.y1AutoScale" ng-disabled="graph.dygraph.y1Log" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
-                                    <td><input type="checkbox" id="autoscaleDygraphw" ng-model="graph.dygraph.y2AutoScale" ng-disabled="graph.dygraph.y2Log" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2">
-                                        Logarithmic y-axis?
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><input type="checkbox" id="y1LogDygraph" ng-model="graph.dygraph.y1Log" ng-disabled="graph.dygraph.y1AutoScale" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
-                                    <td><input type="checkbox" id="y2LogDygraph" ng-model="graph.dygraph.y2Log" ng-disabled="graph.dygraph.y2AutoScale" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2">
-                                        Range:
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><input id="y1RangeDygraph" type="text" size="4" ng-model="graph.dygraph.y1AxisRange" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
-                                    <td><input id="y2RangeDygraph" type="text" size="4" ng-model="graph.dygraph.y2AxisRange" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
-                                </tr>
-                            </table>
-                            <div style="text-decoration: underline; font-weight: 800">
-                                Annotations
-                            </div>
-                            <div>
-                                <input type="checkbox" id="annotationsDygraph" ng-model="graph.dygraph.annotations" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                <label for="annotationsDygraph">Annotations?</label>
-                            </div>
-                            <div>
-                                <input type="checkbox" id="globalAnnotationsDygraph" ng-model="graph.dygraph.globalAnnotations" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                <label for="globalAnnotationsDygraph">Global annotations?</label>
-                            </div>
-                            <div style="text-decoration: underline; font-weight: 800">
-                                Filtering
-                            </div>
-                            <div>
-                                Show only
-                                <select ng-model="graph.dygraph.countFilter.end" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
-                                    <option>top</option>
-                                    <option>bottom</option>
-                                </select>
-                                <input type="text" size="2" ng-model="graph.dygraph.countFilter.count" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                lines by
-                                <select ng-model="graph.dygraph.countFilter.measure" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
-                                    <option>min</option>
-                                    <option>mean</option>
-                                    <option>max</option>
-                                </select>
-                            </div>
-                            <div>
-                                Show only lines which have
-                                <input type="text" size="2" ng-model="graph.dygraph.valueFilter.lowerBound" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                &lt;=
-                                <select ng-model="graph.dygraph.valueFilter.measure" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
-                                    <option>any</option>
-                                    <option>min</option>
-                                    <option>mean</option>
-                                    <option>max</option>
-                                </select>
-                                value &lt;=
-                                <input type="text" size="2" ng-model="graph.dygraph.valueFilter.upperBound" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                            </div>
-                            <div style="text-decoration: underline; font-weight: 800">
-                                Specials
-                            </div>
-                            <div>
-                                <input type="checkbox" id="meanAdjustedDygraph" ng-model="graph.dygraph.meanAdjusted" ng-disabled="graph.dygraph.y1SquashNegative || graph.dygraph.y2SquashNegative" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                <label for="meanAdjustedDygraph">Mean adjusted?</label>
-                            </div>
+                            <aa-collapsible-panel title="Rendering" initial-collapsed="true">
+                                <div>
+                                    <input type="checkbox" id="interpolateGapsDygraph" ng-model="graph.dygraph.interpolateGaps" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                    <label for="interpolateGapsDygraph">Interpolate gaps?</label>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="highlightLinesDygraph" ng-model="graph.dygraph.highlightLines" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                    <label for="highlightLinesDygraph">Highlight lines?</label>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="stackedLinesDygraph" ng-model="graph.dygraph.stackedLines" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                    <label for="stackedLinesDygraph">Stacked lines?</label>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="ratioDygraph" ng-model="graph.dygraph.ratioGraph" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                    <label for="ratioDygraph">Ratio graph?</label>
+                                </div>
+                            </aa-collapsible-panel>
+                            <aa-collapsible-panel title="y-Axis Control" initial-collapsed="true">
+                                <table>
+                                    <tr>
+                                        <th style="text-align: center">Y</th>
+                                        <th style="text-align: center">Y2</th>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            Squash -ve?
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox" id="y1SquashNegativeDygraph" ng-model="graph.dygraph.y1SquashNegative" ng-disabled="graph.dygraph.meanAdjusted" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                        <td><input type="checkbox" id="y2SquashNegativeDygraph" ng-model="graph.dygraph.y2SquashNegative" ng-disabled="graph.dygraph.meanAdjusted" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            Auto scale?
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox" id="autoscaleDygraph" ng-model="graph.dygraph.y1AutoScale" ng-disabled="graph.dygraph.y1Log" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                        <td><input type="checkbox" id="autoscaleDygraphw" ng-model="graph.dygraph.y2AutoScale" ng-disabled="graph.dygraph.y2Log" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            Logarithmic y-axis?
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox" id="y1LogDygraph" ng-model="graph.dygraph.y1Log" ng-disabled="graph.dygraph.y1AutoScale" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                        <td><input type="checkbox" id="y2LogDygraph" ng-model="graph.dygraph.y2Log" ng-disabled="graph.dygraph.y2AutoScale" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            Range:
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><input id="y1RangeDygraph" type="text" size="4" ng-model="graph.dygraph.y1AxisRange" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                        <td><input id="y2RangeDygraph" type="text" size="4" ng-model="graph.dygraph.y2AxisRange" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                    </tr>
+                                </table>
+                            </aa-collapsible-panel>
+                            <aa-collapsible-panel title="Annotations" initial-collapsed="true">
+                                <div>
+                                    <input type="checkbox" id="annotationsDygraph" ng-model="graph.dygraph.annotations" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                    <label for="annotationsDygraph">Annotations?</label>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="globalAnnotationsDygraph" ng-model="graph.dygraph.globalAnnotations" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                    <label for="globalAnnotationsDygraph">Global annotations?</label>
+                                </div>
+                            </aa-collapsible-panel>
+                            <aa-collapsible-panel title="Filtering" initial-collapsed="true">
+                                <div>
+                                    <div class="btn-group btn-group-xs" uib-dropdown is-open="wibble" style="display: inline-block">
+                                        <button style="width: 60px; text-align: left" id="single-button" type="button" class="btn btn-primary btn-xs" uib-dropdown-toggle ng-disabled="disabled">
+                                            <span>{{graph.dygraph.countFilter.end}}</span> <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="single-button">
+                                            <li role="menuitem"><a ng-click="setCountFilterEnd(graph, 'top')">top</a></li>
+                                            <li role="menuitem"><a ng-click="setCountFilterEnd(graph, 'bottom')">bottom</a></li>
+                                        </ul>
+                                    </div>
+                                    <input class="form-control form-control-xs form-control-inline" type="text" style="width: 40px" ng-model="graph.dygraph.countFilter.count" />
+                                    by
+                                    <div class="btn-group btn-group-xs" uib-dropdown is-open="wibble2" style="display: inline-block">
+                                        <button style="width: 50px; text-align: left" id="single-button2" type="button" class="btn btn-primary btn-xs" uib-dropdown-toggle ng-disabled="disabled">
+                                            <span>{{graph.dygraph.countFilter.measure}}</span> <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="single-button2">
+                                            <li role="menuitem"><a ng-click="setCountFilterMeasure(graph, 'min')">min</a></li>
+                                            <li role="menuitem"><a ng-click="setCountFilterMeasure(graph, 'mean')">mean</a></li>
+                                            <li role="menuitem"><a ng-click="setCountFilterMeasure(graph, 'max')">max</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div style="border-bottom: 1px groove #808080; padding: 2px">
+                                </div>
+                                <div style="padding-top: 2px">
+                                    <input class="form-control form-control-xs form-control-inline" type="text" style="width: 40px" ng-model="graph.dygraph.valueFilter.lowerBound" />
+                                    &lt;=
+                                    <div class="btn-group btn-group-xs" uib-dropdown is-open="wibble3" style="display: inline-block">
+                                        <button style="width: 50px; text-align: left" id="single-button3" type="button" class="btn btn-primary btn-xs" uib-dropdown-toggle ng-disabled="disabled">
+                                            <span>{{graph.dygraph.valueFilter.measure}}</span> <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="single-button3">
+                                            <li role="menuitem"><a ng-click="setValueFilterMeasure(graph, 'any')">any</a></li>
+                                            <li role="menuitem"><a ng-click="setValueFilterMeasure(graph, 'min')">min</a></li>
+                                            <li role="menuitem"><a ng-click="setValueFilterMeasure(graph, 'mean')">mean</a></li>
+                                            <li role="menuitem"><a ng-click="setValueFilterMeasure(graph, 'max')">max</a></li>
+                                        </ul>
+                                    </div>
+                                    &lt;=
+                                    <input class="form-control form-control-xs form-control-inline" type="text" style="width: 40px" ng-model="graph.dygraph.valueFilter.upperBound" />
+                                </div>
+                            </aa-collapsible-panel>
+                            <aa-collapsible-panel title="Specials" initial-collapsed="true">
+                                <div>
+                                    <input type="checkbox" id="meanAdjustedDygraph" ng-model="graph.dygraph.meanAdjusted" ng-disabled="graph.dygraph.y1SquashNegative || graph.dygraph.y2SquashNegative" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                    <label for="meanAdjustedDygraph" class="form-label">Mean adjusted?</label>
+                                </div>
+                            </aa-collapsible-panel>
                         </div>
                         <div ng-show="graph.type == 'scatter'">
                             <div>
@@ -500,9 +514,9 @@
                         </div>
                     </div>
                 </uib-accordion>
-                <div class="graph-control-buttons-panel" style="border: solid 1px black; flex: none">
-                    <button ng-click="addGraph()" value="Add graph">Add graph</button>
-                    <button ng-click="saveAndRenderGraphs()">Save..</button>
+                <div class="graph-control-buttons-panel" style="border-top: solid 1px black; border-right: solid 1px black; flex: none">
+                    <button class="btn btn-primary btn-xs" ng-click="addGraph()" value="Add graph">Add graph</button>
+                    <button class="btn btn-primary btn-xs" ng-click="saveAndRenderGraphs()">Save..</button>
                 </div>
             </div>
         </div>
@@ -727,9 +741,9 @@
                 </div>
                 <div id="metric-control-panel-buttons" style="border: 1px solid black; flex: none">
                     <input type="button" value="Cancel" ng-click="clearMetric()" ng-disabled="!clearButtonEnabled()">
-                    <input type="button" value="Add" ng-click="addMetric()" ng-show="addButtonVisible()">
-                    <input type="button" value="Delete" ng-click="deleteMetric()" ng-show="deleteButtonVisible()">
-                    <input type="button" value="Save" ng-click="saveMetric()" ng-show="saveButtonVisible()">
+                    <input type="button" value="Add" ng-click="addMetric()" ng-show="addButtonVisible()" ng-disabled="!addButtonVisible()">
+                    <input type="button" value="Delete" ng-click="deleteMetric()" ng-show="deleteButtonVisible()" ng-disabled="!deleteButtonVisible()">
+                    <input type="button" value="Save" ng-click="saveMetric()" ng-show="saveButtonVisible()" ng-disabled="!saveButtonVisible()">
                 </div>
             </div>
 

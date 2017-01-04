@@ -26,6 +26,18 @@ aardvark.directive('aardvarkEnter', function() {
             });
         }
     })
+    .directive('aaCollapsiblePanel', function() {
+        return {
+            restrict: 'E',
+            transclude: true,
+            scope: {
+                toggleTitle: '@title',
+                toggleIcon: '@icon',
+                isCollapsed: '@initialCollapsed'
+            },
+            templateUrl: 'aardvark-collapsible-panel.html'
+        };
+    })
     .controller('AardvarkCtrl', [ '$rootScope', '$scope', '$http', '$location', 'serialisation', 'localStorageService', 'tsdbClient', '$uibModal', function AardvarkCtrl($rootScope, $scope, $http, $location, $serialisation, $localStorageService, $tsdbClient, $uibModal) {
         /*
          * Model persistence - ensures that persistent data is saved to the hash whilst leaving
@@ -288,11 +300,12 @@ aardvark.directive('aardvarkEnter', function() {
             var boolFields = $scope.userPrefs.boolFields;
             for (var key in $scope.userPrefs) {
                 if ($scope.userPrefs.hasOwnProperty(key) && key != "boolFields") {
+                    var valueFromStorage = $localStorageService.get(key);
                     if (boolFields.indexOf(key) >= 0) {
-                        $scope.userPrefs[key] = $localStorageService.get(key) == "true";
+                        $scope.userPrefs[key] = valueFromStorage == "true" || valueFromStorage == true;
                     }
                     else {
-                        $scope.userPrefs[key] = $localStorageService.get(key) == "true";
+                        $scope.userPrefs[key] = valueFromStorage;
                     }
                     $scope.$watch('userPrefs.'+key, function() {
                         $localStorageService.set(key, $scope.userPrefs[key]);

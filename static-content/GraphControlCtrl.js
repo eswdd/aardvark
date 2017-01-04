@@ -13,36 +13,47 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
 
     // per graph settings
     $scope.showEdit={};
-
-    // global settings
-    $scope.relativePeriod = "2h";
-    $scope.absoluteTimeSpecification = false;
-    $scope.autoReload = false;
-    $scope.autoReloadPeriod = "15";
-    $scope.fromDate = "";
-    $scope.fromTime = "";
-    $scope.toDate = "";
-    $scope.toTime = "";
-
-    $scope.autoGraphHeight = true;
-    $scope.minGraphHeight = 0;
-    $scope.graphHeight = 300;
     
-    $scope.globalDownsampling = false;
-    $scope.globalDownsampleTo = "5m";
+    // graph model
+    $scope.graphs = [];
+
+    // global model
+    $scope.model = {};
+    $scope.model.relativePeriod = "2h";
+    $scope.model.absoluteTimeSpecification = false;
+    $scope.model.autoReload = false;
+    $scope.model.autoReloadPeriod = "15";
+    $scope.model.fromDate = "";
+    $scope.model.fromTime = "";
+    $scope.model.toDate = "";
+    $scope.model.toTime = "";
+
+    $scope.model.autoGraphHeight = true;
+    $scope.model.minGraphHeight = 0;
+    $scope.model.graphHeight = 300;
     
-    $scope.baselining = false;
-    $scope.baselineDatumStyle = "relative";
-    $scope.baselineRelativePeriod = "1d";
-    $scope.baselineFromDate = "";
-    $scope.baselineFromTime = "";
-    $scope.baselineToDate = "";
-    $scope.baselineToTime = "";
+    $scope.model.globalDownsampling = false;
+    $scope.model.globalDownsampleTo = "5m";
+    
+    $scope.model.baselining = false;
+    $scope.model.baselineDatumStyle = "relative";
+    $scope.model.baselineRelativePeriod = "1d";
+    $scope.model.baselineFromDate = "";
+    $scope.model.baselineFromTime = "";
+    $scope.model.baselineToDate = "";
+    $scope.model.baselineToTime = "";
     
 
-    $scope.$watch('globalDownsampling', function() {
-        $rootScope.$emit('globalDownsamplingChanged', $scope.globalDownsampling);
-    });
+
+    $scope.bindWatchExpressions = function() {
+        $scope.$watch('model.globalDownsampling', function(newVal, oldVal, scope) {
+            $rootScope.$emit('globalDownsamplingChanged', newVal);
+        });
+
+        $scope.$watch('model.absoluteTimeSpecification', function(newVal, oldVal, scope) {
+            $scope.saveAndRenderGraphsIfAutoUpdate();
+        });
+    }
     
     $scope.showGnuplotStyles = function() {
         return $tsdbClient.versionNumber >= $tsdbClient.TSDB_2_2;
@@ -53,6 +64,7 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
     }
     
     $scope.now = function() {
+        // todo: doesn't appeat to be working - no change on ui
         if ($scope.autoReload) {
             $scope.saveAndRenderGraphs();
         }
@@ -63,32 +75,45 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
         }
         
     }
+    
+    $scope.setCountFilterEnd = function(graph, end) {
+        graph.dygraph.countFilter.end = end;
+    }
+    
+    $scope.setCountFilterMeasure = function(graph, measure) {
+        graph.dygraph.countFilter.measure = measure;
+    }
+    
+    $scope.setValueFilterMeasure = function(graph, measure) {
+        graph.dygraph.valueFilter.measure = measure;
+    }
 
     $scope.loadModel = function(datum) {
         // initial state
         $scope.isOpen={};
-        $scope.graphs = [];
         $scope.showEdit={};
-        $scope.relativePeriod = "2h";
-        $scope.absoluteTimeSpecification = false;
-        $scope.autoReload = false;
-        $scope.autoReloadPeriod = "15";
-        $scope.fromDate = "";
-        $scope.fromTime = "";
-        $scope.toDate = "";
-        $scope.toTime = "";
-        $scope.autoGraphHeight = true;
-        $scope.minGraphHeight = 0;
-        $scope.graphHeight = 300;
-        $scope.globalDownsampling = false;
-        $scope.globalDownsampleTo = "5m";
-        $scope.baselining = false;
-        $scope.baselineDatumStyle = "relative";
-        $scope.baselineRelativePeriod = "1d";
-        $scope.baselineFromDate = "";
-        $scope.baselineFromTime = "";
-        $scope.baselineToDate = "";
-        $scope.baselineToTime = "";
+        
+        $scope.graphs = [];
+        $scope.model.relativePeriod = "2h";
+        $scope.model.absoluteTimeSpecification = false;
+        $scope.model.autoReload = false;
+        $scope.model.autoReloadPeriod = "15";
+        $scope.model.fromDate = "";
+        $scope.model.fromTime = "";
+        $scope.model.toDate = "";
+        $scope.model.toTime = "";
+        $scope.model.autoGraphHeight = true;
+        $scope.model.minGraphHeight = 0;
+        $scope.model.graphHeight = 300;
+        $scope.model.globalDownsampling = false;
+        $scope.model.globalDownsampleTo = "5m";
+        $scope.model.baselining = false;
+        $scope.model.baselineDatumStyle = "relative";
+        $scope.model.baselineRelativePeriod = "1d";
+        $scope.model.baselineFromDate = "";
+        $scope.model.baselineFromTime = "";
+        $scope.model.baselineToDate = "";
+        $scope.model.baselineToTime = "";
         
         // now load the model
         var model = $rootScope.model;
@@ -104,46 +129,46 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
                 var twoHoursAgo = now.subtract(2, "hours");
                 if (model.global.absoluteTimeSpecification) {
                     if (model.global.fromDate != null && model.global.fromDate != "") {
-                        $scope.fromDate = model.global.fromDate;
+                        $scope.model.fromDate = model.global.fromDate;
                     }
                     else {
-                        $scope.fromDate = twoHoursAgo.format("YYYY/MM/DD");
+                        $scope.model.fromDate = twoHoursAgo.format("YYYY/MM/DD");
                     }
                     if (model.global.fromTime != null && model.global.fromTime != "") {
-                        $scope.fromTime = model.global.fromTime;
+                        $scope.model.fromTime = model.global.fromTime;
                     }
                     else {
-                        $scope.fromTime = twoHoursAgo.format("HH:mm:ss");
+                        $scope.model.fromTime = twoHoursAgo.format("HH:mm:ss");
                     }
-                    $scope.relativePeriod = "";
+                    $scope.model.relativePeriod = "";
                 }
                 else {
                     if (model.global.relativePeriod != null && model.global.relativePeriod != "") {
-                        $scope.relativePeriod = model.global.relativePeriod;
+                        $scope.model.relativePeriod = model.global.relativePeriod;
                     }
                     else {
-                        $scope.relativePeriod = "2h";
+                        $scope.model.relativePeriod = "2h";
                     }
-                    $scope.fromDate = "";
-                    $scope.fromTime = "";
+                    $scope.model.fromDate = "";
+                    $scope.model.fromTime = "";
                 }
-                $scope.autoReload = model.global.autoReload;
-                $scope.autoReloadPeriod = model.global.autoReloadPeriod;
-                $scope.absoluteTimeSpecification = model.global.absoluteTimeSpecification;
-                $scope.toDate = model.global.toDate;
-                $scope.toTime = model.global.toTime;
-                $scope.globalDownsampling = model.global.globalDownsampling;
-                $scope.globalDownsampleTo = model.global.globalDownsampleTo;
-                $scope.baselining = model.global.baselining;
-                $scope.baselineDatumStyle = model.global.baselineDatumStyle;
-                $scope.baselineRelativePeriod = model.global.baselineRelativePeriod;
-                $scope.baselineFromDate = model.global.baselineFromDate;
-                $scope.baselineFromTime = model.global.baselineFromTime;
-                $scope.baselineToDate = model.global.baselineToDate;
-                $scope.baselineToTime = model.global.baselineToTime;
-                $scope.graphHeight = model.global.graphHeight;
-                $scope.minGraphHeight = model.global.minGraphHeight;
-                $scope.autoGraphHeight = model.global.autoGraphHeight;
+                $scope.model.autoReload = model.global.autoReload;
+                $scope.model.autoReloadPeriod = model.global.autoReloadPeriod;
+                $scope.model.absoluteTimeSpecification = model.global.absoluteTimeSpecification;
+                $scope.model.toDate = model.global.toDate;
+                $scope.model.toTime = model.global.toTime;
+                $scope.model.globalDownsampling = model.global.globalDownsampling;
+                $scope.model.globalDownsampleTo = model.global.globalDownsampleTo;
+                $scope.model.baselining = model.global.baselining;
+                $scope.model.baselineDatumStyle = model.global.baselineDatumStyle;
+                $scope.model.baselineRelativePeriod = model.global.baselineRelativePeriod;
+                $scope.model.baselineFromDate = model.global.baselineFromDate;
+                $scope.model.baselineFromTime = model.global.baselineFromTime;
+                $scope.model.baselineToDate = model.global.baselineToDate;
+                $scope.model.baselineToTime = model.global.baselineToTime;
+                $scope.model.graphHeight = model.global.graphHeight;
+                $scope.model.minGraphHeight = model.global.minGraphHeight;
+                $scope.model.autoGraphHeight = model.global.autoGraphHeight;
             }
         }
         $scope.saveAndRenderGraphs();
@@ -264,28 +289,30 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
         $rootScope.model.graphs = $scope.deepClone($scope.graphs);
 
         $rootScope.model.global = {
-            fromDate: $scope.fromDate,
-            fromTime: $scope.fromTime,
-            autoReload: $scope.autoReload,
-            autoReloadPeriod: $scope.autoReloadPeriod,
-            absoluteTimeSpecification: $scope.absoluteTimeSpecification,
-            relativePeriod: $scope.relativePeriod,
-            toDate: $scope.toDate,
-            toTime: $scope.toTime,
-            globalDownsampling: $scope.globalDownsampling,
-            globalDownsampleTo: $scope.globalDownsampleTo,
-            baselining: $scope.baselining,
-            baselineDatumStyle: $scope.baselineDatumStyle,
-            baselineRelativePeriod: $scope.baselineRelativePeriod,
-            baselineFromDate: $scope.baselineFromDate,
-            baselineFromTime: $scope.baselineFromTime,
-            baselineToDate: $scope.baselineToDate,
-            baselineToTime: $scope.baselineToTime,
-            graphHeight: $scope.graphHeight,
-            minGraphHeight: $scope.minGraphHeight,
-            autoGraphHeight: $scope.autoGraphHeight
+            fromDate: $scope.model.fromDate,
+            fromTime: $scope.model.fromTime,
+            autoReload: $scope.model.autoReload,
+            autoReloadPeriod: $scope.model.autoReloadPeriod,
+            absoluteTimeSpecification: $scope.model.absoluteTimeSpecification,
+            relativePeriod: $scope.model.relativePeriod,
+            toDate: $scope.model.toDate,
+            toTime: $scope.model.toTime,
+            globalDownsampling: $scope.model.globalDownsampling,
+            globalDownsampleTo: $scope.model.globalDownsampleTo,
+            baselining: $scope.model.baselining,
+            baselineDatumStyle: $scope.model.baselineDatumStyle,
+            baselineRelativePeriod: $scope.model.baselineRelativePeriod,
+            baselineFromDate: $scope.model.baselineFromDate,
+            baselineFromTime: $scope.model.baselineFromTime,
+            baselineToDate: $scope.model.baselineToDate,
+            baselineToTime: $scope.model.baselineToTime,
+            graphHeight: $scope.model.graphHeight,
+            minGraphHeight: $scope.model.minGraphHeight,
+            autoGraphHeight: $scope.model.autoGraphHeight
         };
         $rootScope.saveModel(true);
     }
+    
+    $scope.bindWatchExpressions();
     $rootScope.onConfigUpdate($scope.loadModel);
 }]);

@@ -534,27 +534,27 @@ describe('Aardvark controllers', function () {
         it('should setup the date/time correctly when loading an empty model', function() {
             rootScope.model.global.absoluteTimeSpecification = false;
             scope.loadModel();
-            expect(scope.relativePeriod).toEqualData("2h");
-            expect(scope.fromDate).toEqualData("");
-            expect(scope.fromTime).toEqualData("");
-            expect(scope.toDate).toEqualData("");
-            expect(scope.toDate).toEqualData("");
+            expect(scope.model.relativePeriod).toEqualData("2h");
+            expect(scope.model.fromDate).toEqualData("");
+            expect(scope.model.fromTime).toEqualData("");
+            expect(scope.model.toDate).toEqualData("");
+            expect(scope.model.toDate).toEqualData("");
         });
         
         it('should setup the date/time correctly when loading a model with an invalid date/time', function() {
             rootScope.model.graphs = [{}];
             rootScope.model.global.absoluteTimeSpecification = false;
             scope.loadModel();
-            expect(scope.relativePeriod).toEqualData("2h");
-            expect(scope.fromDate).toEqualData("");
-            expect(scope.fromTime).toEqualData("");
+            expect(scope.model.relativePeriod).toEqualData("2h");
+            expect(scope.model.fromDate).toEqualData("");
+            expect(scope.model.fromTime).toEqualData("");
 
             var datum = moment.utc("2016/08/20 12:10:10", "YYYY/MM/DD HH:mm:ss");
             rootScope.model.global.absoluteTimeSpecification = true;
             scope.loadModel(datum);
-            expect(scope.relativePeriod).toEqualData("");
-            expect(scope.fromDate).toEqualData("2016/08/20");
-            expect(scope.fromTime).toEqualData("10:10:10");
+            expect(scope.model.relativePeriod).toEqualData("");
+            expect(scope.model.fromDate).toEqualData("2016/08/20");
+            expect(scope.model.fromTime).toEqualData("10:10:10");
         });
 
 

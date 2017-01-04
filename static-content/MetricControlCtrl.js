@@ -53,7 +53,8 @@ aardvark.directive('tagFilterSelection', function() {
     });
 
     $scope.addButtonVisible = function() {
-        return $scope.selectedMetric != "";
+        var ret = $scope.selectedMetric != "";
+        return ret;
     };
     $scope.deleteButtonVisible = function() {
         return $scope.selectedMetricId != "0";
@@ -328,7 +329,7 @@ aardvark.directive('tagFilterSelection', function() {
         };
         $rootScope.saveModel(true);
         $scope.selectedMetric = "";
-        $scope.selectedMetricId = metric.id;
+        $scope.selectedMetricId = "" + metric.id;
     }
 
     $scope.addTagRow = function(tagk) {
