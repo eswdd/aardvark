@@ -132,21 +132,31 @@ The dygraph renderer uses Dygraph to provide client-side rendered time series ch
 
 #### Rendering controls
 
+![dygraph rendering options screenshot](graph_controls_dygraph_rendering.png)
+
 TODO
 
 #### y-Axis controls
+
+![dygraph y-axis options screenshot](graph_controls_dygraph_yaxis.png)
 
 TODO
 
 #### Annotations
 
+![dygraph annotations options screenshot](graph_controls_dygraph_annotations.png)
+
 TODO
 
 #### Filtering controls
 
+![dygraph filtering options screenshot](graph_controls_dygraph_filtering.png)
+
 TODO
 
 #### Specials
+
+![dygraph specials options screenshot](graph_controls_dygraph_specials.png)
 
 TODO
 
