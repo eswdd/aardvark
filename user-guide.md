@@ -102,6 +102,8 @@ Aardvark supports rendering multiple graphs for the same time period, with the a
 
 ### Graph management
 
+![graph management screenshot](graph_controls_common.png)
+
 Aardvark defaults to a single graph, the renderer for which can be defaulted via (configuration)[config.html].
 
 New graphs can be added by clicking 'Add graph' at the bottom of the graph controls panel.
@@ -112,9 +114,13 @@ Additions and deletions of graphs are not applied to the render view until 'Save
 
 ### Gnuplot renderer
 
+![gnuplot options screenshot](graph_controls_gnuplot.png)
+
 The gnuplot renderer uses OpenTSDB to render timeseries charts on the server and the controls available mirror those found on the default OpenTSDB user interface.
 
 ### Horizon renderer
+
+![horizon options screenshot](graph_controls_horizon.png)
 
 The horizon renderer uses Cubism from Square.io to render horizon charts, horizon charts are particularly useful for spotting event correlations across a large number of timeseries.
  
@@ -146,6 +152,8 @@ TODO
 
 ### Scatter renderer
 
+![scatter options screenshot](graph_controls_scatter.png)
+
 The scatter renderer uses Dygraph to plot metrics against each other, this is particularly useful for determining strength or manner of correlation.
 
 The scatter renderer requires exactly 2 time series to be able to render and will show a point for a point in time where a value exists for both plotted series. If you have time series which don't often have points at the same time you may find downsampling will help.
@@ -155,6 +163,8 @@ Control over the scatter renderer is currently limited to:
 * Swap axes - changes metric assignment between the 2 axes. 
 
 ### Heatmap renderer
+
+![heatmap options screenshot](graph_controls_heatmap.png)
 
 The heatmap renderer uses D3 to render calendar based grids showing the magnitude of a timeseries over time, it is well suited to identifying recurring time-based events.
 
