@@ -56,9 +56,9 @@
         <span class="top-panel-item"><img src="aardvark_icon.png"/>1.4.0&nbsp;|&nbsp;<a href="user_guide/user-guide.html" target="_blank">Manual</a></span>
         <span class="top-panel-title">Aardvark - An OpenTSDB Visualiser</span>
         <span class="top-panel-item">
-            <button ng-click="showUserPrefsDialog()">User&nbsp;Preferences</button>
+            <button class="btn btn-primary btn-xs"ng-click="showUserPrefsDialog()">User&nbsp;Preferences</button>
             <!--button ng-click="undoAll()">Undo</button-->
-            <button ng-click="clearAll()">Reset</button>
+            <button class="btn btn-warning btn-xs" ng-click="clearAll()">Reset</button>
         </span>
     </div>
 
@@ -79,8 +79,8 @@
             </table>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">Save</button>
-            <button class="btn btn-warning" type="button" ng-click="$ctrl.cancel()">Cancel</button>
+            <button class="btn btn-primary btn-xs" type="button" ng-click="$ctrl.ok()">Save</button>
+            <button class="btn btn-warning btn-xs" type="button" ng-click="$ctrl.cancel()">Cancel</button>
         </div>
     </script>
 
@@ -615,9 +615,9 @@
                         </table>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!$ctrl.allowEdit()">Save</button>
-                        <button class="btn btn-warning" type="button" ng-click="$ctrl.delete()" ng-show="$ctrl.allowAnnotationDelete()" ng-disabled="!$ctrl.allowEdit()">Delete</button>
-                        <button class="btn btn-warning" type="button" ng-click="$ctrl.cancel()">Cancel</button>
+                        <button class="btn btn-primary btn-xs" type="button" ng-click="$ctrl.ok()" ng-disabled="!$ctrl.allowEdit()">Save</button>
+                        <button class="btn btn-warning btn-xs" type="button" ng-click="$ctrl.delete()" ng-show="$ctrl.allowAnnotationDelete()" ng-disabled="!$ctrl.allowEdit()">Delete</button>
+                        <button class="btn btn-warning btn-xs" type="button" ng-click="$ctrl.cancel()">Cancel</button>
                     </div>
                 </script>
 
@@ -627,12 +627,12 @@
             <div ng-controller="MetricControlCtrl" style="height: 100%; display: flex; flex-flow: column nowrap; justify-content: space-between; align-items: stretch" >
                 <div id="metric-control-panel-tree" style="border: 1px solid black; flex: 1 1 auto; flex-basis: 50%;  overflow-y: scroll" class="metric-control-panel">
                     <div>
-                        <input type="button" value="+" ng-click="expandAll()" ng-show="expandAllVisible()" alt="Expand all nodes">
-                        <input type="button" value="-" ng-click="collapseAll()" alt="Collapse all nodes">
-                        <input type="button" value="F" ng-click="showHideFilterInput()" ng-show="treeFilterButtonVisible()" alt="Filter...">
-                        <input type="button" value="R" ng-click="updateTree()" alt="Update tree from TSDB">
-                        <input type="button" value="S" ng-click="showIgnoredPrefixes()" ng-show="showIgnoredPrefixesVisible()" alt="Show ignored prefixes">
-                        <input type="button" value="H" ng-click="hideIgnoredPrefixes()" ng-show="hideIgnoredPrefixesVisible()" alt="Hide ignored prefixes">
+                        <input class="btn btn-primary btn-xs" type="button" value="+" ng-click="expandAll()" ng-show="expandAllVisible()" alt="Expand all nodes">
+                        <input class="btn btn-primary btn-xs" type="button" value="-" ng-click="collapseAll()" alt="Collapse all nodes">
+                        <input class="btn btn-primary btn-xs" type="button" value="F" ng-click="showHideFilterInput()" ng-show="treeFilterButtonVisible()" alt="Filter...">
+                        <input class="btn btn-primary btn-xs" type="button" value="R" ng-click="updateTree()" alt="Update tree from TSDB">
+                        <input class="btn btn-primary btn-xs" type="button" value="S" ng-click="showIgnoredPrefixes()" ng-show="showIgnoredPrefixesVisible()" alt="Show ignored prefixes">
+                        <input class="btn btn-primary btn-xs" type="button" value="H" ng-click="hideIgnoredPrefixes()" ng-show="hideIgnoredPrefixesVisible()" alt="Hide ignored prefixes">
                     </div>
                     <div ng-show="treeFilterVisible()">
                         <input type="text" ng-model="filter">
@@ -655,12 +655,12 @@
                 </div>
                 <div id="metric-control-panel-metric"  style="border-right: 1px solid black; border-left: 1px solid black;; border-top: 1px solid black; flex: 1 0 auto; flex-basis: 50%; margin-top: 14px;" class="metric-control-panel" resizable r-directions="['top']" r-flex="true">
                     <div>
-                        <label for="metricControl_selectMetric">Metric</label>
-                        <select id="metricControl_selectMetric" ng-model="selectedMetricId" ng-change="nodeSelectedForEditing()" ng-disabled="nodeSelectionDisabled">
+                        <label for="metricControl_selectMetric" style="vertical-align: middle">Metric</label>
+                        <select id="metricControl_selectMetric" style="vertical-align: middle" ng-model="selectedMetricId" ng-change="nodeSelectedForEditing()" ng-disabled="nodeSelectionDisabled">
                             <option ng-repeat="metric in model.metrics track by metric.id" value="{{metric.id}}">{{metric.name}}</option>
                         </select>
                         <input type="text" id="metricControl_metricName"  style="width: 0; height: 0; color: rgba(0,0,0,0); background-color: rgba(0,0,0,0); border: none" value="{{currentMetricName()}}" />
-                        <button style="padding: 1px" class="glyphicon glyphicon-copy" ngclipboard data-clipboard-target="#metricControl_metricName" ng-disabled="currentMetricName() == null">
+                        <button style="padding: 1px; vertical-align: top" class="btn btn-primary btn-xs glyphicon glyphicon-copy" ngclipboard data-clipboard-target="#metricControl_metricName" ng-disabled="currentMetricName() == null">
                         </button> 
                     </div>
 
@@ -740,10 +740,10 @@
                     </div>
                 </div>
                 <div id="metric-control-panel-buttons" style="border: 1px solid black; flex: none">
-                    <input type="button" value="Cancel" ng-click="clearMetric()" ng-disabled="!clearButtonEnabled()">
-                    <input type="button" value="Add" ng-click="addMetric()" ng-show="addButtonVisible()" ng-disabled="!addButtonVisible()">
-                    <input type="button" value="Delete" ng-click="deleteMetric()" ng-show="deleteButtonVisible()" ng-disabled="!deleteButtonVisible()">
-                    <input type="button" value="Save" ng-click="saveMetric()" ng-show="saveButtonVisible()" ng-disabled="!saveButtonVisible()">
+                    <input type="button" class="btn btn-primary btn-xs" value="Cancel" ng-click="clearMetric()" ng-disabled="!clearButtonEnabled()">
+                    <input type="button" class="btn btn-primary btn-xs" value="Add" ng-click="addMetric()" ng-show="addButtonVisible()" ng-disabled="!addButtonVisible()">
+                    <input type="button" class="btn btn-primary btn-xs" value="Delete" ng-click="deleteMetric()" ng-show="deleteButtonVisible()" ng-disabled="!deleteButtonVisible()">
+                    <input type="button" class="btn btn-primary btn-xs" value="Save" ng-click="saveMetric()" ng-show="saveButtonVisible()" ng-disabled="!saveButtonVisible()">
                 </div>
             </div>
 
