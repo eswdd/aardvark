@@ -73,17 +73,26 @@ Aardvark also allows you to auto-reload (rerender) the graphs every entered time
 
 ### Downsampling
 
-TODO
+By default, Aardvark permits downsampling to be specified on a per metric query basis, the global downsampling section allows forcible downsampling of all queries to the same period. The aggregator to be used is still specified by the metric query.
 
 ### Baselining
 
-TODO
+Baselining allows the comparison of the time period being queried with an earlier period in time to allow comparisons to occur (typically after a change has been made). An extra timeseries will be added for each resulting timeseries from your queries with a \[BL\] suffix for renderers which support this (currently only dygraph).
+
+The period is determined using a baselining style or method, which must be one of:
+
+* *Relative offset* - calculates the start and end times of the baseline period by offsetting from the main time period start and end times (derived or specified)
+* *From date/time* - the user specifies the start time of the baseline period and the end time is calculated by adding the time difference from the main time period
+* *To date/time* - the user specifies the end time of the baseline period and the start time is calculated by adding the time difference from the main time period
+
+Baselining may give odd results when combined with certain other graph options.
 
 ### Graph height
 
 If you have only one graph then this will be stretched to use up all the vertical space on the screen.
 
 Once you have more than one, then you will be provided with more control over how the vertical space is used:
+
 * *Auto graph-height* will ensure a minimum height for each graph and will distribute extra space to each
 * *Fixed graph-height* will force the height of each graph to a specific value
 
@@ -117,13 +126,23 @@ The dygraph renderer uses Dygraph to provide client-side rendered time series ch
 
 #### Rendering controls
 
+TODO
+
 #### y-Axis controls
+
+TODO
 
 #### Annotations
 
+TODO
+
 #### Filtering controls
 
+TODO
+
 #### Specials
+
+TODO
 
 ### Scatter renderer
 
@@ -205,4 +224,4 @@ If UI wide exclusions have been configured then the show (S) and hide (H) button
 
 ![metric controls screenshot](metric_controls.png)
 
-ipso lorem...
+TODO
