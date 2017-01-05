@@ -331,13 +331,13 @@ describe('Aardvark controllers', function () {
             scope.renderErrors = {};
             scope.renderWarnings = {};
 //
-            var global = { relativePeriod: "2w", autoReload: false };
+            var global = { fromDate: "2016/10/10", fromTime: "10:10:10", toDate: "2016/10/24", toTime: "10:10:10", absoluteTimeSpecification: true };
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "week_day" } };
             var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
             scope.renderers.heatmap(global, graph, metrics);
             
-            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2w-ago&ignore=1&m=sum:1d-avg:metric1&ms=true&arrays=true").respond([
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/10/10 10:10:10&end=2016/10/24 10:10:10&m=sum:1d-avg:metric1&ms=true&arrays=true").respond([
                 {metric: "metric1", tags: {}, dps:[
                     [1234483200000, 10],
                     [1234569600000, 20],
@@ -370,13 +370,13 @@ describe('Aardvark controllers', function () {
             scope.renderErrors = {};
             scope.renderWarnings = {};
 //
-            var global = { relativePeriod: "2w", autoReload: false };
+            var global = { fromDate: "2016/10/10", fromTime: "10:10:10", toDate: "2016/10/24", toTime: "10:10:10", absoluteTimeSpecification: true };
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "week_day", excludeNegative: true } };
             var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
             scope.renderers.heatmap(global, graph, metrics);
             
-            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2w-ago&ignore=1&m=sum:1d-avg:metric1&ms=true&arrays=true").respond([
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/10/10 10:10:10&end=2016/10/24 10:10:10&m=sum:1d-avg:metric1&ms=true&arrays=true").respond([
                 {metric: "metric1", tags: {}, dps:[
                     [1234483200000, -10],
                     [1234569600000, 20],
