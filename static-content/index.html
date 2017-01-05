@@ -170,7 +170,7 @@
                 <uib-accordion close-others="true" style="border-right: solid 1px black; flex: 1 1 auto; overflow: auto; height: 10px" class="graph-control-panel">
                     <div uib-accordion-group heading="{{graph.title}}" is-open="isOpen[graph.id]" ng-repeat="graph in graphs track by graph.id">
 
-                        <aa-collapsible-panel title="Title / Type" initial-collapsed="showEdit[graph.id]">
+                        <aa-collapsible-panel title="Title / Type" initial-collapsed="false">
                             <input type="text" ng-model="graph.title" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
 
                             <select ng-model="graph.type" ng-show="graphTypes.length > 1" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
@@ -707,16 +707,16 @@
                         </div>
 
                         <div>
-                            <span ng-repeat="tagk in tagNames" style="padding-right: 3px"><button class="btn btn-primary btn-xs" ng-click="addTagRow(tagk)" tooltip-append-to-body="true" uib-tooltip="Add tag row: {{tagValues[tagk].length}} unique values">+ {{tagk}} <span class="badge">{{tagValues[tagk].length}}</span></button></span>
+                            <span ng-repeat="tagk in tagNames" style="padding-right: 3px"><button class="btn btn-primary btn-xs" ng-click="addTagRow(tagk)" uib-tooltip="Add tag row: {{tagValues[tagk].length}} unique values">+ {{tagk}} <span class="badge">{{tagValues[tagk].length}}</span></button></span>
                         </div>
 
                         <div ng-show="tagFilteringSupported()">
                             <table cellspacing="3">
                                 <tr ng-repeat="tag in tagFilters track by tag.id">
-                                    <td><span class="glyphicon glyphicon-remove-circle" style="cursor: pointer; cursor: hand; padding-right: 3px" ng-click="deleteTagRow(tag.id)" tooltip-append-to-body="true" uib-tooltip="Remove row" tooltip-placement="right"></span></td>
+                                    <td><span class="glyphicon glyphicon-remove-circle" style="cursor: pointer; cursor: hand; padding-right: 3px" ng-click="deleteTagRow(tag.id)" uib-tooltip="Remove row" tooltip-placement="right"></span></td>
                                     <td style="padding-right: 3px"><span>{{tag.name}}</span></td>
                                     <td style="width: 100%; padding-right: 3px"><div tag-filter-selection></div></td>
-                                    <td><input type="checkbox" ng-model="tag.groupBy"  tooltip-append-to-body="true" uib-tooltip="Group by" tooltip-placement="left" /></td>
+                                    <td><input type="checkbox" ng-model="tag.groupBy" ng-disabled="false" uib-tooltip="Group by" tooltip-placement="left" /></td>
                                 </tr>
                             </table>
                         </div>
@@ -724,7 +724,7 @@
                         <div ng-hide="tagFilteringSupported()">
                             <table cellspacing="3">
                                 <tr ng-repeat="tag in tagFilters track by tag.id">
-                                    <td><span class="glyphicon glyphicon-remove-circle" style="cursor: pointer; cursor: hand; padding-right: 3px" ng-click="deleteTagRow(tag.id)" tooltip-append-to-body="true" uib-tooltip="Remove row" tooltip-placement="right"></span></td>
+                                    <td><span class="glyphicon glyphicon-remove-circle" style="cursor: pointer; cursor: hand; padding-right: 3px" ng-click="deleteTagRow(tag.id)" uib-tooltip="Remove row" tooltip-placement="right"></span></td>
                                     <td style="padding-right: 3px"><span>{{tag.name}}</span></td>
                                     <td style="width: 100%; padding-right: 3px"><div tag-filter-selection></div></td>
                                 </tr>
