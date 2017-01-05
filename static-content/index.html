@@ -176,6 +176,8 @@
                             <select ng-model="graph.type" ng-show="graphTypes.length > 1" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
                                 <option ng-repeat="type in graphTypes">{{type}}</option>
                             </select>
+
+                            <button class="btn btn-primary btn-xs" ng-click="deleteGraph(graph.id)">Delete</button>
                         </aa-collapsible-panel>
         
                         <div ng-show="graph.type == 'gnuplot'">
