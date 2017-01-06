@@ -16,6 +16,7 @@ A brief list of features:
   * Mean weighted charts
   * Horizon charts
   * Scatter charts
+  * Heatmap charts
 * Auto scaling
 * Stacked charts
 * Filtering by value or top/bottom timeseries
@@ -23,12 +24,12 @@ A brief list of features:
 * Tree based metric selection
 * Baselining - compare a time series to an earlier version of itself
 * View annotations
+* Add/edit annotations
 
 Intended additional features:
 * Auto-downsampling of series to prevent browser 'lock-up'
 * Filter UI by tag key/value and or time range
 * Popout to Gnuplot image
-* Add/edit annotations
 * Metadata viewer
 
 Getting started
