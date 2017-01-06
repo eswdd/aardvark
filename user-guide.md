@@ -134,7 +134,17 @@ The dygraph renderer uses Dygraph to provide client-side rendered time series ch
 
 ![dygraph rendering options screenshot](graph_controls_dygraph_rendering.png)
 
-TODO
+These options affect how time series are rendered. Some of these options may clash in unexpected ways, but full control is left to the user to mix and match as appropriate (unless otherwise noted).
+
+Gap interpolation draws a line between known points for a time series when there is another time series displayed with a point between them (this is only a gap in the data if you expect both time series to emit data points at the same time and no deduping of data points is occurring). If gap interpolation is disabled then a gap is shown in the time series.
+
+Highlight lines isn't really a rendering option, but more an interaction option - if enabled then hovering the mouse over a time series will highlight it in bold, useful for when you have many time series and want to pick on out.
+
+Stacked lines renders all time series on on top of the other, this includes baselines so mileage may vary there.
+
+Ratio graph renders each line by plotting the ratio of its value to the sum of all time series' values as a percentage at each point on the graph.
+
+Mean adjustment plots each line as a positive or negative difference from the average of all time series on a point by point basis. Quite handy when combined with a ratio graph to see how load is distributed across a cluster.
 
 #### y-Axis controls
 
@@ -151,12 +161,6 @@ TODO
 #### Filtering controls
 
 ![dygraph filtering options screenshot](graph_controls_dygraph_filtering.png)
-
-TODO
-
-#### Specials
-
-![dygraph specials options screenshot](graph_controls_dygraph_specials.png)
 
 TODO
 
