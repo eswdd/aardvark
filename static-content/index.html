@@ -365,6 +365,10 @@
                                     <input type="checkbox" id="ratioDygraph" ng-model="graph.dygraph.ratioGraph" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                     <label for="ratioDygraph">Ratio graph?</label>
                                 </div>
+                                <div>
+                                    <input type="checkbox" id="meanAdjustedDygraph" ng-model="graph.dygraph.meanAdjusted" ng-disabled="graph.dygraph.y1SquashNegative || graph.dygraph.y2SquashNegative" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                    <label for="meanAdjustedDygraph" class="form-label">Mean adjusted?</label>
+                                </div>
                             </aa-collapsible-panel>
                             <aa-collapsible-panel title="y-Axis Control" initial-collapsed="true">
                                 <table>
@@ -462,12 +466,6 @@
                                     </div>
                                     &lt;=
                                     <input class="form-control form-control-xs form-control-inline" type="text" style="width: 40px" ng-model="graph.dygraph.valueFilter.upperBound" />
-                                </div>
-                            </aa-collapsible-panel>
-                            <aa-collapsible-panel title="Specials" initial-collapsed="true">
-                                <div>
-                                    <input type="checkbox" id="meanAdjustedDygraph" ng-model="graph.dygraph.meanAdjusted" ng-disabled="graph.dygraph.y1SquashNegative || graph.dygraph.y2SquashNegative" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                    <label for="meanAdjustedDygraph" class="form-label">Mean adjusted?</label>
                                 </div>
                             </aa-collapsible-panel>
                         </div>
