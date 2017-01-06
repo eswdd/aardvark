@@ -33,7 +33,7 @@ Various fields allow the specification of time periods. Aardvark uses the same s
 * **h** - hours
 * **d** - days
 * **w** - weeks
-* **n** - months - TODO
+* **n** - months - Not currently supported!
 * **y** - years
 
 ### Date/time formats
@@ -260,4 +260,14 @@ If UI wide exclusions have been configured then the show (S) and hide (H) button
 
 ![metric controls screenshot](metric_controls.png)
 
-TODO
+The metric controls allow you to customise the query performed for a metric and assign the resulting time series to a graph. If you wish you can assign queries to the special "None" graph, allowing interesting queries to be stored for later use. Almost all options found here mirror those found in OpenTSDB
+
+* *Aggregator* - indicates what aggregation function to perform to when merging multiple underlying time series into a resulting series
+* *Right axis* - plot results of this query on the right axis (only relevant for renderers support multiple axes)
+* *Rate* - converts all of the time series for the metric to a rate of change value
+* *Rate Ctr* - indicates that the metric graphed is a monotonically increasing counter
+* *Counter max* - maximum value for the counter so that roll over is represented correctly (rather than as a negative rate)
+* *Counter reset* - you can choose to set a reset value to replace values with a zero if the rate is greater than the value. To avoid negative spikes it's generally save to set the rate counter with a reset value of 1
+* *Downsample* - used to reduce the number of data points displayed on the graph. Use down sampling to reduce the number of points. Simply choose an aggregation function from the drop down list, then enter a time interval in the second box. The interval must follow the relative date format.
+
+Additionally if more than one time series are known for a given metric you may add one or more tag queries. To do so, click on the tag you wish to query (the number in the badge is the number of unique values for this metric) which presents a tag row. This allows you to select whether to group by the values (only in TSDB 2.2 onwards) resulting from the query in addition to entering your query. If you specify multiple queries for a single tag these are ANDed together by OpenTSDB.
