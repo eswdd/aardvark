@@ -151,7 +151,7 @@ The dygraph renderer supports both a left (Y) and right (Y2) axis and each can b
 * *Squash -ve* - excludes negative points from the chart. Incompatible with mean adjusted charts.
 * *Auto scale* - Scales timeseries to the same order of magnitude using the max absolute value from each unique metric name. Incompatible with logarithmic axes
 * *Logarithmic y-axis* - plots points on a logarithmic scale (the default is linear). Incompatible with auto scaling.
-* *Range* - in the format *\[<min>:<max>\]* (where the square brackets, <min> and <max> are all optional. Limits the rendered points to those within the range given (inclusive).
+* *Range* - in the format * \[&lt;min&gt;:&lt;max>\] * (where the square brackets, &lt;min> and &lt;max> are all optional. Limits the rendered points to those within the range given (inclusive).
 
 
 #### Annotations
