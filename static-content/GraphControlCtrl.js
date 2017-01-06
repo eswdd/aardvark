@@ -76,6 +76,10 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
         
     }
     
+    $scope.setGraphType = function(graph, type) {
+        graph.type = type;
+    }
+    
     $scope.setCountFilterEnd = function(graph, end) {
         graph.dygraph.countFilter.end = end;
     }

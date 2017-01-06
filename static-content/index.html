@@ -173,11 +173,16 @@
                         <aa-collapsible-panel title="Title / Type" initial-collapsed="false">
                             <input type="text" ng-model="graph.title" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
 
-                            <select ng-model="graph.type" ng-show="graphTypes.length > 1" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
-                                <option ng-repeat="type in graphTypes">{{type}}</option>
-                            </select>
+                            <div class="btn-group btn-group-xs" uib-dropdown is-open="wibble3" style="display: inline-block">
+                                <button style="width: 70px; text-align: left" id="single-button3" type="button" class="btn btn-primary btn-xs" uib-dropdown-toggle ng-disabled="disabled">
+                                    <span>{{graph.type}}</span> <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="single-button2">
+                                    <li ng-repeat="type in graphTypes" role="menuitem"><a ng-click="setGraphType(graph, type)">{{type}}</a></li>
+                                </ul>
+                            </div>
 
-                            <button class="btn btn-primary btn-xs" ng-click="deleteGraph(graph.id)">Delete</button>
+                            <button class="btn btn-primary btn-xs" ng-click="deleteGraph(graph.id)"><span class="glyphicon glyphicon-trash"></span></button>
                         </aa-collapsible-panel>
         
                         <div ng-show="graph.type == 'gnuplot'">
@@ -448,7 +453,7 @@
                                         </ul>
                                     </div>
                                 </div>
-                                <div class="standard-border" style="border-bottom: 1px groove #808080; padding: 2px">
+                                <div style="border-width: 0 0 1px 0; border-bottom-style: groove; border-bottom-color: #808080; padding: 2px">
                                 </div>
                                 <div style="padding-top: 2px">
                                     <input class="form-control form-control-xs form-control-inline" type="text" style="width: 40px" ng-model="graph.dygraph.valueFilter.lowerBound" />
