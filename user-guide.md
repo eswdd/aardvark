@@ -169,6 +169,7 @@ The scatter renderer uses Dygraph to plot metrics against each other, this is pa
 The scatter renderer requires exactly 2 time series to be able to render and will show a point for a point in time where a value exists for both plotted series. If you have time series which don't often have points at the same time you may find downsampling will help.
 
 Control over the scatter renderer is currently limited to:
+
 * Squash negatives - if a negative is found in either series' value for a point then the point will be excluded.
 * Swap axes - changes metric assignment between the 2 axes. 
 
@@ -181,6 +182,7 @@ The heatmap renderer uses D3 to render calendar based grids showing the magnitud
 The heatmap renderer requires exactly 1 time series to be able to render.
 
 The style of calendar grid is selectable between:
+
 * Automatic - Selects week columns and day cells for periods over one year, day columns and hour cells otherwise
 * Week columns, day cells - shows a row per year with months highlighted
 * Day columns, hour cells - shows a grid per month
@@ -206,10 +208,12 @@ It will however show series' values on hover along with a vertical bar allowing 
 ### Dygraph renderer
 
 The dygraph renderer offers some basic controls to interact with your graph:
+
 * Click and drag to zoom in either axis
 * Hold down Alt, click and drag to move along the x-axis
 
 Additionally, there are some extra capabilities around annotations:
+
 * Hovering over an existing annotation will display it's summary text
 * Clicking an annotation will pop up a dialog allowing you to edit certain properties of the annotation
 * Holding Ctrl (or Cmd on OSX) and clicking a point on a time series line will pop up a dialog allowing you to add an annotation
@@ -217,6 +221,7 @@ Additionally, there are some extra capabilities around annotations:
 ### Scatter renderer
 
 The scatter renderer uses the same chart library as the dygraph renderer and so offers the same interaction options:
+
 * Click and drag to zoom in either axis
 * Hold down Alt, click and drag to move along the x-axis
 
