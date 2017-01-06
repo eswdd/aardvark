@@ -56,7 +56,7 @@
         <span class="top-panel-item"><img src="aardvark_icon.png"/>1.5.0-rc1&nbsp;|&nbsp;<a href="user_guide/user-guide.html" target="_blank">Manual</a></span>
         <span class="top-panel-title">Aardvark - An OpenTSDB Visualiser</span>
         <span class="top-panel-item">
-            <button class="btn btn-primary btn-xs"ng-click="showUserPrefsDialog()">User&nbsp;Preferences</button>
+            <button class="btn btn-primary btn-xs"ng-click="showUserPrefsDialog()">Preferences</button>
             <!--button ng-click="undoAll()">Undo</button-->
             <button class="btn btn-warning btn-xs" ng-click="clearAll()">Reset</button>
         </span>
@@ -87,7 +87,7 @@
     <div class="content-panel">
         <div id="left-panel" style="flex: 0 0 auto; flex-basis: 200px" resizable r-directions="['right']" r-flex="true" >
             <div ng-controller="GraphControlCtrl" style="height: 100%; display: flex; flex-flow: column nowrap; justify-content: space-between; align-items: stretch">
-                <div class="graph-control-panel" style="border-color: black; border-width: 1px; border-style: solid; flex: none; background-color: #fff">
+                <div class="graph-control-panel standard-border" style="border-width: 1px; flex: none; background-color: #fff">
                     <!-- todo: m1: calendar controls incl date/time -->
                     <aa-collapsible-panel title="Time" icon="glyphicon-time">
                         <div>
@@ -167,7 +167,7 @@
                         </aa-collapsible-panel>
                     </div>
                 </div>
-                <uib-accordion close-others="true" style="border-right: solid 1px black; flex: 1 1 auto; overflow: auto; height: 10px" class="graph-control-panel">
+                <uib-accordion close-others="true" class="standard-border" style="border-width: 0 1px 0 0; flex: 1 1 auto; overflow: auto; height: 10px" class="graph-control-panel">
                     <div uib-accordion-group heading="{{graph.title}}" is-open="isOpen[graph.id]" ng-repeat="graph in graphs track by graph.id">
 
                         <aa-collapsible-panel title="Title / Type" initial-collapsed="false">
@@ -246,13 +246,13 @@
                                             </tr>
                                             <tr>
                                                 <td></td>
-                                                <td style="border-top: 1px solid black; border-left: 1px solid black">
+                                                <td class="standard-border" style="border-top-width: 1px; border-left-width: 1px">
                                                     <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="top left" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                                 </td>
-                                                <td style="border-top: 1px solid black">
+                                                <td class="standard-border" style="border-top-width: 1px">
                                                     <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="top center" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                                 </td>
-                                                <td style="border-top: 1px solid black; border-right: 1px solid black">
+                                                <td class="standard-border" style="border-top-width: 1px; border-right-width: 1px">
                                                     <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="top right" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                                 </td>
                                                 <td></td>
@@ -261,13 +261,13 @@
                                                 <td>
                                                     <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="out center left" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                                 </td>
-                                                <td style="border-left: 1px solid black">
+                                                <td class="standard-border" style="border-left-width: 1px">
                                                     <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="center left" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                                 </td>
                                                 <td>
                                                     <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="center" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                                 </td>
-                                                <td style="border-right: 1px solid black">
+                                                <td class="standard-border" style="border-right-width: 1px">
                                                     <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="center right" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                                 </td>
                                                 <td>
@@ -276,13 +276,13 @@
                                             </tr>
                                             <tr>
                                                 <td></td>
-                                                <td style="border-bottom: 1px solid black; border-left: 1px solid black">
+                                                <td class="standard-border" style="border-bottom-width: 1px; border-left-width: 1px">
                                                     <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="bottom left" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                                 </td>
-                                                <td style="border-bottom: 1px solid black">
+                                                <td class="standard-border" style="border-bottom-width: 1px">
                                                     <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="bottom center" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                                 </td>
-                                                <td style="border-bottom: 1px solid black; border-right: 1px solid black">
+                                                <td class="standard-border" style="border-bottom-width: 1px; border-right-width: 1px">
                                                     <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="bottom right" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                                 </td>
                                                 <td></td>
@@ -448,7 +448,7 @@
                                         </ul>
                                     </div>
                                 </div>
-                                <div style="border-bottom: 1px groove #808080; padding: 2px">
+                                <div class="standard-border" style="border-bottom: 1px groove #808080; padding: 2px">
                                 </div>
                                 <div style="padding-top: 2px">
                                     <input class="form-control form-control-xs form-control-inline" type="text" style="width: 40px" ng-model="graph.dygraph.valueFilter.lowerBound" />
@@ -514,13 +514,13 @@
                         </div>
                     </div>
                 </uib-accordion>
-                <div class="graph-control-buttons-panel" style="border-top: solid 1px black; border-right: solid 1px black; flex: none">
+                <div class="graph-control-buttons-panel standard-border" style="border-width: 1px 1px 0 0; padding: 2px; flex: none">
                     <button class="btn btn-primary btn-xs" ng-click="addGraph()" value="Add graph">Add graph</button>
                     <button class="btn btn-primary btn-xs" ng-click="saveAndRenderGraphs()">Save..</button>
                 </div>
             </div>
         </div>
-        <div id="graph-panel" style="flex: 1 1 auto; flex-basis: 100%; overflow: auto; margin-left: 14px; margin-right: 14px; padding: 2px; border: solid 1px black;" >
+        <div id="graph-panel" class="standard-border" style="flex: 1 1 auto; flex-basis: 100%; overflow: auto; margin-left: 14px; margin-right: 14px; padding: 2px; border-width: 1px;" >
             <div ng-controller="GraphCtrl" class="graph-panel" id="graph-content-panel" style="overflow: scroll; width: 100%; height: 100%">
                 <div ng-repeat="graph in model.graphs track by graph.id" id="graphDiv_{{graph.id}}"
                      bs-loading-overlay
@@ -625,7 +625,7 @@
         </div>
         <div id="right-panel" style="flex: 0 0 auto; flex-basis: 250px" class="metric-control-panel" resizable r-directions="['left']" r-flex="true">
             <div ng-controller="MetricControlCtrl" style="height: 100%; display: flex; flex-flow: column nowrap; justify-content: space-between; align-items: stretch" >
-                <div id="metric-control-panel-tree" style="border: 1px solid black; flex: 1 1 auto; flex-basis: 50%;  overflow-y: scroll" class="metric-control-panel">
+                <div id="metric-control-panel-tree" style="border-width: 1px; padding: 2px; flex: 1 1 auto; flex-basis: 50%;  overflow-y: scroll" class="metric-control-panel standard-border">
                     <div>
                         <input class="btn btn-primary btn-xs" type="button" value="+" ng-click="expandAll()" ng-show="expandAllVisible()" alt="Expand all nodes">
                         <input class="btn btn-primary btn-xs" type="button" value="-" ng-click="collapseAll()" alt="Collapse all nodes">
@@ -653,7 +653,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="metric-control-panel-metric"  style="border-right: 1px solid black; border-left: 1px solid black;; border-top: 1px solid black; flex: 1 0 auto; flex-basis: 50%; margin-top: 14px;" class="metric-control-panel" resizable r-directions="['top']" r-flex="true">
+                <div id="metric-control-panel-metric"  style="border-width: 1px 1px 0 1px; flex: 1 0 auto; flex-basis: 50%; margin-top: 14px;" class="metric-control-panel standard-border" resizable r-directions="['top']" r-flex="true">
                     <div>
                         <label for="metricControl_selectMetric" style="vertical-align: middle">Metric</label>
                         <select id="metricControl_selectMetric" style="vertical-align: middle" ng-model="selectedMetricId" ng-change="nodeSelectedForEditing()" ng-disabled="nodeSelectionDisabled">
@@ -739,7 +739,7 @@
                         </select>
                     </div>
                 </div>
-                <div id="metric-control-panel-buttons" style="border: 1px solid black; flex: none">
+                <div id="metric-control-panel-buttons" class="standard-border" style="border-width: 1px; flex: none; padding: 2px">
                     <input type="button" class="btn btn-primary btn-xs" value="Cancel" ng-click="clearMetric()" ng-disabled="!clearButtonEnabled()">
                     <input type="button" class="btn btn-primary btn-xs" value="Add" ng-click="addMetric()" ng-show="addButtonVisible()" ng-disabled="!addButtonVisible()">
                     <input type="button" class="btn btn-primary btn-xs" value="Delete" ng-click="deleteMetric()" ng-show="deleteButtonVisible()" ng-disabled="!deleteButtonVisible()">

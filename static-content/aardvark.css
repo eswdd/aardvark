@@ -118,3 +118,8 @@ label {
     padding-top: 3px;
     padding-bottom: 3px;
 }
+
+.standard-border {
+    border-style: solid;
+    border-color: #2a82df;
+}
