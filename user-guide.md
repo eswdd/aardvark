@@ -168,6 +168,7 @@ The dygraph renderer supports annotation rendering:
 ![dygraph filtering options screenshot](graph_controls_dygraph_filtering.png)
 
 Aardvark supports additional filtering of results received from OpenTSDB prior to rendering, allowing a reduction in the number of time series displayed, 2 'modes' are supported, which are ANDed together to determine the final list of time series to be displayed:
+
 * *Count filtering* - Includes either the top n or bottom n set of series, based on an aggregation of all the values in the series.
 * *Value filtering* - Includes time series where points meet the value conditions you specify. These consider either every point in the series (in which case a single hit includes the series) or an aggregation of the series.
 
