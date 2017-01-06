@@ -33,7 +33,7 @@ Various fields allow the specification of time periods. Aardvark uses the same s
 * **h** - hours
 * **d** - days
 * **w** - weeks
-* **n** - months
+* **n** - months - TODO
 * **y** - years
 
 ### Date/time formats
@@ -136,33 +136,40 @@ The dygraph renderer uses Dygraph to provide client-side rendered time series ch
 
 These options affect how time series are rendered. Some of these options may clash in unexpected ways, but full control is left to the user to mix and match as appropriate (unless otherwise noted).
 
-Gap interpolation draws a line between known points for a time series when there is another time series displayed with a point between them (this is only a gap in the data if you expect both time series to emit data points at the same time and no deduping of data points is occurring). If gap interpolation is disabled then a gap is shown in the time series.
-
-Highlight lines isn't really a rendering option, but more an interaction option - if enabled then hovering the mouse over a time series will highlight it in bold, useful for when you have many time series and want to pick on out.
-
-Stacked lines renders all time series on on top of the other, this includes baselines so mileage may vary there.
-
-Ratio graph renders each line by plotting the ratio of its value to the sum of all time series' values as a percentage at each point on the graph.
-
-Mean adjustment plots each line as a positive or negative difference from the average of all time series on a point by point basis. Quite handy when combined with a ratio graph to see how load is distributed across a cluster.
+* *Gap interpolation* - draws a line between known points for a time series when there is another time series displayed with a point between them (this is only a gap in the data if you expect both time series to emit data points at the same time and no deduping of data points is occurring). If gap interpolation is disabled then a gap is shown in the time series.
+* *Highlight lines* - isn't really a rendering option, but more an interaction option - if enabled then hovering the mouse over a time series will highlight it in bold, useful for when you have many time series and want to pick on out.
+* *Stacked lines* - renders all time series on on top of the other, this includes baselines so mileage may vary there.
+* *Ratio graph* - renders each line by plotting the ratio of its value to the sum of all time series' values as a percentage at each point on the graph.
+* *Mean adjusted* - plots each line as a positive or negative difference from the average of all time series on a point by point basis. Quite handy when combined with a ratio graph to see how load is distributed across a cluster. Incompatible with negative squashing.
 
 #### y-Axis controls
 
 ![dygraph y-axis options screenshot](graph_controls_dygraph_yaxis.png)
 
-TODO
+The dygraph renderer supports both a left (Y) and right (Y2) axis and each can be individually controlled:
+
+* *Squash -ve* - excludes negative points from the chart. Incompatible with mean adjusted charts.
+* *Auto scale* - Scales timeseries to the same order of magnitude using the max absolute value from each unique metric name. Incompatible with logarithmic axes
+* *Logarithmic y-axis* - plots points on a logarithmic scale (the default is linear). Incompatible with auto scaling.
+* *Range* - in the format *\[<min>:<max>\]* (where the square brackets, <min> and <max> are all optional. Limits the rendered points to those within the range given (inclusive).
+
 
 #### Annotations
 
 ![dygraph annotations options screenshot](graph_controls_dygraph_annotations.png)
 
-TODO
+The dygraph renderer supports annotation rendering:
+
+* *Annotations* - enables retrieval and display of annotations attached to any time series being rendered.
+* *Global annotations* - enables retrieval and display of any global annotations.
 
 #### Filtering controls
 
 ![dygraph filtering options screenshot](graph_controls_dygraph_filtering.png)
 
-TODO
+Aardvark supports additional filtering of results received from OpenTSDB prior to rendering, allowing a reduction in the number of time series displayed, 2 'modes' are supported, which are ANDed together to determine the final list of time series to be displayed:
+* *Count filtering* - Includes either the top n or bottom n set of series, based on an aggregation of all the values in the series.
+* *Value filtering* - Includes time series where points meet the value conditions you specify. These consider either every point in the series (in which case a single hit includes the series) or an aggregation of the series.
 
 ### Scatter renderer
 
@@ -174,8 +181,8 @@ The scatter renderer requires exactly 2 time series to be able to render and wil
 
 Control over the scatter renderer is currently limited to:
 
-* Squash negatives - if a negative is found in either series' value for a point then the point will be excluded.
-* Swap axes - changes metric assignment between the 2 axes. 
+* *Squash negatives* - if a negative is found in either series' value for a point then the point will be excluded.
+* *Swap axes* - changes metric assignment between the 2 axes. 
 
 ### Heatmap renderer
 
@@ -187,9 +194,9 @@ The heatmap renderer requires exactly 1 time series to be able to render.
 
 The style of calendar grid is selectable between:
 
-* Automatic - Selects week columns and day cells for periods over one year, day columns and hour cells otherwise
-* Week columns, day cells - shows a row per year with months highlighted
-* Day columns, hour cells - shows a grid per month
+* *Automatic* - Selects week columns and day cells for periods over one year, day columns and hour cells otherwise
+* *Week columns, day cells* - shows a row per year with months highlighted
+* *Day columns, hour cells* - shows a grid per month
  
 Filtering allows you to exclude values outside the selected range from the range of values included in the colour scheme, allowing you to see finer differences. Cells excluded by the filter are rendered in an off colour to distinguish from cells with no value.
  
