@@ -22,19 +22,23 @@
 <h2 id="overview">Overview</h2>
 
 <p>The Aardvark user interface is split up into 6 main areas:</p>
-<hr />
-<pre><code>|            Title Area               |
-|-------------------------------------|
-| Global  |               |           |
-|---------|               |  Metric   |
-|         |               | Selection |
-|         |     Graph     |           |
-| Graph   |               |-----------|
-|         |    Display    |           |
-| Control |               |  Metric   |
-|         |               |  Control  |
-|         |               |           |</code></pre>
-<hr />
+
+<p><img src="screen_layout.png" alt="screen layout" /></p>
+
+<ul>
+<li>Title area - Identifies version, link to (this) user guide, reset and user preferences</li>
+
+<li>Global control - Date/time selection, reloading, global downsampling</li>
+
+<li>Graph controls - Per graph settings</li>
+
+<li>Graph display - Graphs are rendered here</li>
+
+<li>Metric selection - Metric discovery, selection populates metric control</li>
+
+<li>Metric control - Selection of metric query parameters, mapping to graphs</li>
+</ul>
+
 <h2 id="common_concepts">Common concepts</h2>
 
 <h3 id="time_periods">Time periods</h3>
@@ -42,6 +46,8 @@
 <p>Various fields allow the specification of time periods. Aardvark uses the same shorthand format as OpenTSDB consisting of a number followed by a character:</p>
 
 <ul>
+<li><strong>ms</strong> - milliseconds</li>
+
 <li><strong>s</strong> - seconds</li>
 
 <li><strong>m</strong> - minutes</li>
@@ -51,6 +57,8 @@
 <li><strong>d</strong> - days</li>
 
 <li><strong>w</strong> - weeks</li>
+
+<li><strong>n</strong> - months - Not currently supported!</li>
 
 <li><strong>y</strong> - years</li>
 </ul>
@@ -65,15 +73,25 @@
 
 <h2 id="title_area">Title Area</h2>
 
-<p>Aside from providing a thin header, this provides access to reset the entire app to a blank status, and ability to change render modes.</p>
+<p><img src="title_area.png" alt="title area screenshot" /></p>
+
+<p>Aside from providing a thin header, this provides access to reset the entire app to a blank status, and links to the manual and user preferences.</p>
 
 <ul>
 <li><strong>Reset</strong> - Removes all metrics and graphs, adds back in a single graph with the default settings.</li>
+</ul>
 
-<li><strong>Render</strong> - By default Aardvark only renders graphs when clicking <em>Save</em> within either the graph or metric controls or pressing the enter key whilst focus is on a field. However to provide a more dynamic interface you may select <em>On change</em> in order to render on change of any input on the screen. This is a user preference and stored in the browser.</li>
+<h3 id="user_preferences">User Preferences</h3>
+
+<p>This dialog provides the ability to customize the Aardvark interface to your own tastes. Changes here are persisted in browser storage.</p>
+
+<ul>
+<li><strong>Auto re-render on change</strong> - By default Aardvark only renders graphs when clicking <em>Save</em> within either the graph or metric controls or pressing the enter key whilst focus is on a field. However to provide a more dynamic interface you may select this option in order to render on change of any input on the screen.</li>
 </ul>
 
 <h2 id="global_controls">Global Controls</h2>
+
+<p><img src="global_controls.png" alt="global controls screenshot" /></p>
 
 <p>These are controls which affect either the whole page, all graphs, or all metrics.</p>
 
@@ -89,13 +107,43 @@
 
 <h3 id="downsampling">Downsampling</h3>
 
+<p>By default, Aardvark permits downsampling to be specified on a per metric query basis, the global downsampling section allows forcible downsampling of all queries to the same period. The aggregator to be used is still specified by the metric query.</p>
+
 <h3 id="baselining">Baselining</h3>
+
+<p>Baselining allows the comparison of the time period being queried with an earlier period in time to allow comparisons to occur (typically after a change has been made). An extra timeseries will be added for each resulting timeseries from your queries with a [BL] suffix for renderers which support this (currently only dygraph).</p>
+
+<p>The period is determined using a baselining style or method, which must be one of:</p>
+
+<ul>
+<li><em>Relative offset</em> - calculates the start and end times of the baseline period by offsetting from the main time period start and end times (derived or specified)</li>
+
+<li><em>From date/time</em> - the user specifies the start time of the baseline period and the end time is calculated by adding the time difference from the main time period</li>
+
+<li><em>To date/time</em> - the user specifies the end time of the baseline period and the start time is calculated by adding the time difference from the main time period</li>
+</ul>
+
+<p>Baselining may give odd results when combined with certain other graph options.</p>
+
+<h3 id="graph_height">Graph height</h3>
+
+<p>If you have only one graph then this will be stretched to use up all the vertical space on the screen.</p>
+
+<p>Once you have more than one, then you will be provided with more control over how the vertical space is used:</p>
+
+<ul>
+<li><em>Auto graph-height</em> will ensure a minimum height for each graph and will distribute extra space to each</li>
+
+<li><em>Fixed graph-height</em> will force the height of each graph to a specific value</li>
+</ul>
 
 <h2 id="graph_controls">Graph Controls</h2>
 
 <p>Aardvark supports rendering multiple graphs for the same time period, with the ability to change render engine, chart style and other options independently for each.</p>
 
 <h3 id="graph_management">Graph management</h3>
+
+<p><img src="graph_controls_common.png" alt="graph management screenshot" /></p>
 
 <p>Aardvark defaults to a single graph, the renderer for which can be defaulted via (configuration)[config.html].</p>
 
@@ -107,9 +155,13 @@
 
 <h3 id="gnuplot_renderer">Gnuplot renderer</h3>
 
+<p><img src="graph_controls_gnuplot.png" alt="gnuplot options screenshot" /></p>
+
 <p>The gnuplot renderer uses OpenTSDB to render timeseries charts on the server and the controls available mirror those found on the default OpenTSDB user interface.</p>
 
 <h3 id="horizon_renderer">Horizon renderer</h3>
+
+<p><img src="graph_controls_horizon.png" alt="horizon options screenshot" /></p>
 
 <p>The horizon renderer uses Cubism from Square.io to render horizon charts, horizon charts are particularly useful for spotting event correlations across a large number of timeseries.</p>
 
@@ -121,23 +173,81 @@
 
 <h4 id="rendering_controls">Rendering controls</h4>
 
+<p><img src="graph_controls_dygraph_rendering.png" alt="dygraph rendering options screenshot" /></p>
+
+<p>These options affect how time series are rendered. Some of these options may clash in unexpected ways, but full control is left to the user to mix and match as appropriate (unless otherwise noted).</p>
+
+<ul>
+<li><em>Gap interpolation</em> - draws a line between known points for a time series when there is another time series displayed with a point between them (this is only a gap in the data if you expect both time series to emit data points at the same time and no deduping of data points is occurring). If gap interpolation is disabled then a gap is shown in the time series.</li>
+
+<li><em>Highlight lines</em> - isn’t really a rendering option, but more an interaction option - if enabled then hovering the mouse over a time series will highlight it in bold, useful for when you have many time series and want to pick on out.</li>
+
+<li><em>Stacked lines</em> - renders all time series on on top of the other, this includes baselines so mileage may vary there.</li>
+
+<li><em>Ratio graph</em> - renders each line by plotting the ratio of its value to the sum of all time series’ values as a percentage at each point on the graph.</li>
+
+<li><em>Mean adjusted</em> - plots each line as a positive or negative difference from the average of all time series on a point by point basis. Quite handy when combined with a ratio graph to see how load is distributed across a cluster. Incompatible with negative squashing.</li>
+</ul>
+
 <h4 id="yaxis_controls">y-Axis controls</h4>
+
+<p><img src="graph_controls_dygraph_yaxis.png" alt="dygraph y-axis options screenshot" /></p>
+
+<p>The dygraph renderer supports both a left (Y) and right (Y2) axis and each can be individually controlled:</p>
+
+<ul>
+<li><em>Squash -ve</em> - excludes negative points from the chart. Incompatible with mean adjusted charts.</li>
+
+<li><em>Auto scale</em> - Scales timeseries to the same order of magnitude using the max absolute value from each unique metric name. Incompatible with logarithmic axes</li>
+
+<li><em>Logarithmic y-axis</em> - plots points on a logarithmic scale (the default is linear). Incompatible with auto scaling.</li>
+
+<li><em>Range</em> - in the format * [&lt;min&gt;:&lt;max&gt;] * (where the square brackets, &lt;min&gt; and &lt;max&gt; are all optional. Limits the rendered points to those within the range given (inclusive).</li>
+</ul>
 
 <h4 id="annotations">Annotations</h4>
 
+<p><img src="graph_controls_dygraph_annotations.png" alt="dygraph annotations options screenshot" /></p>
+
+<p>The dygraph renderer supports annotation rendering:</p>
+
+<ul>
+<li><em>Annotations</em> - enables retrieval and display of annotations attached to any time series being rendered.</li>
+
+<li><em>Global annotations</em> - enables retrieval and display of any global annotations.</li>
+</ul>
+
 <h4 id="filtering_controls">Filtering controls</h4>
 
-<h4 id="specials">Specials</h4>
+<p><img src="graph_controls_dygraph_filtering.png" alt="dygraph filtering options screenshot" /></p>
+
+<p>Aardvark supports additional filtering of results received from OpenTSDB prior to rendering, allowing a reduction in the number of time series displayed, 2 ‘modes’ are supported, which are ANDed together to determine the final list of time series to be displayed:</p>
+
+<ul>
+<li><em>Count filtering</em> - Includes either the top n or bottom n set of series, based on an aggregation of all the values in the series.</li>
+
+<li><em>Value filtering</em> - Includes time series where points meet the value conditions you specify. These consider either every point in the series (in which case a single hit includes the series) or an aggregation of the series.</li>
+</ul>
 
 <h3 id="scatter_renderer">Scatter renderer</h3>
+
+<p><img src="graph_controls_scatter.png" alt="scatter options screenshot" /></p>
 
 <p>The scatter renderer uses Dygraph to plot metrics against each other, this is particularly useful for determining strength or manner of correlation.</p>
 
 <p>The scatter renderer requires exactly 2 time series to be able to render and will show a point for a point in time where a value exists for both plotted series. If you have time series which don’t often have points at the same time you may find downsampling will help.</p>
 
-<p>Control over the scatter renderer is currently limited to being able to control whether to exclude negative values from the plot. If a negative is found in either series’ value for a point then the point will be excluded.</p>
+<p>Control over the scatter renderer is currently limited to:</p>
+
+<ul>
+<li><em>Squash negatives</em> - if a negative is found in either series’ value for a point then the point will be excluded.</li>
+
+<li><em>Swap axes</em> - changes metric assignment between the 2 axes.</li>
+</ul>
 
 <h3 id="heatmap_renderer">Heatmap renderer</h3>
+
+<p><img src="graph_controls_heatmap.png" alt="heatmap options screenshot" /></p>
 
 <p>The heatmap renderer uses D3 to render calendar based grids showing the magnitude of a timeseries over time, it is well suited to identifying recurring time-based events.</p>
 
@@ -146,20 +256,24 @@
 <p>The style of calendar grid is selectable between:</p>
 
 <ul>
-<li>Automatic - Selects week columns and day cells for periods over one year, day columns and hour cells otherwise</li>
+<li><em>Automatic</em> - Selects week columns and day cells for periods over one year, day columns and hour cells otherwise</li>
 
-<li>Week columns, day cells - shows a row per year with months highlighted</li>
+<li><em>Week columns, day cells</em> - shows a row per year with months highlighted</li>
 
-<li>Day columns, hour cells - shows a grid per month</li>
+<li><em>Day columns, hour cells</em> - shows a grid per month</li>
 </ul>
 
-<p>The heatmap renderer also allows you to exclude negative values from the plot.</p>
+<p>Filtering allows you to exclude values outside the selected range from the range of values included in the colour scheme, allowing you to see finer differences. Cells excluded by the filter are rendered in an off colour to distinguish from cells with no value.</p>
+
+<p>The heatmap renderer also allows you to exclude negative values from the plot and to choose your colour scheme.</p>
 
 <h2 id="graph_display">Graph Display</h2>
 
 <p>This area displays the rendered graphs. For most renderers it is possible to interact with the charts.</p>
 
 <h3 id="gnuplot_renderer_2">Gnuplot renderer</h3>
+
+<p>The gnuplot renderer doesn’t provide any opportunities for interaction with a chart.</p>
 
 <h3 id="horizon_renderer_2">Horizon renderer</h3>
 
@@ -169,7 +283,33 @@
 
 <h3 id="dygraph_renderer_2">Dygraph renderer</h3>
 
+<p>The dygraph renderer offers some basic controls to interact with your graph:</p>
+
+<ul>
+<li>Click and drag to zoom in either axis</li>
+
+<li>Hold down Alt, click and drag to move along the x-axis</li>
+</ul>
+
+<p>Additionally, there are some extra capabilities around annotations:</p>
+
+<ul>
+<li>Hovering over an existing annotation will display it’s summary text</li>
+
+<li>Clicking an annotation will pop up a dialog allowing you to edit certain properties of the annotation</li>
+
+<li>Holding Ctrl (or Cmd on OSX) and clicking a point on a time series line will pop up a dialog allowing you to add an annotation</li>
+</ul>
+
 <h3 id="scatter_renderer_2">Scatter renderer</h3>
+
+<p>The scatter renderer uses the same chart library as the dygraph renderer and so offers the same interaction options:</p>
+
+<ul>
+<li>Click and drag to zoom in either axis</li>
+
+<li>Hold down Alt, click and drag to move along the x-axis</li>
+</ul>
 
 <h3 id="heatmap_renderer_2">Heatmap renderer</h3>
 
@@ -179,11 +319,41 @@
 
 <h2 id="metric_selection">Metric Selection</h2>
 
-<p>ipso lorem</p>
+<p><img src="metric_selection.png" alt="metric selection screenshot" /></p>
+
+<p>Aardvark allows selection of metrics to graph via a tree view which is constructed from the set of available metrics on your instance on OpenTSDB, splitting using the “.” character.</p>
+
+<p>Select a metric to graph by selecting an underlined node, which may be present at any level (not just leaf nodes).</p>
+
+<p>The tree may be filtered using a text search (press the F button to show the filter).</p>
+
+<p>The tree may also be fully expanded (+ button - honouring filters) and fully collapsed (- button). A word of caution though - if you have a large tree this can lock your browser up, so it can be disabled via a config option (see the <a href="config.html">config reference</a>).</p>
+
+<p>If UI wide exclusions have been configured then the show (S) and hide (H) buttons allow you to include/exclude them from the tree. This is useful if you have old metrics or namespaces you no longer use in normal use.</p>
 
 <h2 id="metric_controls">Metric Controls</h2>
 
-<p>ipso lorem</p>      
+<p><img src="metric_controls.png" alt="metric controls screenshot" /></p>
+
+<p>The metric controls allow you to customise the query performed for a metric and assign the resulting time series to a graph. If you wish you can assign queries to the special “None” graph, allowing interesting queries to be stored for later use. Almost all options found here mirror those found in OpenTSDB</p>
+
+<ul>
+<li><em>Aggregator</em> - indicates what aggregation function to perform to when merging multiple underlying time series into a resulting series</li>
+
+<li><em>Right axis</em> - plot results of this query on the right axis (only relevant for renderers support multiple axes)</li>
+
+<li><em>Rate</em> - converts all of the time series for the metric to a rate of change value</li>
+
+<li><em>Rate Ctr</em> - indicates that the metric graphed is a monotonically increasing counter</li>
+
+<li><em>Counter max</em> - maximum value for the counter so that roll over is represented correctly (rather than as a negative rate)</li>
+
+<li><em>Counter reset</em> - you can choose to set a reset value to replace values with a zero if the rate is greater than the value. To avoid negative spikes it’s generally save to set the rate counter with a reset value of 1</li>
+
+<li><em>Downsample</em> - used to reduce the number of data points displayed on the graph. Use down sampling to reduce the number of points. Simply choose an aggregation function from the drop down list, then enter a time interval in the second box. The interval must follow the relative date format.</li>
+</ul>
+
+<p>Additionally if more than one time series are known for a given metric you may add one or more tag queries. To do so, click on the tag you wish to query (the number in the badge is the number of unique values for this metric) which presents a tag row. This allows you to select whether to group by the values (only in TSDB 2.2 onwards) resulting from the query in addition to entering your query. If you specify multiple queries for a single tag these are ANDed together by OpenTSDB.</p>      
         </div>
         <div class="footer">
             <p>
@@ -193,6 +363,6 @@
             </p>
         </div>
 	</div>
-	<!-- Last generated: Thu, 24 Nov 2016 22:53:55 +0000 -->
+	<!-- Last generated: Fri, 06 Jan 2017 17:54:30 +0000 -->
 </body>
 <html>
