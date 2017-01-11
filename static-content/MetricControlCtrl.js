@@ -74,6 +74,13 @@ aardvark.directive('tagFilterSelection', function() {
     $scope.clearSelectedTreeNode = function() {
         $scope.selectedTreeNode = undefined;
     }
+    $scope.graphType = function() {
+        var graph = $scope.allocatedGraph();
+        if (graph != null) {
+            return graph.type;
+        }
+        return "";
+    }
     $scope.currentMetricName = function() {
         if ($scope.selectedMetric != null && $scope.selectedMetric != "") {
             return $scope.selectedMetric;
@@ -104,8 +111,8 @@ aardvark.directive('tagFilterSelection', function() {
             $scope.saveMetric();
         }
     }
-
-    $scope.downsampleByEnabled = function() {
+        
+    $scope.allocatedGraph = function() {
         var graph = null;
         if ($rootScope.model.graphs != null) {
             for (var g=0; g<$rootScope.model.graphs.length; g++) {
@@ -114,6 +121,11 @@ aardvark.directive('tagFilterSelection', function() {
                 }
             }
         }
+        return graph;
+    }
+
+    $scope.downsampleByEnabled = function() {
+        var graph = $scope.allocatedGraph();
         return $scope.downsample || $scope.globalDownsampling 
             || (graph != null && (graph.type == "horizon" || graph.type == "heatmap"));
     }

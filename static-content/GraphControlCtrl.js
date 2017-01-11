@@ -55,6 +55,22 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
         });
     }
     
+    $scope.toggleGraphOpen = function(index) {
+        if (index >= $scope.graphs.length) {
+            return;
+        }
+        var graphId = $scope.graphs[index].id; 
+        if ($scope.isOpen[graphId]) {
+            $scope.isOpen[graphId] = false;
+        }
+        else {
+            for (var i=0; i<$scope.graphs.length; i++) {
+                $scope.isOpen[$scope.graphs[i].id] = false;
+            }
+            $scope.isOpen[graphId] = true;
+        }
+    }
+    
     $scope.showGnuplotStyles = function() {
         return $tsdbClient.versionNumber >= $tsdbClient.TSDB_2_2;
     }
