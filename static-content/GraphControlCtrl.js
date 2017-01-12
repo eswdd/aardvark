@@ -96,6 +96,10 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
         graph.type = type;
     }
     
+    $scope.setGnuplotStyle = function(graph, style) {
+        graph.gnuplot.style = style;
+    }
+    
     $scope.setCountFilterEnd = function(graph, end) {
         graph.dygraph.countFilter.end = end;
     }

@@ -123,3 +123,16 @@ label {
     border-style: solid;
     border-color: #2a82df;
 }
+
+.gnuplotKeyPositionCell {
+    padding: 3px;
+}
+
+.gnuplotAxesLabelCell {
+    padding: 2px;
+}
+
+.gnuplotAxesInputCell {
+    padding: 2px;
+    text-align: center;
+}
