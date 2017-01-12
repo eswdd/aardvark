@@ -100,6 +100,35 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
         graph.gnuplot.style = style;
     }
     
+    $scope.heatmapStyleLabels = {
+        auto: "Automatic",
+        week_day: "Week columns, day cells",
+        day_hour: "Day columns, hour cells"
+    }
+    
+    $scope.setHeatmapStyle = function(graph, style) {
+        graph.heatmap.style = style;
+    }
+
+    $scope.getHeatmapStyleLabel = function(graph) {
+        return $scope.heatmapStyleLabels[graph.heatmap.style];
+    }
+    
+    $scope.heatmapColourSchemeLabels = {
+        RdYlGn: "Diverging - Red/Yellow/Green",
+        Gn: "Sequential - Green",
+        Bl: "Sequential - Blue",
+        Rd: "Sequential - Red"
+    }
+    
+    $scope.setHeatmapColourScheme = function(graph, scheme) {
+        graph.heatmap.colourScheme = scheme;
+    }
+    
+    $scope.getHeatmapColourSchemeLabel = function(graph) {
+        return $scope.heatmapColourSchemeLabels[graph.heatmap.colourScheme];
+    }
+    
     $scope.setCountFilterEnd = function(graph, end) {
         graph.dygraph.countFilter.end = end;
     }
@@ -273,6 +302,7 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
             },
             // heatmap defaults
             heatmap: {
+                style: 'auto',
                 filterLowerBound: "",
                 filterUpperBound: "",
                 colourScheme: 'RdYlGn'

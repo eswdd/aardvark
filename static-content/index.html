@@ -198,8 +198,6 @@
                                         </ul>
                                     </div>
                                 </div>
-                                
-                                </aa-collapsible-panel>
                 
                                 <div ng-show="graph.type == 'gnuplot'">
                                     <uib-tabset>
@@ -362,7 +360,7 @@
                                     </div>
                                 </div>
                                 <div ng-show="graph.type == 'dygraph'">
-                                    <aa-collapsible-panel title="Rendering" initial-collapsed="true">
+                                    <aa-collapsible-panel title="Rendering" initial-collapsed="false">
                                         <div>
                                             <input type="checkbox" id="interpolateGapsDygraph" ng-model="graph.dygraph.interpolateGaps" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                             <label for="interpolateGapsDygraph">Interpolate gaps?</label>
@@ -494,33 +492,47 @@
                                     </div>
                                 </div>
                                 <div ng-show="graph.type == 'heatmap'">
-                                    <div>
-                                        <label for="styleHeatmap">Style</label>
-                                        <select id="styleHeatmap" ng-model="graph.heatmap.style" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
-                                            <option value="auto">Automatic</option>
-                                            <option value="week_day">Week columns, day cells</option>
-                                            <option value="day_hour">Day columns, hour cells</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <input type="checkbox" id="excludeNegativeHeatmap" ng-model="graph.heatmap.excludeNegative" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                        <label for="excludeNegativeHeatmap">Squash -ve?</label>
-                                    </div>
-                                    <div>
-                                        <label for="filterLowerBoundHeatmap">Colour only cells with values between </label>
-                                        <input id="filterLowerBoundHeatmap" type="text" size="2" ng-model="graph.heatmap.filterLowerBound" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                        <label for="filterUpperBoundHeatmap">and</label>
-                                        <input id="filterUpperBoundHeatmap" type="text" size="2" ng-model="graph.heatmap.filterUpperBound" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                    </div>
-                                    <div>
-                                        <label for="colourSchemeHeatmap">Colour scheme</label>
-                                        <select id="colourSchemeHeatmap" ng-model="graph.heatmap.colourScheme" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
-                                            <option value="RdYlGn">Diverging - Red/Yellow/Green</option>
-                                            <option value="Gn">Sequential - Green</option>
-                                            <option value="Bl">Sequential - Blue</option>
-                                            <option value="Rd">Sequential - Red</option>
-                                        </select>
-                                    </div>
+                                    <aa-collapsible-panel title="Rendering" initial-collapsed="false">
+                                        <div>
+                                            <input type="checkbox" id="excludeNegativeHeatmap" ng-model="graph.heatmap.excludeNegative" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                            <label for="excludeNegativeHeatmap">Squash -ve?</label>
+                                        </div>
+                                        <div>
+                                            <label for="styleHeatmap">Style</label>
+                                            <div class="btn-group btn-group-xs" uib-dropdown is-open="wibble5" style="display: inline-block">
+                                                <button id="styleHeatmap" style="text-align: left" id="single-button6" type="button" class="btn btn-primary btn-xs" uib-dropdown-toggle ng-disabled="disabled">
+                                                    <span>{{getHeatmapStyleLabel(graph)}}</span> <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="single-button6">
+                                                    <li role="menuitem"><a ng-click="setHeatmapStyle(graph, 'auto')">{{heatmapStyleLabels.auto}}</a></li>
+                                                    <li role="menuitem"><a ng-click="setHeatmapStyle(graph, 'week_day')">{{heatmapStyleLabels.week_day}}</a></li>
+                                                    <li role="menuitem"><a ng-click="setHeatmapStyle(graph, 'day_hour')">{{heatmapStyleLabels.day_hour}}</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </aa-collapsible-panel>
+                                    <aa-collapsible-panel title="Colouring" initial-collapsed="true">
+                                        <div>
+                                            <label for="filterLowerBoundHeatmap">Colour only cells with values between </label>
+                                            <input id="filterLowerBoundHeatmap" type="text" size="2" ng-model="graph.heatmap.filterLowerBound" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                            <label for="filterUpperBoundHeatmap">and</label>
+                                            <input id="filterUpperBoundHeatmap" type="text" size="2" ng-model="graph.heatmap.filterUpperBound" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                        </div>
+                                        <div>
+                                            <label for="colourSchemeHeatmap">Colour scheme</label>
+                                            <div class="btn-group btn-group-xs" uib-dropdown is-open="wibble6" style="display: inline-block">
+                                                <button id="colourSchemeHeatmap" style="text-align: left" id="single-button7" type="button" class="btn btn-primary btn-xs" uib-dropdown-toggle ng-disabled="disabled">
+                                                    <span>{{getHeatmapColourSchemeLabel(graph)}}</span> <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="single-button7">
+                                                    <li role="menuitem"><a ng-click="setHeatmapColourScheme(graph, 'RdYlGn')">{{heatmapColourSchemeLabels.RdYlGn}}</a></li>
+                                                    <li role="menuitem"><a ng-click="setHeatmapColourScheme(graph, 'Gn')">{{heatmapColourSchemeLabels.Gn}}</a></li>
+                                                    <li role="menuitem"><a ng-click="setHeatmapColourScheme(graph, 'Bl')">{{heatmapColourSchemeLabels.Bl}}</a></li>
+                                                    <li role="menuitem"><a ng-click="setHeatmapColourScheme(graph, 'Rd')">{{heatmapColourSchemeLabels.Rd}}</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </aa-collapsible-panel>
                                     <!--<div>-->
                                     <!--<input type="checkbox" id="ylogHeatmap" ng-model="graph.heatmap.ylog" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />-->
                                     <!--<label for="ylogHeatmap">Logarithmic y-axis?</label>-->
