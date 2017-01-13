@@ -113,6 +113,7 @@ describe('Aardvark controllers', function () {
                         }
                     },
                     heatmap: {
+                        style: "auto",
                         filterLowerBound: "",
                         filterUpperBound: "",
                         colourScheme:"RdYlGn"
@@ -161,6 +162,7 @@ describe('Aardvark controllers', function () {
                         }
                     },
                     heatmap: {
+                        style: "auto",
                         filterLowerBound: "",
                         filterUpperBound: "",
                         colourScheme:"RdYlGn"
@@ -225,6 +227,7 @@ describe('Aardvark controllers', function () {
                         }
                     },
                     heatmap: {
+                        style: "auto",
                         filterLowerBound: "",
                         filterUpperBound: "",
                         colourScheme:"RdYlGn"
@@ -269,6 +272,7 @@ describe('Aardvark controllers', function () {
                         }
                     },
                     heatmap: {
+                        style: "auto",
                         filterLowerBound: "",
                         filterUpperBound: "",
                         colourScheme:"RdYlGn"
@@ -307,6 +311,7 @@ describe('Aardvark controllers', function () {
                         }
                     },
                     heatmap: {
+                        style: "auto",
                         filterLowerBound: "",
                         filterUpperBound: "",
                         colourScheme:"RdYlGn"
@@ -355,6 +360,7 @@ describe('Aardvark controllers', function () {
                         }
                     },
                     heatmap: {
+                        style: "auto",
                         filterLowerBound: "",
                         filterUpperBound: "",
                         colourScheme:"RdYlGn"
@@ -399,6 +405,7 @@ describe('Aardvark controllers', function () {
                         }
                     },
                     heatmap: {
+                        style: "auto",
                         filterLowerBound: "",
                         filterUpperBound: "",
                         colourScheme:"RdYlGn"
@@ -437,6 +444,7 @@ describe('Aardvark controllers', function () {
                         }
                     },
                     heatmap: {
+                        style: "auto",
                         filterLowerBound: "",
                         filterUpperBound: "",
                         colourScheme:"RdYlGn"
