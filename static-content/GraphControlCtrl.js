@@ -42,8 +42,9 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
     $scope.model.baselineFromTime = "";
     $scope.model.baselineToDate = "";
     $scope.model.baselineToTime = "";
-    
 
+    $scope.fromDatePopupOpen = false;
+    $scope.toDatePopupOpen = false;
 
     $scope.bindWatchExpressions = function() {
         $scope.$watch('model.globalDownsampling', function(newVal, oldVal, scope) {
@@ -54,6 +55,13 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
             $scope.saveAndRenderGraphsIfAutoUpdate();
         });
     }
+
+    $scope.openFromDatePopup = function() {
+        $scope.fromDatePopupOpen = !$scope.fromDatePopupOpen;
+    };
+    $scope.openToDatePopup = function() {
+        $scope.toDatePopupOpen = !$scope.toDatePopupOpen;
+    };
     
     $scope.toggleGraphOpen = function(index) {
         if (index >= $scope.graphs.length) {
@@ -86,7 +94,7 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
         }
         else {
             $scope.toDate = moment.utc().format("YYYY/MM/DD");
-            $scope.toTime = moment.utc().format("HH:mm:ss");
+            $scope.toTime = new Date();
             $scope.saveAndRenderGraphsIfAutoUpdate();
         }
         

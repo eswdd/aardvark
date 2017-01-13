@@ -110,16 +110,30 @@
                         </div>
                         <div ng-show="model.absoluteTimeSpecification">
                             <label for="fromDateId" class="form-label">From</label><br/>
-                            <input type="text" style="width: 85px" class="form-control form-control-xs form-control-inline" id="fromDateId" ng-model="model.fromDate" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
-                            <input type="text" style="width: 70px" class="form-control form-control-xs form-control-inline" id="fromTimeId" ng-model="model.fromTime" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                            <div class="input-group" style="display: table">
+                                <input id="fromDateId" type="text" placeholder="Y/M/D" maxlength="10" class="form-control form-control-xs form-control-inline" ng-required="true" uib-datepicker-popup="yyyy/MM/dd" datepicker-popup-template-url="datepicker-popup.html" ng-model="model.fromDate" is-open="fromDatePopupOpen" close-text="Close" datepicker-append-to-body="false" popup-placement="auto right" />
+                                <span class="input-group-btn" style="padding-right: 3px; text-align: left">
+                                    <button type="button" class="btn btn-default btn-xs" ng-click="openFromDatePopup()"><i class="glyphicon glyphicon-calendar"></i></button>
+                                </span>
+                                <input type="text" class="form-control form-control-xs form-control-inline" placeholder="H:M:S" maxlength="8" id="fromTimeId" ng-model="model.fromTime" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                                <!--<div uib-timepicker ng-model="model.fromTime" hour-step="1" minute-step="1" second-step="1" show-seconds="true" show-meridian="false" show-spinners="false" template-url="timepicker.html"></div>-->
+                            </div>
                         </div>
                         <div ng-show="!model.autoReload && model.absoluteTimeSpecification">
                             <label for="toDateId" class="form-label">To</label><br/>
                             <!--button class="btn btn-primary btn-xs" ng-click="now()">Now</button-->
                         </div>
                         <div ng-show="!model.autoReload && model.absoluteTimeSpecification">
-                            <input type="text" style="width: 85px" class="form-control form-control-xs form-control-inline" size="10" id="toDateId" ng-model="model.toDate" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
-                            <input type="text" style="width: 70px" class="form-control form-control-xs form-control-inline" size="8" id="toTimeId" ng-model="model.toTime" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                            <div class="input-group" style="display: table">
+                                <input id="toDateId" type="text" placeholder="Y/M/D" maxlength="10" class="form-control form-control-xs form-control-inline" ng-required="true" uib-datepicker-popup="yyyy/MM/dd" datepicker-popup-template-url="datepicker-popup.html" ng-model="model.toDate" is-open="fromDatePopupOpen" close-text="Close" datepicker-append-to-body="false" popup-placement="auto right" />
+                                <span class="input-group-btn" style="padding-right: 3px; text-align: left">
+                                    <button type="button" class="btn btn-default btn-xs" ng-click="openFromDatePopup()"><i class="glyphicon glyphicon-calendar"></i></button>
+                                </span>
+                                <input type="text" class="form-control form-control-xs form-control-inline" placeholder="H:M:S" maxlength="8" id="toTimeId" ng-model="model.toTime" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                                <!--<div uib-timepicker ng-model="model.toTime" hour-step="1" minute-step="1" second-step="1" show-seconds="true" show-meridian="false" show-spinners="false" template-url="timepicker.html"></div>-->
+
+                                
+                            </div>
                         </div>
                         <div>
                             <input type="checkbox" id="globalDownsamplingId" ng-model="model.globalDownsampling" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()">
@@ -141,12 +155,24 @@
                             <input type="text" size="10" id="baselineRelativePeriodId" ng-model="model.baselineRelativePeriod" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
                         </div>
                         <div ng-show="model.baselining && model.baselineDatumStyle == 'from'">
-                            <input type="text" size="10" id="baselineFromDateId" ng-model="model.baselineFromDate" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
-                            <input type="text" size="8" id="baselineFromTimeId" ng-model="model.baselineFromTime" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                            <div class="input-group" style="display: table">
+                                <input id="baselineFromDateId" type="text" placeholder="Y/M/D" maxlength="10" class="form-control form-control-xs form-control-inline" ng-required="true" uib-datepicker-popup="yyyy/MM/dd" datepicker-popup-template-url="datepicker-popup.html" ng-model="model.baselineFromDate" is-open="fromDatePopupOpen" close-text="Close" datepicker-append-to-body="false" popup-placement="auto right" />
+                                <span class="input-group-btn" style="padding-right: 3px; text-align: left">
+                                    <button type="button" class="btn btn-default btn-xs" ng-click="openFromDatePopup()"><i class="glyphicon glyphicon-calendar"></i></button>
+                                </span>
+                                <input type="text" class="form-control form-control-xs form-control-inline" placeholder="H:M:S" maxlength="8" id="baselineFromTimeId" ng-model="model.baselineFromTime" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                                <!--<div uib-timepicker ng-model="model.baselineFromTime" hour-step="1" minute-step="1" second-step="1" show-seconds="true" show-meridian="false" show-spinners="false" template-url="timepicker.html"></div>-->
+                            </div>
                         </div>
                         <div ng-show="model.baselining && model.baselineDatumStyle == 'to'">
-                            <input type="text" size="10" id="baselineToDateId" ng-model="model.baselineToDate" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                            <input type="text" size="8" id="baselineToTimeId" ng-model="model.baselineToTime" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                            <div class="input-group" style="display: table">
+                                <input id="baselineToDateId" type="text" placeholder="Y/M/D" maxlength="10" class="form-control form-control-xs form-control-inline" ng-required="true" uib-datepicker-popup="yyyy/MM/dd" datepicker-popup-template-url="datepicker-popup.html" ng-model="model.baselineToDate" is-open="fromDatePopupOpen" close-text="Close" datepicker-append-to-body="false" popup-placement="auto right" />
+                                <span class="input-group-btn" style="padding-right: 3px; text-align: left">
+                                    <button type="button" class="btn btn-default btn-xs" ng-click="openFromDatePopup()"><i class="glyphicon glyphicon-calendar"></i></button>
+                                </span>
+                                <input type="text" class="form-control form-control-xs form-control-inline" placeholder="H:M:S" maxlength="8" id="baselineToTimeId" ng-model="model.baselineToTime" ng-blur="saveAndRenderGraphsIfAutoUpdate()" ng-required aardvark-enter="saveAndRenderGraphs()" />
+                                <!--<div uib-timepicker ng-model="model.baselineToTime" hour-step="1" minute-step="1" second-step="1" show-seconds="true" show-meridian="false" show-spinners="false" template-url="timepicker.html"></div>-->
+                            </div>
                         </div>
                     </aa-collapsible-panel>
                     <div id="global-multigraph-controls" ng-show="graphs.length > 1">
