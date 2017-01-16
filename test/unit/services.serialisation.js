@@ -138,8 +138,7 @@ describe('Aardvark services', function() {
                             aggregator: "sum",
                             downsample: true,
                             downsampleBy: "avg",
-                            downsampleTo: "2m",
-                            scatter: null
+                            downsampleTo: "2m"
                         }
                     },
                     {
@@ -155,8 +154,7 @@ describe('Aardvark services', function() {
                             aggregator: "sum",
                             downsample: false,
                             downsampleBy: "",
-                            downsampleTo: "",
-                            scatter: null
+                            downsampleTo: ""
                         }
                     },
                     {
@@ -172,8 +170,7 @@ describe('Aardvark services', function() {
                             aggregator: "sum",
                             downsample: false,
                             downsampleBy: "",
-                            downsampleTo: "",
-                            scatter: null
+                            downsampleTo: ""
                         }
                     },
                     {
@@ -189,8 +186,7 @@ describe('Aardvark services', function() {
                             aggregator: "sum",
                             downsample: false,
                             downsampleBy: "",
-                            downsampleTo: "",
-                            scatter: null
+                            downsampleTo: ""
                         }
                     },
                     {
@@ -206,10 +202,7 @@ describe('Aardvark services', function() {
                             aggregator: "sum",
                             downsample: false,
                             downsampleBy: "",
-                            downsampleTo: "",
-                            scatter: {
-                                axis: "y"
-                            }
+                            downsampleTo: ""
                         }
                     }
                 ]
@@ -348,8 +341,7 @@ describe('Aardvark services', function() {
                             aggregator: "sum",
                             downsample: true,
                             downsampleBy: "avg",
-                            downsampleTo: "2m",
-                            scatter: null
+                            downsampleTo: "2m"
                         }
                     },
                     {
@@ -365,8 +357,7 @@ describe('Aardvark services', function() {
                             aggregator: "sum",
                             downsample: false,
                             downsampleBy: "",
-                            downsampleTo: "",
-                            scatter: null
+                            downsampleTo: ""
                         }
                     },
                     {
@@ -382,8 +373,7 @@ describe('Aardvark services', function() {
                             aggregator: "sum",
                             downsample: false,
                             downsampleBy: "",
-                            downsampleTo: "",
-                            scatter: null
+                            downsampleTo: ""
                         }
                     },
                     {
@@ -399,8 +389,7 @@ describe('Aardvark services', function() {
                             aggregator: "sum",
                             downsample: false,
                             downsampleBy: "",
-                            downsampleTo: "",
-                            scatter: null
+                            downsampleTo: ""
                         }
                     },
                     {
@@ -416,10 +405,7 @@ describe('Aardvark services', function() {
                             aggregator: "sum",
                             downsample: false,
                             downsampleBy: "",
-                            downsampleTo: "",
-                            scatter: {
-                                axis: "y"
-                            }
+                            downsampleTo: ""
                         }
                     }
                 ]
@@ -632,8 +618,7 @@ describe('Aardvark services', function() {
                             rateCounterMax: 12345,
                             aggregator: "sum",
                             downsample: false,
-                            downsampleBy: "avg",
-                            scatter: null
+                            downsampleBy: "avg"
                         }
                     },
                     {
@@ -648,8 +633,7 @@ describe('Aardvark services', function() {
                             rateCounterMax: "",
                             aggregator: "sum",
                             downsample: false,
-                            downsampleBy: "sum",
-                            scatter: null
+                            downsampleBy: "sum"
                         }
                     }
                 ]

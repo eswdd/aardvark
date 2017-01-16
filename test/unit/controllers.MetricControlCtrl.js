@@ -426,10 +426,7 @@ describe('Aardvark controllers', function () {
                         rateCounterReset: '1',
                         downsample: true,
                         downsampleBy: 'zimsum',
-                        downsampleTo: '10m',
-                        scatter: {
-                            axis: ''
-                        }
+                        downsampleTo: '10m'
                     }
                 }
             ]);
@@ -514,10 +511,7 @@ describe('Aardvark controllers', function () {
                             graphId: 'abc',
                             rate: true,
                             downsample: true,
-                            downsampleBy: '10m',
-                            scatter: {
-                                axis: ''
-                            }
+                            downsampleBy: '10m'
                         }
                     }
                 ]
@@ -603,10 +597,7 @@ describe('Aardvark controllers', function () {
                             graphId: 'abc',
                             rate: true,
                             downsample: false,
-                            downsampleBy: '',
-                            scatter: {
-                                axis: ''
-                            }
+                            downsampleBy: ''
                         }
                     }
                 ]
@@ -680,10 +671,7 @@ describe('Aardvark controllers', function () {
                                 rateCounterReset: '456',
                                 downsample: true,
                                 downsampleBy: 'sum',
-                                downsampleTo: '10m',
-                                scatter: {
-                                    axis: ''
-                                }
+                                downsampleTo: '10m'
                             }
                         }
                     ]
@@ -982,7 +970,6 @@ describe('Aardvark controllers', function () {
                 expect(scope.downsample).toEqualData(false);
                 expect(scope.downsampleBy).toEqualData("avg");
                 expect(scope.downsampleTo).toEqualData("");
-                expect(scope.scatterAxis).toEqualData("");
                 expect(scope.rightAxis).toEqualData(false);
                 expect(scope.aggregator).toEqualData("sum");
             }

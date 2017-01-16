@@ -1120,7 +1120,6 @@ aardvark
                     name: intermediateMetric.name,
                     tags: [],
                     graphOptions: {
-                        scatter: null
                     }
                 };
                 
