@@ -90,6 +90,7 @@ message Metric {
   optional int32 aggregator = 8 [ default = "sum" ];
   optional int32 downsampleBy = 9 [ default = "avg" ];
   optional TimePeriod downsampleTo = 10 [ default = "10m" ];
-  optional int32 scatterAxis = 11 [ default = "x" ];
+  // realised that axis control should be in the graph options
+  // optional int32 scatterAxis = 11 [ default = "x" ];
   optional int32 axis = 12 [ default = "x1y1" ];
 }

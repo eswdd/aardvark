@@ -226,154 +226,152 @@
                                 </div>
                 
                                 <div ng-show="graph.type == 'gnuplot'">
-                                    <uib-tabset>
-                                        <uib-tab heading="Axes">
-                                            <table style="padding: 1px">
+                                    <aa-collapsible-panel title="y-Axis Control" initial-collapsed="true" icon="glyphicon-object-align-bottom">
+                                        <table style="padding: 1px">
+                                            <tr>
+                                                <th></th>
+                                                <th style="text-align: center">Y</th>
+                                                <th style="text-align: center">Y2</th>
+                                            </tr>
+                                            <tr>
+                                                <td class="gnuplotAxesLabelCell">Label</td>
+                                                <td class="gnuplotAxesInputCell"><input type="text" style="width: 55px" class="form-control form-control-xs form-control-inline" ng-model="graph.gnuplot.y1AxisLabel" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                                <td class="gnuplotAxesInputCell"><input type="text" style="width: 55px" class="form-control form-control-xs form-control-inline" ng-model="graph.gnuplot.y2AxisLabel" ng-blur="saveAndRenderGraphsIfAutoUpdate()"  aardvark-enter="saveAndRenderGraphs()" /></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="gnuplotAxesLabelCell">Format</td>
+                                                <td class="gnuplotAxesInputCell"><input type="text" style="width: 55px" class="form-control form-control-xs form-control-inline" ng-model="graph.gnuplot.y1AxisFormat" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                                <td class="gnuplotAxesInputCell"><input type="text" style="width: 55px" class="form-control form-control-xs form-control-inline" ng-model="graph.gnuplot.y2AxisFormat" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="gnuplotAxesLabelCell">Range</td>
+                                                <td class="gnuplotAxesInputCell"><input type="text" style="width: 55px" class="form-control form-control-xs form-control-inline" ng-model="graph.gnuplot.y1AxisRange" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                                <td class="gnuplotAxesInputCell"><input type="text" style="width: 55px" class="form-control form-control-xs form-control-inline" ng-model="graph.gnuplot.y2AxisRange" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="gnuplotAxesLabelCell">Log&nbsp;scale</td>
+                                                <td class="gnuplotAxesInputCell"><input type="checkbox" ng-model="graph.gnuplot.y1AxisLogScale" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                                <td class="gnuplotAxesInputCell"><input type="checkbox" ng-model="graph.gnuplot.y2AxisLogScale" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                            </tr>
+                                        </table>
+                                    </aa-collapsible-panel>
+                                    <aa-collapsible-panel title="Key" initial-collapsed="true" icon="glyphicon-list-alt">
+                                        <div>
+                                            <input id="showKey" type="checkbox" ng-model="graph.gnuplot.showKey" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                            <label for="showKey">Show key?</label>
+                                        </div>
+                                        <div ng-show="graph.gnuplot.showKey">
+                                            <div>
+                                                Key placement:
+                                            </div>
+                                            <table>
                                                 <tr>
-                                                    <th></th>
-                                                    <th style="text-align: center">Y</th>
-                                                    <th style="text-align: center">Y2</th>
+                                                    <td class="gnuplotKeyPositionCell">
+                                                        <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="out top left" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                                    </td>
+                                                    <td></td>
+                                                    <td class="gnuplotKeyPositionCell">
+                                                        <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="out top center" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                                    </td>
+                                                    <td class="gnuplotKeyPositionCell"></td>
+                                                    <td>
+                                                        <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="out top right" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                                    </td>
                                                 </tr>
                                                 <tr>
-                                                    <td class="gnuplotAxesLabelCell">Label</td>
-                                                    <td class="gnuplotAxesInputCell"><input type="text" style="width: 55px" class="form-control form-control-xs form-control-inline" ng-model="graph.gnuplot.y1AxisLabel" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
-                                                    <td class="gnuplotAxesInputCell"><input type="text" style="width: 55px" class="form-control form-control-xs form-control-inline" ng-model="graph.gnuplot.y2AxisLabel" ng-blur="saveAndRenderGraphsIfAutoUpdate()"  aardvark-enter="saveAndRenderGraphs()" /></td>
+                                                    <td></td>
+                                                    <td class="standard-border gnuplotKeyPositionCell" style="border-width: 1px 0 0 1px">
+                                                        <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="top left" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                                    </td>
+                                                    <td class="standard-border gnuplotKeyPositionCell" style="border-width: 1px 0 0 0">
+                                                        <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="top center" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                                    </td>
+                                                    <td class="standard-border gnuplotKeyPositionCell" style="border-width: 1px 1px 0 0">
+                                                        <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="top right" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                                    </td>
+                                                    <td></td>
                                                 </tr>
                                                 <tr>
-                                                    <td class="gnuplotAxesLabelCell">Format</td>
-                                                    <td class="gnuplotAxesInputCell"><input type="text" style="width: 55px" class="form-control form-control-xs form-control-inline" ng-model="graph.gnuplot.y1AxisFormat" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
-                                                    <td class="gnuplotAxesInputCell"><input type="text" style="width: 55px" class="form-control form-control-xs form-control-inline" ng-model="graph.gnuplot.y2AxisFormat" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                                    <td class="gnuplotKeyPositionCell">
+                                                        <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="out center left" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                                    </td>
+                                                    <td class="standard-border gnuplotKeyPositionCell" style="border-width: 0 0 0 1px">
+                                                        <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="center left" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                                    </td>
+                                                    <td class="gnuplotKeyPositionCell">
+                                                        <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="center" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                                    </td>
+                                                    <td class="standard-border gnuplotKeyPositionCell" style="border-width: 0 1px 0 0">
+                                                        <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="center right" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                                    </td>
+                                                    <td class="gnuplotKeyPositionCell">
+                                                        <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="out center right" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                                    </td>
                                                 </tr>
                                                 <tr>
-                                                    <td class="gnuplotAxesLabelCell">Range</td>
-                                                    <td class="gnuplotAxesInputCell"><input type="text" style="width: 55px" class="form-control form-control-xs form-control-inline" ng-model="graph.gnuplot.y1AxisRange" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
-                                                    <td class="gnuplotAxesInputCell"><input type="text" style="width: 55px" class="form-control form-control-xs form-control-inline" ng-model="graph.gnuplot.y2AxisRange" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                                    <td></td>
+                                                    <td class="standard-border gnuplotKeyPositionCell" style="border-width: 0 0 1px 1px">
+                                                        <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="bottom left" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                                    </td>
+                                                    <td class="standard-border gnuplotKeyPositionCell" style="border-width: 0 0 1px 0">
+                                                        <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="bottom center" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                                    </td>
+                                                    <td class="standard-border gnuplotKeyPositionCell" style="border-width: 0 1px 1px 0;">
+                                                        <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="bottom right" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                                    </td>
+                                                    <td></td>
                                                 </tr>
                                                 <tr>
-                                                    <td class="gnuplotAxesLabelCell">Log&nbsp;scale</td>
-                                                    <td class="gnuplotAxesInputCell"><input type="checkbox" ng-model="graph.gnuplot.y1AxisLogScale" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
-                                                    <td class="gnuplotAxesInputCell"><input type="checkbox" ng-model="graph.gnuplot.y2AxisLogScale" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                                    <td class="gnuplotKeyPositionCell">
+                                                        <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="out bottom left" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                                    </td>
+                                                    <td></td>
+                                                    <td class="gnuplotKeyPositionCell">
+                                                        <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="out bottom center" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                                    </td>
+                                                    <td></td>
+                                                    <td class="gnuplotKeyPositionCell">
+                                                        <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="out bottom right" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                                    </td>
                                                 </tr>
                                             </table>
-                                        </uib-tab>
-                                        <uib-tab heading="Key">
                                             <div>
-                                                <input id="showKey" type="checkbox" ng-model="graph.gnuplot.showKey" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                                <label for="showKey">Show key?</label>
-                                            </div>
-                                            <div ng-show="graph.gnuplot.showKey">
-                                                <div>
-                                                    Key placement:
-                                                </div>
-                                                <table>
-                                                    <tr>
-                                                        <td class="gnuplotKeyPositionCell">
-                                                            <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="out top left" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                                        </td>
-                                                        <td></td>
-                                                        <td class="gnuplotKeyPositionCell">
-                                                            <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="out top center" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                                        </td>
-                                                        <td class="gnuplotKeyPositionCell"></td>
-                                                        <td>
-                                                            <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="out top right" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td></td>
-                                                        <td class="standard-border gnuplotKeyPositionCell" style="border-width: 1px 0 0 1px">
-                                                            <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="top left" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                                        </td>
-                                                        <td class="standard-border gnuplotKeyPositionCell" style="border-width: 1px 0 0 0">
-                                                            <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="top center" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                                        </td>
-                                                        <td class="standard-border gnuplotKeyPositionCell" style="border-width: 1px 1px 0 0">
-                                                            <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="top right" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                                        </td>
-                                                        <td></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="out center left" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                                        </td>
-                                                        <td class="standard-border gnuplotKeyPositionCell" style="border-width: 0 0 0 1px">
-                                                            <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="center left" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                                        </td>
-                                                        <td>
-                                                            <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="center" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                                        </td>
-                                                        <td class="standard-border gnuplotKeyPositionCell" style="border-width: 0 1px 0 0">
-                                                            <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="center right" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                                        </td>
-                                                        <td>
-                                                            <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="out center right" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td></td>
-                                                        <td class="standard-border gnuplotKeyPositionCell" style="border-width: 0 0 1px 1px">
-                                                            <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="bottom left" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                                        </td>
-                                                        <td class="standard-border gnuplotKeyPositionCell" style="border-width: 0 0 1px 0">
-                                                            <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="bottom center" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                                        </td>
-                                                        <td class="standard-border gnuplotKeyPositionCell" style="border-width: 0 1px 1px 0;">
-                                                            <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="bottom right" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                                        </td>
-                                                        <td></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="gnuplotKeyPositionCell">
-                                                            <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="out bottom left" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                                        </td>
-                                                        <td></td>
-                                                        <td class="gnuplotKeyPositionCell">
-                                                            <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="out bottom center" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                                        </td>
-                                                        <td></td>
-                                                        <td class="gnuplotKeyPositionCell">
-                                                            <input ng-disabled="!graph.gnuplot.showKey" type="radio" value="out bottom right" ng-model="graph.gnuplot.keyLocation" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                                <div>
-                                                    Key alignment:
-                                                </div>
-                                                <div>
-                                                    <input ng-disabled="!graph.gnuplot.showKey" type="radio" id="columnar" ng-model="graph.gnuplot.keyAlignment" value="columnar" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /><label for="columnar">Columnar</label>
-                                                    <input ng-disabled="!graph.gnuplot.showKey" type="radio" id="horizontal" ng-model="graph.gnuplot.keyAlignment" value="horizontal" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /><label for="horizontal">Horizontal</label>
-                                                </div>
-                                                <div>
-                                                    <input ng-disabled="!graph.gnuplot.showKey" type="checkbox" id="outline" ng-model="graph.gnuplot.keyBox" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                                    <label for="outline">Show key outline</label>
-                                                </div>
-                                            </div>
-                                        </uib-tab>
-                                        <uib-tab heading="Misc">
-                                            <div ng-show="showGnuplotAnnotationOptions()">
-                                                <input type="checkbox" id="gnuplotGlobalAnnotations" ng-model="graph.gnuplot.globalAnnotations" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                                <label for="gnuplotGlobalAnnotations">Global annotations</label>
+                                                Key alignment:
                                             </div>
                                             <div>
-                                                <input type="checkbox" id="gnuplotSmooth" ng-model="graph.gnuplot.lineSmoothing" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                                <label for="gnuplotSmooth">Smooth lines</label>
+                                                <input ng-disabled="!graph.gnuplot.showKey" type="radio" id="columnar" ng-model="graph.gnuplot.keyAlignment" value="columnar" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /><label for="columnar">Columnar</label>
+                                                <input ng-disabled="!graph.gnuplot.showKey" type="radio" id="horizontal" ng-model="graph.gnuplot.keyAlignment" value="horizontal" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /><label for="horizontal">Horizontal</label>
                                             </div>
-                                            <div ng-show="showGnuplotStyles()">
-                                                <label for="gnuplotStyle">Style</label>
-                                                <div class="btn-group btn-group-xs" uib-dropdown is-open="wibble4" style="display: inline-block">
-                                                    <button id="gnuplotStyle" style="text-align: left" id="single-button5" type="button" class="btn btn-primary btn-xs" uib-dropdown-toggle ng-disabled="disabled">
-                                                        <span>{{graph.gnuplot.style}}</span> <span class="caret"></span>
-                                                    </button>
-                                                    <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="single-button5">
-                                                        <li role="menuitem"><a ng-click="setGnuplotStyle(graph, 'linespoint')">linespoint</a></li>
-                                                        <li role="menuitem"><a ng-click="setGnuplotStyle(graph, 'points')">points</a></li>
-                                                        <li role="menuitem"><a ng-click="setGnuplotStyle(graph, 'circles')">circles</a></li>
-                                                        <li role="menuitem"><a ng-click="setGnuplotStyle(graph, 'dots')">dots</a></li>
-                                                    </ul>
-                                                </div>
+                                            <div>
+                                                <input ng-disabled="!graph.gnuplot.showKey" type="checkbox" id="outline" ng-model="graph.gnuplot.keyBox" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                                <label for="outline">Show key outline</label>
                                             </div>
-                                        </uib-tab>
-                                    </uib-tabset>
+                                        </div>
+                                    </aa-collapsible-panel>
+                                    <aa-collapsible-panel title="Misc" initial-collapsed="true" icon="glyphicon-asterisk">
+                                        <div ng-show="showGnuplotAnnotationOptions()">
+                                            <input type="checkbox" id="gnuplotGlobalAnnotations" ng-model="graph.gnuplot.globalAnnotations" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                            <label for="gnuplotGlobalAnnotations">Global annotations</label>
+                                        </div>
+                                        <div>
+                                            <input type="checkbox" id="gnuplotSmooth" ng-model="graph.gnuplot.lineSmoothing" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                            <label for="gnuplotSmooth">Smooth lines</label>
+                                        </div>
+                                        <div ng-show="showGnuplotStyles()">
+                                            <label for="gnuplotStyle">Style</label>
+                                            <div class="btn-group btn-group-xs" uib-dropdown is-open="wibble4" style="display: inline-block">
+                                                <button id="gnuplotStyle" style="text-align: left" type="button" class="btn btn-primary btn-xs" uib-dropdown-toggle ng-disabled="disabled">
+                                                    <span>{{graph.gnuplot.style}}</span> <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="gnuplotStyle">
+                                                    <li role="menuitem"><a ng-click="setGnuplotStyle(graph, 'linespoint')">linespoint</a></li>
+                                                    <li role="menuitem"><a ng-click="setGnuplotStyle(graph, 'points')">points</a></li>
+                                                    <li role="menuitem"><a ng-click="setGnuplotStyle(graph, 'circles')">circles</a></li>
+                                                    <li role="menuitem"><a ng-click="setGnuplotStyle(graph, 'dots')">dots</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </aa-collapsible-panel>
                                 </div>
                                 <div ng-show="graph.type == 'horizon'">
                                     <div>
@@ -386,7 +384,7 @@
                                     </div>
                                 </div>
                                 <div ng-show="graph.type == 'dygraph'">
-                                    <aa-collapsible-panel title="Rendering" initial-collapsed="false">
+                                    <aa-collapsible-panel title="Rendering" initial-collapsed="false" icon="glyphicon-stats">
                                         <div>
                                             <input type="checkbox" id="interpolateGapsDygraph" ng-model="graph.dygraph.interpolateGaps" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                             <label for="interpolateGapsDygraph">Interpolate gaps?</label>
@@ -408,7 +406,7 @@
                                             <label for="meanAdjustedDygraph" class="form-label">Mean adjusted?</label>
                                         </div>
                                     </aa-collapsible-panel>
-                                    <aa-collapsible-panel title="y-Axis Control" initial-collapsed="true">
+                                    <aa-collapsible-panel title="y-Axis Control" initial-collapsed="true" icon="glyphicon-object-align-bottom">
                                         <table>
                                             <tr>
                                                 <th style="text-align: center">Y</th>
@@ -452,7 +450,7 @@
                                             </tr>
                                         </table>
                                     </aa-collapsible-panel>
-                                    <aa-collapsible-panel title="Annotations" initial-collapsed="true">
+                                    <aa-collapsible-panel title="Annotations" initial-collapsed="true" icon="glyphicon-align-left">
                                         <div>
                                             <input type="checkbox" id="annotationsDygraph" ng-model="graph.dygraph.annotations" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                             <label for="annotationsDygraph">Annotations?</label>
@@ -462,7 +460,7 @@
                                             <label for="globalAnnotationsDygraph">Global annotations?</label>
                                         </div>
                                     </aa-collapsible-panel>
-                                    <aa-collapsible-panel title="Filtering" initial-collapsed="true">
+                                    <aa-collapsible-panel title="Filtering" initial-collapsed="true" icon="glyphicon-filter">
                                         <div>
                                             <div class="btn-group btn-group-xs" uib-dropdown is-open="wibble" style="display: inline-block">
                                                 <button style="width: 60px; text-align: left" id="single-button" type="button" class="btn btn-primary btn-xs" uib-dropdown-toggle ng-disabled="disabled">
@@ -518,7 +516,7 @@
                                     </div>
                                 </div>
                                 <div ng-show="graph.type == 'heatmap'">
-                                    <aa-collapsible-panel title="Rendering" initial-collapsed="false">
+                                    <aa-collapsible-panel title="Rendering" initial-collapsed="false" icon="glyphicon-stats">
                                         <div>
                                             <input type="checkbox" id="excludeNegativeHeatmap" ng-model="graph.heatmap.excludeNegative" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                             <label for="excludeNegativeHeatmap">Squash -ve?</label>
@@ -537,7 +535,7 @@
                                             </div>
                                         </div>
                                     </aa-collapsible-panel>
-                                    <aa-collapsible-panel title="Colouring" initial-collapsed="true">
+                                    <aa-collapsible-panel title="Colouring" initial-collapsed="true" icon="glyphicon-tint">
                                         <div>
                                             <label for="filterLowerBoundHeatmap">Colour only cells with values between </label>
                                             <input id="filterLowerBoundHeatmap" type="text" size="2" ng-model="graph.heatmap.filterLowerBound" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
@@ -719,17 +717,7 @@
                     </div>
 
                     <div>
-                        <div  >
-                            <label for="metricControl_editMetric_selectGraph">Graph</label>
-                            <select id="metricControl_editMetric_selectGraph" ng-model="graphId" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()">
-                                <option value="0" selected="selected">None</option>
-                                <option ng-repeat="graph in model.graphs track by graph.id" value="{{graph.id}}">
-                                    {{graph.title}}
-                                </option>
-                            </select>
-                        </div>
-                        <uib-tabset>
-                            <uib-tab heading="Query">
+                        <aa-collapsible-panel title="Query" initial-collapsed="false" icon="glyphicon-search">
                             <div>
                                 <label for="metricControl_editMetric_aggregator">Aggregator</label>
                                 <select id="metricControl_editMetric_aggregator" ng-model="aggregator" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()">
@@ -782,20 +770,22 @@
                                     </tr>
                                 </table>
                             </div>
-                        </uib-tab>
-                        <uib-tab heading="Rendering">
+                        </aa-collapsible-panel>
+                        <aa-collapsible-panel title="Rendering" initial-collapsed="false" icon="glyphicon-stats">
                             <div>
-                                <label for="metricControl_editMetric_rightAxis">Right Axis</label>
-                                <input id="metricControl_editMetric_rightAxis" type="checkbox" ng-model="rightAxis" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
-                            </div>
-                            <div ng-show="graphType() == 'scatter'">
-                                <label for="metricControl_scatter_axis">Axis</label>
-                                <select id="metricControl_scatter_axis" ng-model="scatterAxis" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()">
-                                    <option>x</option>
-                                    <option>y</option>
+                                <label for="metricControl_editMetric_selectGraph">Graph</label>
+                                <select id="metricControl_editMetric_selectGraph" ng-model="graphId" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()">
+                                    <option value="0" selected="selected">None</option>
+                                    <option ng-repeat="graph in model.graphs track by graph.id" value="{{graph.id}}">
+                                        {{graph.title}}
+                                    </option>
                                 </select>
                             </div>
-                        </uib-tab>
+                            <div>
+                                <input id="metricControl_editMetric_rightAxis" type="checkbox" ng-model="rightAxis" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
+                                <label for="metricControl_editMetric_rightAxis">Right Axis</label>
+                            </div>
+                        </aa-collapsible-panel>
                     </div>
                 </div>
                 <div id="metric-control-panel-buttons" class="standard-border" style="border-width: 1px; flex: none; padding: 2px">

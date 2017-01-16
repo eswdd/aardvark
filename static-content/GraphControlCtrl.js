@@ -102,10 +102,12 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
     
     $scope.setGraphType = function(graph, type) {
         graph.type = type;
+        $scope.saveAndRenderGraphsIfAutoUpdate();
     }
     
     $scope.setGnuplotStyle = function(graph, style) {
         graph.gnuplot.style = style;
+        $scope.saveAndRenderGraphsIfAutoUpdate();
     }
     
     $scope.heatmapStyleLabels = {
@@ -116,6 +118,7 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
     
     $scope.setHeatmapStyle = function(graph, style) {
         graph.heatmap.style = style;
+        $scope.saveAndRenderGraphsIfAutoUpdate();
     }
 
     $scope.getHeatmapStyleLabel = function(graph) {
@@ -131,6 +134,7 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
     
     $scope.setHeatmapColourScheme = function(graph, scheme) {
         graph.heatmap.colourScheme = scheme;
+        $scope.saveAndRenderGraphsIfAutoUpdate();
     }
     
     $scope.getHeatmapColourSchemeLabel = function(graph) {
@@ -139,14 +143,17 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
     
     $scope.setCountFilterEnd = function(graph, end) {
         graph.dygraph.countFilter.end = end;
+        $scope.saveAndRenderGraphsIfAutoUpdate();
     }
     
     $scope.setCountFilterMeasure = function(graph, measure) {
         graph.dygraph.countFilter.measure = measure;
+        $scope.saveAndRenderGraphsIfAutoUpdate();
     }
     
     $scope.setValueFilterMeasure = function(graph, measure) {
         graph.dygraph.valueFilter.measure = measure;
+        $scope.saveAndRenderGraphsIfAutoUpdate();
     }
 
     $scope.loadModel = function(datum) {

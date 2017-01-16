@@ -42,7 +42,6 @@ aardvark.directive('tagFilterSelection', function() {
     $scope.downsample = false;
     $scope.downsampleBy = "avg";
     $scope.downsampleTo = "";
-    $scope.scatterAxis = "";
         
     $scope.showingIgnoredPrefixes = false;
 
@@ -206,7 +205,6 @@ aardvark.directive('tagFilterSelection', function() {
             $scope.downsample = metric.graphOptions.downsample;
             $scope.downsampleBy = metric.graphOptions.downsampleBy;
             $scope.downsampleTo = metric.graphOptions.downsampleTo;
-            $scope.scatterAxis = metric.graphOptions.scatter.axis;
         }
     }
         
@@ -334,10 +332,7 @@ aardvark.directive('tagFilterSelection', function() {
             axis: $scope.rightAxis ? "x1y2" : "x1y1",
             downsample: $scope.downsample,
             downsampleBy: $scope.downsampleBy,
-            downsampleTo: $scope.downsampleTo,
-            scatter: {
-                axis: $scope.scatterAxis
-            }
+            downsampleTo: $scope.downsampleTo
         };
         $rootScope.saveModel(true);
         $scope.selectedMetric = "";
@@ -494,7 +489,6 @@ aardvark.directive('tagFilterSelection', function() {
         $scope.downsample = false;
         $scope.downsampleBy = "avg";
         $scope.downsampleTo = "";
-        $scope.scatterAxis = "";
         $scope.rightAxis = false;
         $scope.aggregator = "sum";
     }
@@ -613,11 +607,10 @@ aardvark.directive('tagFilterSelection', function() {
     $scope.updateModel = function() {
         $scope.updateTree();
         // init internal copy
-        $scope.globalDownsampling = $rootScope.model.global.globalDownsampling && true;
-        
+        $scope.globalDownsampling = $rootScope.model.global.globalDownsampling && true; // force to boolean
     }
 
-    // tell the main app controller to call us on any update of the scope
+    // tell the main app controller to call us on any update of the config
     // it will call us if it's already loaded too
     $rootScope.onConfigUpdate($scope.updateModel);
 }]);
