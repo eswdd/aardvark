@@ -152,7 +152,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 640, graphHeight: 100 };
             var metrics = [ { id: "123", graphOptions: {} } ];
 
-            scope.renderers.heatmap(global, graph, metrics);
+            scope.renderers.heatmap.render(global, graph, metrics);
 
             expect(scope.renderErrors).toEqualData({abc:"No start date specified"});
             expect(scope.renderWarnings).toEqualData({});
@@ -167,7 +167,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 640, graphHeight: 100 };
             var metrics = [  ];
 
-            scope.renderers.heatmap(global, graph, metrics);
+            scope.renderers.heatmap.render(global, graph, metrics);
 
             expect(scope.renderErrors).toEqualData({abc:"No metrics specified"});
             expect(scope.renderWarnings).toEqualData({});
@@ -182,7 +182,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 640, graphHeight: 100 };
             var metrics = [ { id: "123", graphOptions: {} }, { id: "456", graphOptions: {} } ];
 
-            scope.renderers.heatmap(global, graph, metrics);
+            scope.renderers.heatmap.render(global, graph, metrics);
 
             expect(scope.renderErrors).toEqualData({abc:"Require exactly 1 metric, currently have 2"});
             expect(scope.renderWarnings).toEqualData({});
@@ -197,7 +197,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "auto" } };
             var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
-            scope.renderers.heatmap(global, graph, metrics);
+            scope.renderers.heatmap.render(global, graph, metrics);
             
             $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1h-avg:metric1&ms=true&arrays=true").respond([
                 {metric: "metric1", tags: {}, dps:[
@@ -228,7 +228,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "auto" } };
             var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
-            scope.renderers.heatmap(global, graph, metrics);
+            scope.renderers.heatmap.render(global, graph, metrics);
             
             $httpBackend.expectGET("http://tsdb:4242/api/query?start=2014/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1d-avg:metric1&ms=true&arrays=true").respond([
                 {metric: "metric1", tags: {}, dps:[
@@ -259,7 +259,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "day_hour" } };
             var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
-            scope.renderers.heatmap(global, graph, metrics);
+            scope.renderers.heatmap.render(global, graph, metrics);
             
             $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1h-avg:metric1&ms=true&arrays=true").respond([
                 {metric: "metric1", tags: {}, dps:[
@@ -297,7 +297,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "day_hour", excludeNegative: true } };
             var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
-            scope.renderers.heatmap(global, graph, metrics);
+            scope.renderers.heatmap.render(global, graph, metrics);
             
             $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1h-avg:metric1&ms=true&arrays=true").respond([
                 {metric: "metric1", tags: {}, dps:[
@@ -335,7 +335,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "week_day" } };
             var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
-            scope.renderers.heatmap(global, graph, metrics);
+            scope.renderers.heatmap.render(global, graph, metrics);
             
             $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/10/10 10:10:10&end=2016/10/24 10:10:10&m=sum:1d-avg:metric1&ms=true&arrays=true").respond([
                 {metric: "metric1", tags: {}, dps:[
@@ -374,7 +374,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "week_day", excludeNegative: true } };
             var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
-            scope.renderers.heatmap(global, graph, metrics);
+            scope.renderers.heatmap.render(global, graph, metrics);
             
             $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/10/10 10:10:10&end=2016/10/24 10:10:10&m=sum:1d-avg:metric1&ms=true&arrays=true").respond([
                 {metric: "metric1", tags: {}, dps:[
@@ -413,7 +413,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "week_day", filterLowerBound: "30" } };
             var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
-            scope.renderers.heatmap(global, graph, metrics);
+            scope.renderers.heatmap.render(global, graph, metrics);
             
             $httpBackend.expectGET("http://tsdb:4242/api/query?start=2w-ago&ignore=1&m=sum:1d-avg:metric1&ms=true&arrays=true").respond([
                 {metric: "metric1", tags: {}, dps:[
@@ -441,7 +441,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "week_day", filterUpperBound: "30" } };
             var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
-            scope.renderers.heatmap(global, graph, metrics);
+            scope.renderers.heatmap.render(global, graph, metrics);
             
             $httpBackend.expectGET("http://tsdb:4242/api/query?start=2w-ago&ignore=1&m=sum:1d-avg:metric1&ms=true&arrays=true").respond([
                 {metric: "metric1", tags: {}, dps:[
@@ -469,7 +469,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "day_hour", filterLowerBound: "30", filterUpperBound: "30" } };
             var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
-            scope.renderers.heatmap(global, graph, metrics);
+            scope.renderers.heatmap.render(global, graph, metrics);
             
             $httpBackend.expectGET("http://tsdb:4242/api/query?start=2w-ago&ignore=1&m=sum:1h-avg:metric1&ms=true&arrays=true").respond([
                 {metric: "metric1", tags: {}, dps:[

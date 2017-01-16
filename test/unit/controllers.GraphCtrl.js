@@ -36,10 +36,12 @@ describe('Aardvark controllers', function () {
             metricss = [];
 
             scope.renderers = {};
-            scope.renderers["unittest"] = function(global,graph,metrics) {
-                globals.push(global);
-                graphs.push(graph);
-                metricss.push(metrics);
+            scope.renderers["unittest"] = { 
+                render: function(global,graph,metrics) {
+                    globals.push(global);
+                    graphs.push(graph);
+                    metricss.push(metrics);
+                }
             }
 
             rootScope.model = {

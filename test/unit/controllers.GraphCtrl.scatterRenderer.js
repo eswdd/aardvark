@@ -81,7 +81,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 0, graphHeight: 0 };
             var metrics = [ { id: "123", graphOptions: {} } ];
 
-            scope.renderers.scatter(global, graph, metrics);
+            scope.renderers.scatter.render(global, graph, metrics);
 
             expect(renderDivId).toEqualData(null);
             expect(renderGraphId).toEqualData(null);
@@ -100,7 +100,7 @@ describe('Aardvark controllers', function () {
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ ];
 
-            scope.renderers.scatter(global, graph, metrics);
+            scope.renderers.scatter.render(global, graph, metrics);
 
             expect(renderDivId).toEqualData(null);
             expect(renderGraphId).toEqualData(null);
@@ -119,7 +119,7 @@ describe('Aardvark controllers', function () {
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ { id: "123", graphOptions: {} } ];
 
-            scope.renderers.scatter(global, graph, metrics);
+            scope.renderers.scatter.render(global, graph, metrics);
 
             expect(renderDivId).toEqualData(null);
             expect(renderGraphId).toEqualData(null);
@@ -138,7 +138,7 @@ describe('Aardvark controllers', function () {
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ { id: "123", graphOptions: {} }, { id: "124", graphOptions: {} }, { id: "125", graphOptions: {} } ];
 
-            scope.renderers.scatter(global, graph, metrics);
+            scope.renderers.scatter.render(global, graph, metrics);
 
             expect(renderDivId).toEqualData(null);
             expect(renderGraphId).toEqualData(null);
@@ -180,7 +180,7 @@ describe('Aardvark controllers', function () {
                 }
             ]);
 
-            scope.renderers.scatter(global, graph, metrics);
+            scope.renderers.scatter.render(global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -247,7 +247,7 @@ describe('Aardvark controllers', function () {
                 }
             ]);
 
-            scope.renderers.scatter(global, graph, metrics);
+            scope.renderers.scatter.render(global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -314,7 +314,7 @@ describe('Aardvark controllers', function () {
                 }
             ]);
 
-            scope.renderers.scatter(global, graph, metrics);
+            scope.renderers.scatter.render(global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -381,7 +381,7 @@ describe('Aardvark controllers', function () {
                 }
             ]);
 
-            scope.renderers.scatter(global, graph, metrics);
+            scope.renderers.scatter.render(global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -448,7 +448,7 @@ describe('Aardvark controllers', function () {
                 }
             ]);
 
-            scope.renderers.scatter(global, graph, metrics);
+            scope.renderers.scatter.render(global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -522,7 +522,7 @@ describe('Aardvark controllers', function () {
                 }
             ]);
 
-            scope.renderers.scatter(global, graph, metrics);
+            scope.renderers.scatter.render(global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -560,7 +560,7 @@ describe('Aardvark controllers', function () {
                 }
             ]);
 
-            scope.renderers.scatter(global, graph, metrics);
+            scope.renderers.scatter.render(global, graph, metrics);
 
 
             $httpBackend.flush();
