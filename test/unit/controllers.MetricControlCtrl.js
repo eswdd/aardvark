@@ -283,19 +283,19 @@ describe('Aardvark controllers', function () {
         
         it('should add a second tag row when filtering is supported', function() {
             mockTsdbClient.versionNumber = mockTsdbClient.TSDB_2_2;
-            expect(scope.tagFilters.length).toEqualData(0);
+            expect(scope.localModel.tagFilters.length).toEqualData(0);
             scope.addTagRow("tag1");
-            expect(scope.tagFilters.length).toEqualData(1);
+            expect(scope.localModel.tagFilters.length).toEqualData(1);
             scope.addTagRow("tag1");
-            expect(scope.tagFilters.length).toEqualData(2);
+            expect(scope.localModel.tagFilters.length).toEqualData(2);
         });
         
         it('should not add a second tag row when filtering is supported', function() {
-            expect(scope.tagFilters.length).toEqualData(0);
+            expect(scope.localModel.tagFilters.length).toEqualData(0);
             scope.addTagRow("tag1");
-            expect(scope.tagFilters.length).toEqualData(1);
+            expect(scope.localModel.tagFilters.length).toEqualData(1);
             scope.addTagRow("tag1");
-            expect(scope.tagFilters.length).toEqualData(1);
+            expect(scope.localModel.tagFilters.length).toEqualData(1);
         });
         
         it('should correctly count matching tag values', function() {
@@ -379,16 +379,16 @@ describe('Aardvark controllers', function () {
 
         it('should add the metric to the model when addMetric() is called', function() {
             scope.tagNames = ["tag1","tag2","tag3"];
-            scope.tagFilters = [{name:"tag1", value: ''}, {name:"tag2", value: '*'}, {name:"tag3",value: 'value'}];
+            scope.localModel.tagFilters = [{name:"tag1", value: ''}, {name:"tag2", value: '*'}, {name:"tag3",value: 'value'}];
             scope.selectedMetric = "some.metric.name";
-            scope.rate = true;
-            scope.rateCounter = true;
-            scope.rateCounterMax = '123';
-            scope.rateCounterReset = '1';
-            scope.rightAxis = true;
-            scope.downsample = true;
-            scope.downsampleBy = "zimsum";
-            scope.downsampleTo = "10m";
+            scope.localModel.rate = true;
+            scope.localModel.rateCounter = true;
+            scope.localModel.rateCounterMax = '123';
+            scope.localModel.rateCounterReset = '1';
+            scope.localModel.rightAxis = true;
+            scope.localModel.downsample = true;
+            scope.localModel.downsampleBy = "zimsum";
+            scope.localModel.downsampleTo = "10m";
             scope.nodeSelectionDisabled = true; // set by nodeSelectedForAddition normally
 
             scope.addMetric();
@@ -443,15 +443,15 @@ describe('Aardvark controllers', function () {
             scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
             scope.selectedMetric = "some.metric.name";
             scope.selectedTreeNode = "mock-node";
-            scope.rightAxis = false;
-            scope.rate = true;
-            scope.rateCounter = true;
-            scope.rateCounterMax = '123';
-            scope.rateCounterReset = '1';
-            scope.aggregator = "zimsum";
-            scope.downsample = true;
-            scope.downsampleBy = "sum";
-            scope.downsampleTo = "10m";
+            scope.localModel.rightAxis = false;
+            scope.localModel.rate = true;
+            scope.localModel.rateCounter = true;
+            scope.localModel.rateCounterMax = '123';
+            scope.localModel.rateCounterReset = '1';
+            scope.localModel.aggregator = "zimsum";
+            scope.localModel.downsample = true;
+            scope.localModel.downsampleBy = "sum";
+            scope.localModel.downsampleTo = "10m";
             scope.nodeSelectionDisabled = true; // set by nodeSelectedForAddition normally
 
             scope.clearMetric();
@@ -460,15 +460,15 @@ describe('Aardvark controllers', function () {
             expect(scope.tagNames).toEqualData([]);
             expect(scope.tag).toEqualData({});
             expect(scope.selectedMetric).toEqualData('');
-            expect(scope.aggregator).toEqualData('sum');
-            expect(scope.rightAxis).toEqualData(false);
-            expect(scope.rate).toEqualData(false);
-            expect(scope.rateCounter).toEqualData(false);
-            expect(scope.rateCounterMax).toEqualData('');
-            expect(scope.rateCounterReset).toEqualData('');
-            expect(scope.downsample).toEqualData(false);
-            expect(scope.downsampleBy).toEqualData('avg');
-            expect(scope.downsampleTo).toEqualData('');
+            expect(scope.localModel.aggregator).toEqualData('sum');
+            expect(scope.localModel.rightAxis).toEqualData(false);
+            expect(scope.localModel.rate).toEqualData(false);
+            expect(scope.localModel.rateCounter).toEqualData(false);
+            expect(scope.localModel.rateCounterMax).toEqualData('');
+            expect(scope.localModel.rateCounterReset).toEqualData('');
+            expect(scope.localModel.downsample).toEqualData(false);
+            expect(scope.localModel.downsampleBy).toEqualData('avg');
+            expect(scope.localModel.downsampleTo).toEqualData('');
             expect(scope.nodeSelectionDisabled).toEqualData(false);
             expect(scope.selectedTreeNode).toEqualData(undefined);
             expect(scope.clearButtonEnabled()).toEqualData(false);
@@ -559,9 +559,9 @@ describe('Aardvark controllers', function () {
             expect(scope.tagNames).toEqualData(["tag1","tag2","tag3"]);
             expect(scope.tag).toEqualData({tag1:"",tag2:"*",tag3:"value"});
             expect(scope.selectedMetric).toEqualData('');
-            expect(scope.rate).toEqualData(true);
-            expect(scope.downsample).toEqualData(true);
-            expect(scope.downsampleBy).toEqualData('10m');
+            expect(scope.localModel.rate).toEqualData(true);
+            expect(scope.localModel.downsample).toEqualData(true);
+            expect(scope.localModel.downsampleBy).toEqualData('10m');
             expect(scope.nodeSelectionDisabled).toEqualData(false);
             expect(scope.clearButtonEnabled()).toEqualData(true);
             expect(scope.addButtonVisible()).toEqualData(false);
@@ -604,34 +604,34 @@ describe('Aardvark controllers', function () {
                 };
 
             scope.tagNames = ["tag1","tag2","tag3"];
-            scope.tagFilters = [{name:"tag1",value: ''}, {name:"tag2", value: '*'}, {name:"tag3",value: 'value'}];
+            scope.localModel.tagFilters = [{name:"tag1",value: ''}, {name:"tag2", value: '*'}, {name:"tag3",value: 'value'}];
             scope.selectedMetricId = "123";
-            scope.aggregator = 'zimsum';
-            scope.rightAxis = false;
-            scope.rate = false;
-            scope.rateCounter = false;
-            scope.rateCounterMax = '123';
-            scope.rateCounterReset = '456';
-            scope.downsample = true;
-            scope.downsampleTo = "10m";
-            scope.downsampleBy = "sum";
+            scope.localModel.aggregator = 'zimsum';
+            scope.localModel.rightAxis = false;
+            scope.localModel.rate = false;
+            scope.localModel.rateCounter = false;
+            scope.localModel.rateCounterMax = '123';
+            scope.localModel.rateCounterReset = '456';
+            scope.localModel.downsample = true;
+            scope.localModel.downsampleTo = "10m";
+            scope.localModel.downsampleBy = "sum";
 
             scope.saveMetric();
 
             expect(saveModelCalled).toEqualData(true);
             expect(scope.tagNames).toEqualData(["tag1","tag2","tag3"]);
-            expect(scope.tagFilters).toEqualData([{name:"tag1",value: ''}, {name:"tag2", value: '*'}, {name:"tag3",value: 'value'}]);
+            expect(scope.localModel.tagFilters).toEqualData([{name:"tag1",value: ''}, {name:"tag2", value: '*'}, {name:"tag3",value: 'value'}]);
             expect(scope.selectedMetricId).toEqualData('123');
             expect(scope.selectedMetric).toEqualData('');
-            expect(scope.aggregator).toEqualData('zimsum');
-            expect(scope.rightAxis).toEqualData(false);
-            expect(scope.rate).toEqualData(false);
-            expect(scope.rateCounter).toEqualData(false);
-            expect(scope.rateCounterMax).toEqualData('123');
-            expect(scope.rateCounterReset).toEqualData('456');
-            expect(scope.downsample).toEqualData(true);
-            expect(scope.downsampleBy).toEqualData('sum');
-            expect(scope.downsampleTo).toEqualData('10m');
+            expect(scope.localModel.aggregator).toEqualData('zimsum');
+            expect(scope.localModel.rightAxis).toEqualData(false);
+            expect(scope.localModel.rate).toEqualData(false);
+            expect(scope.localModel.rateCounter).toEqualData(false);
+            expect(scope.localModel.rateCounterMax).toEqualData('123');
+            expect(scope.localModel.rateCounterReset).toEqualData('456');
+            expect(scope.localModel.downsample).toEqualData(true);
+            expect(scope.localModel.downsampleBy).toEqualData('sum');
+            expect(scope.localModel.downsampleTo).toEqualData('10m');
             expect(scope.nodeSelectionDisabled).toEqualData(false);
             expect(scope.clearButtonEnabled()).toEqualData(true);
             expect(scope.addButtonVisible()).toEqualData(false);
@@ -717,15 +717,15 @@ describe('Aardvark controllers', function () {
             scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
             scope.selectedMetricId = "123";
             scope.selectedTreeNode = "mock-node";
-            scope.aggregator = 'zimsum';
-            scope.rightAxis = false;
-            scope.rate = false;
-            scope.rateCounter = false;
-            scope.rateCounterMax = '123';
-            scope.rateCounterReset = '456';
-            scope.downsample = true;
-            scope.downsampleTo = "10m";
-            scope.downsampleBy = "sum";
+            scope.localModel.aggregator = 'zimsum';
+            scope.localModel.rightAxis = false;
+            scope.localModel.rate = false;
+            scope.localModel.rateCounter = false;
+            scope.localModel.rateCounterMax = '123';
+            scope.localModel.rateCounterReset = '456';
+            scope.localModel.downsample = true;
+            scope.localModel.downsampleTo = "10m";
+            scope.localModel.downsampleBy = "sum";
 
             scope.deleteMetric();
 
@@ -734,15 +734,15 @@ describe('Aardvark controllers', function () {
             expect(scope.tag).toEqualData({});
             expect(scope.selectedMetricId).toEqualData('0');
             expect(scope.selectedMetric).toEqualData('');
-            expect(scope.aggregator).toEqualData('sum');
-            expect(scope.rightAxis).toEqualData(false);
-            expect(scope.rate).toEqualData(false);
-            expect(scope.rateCounter).toEqualData(false);
-            expect(scope.rateCounterMax).toEqualData('');
-            expect(scope.rateCounterReset).toEqualData('');
-            expect(scope.downsample).toEqualData(false);
-            expect(scope.downsampleBy).toEqualData('avg');
-            expect(scope.downsampleTo).toEqualData('');
+            expect(scope.localModel.aggregator).toEqualData('sum');
+            expect(scope.localModel.rightAxis).toEqualData(false);
+            expect(scope.localModel.rate).toEqualData(false);
+            expect(scope.localModel.rateCounter).toEqualData(false);
+            expect(scope.localModel.rateCounterMax).toEqualData('');
+            expect(scope.localModel.rateCounterReset).toEqualData('');
+            expect(scope.localModel.downsample).toEqualData(false);
+            expect(scope.localModel.downsampleBy).toEqualData('avg');
+            expect(scope.localModel.downsampleTo).toEqualData('');
             expect(scope.nodeSelectionDisabled).toEqualData(false);
             expect(scope.selectedTreeNode).toEqualData(undefined);
             expect(scope.clearButtonEnabled()).toEqualData(false);
@@ -817,15 +817,15 @@ describe('Aardvark controllers', function () {
             scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
             scope.selectedMetricId = "123";
             scope.selectedTreeNode = "mock-node";
-            scope.aggregator = 'zimsum';
-            scope.rightAxis = false;
-            scope.rate = false;
-            scope.rateCounter = false;
-            scope.rateCounterMax = '123';
-            scope.rateCounterReset = '456';
-            scope.downsample = true;
-            scope.downsampleTo = "10m";
-            scope.downsampleBy = "sum";
+            scope.localModel.aggregator = 'zimsum';
+            scope.localModel.rightAxis = false;
+            scope.localModel.rate = false;
+            scope.localModel.rateCounter = false;
+            scope.localModel.rateCounterMax = '123';
+            scope.localModel.rateCounterReset = '456';
+            scope.localModel.downsample = true;
+            scope.localModel.downsampleTo = "10m";
+            scope.localModel.downsampleBy = "sum";
 
             scope.deleteMetric();
 
@@ -834,15 +834,15 @@ describe('Aardvark controllers', function () {
             expect(scope.tag).toEqualData({});
             expect(scope.selectedMetricId).toEqualData('0');
             expect(scope.selectedMetric).toEqualData('');
-            expect(scope.aggregator).toEqualData('sum');
-            expect(scope.rightAxis).toEqualData(false);
-            expect(scope.rate).toEqualData(false);
-            expect(scope.rateCounter).toEqualData(false);
-            expect(scope.rateCounterMax).toEqualData('');
-            expect(scope.rateCounterReset).toEqualData('');
-            expect(scope.downsample).toEqualData(false);
-            expect(scope.downsampleBy).toEqualData('avg');
-            expect(scope.downsampleTo).toEqualData('');
+            expect(scope.localModel.aggregator).toEqualData('sum');
+            expect(scope.localModel.rightAxis).toEqualData(false);
+            expect(scope.localModel.rate).toEqualData(false);
+            expect(scope.localModel.rateCounter).toEqualData(false);
+            expect(scope.localModel.rateCounterMax).toEqualData('');
+            expect(scope.localModel.rateCounterReset).toEqualData('');
+            expect(scope.localModel.downsample).toEqualData(false);
+            expect(scope.localModel.downsampleBy).toEqualData('avg');
+            expect(scope.localModel.downsampleTo).toEqualData('');
             expect(scope.nodeSelectionDisabled).toEqualData(false);
             expect(scope.selectedTreeNode).toEqualData(undefined);
             expect(scope.clearButtonEnabled()).toEqualData(false);
@@ -887,15 +887,15 @@ describe('Aardvark controllers', function () {
             scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
             scope.selectedMetricId = "123";
             scope.selectedTreeNode = "mock-node";
-            scope.aggregator = "avg";
-            scope.rightAxis = true;
-            scope.rate = true;
-            scope.rateCounter = true;
-            scope.rateCounterReset = "123";
-            scope.rateCounterMax = "123";
-            scope.downsample = true;
-            scope.downsampleTo = "10m";
-            scope.downsampleBy = "sum";
+            scope.localModel.aggregator = "avg";
+            scope.localModel.rightAxis = true;
+            scope.localModel.rate = true;
+            scope.localModel.rateCounter = true;
+            scope.localModel.rateCounterReset = "123";
+            scope.localModel.rateCounterMax = "123";
+            scope.localModel.downsample = true;
+            scope.localModel.downsampleTo = "10m";
+            scope.localModel.downsampleBy = "sum";
 
             scope.clearMetric();
 
@@ -903,15 +903,15 @@ describe('Aardvark controllers', function () {
             expect(scope.tagNames).toEqualData([]);
             expect(scope.tag).toEqualData({});
             expect(scope.selectedMetricId).toEqualData('0');
-            expect(scope.aggregator).toEqualData('sum');
-            expect(scope.rightAxis).toEqualData(false);
-            expect(scope.rate).toEqualData(false);
-            expect(scope.rateCounter).toEqualData(false);
-            expect(scope.rateCounterReset).toEqualData('');
-            expect(scope.rateCounterMax).toEqualData('');
-            expect(scope.downsample).toEqualData(false);
-            expect(scope.downsampleBy).toEqualData('avg');
-            expect(scope.downsampleTo).toEqualData('');
+            expect(scope.localModel.aggregator).toEqualData('sum');
+            expect(scope.localModel.rightAxis).toEqualData(false);
+            expect(scope.localModel.rate).toEqualData(false);
+            expect(scope.localModel.rateCounter).toEqualData(false);
+            expect(scope.localModel.rateCounterReset).toEqualData('');
+            expect(scope.localModel.rateCounterMax).toEqualData('');
+            expect(scope.localModel.downsample).toEqualData(false);
+            expect(scope.localModel.downsampleBy).toEqualData('avg');
+            expect(scope.localModel.downsampleTo).toEqualData('');
             expect(scope.nodeSelectionDisabled).toEqualData(false);
             expect(scope.selectedTreeNode).toEqualData(undefined);
             expect(scope.clearButtonEnabled()).toEqualData(false);
@@ -961,21 +961,21 @@ describe('Aardvark controllers', function () {
             scope.nodeSelectedForAddition(node, true);
 
             var checkDefaults = function() {
-                expect(scope.tagFilters).toEqualData([]);
+                expect(scope.localModel.tagFilters).toEqualData([]);
                 expect(scope.selectedMetricId).toEqualData("0");
-                expect(scope.rate).toEqualData(false);
-                expect(scope.rateCounter).toEqualData(false);
-                expect(scope.rateCounterMax).toEqualData("");
-                expect(scope.rateCounterReset).toEqualData("");
-                expect(scope.downsample).toEqualData(false);
-                expect(scope.downsampleBy).toEqualData("avg");
-                expect(scope.downsampleTo).toEqualData("");
-                expect(scope.rightAxis).toEqualData(false);
-                expect(scope.aggregator).toEqualData("sum");
+                expect(scope.localModel.rate).toEqualData(false);
+                expect(scope.localModel.rateCounter).toEqualData(false);
+                expect(scope.localModel.rateCounterMax).toEqualData("");
+                expect(scope.localModel.rateCounterReset).toEqualData("");
+                expect(scope.localModel.downsample).toEqualData(false);
+                expect(scope.localModel.downsampleBy).toEqualData("avg");
+                expect(scope.localModel.downsampleTo).toEqualData("");
+                expect(scope.localModel.rightAxis).toEqualData(false);
+                expect(scope.localModel.aggregator).toEqualData("sum");
             }
             
             checkDefaults();
-            expect(scope.graphId).toEqualData("1");
+            expect(scope.localModel.graphId).toEqualData("1");
             expect(scope.selectedMetric).toEqualData("name.baldrick");
             expect(scope.tagValues).toEqualData({
                 key1: ["value1","value2"],
@@ -984,11 +984,11 @@ describe('Aardvark controllers', function () {
             expect(scope.tagNames).toEqualData(["key1","key2"]);
             expect(scope.tag).toEqualData({key1:"",key2:""});
             expect(scope.tagOptions).toEqualData({key1:{},key2:{}});
-            scope.tagFilters = [
+            scope.localModel.tagFilters = [
                 {name:"key1",value:"*",groupBy:true}
             ];
             scope.tag.key2 = "wibble";
-            scope.rate = true;
+            scope.localModel.rate = true;
 
             node = {id: "name.blackadder", name: "blackadder", isMetric: true, children: []};
             response = {
@@ -1025,7 +1025,7 @@ describe('Aardvark controllers', function () {
 
             scope.nodeSelectedForAddition(node, true);
             checkDefaults();
-            expect(scope.graphId).toEqualData("1");
+            expect(scope.localModel.graphId).toEqualData("1");
             expect(scope.selectedMetric).toEqualData("name.blackadder");
             expect(scope.tagValues).toEqualData({
                 key1: ["value1","value2"],

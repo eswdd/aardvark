@@ -36,11 +36,17 @@ describe('Aardvark controllers', function () {
             metricss = [];
 
             scope.renderers = {};
-            scope.renderers["unittest"] = { 
-                render: function(global,graph,metrics) {
-                    globals.push(global);
-                    graphs.push(graph);
-                    metricss.push(metrics);
+            scope.renderers["unittest"] = {
+                create: function() {
+                    return {
+                        type: "unittest",
+                        supports_tsdb_export: false,
+                        render: function(global,graph,metrics) {
+                            globals.push(global);
+                            graphs.push(graph);
+                            metricss.push(metrics);
+                        }
+                    }
                 }
             }
 

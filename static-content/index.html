@@ -582,6 +582,7 @@
                     <div class="graph-title">
                         <span>{{graph.title}}</span>
                         <span ng-show="renderMessages[graph.id] != null && renderMessages[graph.id] != ''"> - {{renderMessages[graph.id]}}</span>
+                        <a ng-show="supportsTsdbExport(graph)" href="{{tsdbExportLink(graph)}}" target="_blank"><span class="pull-right" style="cursor: pointer; cursor: hand; padding-right: 3px" uib-tooltip="Export to TSDB" tooltip-placement="left"><img src="opentsdb_icon.png"/></span></a>
                     </div>
                     <div ng-show="renderErrors[graph.id]!=null">
                         <span style="color: red">{{renderErrors[graph.id]}}</span>
@@ -720,30 +721,30 @@
                         <aa-collapsible-panel title="Query" initial-collapsed="false" icon="glyphicon-search">
                             <div>
                                 <label for="metricControl_editMetric_aggregator">Aggregator</label>
-                                <select id="metricControl_editMetric_aggregator" ng-model="aggregator" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()">
+                                <select id="metricControl_editMetric_aggregator" ng-model="localModel.aggregator" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()">
                                     <option ng-repeat="aggregator in allAggregators">{{aggregator}}</option>
                                 </select>
                             </div>
                             <div>
                                 <label for="metricControl_editMetric_rate">Rate?</label>
-                                <input id="metricControl_editMetric_rate" type="checkbox" ng-model="rate" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
+                                <input id="metricControl_editMetric_rate" type="checkbox" ng-model="localModel.rate" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
                                 <label for="metricControl_editMetric_rate">Rate Ctr?</label>
-                                <input id="metricControl_editMetric_rateCounter" type="checkbox" ng-model="rateCounter" ng-disabled="!clearButtonEnabled() && !rate" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
+                                <input id="metricControl_editMetric_rateCounter" type="checkbox" ng-model="localModel.rateCounter" ng-disabled="!clearButtonEnabled() && !rate" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
                             </div>
                             <div ng-show="rateCounter">
                                 <label for="metricControl_editMetric_rateCounterMax">Counter max</label>
-                                <input id="metricControl_editMetric_rateCounterMax" type="text" ng-model="rateCounterMax" ng-blur="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
+                                <input id="metricControl_editMetric_rateCounterMax" type="text" ng-model="localModel.rateCounterMax" ng-blur="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
                                 <label for="metricControl_editMetric_rateCounterReset">Counter reset</label>
-                                <input id="metricControl_editMetric_rateCounterReset" type="text" ng-model="rateCounterReset" ng-blur="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
+                                <input id="metricControl_editMetric_rateCounterReset" type="text" ng-model="localModel.rateCounterReset" ng-blur="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
                             </div>
                             <div>
                                 <label for="metricControl_editMetric_downsample">Downsample?</label>
-                                <input id="metricControl_editMetric_downsample" type="checkbox" ng-model="downsample" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
+                                <input id="metricControl_editMetric_downsample" type="checkbox" ng-model="localModel.downsample" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
                                 <label for="metricControl_editMetric_downsampleBy">by</label>
-                                <select id="metricControl_editMetric_downsampleBy" ng-model="downsampleBy" ng-disabled="!downsampleByEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()">
+                                <select id="metricControl_editMetric_downsampleBy" ng-model="localModel.downsampleBy" ng-disabled="!downsampleByEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()">
                                     <option ng-repeat="aggregator in allAggregators">{{aggregator}}</option>
                                 </select>
-                                <input type="text" ng-model="downsampleTo" ng-disabled="!downsample" ng-blur="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
+                                <input type="text" ng-model="localModel.downsampleTo" ng-disabled="!localModel.downsample" ng-blur="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
                             </div>
     
                             <div>
@@ -752,7 +753,7 @@
     
                             <div ng-show="tagFilteringSupported()">
                                 <table cellspacing="3">
-                                    <tr ng-repeat="tag in tagFilters track by tag.id">
+                                    <tr ng-repeat="tag in localModel.tagFilters track by tag.id">
                                         <td><span class="glyphicon glyphicon-remove-circle" style="cursor: pointer; cursor: hand; padding-right: 3px" ng-click="deleteTagRow(tag.id)" uib-tooltip="Remove row" tooltip-placement="right"></span></td>
                                         <td style="padding-right: 3px"><span>{{tag.name}}</span></td>
                                         <td style="width: 100%; padding-right: 3px"><div tag-filter-selection></div></td>
@@ -763,7 +764,7 @@
     
                             <div ng-hide="tagFilteringSupported()">
                                 <table cellspacing="3">
-                                    <tr ng-repeat="tag in tagFilters track by tag.id">
+                                    <tr ng-repeat="tag in localModel.tagFilters track by tag.id">
                                         <td><span class="glyphicon glyphicon-remove-circle" style="cursor: pointer; cursor: hand; padding-right: 3px" ng-click="deleteTagRow(tag.id)" uib-tooltip="Remove row" tooltip-placement="right"></span></td>
                                         <td style="padding-right: 3px"><span>{{tag.name}}</span></td>
                                         <td style="width: 100%; padding-right: 3px"><div tag-filter-selection></div></td>
@@ -774,7 +775,7 @@
                         <aa-collapsible-panel title="Rendering" initial-collapsed="false" icon="glyphicon-stats">
                             <div>
                                 <label for="metricControl_editMetric_selectGraph">Graph</label>
-                                <select id="metricControl_editMetric_selectGraph" ng-model="graphId" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()">
+                                <select id="metricControl_editMetric_selectGraph" ng-model="localModel.graphId" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()">
                                     <option value="0" selected="selected">None</option>
                                     <option ng-repeat="graph in model.graphs track by graph.id" value="{{graph.id}}">
                                         {{graph.title}}
@@ -782,7 +783,7 @@
                                 </select>
                             </div>
                             <div>
-                                <input id="metricControl_editMetric_rightAxis" type="checkbox" ng-model="rightAxis" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
+                                <input id="metricControl_editMetric_rightAxis" type="checkbox" ng-model="localModel.rightAxis" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
                                 <label for="metricControl_editMetric_rightAxis">Right Axis</label>
                             </div>
                         </aa-collapsible-panel>

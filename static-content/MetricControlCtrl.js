@@ -16,6 +16,8 @@ aardvark.directive('tagFilterSelection', function() {
  */
 .controller('MetricControlCtrl', [ '$scope', '$rootScope', '$sce', 'idGenerator', 'tsdbClient', 'tsdbUtils', function MetricControlCtrl($scope, $rootScope, $sce, idGenerator, $tsdbClient, $tsdbUtils) {
 
+    $scope.localModel = {};
+    
     $scope.treeUpdateInProgress = false;
     $scope.allParentNodes = [];
     $scope.showFilterInput = false;
@@ -25,23 +27,24 @@ aardvark.directive('tagFilterSelection', function() {
     $scope.expandedNodes = [];
     $scope.tagOptions = {};
     $scope.tagValues = {};
-    $scope.tagFilters = [];
+    $scope.localModel.tagFilters = [];
+        
     $scope.selectedMetricId = 0;
     $scope.nodeSelectionDisabled = false;
 
     // TODO load aggregators from /aggregators on tsdb..
-    $scope.allAggregators = ["avg", "min", "max", "sum", "zimsum", "mimmax", "mimmin", "raw", "dev", "count", "p999", "p99", "p95", "p90", "p75", "p50", "ep999r7", "ep99r7", "ep95r7", "ep90r7", "ep75r7", "ep50r7", "ep999r3", "ep99r3", "ep95r3", "ep90r3", "ep75r3", "ep50r3"];
+    $scope.localModel.allAggregators = ["avg", "min", "max", "sum", "zimsum", "mimmax", "mimmin", "raw", "dev", "count", "p999", "p99", "p95", "p90", "p75", "p50", "ep999r7", "ep99r7", "ep95r7", "ep90r7", "ep75r7", "ep50r7", "ep999r3", "ep99r3", "ep95r3", "ep90r3", "ep75r3", "ep50r3"];
 
-    $scope.graphId = "0";
-    $scope.aggregator = "sum";
-    $scope.rightAxis = false;
-    $scope.rate = false;
-    $scope.rateCounter = false;
-    $scope.rateCounterMax = "";
-    $scope.rateCounterReset = "";
-    $scope.downsample = false;
-    $scope.downsampleBy = "avg";
-    $scope.downsampleTo = "";
+    $scope.localModel.graphId = "0";
+    $scope.localModel.aggregator = "sum";
+    $scope.localModel.rightAxis = false;
+    $scope.localModel.rate = false;
+    $scope.localModel.rateCounter = false;
+    $scope.localModel.rateCounterMax = "";
+    $scope.localModel.rateCounterReset = "";
+    $scope.localModel.downsample = false;
+    $scope.localModel.downsampleBy = "avg";
+    $scope.localModel.downsampleTo = "";
         
     $scope.showingIgnoredPrefixes = false;
 
@@ -115,7 +118,7 @@ aardvark.directive('tagFilterSelection', function() {
         var graph = null;
         if ($rootScope.model.graphs != null) {
             for (var g=0; g<$rootScope.model.graphs.length; g++) {
-                if ($rootScope.model.graphs[g].id == $scope.graphId) {
+                if ($rootScope.model.graphs[g].id == $scope.localModel.graphId) {
                     graph = $rootScope.model.graphs[g];
                 }
             }
@@ -125,7 +128,7 @@ aardvark.directive('tagFilterSelection', function() {
 
     $scope.downsampleByEnabled = function() {
         var graph = $scope.allocatedGraph();
-        return $scope.downsample || $scope.globalDownsampling 
+        return $scope.localModel.downsample || $scope.globalDownsampling 
             || (graph != null && (graph.type == "horizon" || graph.type == "heatmap"));
     }
 
@@ -151,10 +154,10 @@ aardvark.directive('tagFilterSelection', function() {
         if (valid) {
             $scope.selectedMetricId = "0";
             if ($rootScope.model.graphs.length == 1) {
-                $scope.graphId = $rootScope.model.graphs[0].id;
+                $scope.localModel.graphId = $rootScope.model.graphs[0].id;
             }
             else {
-                $scope.graphId = "0";
+                $scope.localModel.graphId = "0";
             }
             $scope.metricSelected($scope.selectedMetric.trim(), true);
         }
@@ -185,9 +188,9 @@ aardvark.directive('tagFilterSelection', function() {
         // load the tag names / possible values
         $scope.metricSelected(metric.name, false);
         // populate tag chosen values / re flags
-        $scope.tagFilters = metric.tags;
-        for (var t=0; t<$scope.tagFilters.length; t++) {
-            var tag = $scope.tagFilters[t];
+        $scope.localModel.tagFilters = metric.tags;
+        for (var t=0; t<$scope.localModel.tagFilters.length; t++) {
+            var tag = $scope.localModel.tagFilters[t];
             $scope.tag[tag.name] = tag.value;
             if (tag.id == null) {
                 tag.id = idGenerator.nextId(); 
@@ -195,16 +198,16 @@ aardvark.directive('tagFilterSelection', function() {
         }
         // populate graph options
         if (metric.graphOptions) {
-            $scope.graphId = metric.graphOptions.graphId;
-            $scope.rate = metric.graphOptions.rate;
-            $scope.rateCounter = metric.graphOptions.rateCounter;
-            $scope.rateCounterReset = metric.graphOptions.rateCounterReset;
-            $scope.rateCounterMax = metric.graphOptions.rateCounterMax;
-            $scope.aggregator = metric.graphOptions.aggregator;
-            $scope.rightAxis = metric.graphOptions.rightAxis;
-            $scope.downsample = metric.graphOptions.downsample;
-            $scope.downsampleBy = metric.graphOptions.downsampleBy;
-            $scope.downsampleTo = metric.graphOptions.downsampleTo;
+            $scope.localModel.graphId = metric.graphOptions.graphId;
+            $scope.localModel.rate = metric.graphOptions.rate;
+            $scope.localModel.rateCounter = metric.graphOptions.rateCounter;
+            $scope.localModel.rateCounterReset = metric.graphOptions.rateCounterReset;
+            $scope.localModel.rateCounterMax = metric.graphOptions.rateCounterMax;
+            $scope.localModel.aggregator = metric.graphOptions.aggregator;
+            $scope.localModel.rightAxis = metric.graphOptions.rightAxis;
+            $scope.localModel.downsample = metric.graphOptions.downsample;
+            $scope.localModel.downsampleBy = metric.graphOptions.downsampleBy;
+            $scope.localModel.downsampleTo = metric.graphOptions.downsampleTo;
         }
     }
         
@@ -312,10 +315,10 @@ aardvark.directive('tagFilterSelection', function() {
 
     $scope.persistViewToExistingMetric = function(metric) {
         metric.tags = [];
-        for (var t=0; t<$scope.tagFilters.length; t++) {
-            var tag = {name:$scope.tagFilters[t].name,value:$scope.tagFilters[t].value};
-            if ($scope.tagFilters[t].groupBy != null) {
-                tag.groupBy = $scope.tagFilters[t].groupBy;
+        for (var t=0; t<$scope.localModel.tagFilters.length; t++) {
+            var tag = {name:$scope.localModel.tagFilters[t].name,value:$scope.localModel.tagFilters[t].value};
+            if ($scope.localModel.tagFilters[t].groupBy != null) {
+                tag.groupBy = $scope.localModel.tagFilters[t].groupBy;
             }
             else { // older versions
                 tag.groupBy = true;
@@ -323,16 +326,16 @@ aardvark.directive('tagFilterSelection', function() {
             metric.tags.push(tag);
         }
         metric.graphOptions = {
-            graphId: $scope.graphId,
-            rate: $scope.rate,
-            rateCounter: $scope.rateCounter,
-            rateCounterMax: $scope.rateCounterMax,
-            rateCounterReset: $scope.rateCounterReset,
-            aggregator: $scope.aggregator,
-            axis: $scope.rightAxis ? "x1y2" : "x1y1",
-            downsample: $scope.downsample,
-            downsampleBy: $scope.downsampleBy,
-            downsampleTo: $scope.downsampleTo
+            graphId: $scope.localModel.graphId,
+            rate: $scope.localModel.rate,
+            rateCounter: $scope.localModel.rateCounter,
+            rateCounterMax: $scope.localModel.rateCounterMax,
+            rateCounterReset: $scope.localModel.rateCounterReset,
+            aggregator: $scope.localModel.aggregator,
+            axis: $scope.localModel.rightAxis ? "x1y2" : "x1y1",
+            downsample: $scope.localModel.downsample,
+            downsampleBy: $scope.localModel.downsampleBy,
+            downsampleTo: $scope.localModel.downsampleTo
         };
         $rootScope.saveModel(true);
         $scope.selectedMetric = "";
@@ -341,25 +344,25 @@ aardvark.directive('tagFilterSelection', function() {
 
     $scope.addTagRow = function(tagk) {
         if (!$scope.tagFilteringSupported()) {
-            for (var t=0; t<$scope.tagFilters.length; t++) {
-                if ($scope.tagFilters[t].name == tagk) {
+            for (var t=0; t<$scope.localModel.tagFilters.length; t++) {
+                if ($scope.localModel.tagFilters[t].name == tagk) {
                     return;
                 }
             }
         }
-        $scope.tagFilters.push({id:idGenerator.nextId(),name:tagk,value:"",groupBy:true});
+        $scope.localModel.tagFilters.push({id:idGenerator.nextId(),name:tagk,value:"",groupBy:true});
     }
 
     $scope.deleteTagRow = function(id) {
         var index = -1;
-        for (var i=0; i<$scope.tagFilters.length; i++) {
-            if ($scope.tagFilters[i].id == id) {
+        for (var i=0; i<$scope.localModel.tagFilters.length; i++) {
+            if ($scope.localModel.tagFilters[i].id == id) {
                 index = i;
                 break;
             }
         }
         if (index != -1) {
-            $scope.tagFilters.splice(index, 1);
+            $scope.localModel.tagFilters.splice(index, 1);
         }
     }
 
@@ -481,16 +484,16 @@ aardvark.directive('tagFilterSelection', function() {
         
     // reset user entered metric state, used when switching between metrics
     $scope.resetUserMetricOptions = function() {
-        $scope.tagFilters = [];
-        $scope.rate = false;
-        $scope.rateCounter = false;
-        $scope.rateCounterMax = "";
-        $scope.rateCounterReset = "";
-        $scope.downsample = false;
-        $scope.downsampleBy = "avg";
-        $scope.downsampleTo = "";
-        $scope.rightAxis = false;
-        $scope.aggregator = "sum";
+        $scope.localModel.tagFilters = [];
+        $scope.localModel.rate = false;
+        $scope.localModel.rateCounter = false;
+        $scope.localModel.rateCounterMax = "";
+        $scope.localModel.rateCounterReset = "";
+        $scope.localModel.downsample = false;
+        $scope.localModel.downsampleBy = "avg";
+        $scope.localModel.downsampleTo = "";
+        $scope.localModel.rightAxis = false;
+        $scope.localModel.aggregator = "sum";
     }
 
     // todo: need better way of defining defaulting and copying between scope and model on per graph type basis

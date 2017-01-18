@@ -79,7 +79,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 640, graphHeight: 100 };
             var metrics = [ { id: "123", graphOptions: {} } ];
 
-            scope.renderers.horizon.render(global, graph, metrics);
+            scope.renderers.horizon.create().render(global, graph, metrics);
 
             expect(scope.renderErrors).toEqualData({abc:"No start date specified"});
             expect(scope.renderWarnings).toEqualData({});
@@ -94,7 +94,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 640, graphHeight: 100 };
             var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
-            scope.renderers.horizon.render(global, graph, metrics);
+            scope.renderers.horizon.create().render(global, graph, metrics);
             
             $httpBackend.expectGET("http://tsdb:4242/api/query?start=2h-ago&ignore=1&m=sum:20s-avg:metric1&ms=true&arrays=true&show_query=true").respond([
                 {metric: "metric1", tags: {}, dps:[
