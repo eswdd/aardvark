@@ -890,7 +890,9 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
             var ret = {
                 type: "gnuplot",
                 supports_tsdb_export: true,
-                tsdb_export_link: ""
+                supports_grafana_export: true,
+                tsdb_export_link: "",
+                grafana_export_text: ""
             };
             ret.render = function(global, graph, metrics) {
                 if ($scope.renderedContent[graph.id] == null) {
@@ -920,6 +922,9 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
             return {
                 type: "horizon",
                 supports_tsdb_export: false,
+                supports_grafana_export: false,
+                tsdb_export_link: "",
+                grafana_export_text: "",
                 render: function(global, graph, metrics) {
                     $scope.renderMessages[graph.id] = "Loading...";
                     var divSelector = "#horizonDiv_"+graph.id;
@@ -1128,6 +1133,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
             return {
                 type: "heatmap",
                 supports_tsdb_export: false,
+                supports_grafana_export: false,
                 render: function(global, graph, metrics) {
                     // validation
                     var fromTimestamp = $scope.tsdb_fromTimestampAsTsdbString(global);
@@ -1356,6 +1362,9 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
             return {
                 type: "dygraph",
                 supports_tsdb_export: false,
+                supports_grafana_export: false,
+                tsdb_export_link: "",
+                grafana_export_text: "",
                 render: function(global, graph, metrics, datum) {
                     var fromTimestamp = $scope.tsdb_fromTimestampAsTsdbString(global);
                     // validation
@@ -2529,6 +2538,7 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
             return {
                 type: "scatter",
                 supports_tsdb_export: false,
+                supports_grafana_export: false,
                 render: function(global, graph, metrics) {
                     var fromTimestamp = $scope.tsdb_fromTimestampAsTsdbString(global);
                     // validation
@@ -2710,6 +2720,28 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
             return false;
         }
         return $scope.renderedGraphs[graph.id].supports_tsdb_export;
+    }
+    $scope.grafanaExportText = function(graph) {
+        if (graph.type == null) {
+            return "";
+        }
+        if (!$scope.renderedGraphs.hasOwnProperty(graph.id)) {
+            return "";
+        }
+        if (!$scope.renderedGraphs[graph.id].supports_grafana_export) {
+            return "";
+        }
+        var url = $scope.renderedGraphs[graph.id].grafana_export_text;
+        return url;
+    }
+    $scope.supportsGrafanaExport = function(graph) {
+        if (graph.type == null) {
+            return false;
+        }
+        if (!$scope.renderedGraphs.hasOwnProperty(graph.id)) {
+            return false;
+        }
+        return $scope.renderedGraphs[graph.id].supports_grafana_export;
     }
 
     $rootScope.renderGraphs = function(boundingBox) {

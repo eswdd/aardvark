@@ -41,6 +41,7 @@ describe('Aardvark controllers', function () {
                     return {
                         type: "unittest",
                         supports_tsdb_export: false,
+                        supports_grafana_export: false,
                         render: function(global,graph,metrics) {
                             globals.push(global);
                             graphs.push(graph);
@@ -55,6 +56,8 @@ describe('Aardvark controllers', function () {
                         type: "unittest",
                         supports_tsdb_export: true,
                         tsdb_export_link: "http://tsdb:4242",
+                        supports_grafana_export: true,
+                        grafana_export_text: "{}",
                         render: function(global,graph,metrics) {
                             globals.push(global);
                             graphs.push(graph);
@@ -204,6 +207,42 @@ describe('Aardvark controllers', function () {
 
             expect(scope.tsdbExportLink(not_exportable)).toEqualData("");
             expect(scope.tsdbExportLink(exportable)).toEqualData("http://tsdb:4242");
+        });
+        
+        it('should indicate that grafana export is available as appropriate', function() {
+            var not_exportable = { id: "abc", type: "unittest" };
+            var exportable = { id: "def", type: "exportable" };
+            var metric1 = { id: "123", graphOptions: { graphId: "abc" }};
+            var metric2 = { id: "456", graphOptions: { graphId: "def" }};
+            rootScope.model.global = {};
+            rootScope.model.graphs = [ not_exportable, exportable ];
+            rootScope.model.metrics = [ metric1, metric2 ];
+            
+            expect(scope.supportsGrafanaExport(not_exportable)).toEqualData(false);
+            expect(scope.supportsGrafanaExport(exportable)).toEqualData(false);
+
+            rootScope.renderGraphs();
+
+            expect(scope.supportsGrafanaExport(not_exportable)).toEqualData(false);
+            expect(scope.supportsGrafanaExport(exportable)).toEqualData(true);
+        });
+        
+        it('should return grafana export text as appropriate', function() {
+            var not_exportable = { id: "abc", type: "unittest" };
+            var exportable = { id: "def", type: "exportable" };
+            var metric1 = { id: "123", graphOptions: { graphId: "abc" }};
+            var metric2 = { id: "456", graphOptions: { graphId: "def" }};
+            rootScope.model.global = {};
+            rootScope.model.graphs = [ not_exportable, exportable ];
+            rootScope.model.metrics = [ metric1, metric2 ];
+            
+            expect(scope.grafanaExportText(not_exportable)).toEqualData("");
+            expect(scope.grafanaExportText(exportable)).toEqualData("");
+
+            rootScope.renderGraphs();
+
+            expect(scope.grafanaExportText(not_exportable)).toEqualData("");
+            expect(scope.grafanaExportText(exportable)).toEqualData("{}");
         });
     });
 });
