@@ -2704,10 +2704,10 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
     }
     $scope.supportsTsdbExport = function(graph) {
         if (graph.type == null) {
-            return "";
+            return false;
         }
         if (!$scope.renderedGraphs.hasOwnProperty(graph.id)) {
-            return "";
+            return false;
         }
         return $scope.renderedGraphs[graph.id].supports_tsdb_export;
     }

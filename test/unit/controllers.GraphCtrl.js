@@ -48,7 +48,21 @@ describe('Aardvark controllers', function () {
                         }
                     }
                 }
-            }
+            };
+            scope.renderers["exportable"] = {
+                create: function() {
+                    return {
+                        type: "unittest",
+                        supports_tsdb_export: true,
+                        tsdb_export_link: "http://tsdb:4242",
+                        render: function(global,graph,metrics) {
+                            globals.push(global);
+                            graphs.push(graph);
+                            metricss.push(metrics);
+                        }
+                    }
+                }
+            };
 
             rootScope.model = {
                 graphs: [],
@@ -154,6 +168,42 @@ describe('Aardvark controllers', function () {
             expect(metricss).toEqualData([[incMetric]]);
             expect(graph.graphHeight).toEqualData(300);
             expect(graph.graphWidth).toEqualData(400);
+        });
+        
+        it('should indicate that tsdb export is available as appropriate', function() {
+            var not_exportable = { id: "abc", type: "unittest" };
+            var exportable = { id: "def", type: "exportable" };
+            var metric1 = { id: "123", graphOptions: { graphId: "abc" }};
+            var metric2 = { id: "456", graphOptions: { graphId: "def" }};
+            rootScope.model.global = {};
+            rootScope.model.graphs = [ not_exportable, exportable ];
+            rootScope.model.metrics = [ metric1, metric2 ];
+            
+            expect(scope.supportsTsdbExport(not_exportable)).toEqualData(false);
+            expect(scope.supportsTsdbExport(exportable)).toEqualData(false);
+
+            rootScope.renderGraphs();
+
+            expect(scope.supportsTsdbExport(not_exportable)).toEqualData(false);
+            expect(scope.supportsTsdbExport(exportable)).toEqualData(true);
+        });
+        
+        it('should return tsdb export links as appropriate', function() {
+            var not_exportable = { id: "abc", type: "unittest" };
+            var exportable = { id: "def", type: "exportable" };
+            var metric1 = { id: "123", graphOptions: { graphId: "abc" }};
+            var metric2 = { id: "456", graphOptions: { graphId: "def" }};
+            rootScope.model.global = {};
+            rootScope.model.graphs = [ not_exportable, exportable ];
+            rootScope.model.metrics = [ metric1, metric2 ];
+            
+            expect(scope.tsdbExportLink(not_exportable)).toEqualData("");
+            expect(scope.tsdbExportLink(exportable)).toEqualData("");
+
+            rootScope.renderGraphs();
+
+            expect(scope.tsdbExportLink(not_exportable)).toEqualData("");
+            expect(scope.tsdbExportLink(exportable)).toEqualData("http://tsdb:4242");
         });
     });
 });
