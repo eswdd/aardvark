@@ -71,6 +71,13 @@ describe('Aardvark controllers', function () {
                 renderConfig = config;
             }
         }));
+        
+        it('should not support tsdb or grafana export', function() {
+            var rendererInstance = scope.renderers.scatter.create();
+            // defaults
+            expect(rendererInstance.supports_tsdb_export).toEqualData(false);
+            expect(rendererInstance.supports_grafana_export).toEqualData(false);
+        })
 
         it('should report an error when trying to render with scatter and no start time', function() {
             scope.renderedContent = {};

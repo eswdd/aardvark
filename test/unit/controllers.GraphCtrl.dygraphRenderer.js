@@ -27,6 +27,7 @@ describe('Aardvark controllers', function () {
         var configUpdateFunc;
         var renderDivId, renderGraphId, renderData, renderConfig, renderAnnotations;
         var dygraphHeight;
+        var rendererInstance;
 
         beforeEach(inject(function ($rootScope, _$httpBackend_, $controller) {
             // hmm
@@ -68,6 +69,14 @@ describe('Aardvark controllers', function () {
             }
 
             $controller('GraphCtrl', {$scope: scope, $rootScope: rootScope});
+
+
+            rendererInstance = scope.renderers.dygraph.create();
+            // defaults
+            expect(rendererInstance.supports_tsdb_export).toEqualData(true);
+            expect(rendererInstance.tsdb_export_link).toEqualData("");
+            // memory from a previous query
+            rendererInstance.tsdb_export_link = "http://tsdb:4242/oldquery";
 
             // override function to get us a test hook
             scope.dygraph_render = function(divId, graphId, data, config) {
@@ -139,8 +148,9 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 0, graphHeight: 0 };
             var metrics = [ { id: "123", graphOptions: {} } ];
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("");
             expect(renderDivId).toEqualData(null);
             expect(renderGraphId).toEqualData(null);
             expect(renderData).toEqualData(null);
@@ -158,8 +168,9 @@ describe('Aardvark controllers', function () {
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ ];
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("");
             expect(renderDivId).toEqualData(null);
             expect(renderGraphId).toEqualData(null);
             expect(renderData).toEqualData(null);
@@ -177,8 +188,9 @@ describe('Aardvark controllers', function () {
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { countFilter: { count: 0, measure: "max", end: "top" }}};
             var metrics = [{ id: "123", name: "metric1", tags: [{name: "host", value: "host1"}], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("");
             expect(renderDivId).toEqualData(null);
             expect(renderGraphId).toEqualData(null);
             expect(renderData).toEqualData(null);
@@ -198,10 +210,11 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1{host=host1}&no_annotations=true&ms=true&arrays=true&show_query=true').respond([]);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("");
             expect(renderDivId).toEqualData(null);
             expect(renderGraphId).toEqualData(null);
             expect(renderData).toEqualData(null);
@@ -228,7 +241,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 50]
             ]}]);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -289,7 +302,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 50]
             ]}]);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -350,7 +363,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 50]
             ]}]);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -432,7 +445,7 @@ describe('Aardvark controllers', function () {
                 ]
             );
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -502,7 +515,7 @@ describe('Aardvark controllers', function () {
                 [1234567816000, 50]
             ]}]);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -611,7 +624,7 @@ describe('Aardvark controllers', function () {
                 }
             ]);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -639,7 +652,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 50]
             ]}]);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -701,7 +714,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 50]
             ]}]);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -762,7 +775,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 50]
             ]}]);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -834,7 +847,7 @@ describe('Aardvark controllers', function () {
                     ]}
                 ]);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -902,7 +915,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 10]
             ]}]);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
             $httpBackend.flush();
 
@@ -974,7 +987,7 @@ describe('Aardvark controllers', function () {
                     [1234567815000, 10]
                 ]}]);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
             $httpBackend.flush();
 
@@ -1041,7 +1054,7 @@ describe('Aardvark controllers', function () {
                     [1234567815000, 10]
                 ]}]);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
             $httpBackend.flush();
 
@@ -1113,7 +1126,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 10]
             ]}]);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
             $httpBackend.flush();
 
@@ -1187,7 +1200,7 @@ describe('Aardvark controllers', function () {
                     [1234567815000, 10]
                 ]}]);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
             $httpBackend.flush();
 
@@ -1262,7 +1275,7 @@ describe('Aardvark controllers', function () {
                     [1234567815000, 10]
                 ]}]);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
             $httpBackend.flush();
 
@@ -1331,7 +1344,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 10]
             ]}]);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
             $httpBackend.flush();
 
@@ -1413,7 +1426,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 30]
             ]}]);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
             $httpBackend.flush();
 
@@ -1509,7 +1522,7 @@ describe('Aardvark controllers', function () {
                     [1234567815000, 10]
                 ]}]);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
             $httpBackend.flush();
 
@@ -1602,7 +1615,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 10]
             ]}]);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
             $httpBackend.flush();
 
@@ -1670,7 +1683,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 10]
             ]}]);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
             $httpBackend.flush();
 
@@ -1757,7 +1770,7 @@ describe('Aardvark controllers', function () {
                 }
             ]);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
     
             $httpBackend.flush();
     
@@ -1805,7 +1818,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 50]
             ]}]);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -2105,6 +2118,7 @@ describe('Aardvark controllers', function () {
                 {},
                 {abc: "Value filtering excluded all time series"}
             );
+            expect(rendererInstance.tsdb_export_link).toEqualData("");
         });
         it('should show an error when lower bound > upper bound', function() {
             scope.renderedContent = {};
@@ -2115,8 +2129,9 @@ describe('Aardvark controllers', function () {
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { valueFilter: { lowerBound: 100, measure: "max", upperBound: "80" }}};
             var metrics = [{ id: "123", name: "metric1", tags: [{name: "host", value: "host1"}], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
-            scope.renderers.dygraph.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("");
             expect(renderDivId).toEqualData(null);
             expect(renderGraphId).toEqualData(null);
             expect(renderData).toEqualData(null);
@@ -2158,10 +2173,11 @@ describe('Aardvark controllers', function () {
 
             var datum = moment.utc("2016/01/22 14:10:10", "YYYY/MM/DD HH:mm:ss");
             
-            scope.renderers.dygraph.create().render(global, graph, metrics, datum);
+            rendererInstance.render(global, graph, metrics, datum);
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("");
             expect(renderDivId).toEqualData(null);
             expect(renderGraphId).toEqualData(null);
             expect(renderData).toEqualData(null);
@@ -2190,7 +2206,7 @@ describe('Aardvark controllers', function () {
 
             var datum = moment.utc("2016/01/22 14:10:10", "YYYY/MM/DD HH:mm:ss");
             
-            scope.renderers.dygraph.create().render(global, graph, metrics, datum);
+            rendererInstance.render(global, graph, metrics, datum);
 
             $httpBackend.flush();
 
@@ -2260,7 +2276,7 @@ describe('Aardvark controllers', function () {
             $httpBackend.expectGET(url1).respond(data1);
             $httpBackend.expectGET(url2).respond(data2);
 
-            scope.renderers.dygraph.create().render(global, graph, metrics, datum);
+            rendererInstance.render(global, graph, metrics, datum);
 
 
             $httpBackend.flush();
@@ -2850,7 +2866,7 @@ describe('Aardvark controllers', function () {
                 $httpBackend.expectGET(baselineUrl).respond(baselineResponseData);
             }
 
-            scope.renderers.dygraph.create().render(global, graph, metrics, datum);
+            rendererInstance.render(global, graph, metrics, datum);
 
 
             $httpBackend.flush();

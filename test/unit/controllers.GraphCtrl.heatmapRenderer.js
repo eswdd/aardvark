@@ -26,6 +26,7 @@ describe('Aardvark controllers', function () {
         var configUpdateFunc;
         var heatmapMock;
         var globalHeatmap = null;
+        var rendererInstance;
 
         var heatmap = function() {
             if (globalHeatmap != null) {
@@ -135,6 +136,14 @@ describe('Aardvark controllers', function () {
 
             $controller('GraphCtrl', {$scope: scope, $rootScope: rootScope});
 
+
+            rendererInstance = scope.renderers.heatmap.create();
+            // defaults
+            expect(rendererInstance.supports_tsdb_export).toEqualData(true);
+            expect(rendererInstance.tsdb_export_link).toEqualData("");
+            // memory from a previous query
+            rendererInstance.tsdb_export_link = "http://tsdb:4242/oldquery";
+
             scope.heatmap = heatmap;
             heatmapMock = heatmap();
         }));
@@ -152,8 +161,9 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 640, graphHeight: 100 };
             var metrics = [ { id: "123", graphOptions: {} } ];
 
-            scope.renderers.heatmap.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("");
             expect(scope.renderErrors).toEqualData({abc:"No start date specified"});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -167,8 +177,9 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 640, graphHeight: 100 };
             var metrics = [  ];
 
-            scope.renderers.heatmap.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("");
             expect(scope.renderErrors).toEqualData({abc:"No metrics specified"});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -182,8 +193,9 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 640, graphHeight: 100 };
             var metrics = [ { id: "123", graphOptions: {} }, { id: "456", graphOptions: {} } ];
 
-            scope.renderers.heatmap.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("");
             expect(scope.renderErrors).toEqualData({abc:"Require exactly 1 metric, currently have 2"});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -197,7 +209,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "auto" } };
             var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
-            scope.renderers.heatmap.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
             
             $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1h-avg:metric1&ms=true&arrays=true").respond([
                 {metric: "metric1", tags: {}, dps:[
@@ -209,7 +221,8 @@ describe('Aardvark controllers', function () {
                 ]}
             ]);
             $httpBackend.flush();
-            
+
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2016/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1h-avg:metric1");
             expect(heatmapMock.cellSize()).toEqualData(5);
             
             expect(heatmapMock.dayHourRenderParams != null).toEqualData(true);
@@ -228,7 +241,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "auto" } };
             var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
-            scope.renderers.heatmap.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
             
             $httpBackend.expectGET("http://tsdb:4242/api/query?start=2014/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1d-avg:metric1&ms=true&arrays=true").respond([
                 {metric: "metric1", tags: {}, dps:[
@@ -241,6 +254,7 @@ describe('Aardvark controllers', function () {
             ]);
             $httpBackend.flush();
             
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2014/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1d-avg:metric1");
             expect(heatmapMock.cellSize()).toEqualData(5);
             
             expect(heatmapMock.dayHourRenderParams != null).toEqualData(false);
@@ -259,7 +273,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "day_hour" } };
             var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
-            scope.renderers.heatmap.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
             
             $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1h-avg:metric1&ms=true&arrays=true").respond([
                 {metric: "metric1", tags: {}, dps:[
@@ -271,7 +285,8 @@ describe('Aardvark controllers', function () {
                 ]}
             ]);
             $httpBackend.flush();
-            
+
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2016/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1h-avg:metric1");
             expect(heatmapMock.cellSize()).toEqualData(5);
             expect(heatmapMock.dps()).toEqualData([
                 [1472783200000, 10],
@@ -297,7 +312,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "day_hour", excludeNegative: true } };
             var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
-            scope.renderers.heatmap.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
             
             $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1h-avg:metric1&ms=true&arrays=true").respond([
                 {metric: "metric1", tags: {}, dps:[
@@ -309,7 +324,8 @@ describe('Aardvark controllers', function () {
                 ]}
             ]);
             $httpBackend.flush();
-            
+
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2016/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1h-avg:metric1");
             expect(heatmapMock.cellSize()).toEqualData(5);
             expect(heatmapMock.dps()).toEqualData([
                 [1472783200000, 10],
@@ -335,7 +351,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "week_day" } };
             var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
-            scope.renderers.heatmap.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
             
             $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/10/10 10:10:10&end=2016/10/24 10:10:10&m=sum:1d-avg:metric1&ms=true&arrays=true").respond([
                 {metric: "metric1", tags: {}, dps:[
@@ -348,7 +364,7 @@ describe('Aardvark controllers', function () {
             ]);
             $httpBackend.flush();
 
-
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2016/10/10 10:10:10&end=2016/10/24 10:10:10&m=sum:1d-avg:metric1");
             expect(heatmapMock.cellSize()).toEqualData(5);
             expect(heatmapMock.dps()).toEqualData([
                 [1234483200000, 10],
@@ -374,7 +390,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "week_day", excludeNegative: true } };
             var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
-            scope.renderers.heatmap.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
             
             $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/10/10 10:10:10&end=2016/10/24 10:10:10&m=sum:1d-avg:metric1&ms=true&arrays=true").respond([
                 {metric: "metric1", tags: {}, dps:[
@@ -387,7 +403,7 @@ describe('Aardvark controllers', function () {
             ]);
             $httpBackend.flush();
 
-
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2016/10/10 10:10:10&end=2016/10/24 10:10:10&m=sum:1d-avg:metric1");
             expect(heatmapMock.cellSize()).toEqualData(5);
             expect(heatmapMock.dps()).toEqualData([
                 [1234483200000, 0],
@@ -413,7 +429,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "week_day", filterLowerBound: "30" } };
             var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
-            scope.renderers.heatmap.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
             
             $httpBackend.expectGET("http://tsdb:4242/api/query?start=2w-ago&ignore=1&m=sum:1d-avg:metric1&ms=true&arrays=true").respond([
                 {metric: "metric1", tags: {}, dps:[
@@ -426,6 +442,7 @@ describe('Aardvark controllers', function () {
             ]);
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2w-ago&ignore=1&m=sum:1d-avg:metric1");
             var filterFn = heatmapMock.weekDayRenderParams[3];
             expect(filterFn(10)).toEqualData(true);
             expect(filterFn(30)).toEqualData(false);
@@ -441,7 +458,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "week_day", filterUpperBound: "30" } };
             var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
-            scope.renderers.heatmap.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
             
             $httpBackend.expectGET("http://tsdb:4242/api/query?start=2w-ago&ignore=1&m=sum:1d-avg:metric1&ms=true&arrays=true").respond([
                 {metric: "metric1", tags: {}, dps:[
@@ -454,6 +471,7 @@ describe('Aardvark controllers', function () {
             ]);
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2w-ago&ignore=1&m=sum:1d-avg:metric1");
             var filterFn = heatmapMock.weekDayRenderParams[3];
             expect(filterFn(10)).toEqualData(false);
             expect(filterFn(30)).toEqualData(false);
@@ -469,7 +487,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "day_hour", filterLowerBound: "30", filterUpperBound: "30" } };
             var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
-            scope.renderers.heatmap.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
             
             $httpBackend.expectGET("http://tsdb:4242/api/query?start=2w-ago&ignore=1&m=sum:1h-avg:metric1&ms=true&arrays=true").respond([
                 {metric: "metric1", tags: {}, dps:[
@@ -482,6 +500,7 @@ describe('Aardvark controllers', function () {
             ]);
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2w-ago&ignore=1&m=sum:1h-avg:metric1");
             var filterFn = heatmapMock.dayHourRenderParams[3];
             expect(filterFn(10)).toEqualData(true);
             expect(filterFn(30)).toEqualData(false);

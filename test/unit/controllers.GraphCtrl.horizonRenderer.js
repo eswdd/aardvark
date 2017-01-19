@@ -25,6 +25,7 @@ describe('Aardvark controllers', function () {
         var rootScope, $httpBackend, scope;
         var configUpdateFunc;
         var renderDiv, graphPanel;
+        var rendererInstance;
 
         beforeEach(inject(function ($rootScope, _$httpBackend_, $controller) {
             // hmm
@@ -55,6 +56,13 @@ describe('Aardvark controllers', function () {
 
             $controller('GraphCtrl', {$scope: scope, $rootScope: rootScope});
 
+            rendererInstance = scope.renderers.horizon.create();
+            // defaults
+            expect(rendererInstance.supports_tsdb_export).toEqualData(true);
+            expect(rendererInstance.tsdb_export_link).toEqualData("");
+            // memory from a previous query
+            rendererInstance.tsdb_export_link = "http://tsdb:4242/oldquery";
+
             renderDiv = document.createElement("div");
             renderDiv.setAttribute("id","horizonDiv_abc");
             document.body.appendChild(renderDiv);
@@ -79,8 +87,9 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 640, graphHeight: 100 };
             var metrics = [ { id: "123", graphOptions: {} } ];
 
-            scope.renderers.horizon.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("");
             expect(scope.renderErrors).toEqualData({abc:"No start date specified"});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -94,7 +103,7 @@ describe('Aardvark controllers', function () {
             var graph = { id: "abc", graphWidth: 640, graphHeight: 100 };
             var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
-            scope.renderers.horizon.create().render(global, graph, metrics);
+            rendererInstance.render(global, graph, metrics);
             
             $httpBackend.expectGET("http://tsdb:4242/api/query?start=2h-ago&ignore=1&m=sum:20s-avg:metric1&ms=true&arrays=true&show_query=true").respond([
                 {metric: "metric1", tags: {}, dps:[
@@ -106,6 +115,8 @@ describe('Aardvark controllers', function () {
                 ]}
             ]);
             $httpBackend.flush();
+
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2h-ago&ignore=1&m=sum:20s-avg:metric1");
 //
 //            expect(renderDivId).toEqualData(null);
 //            expect(renderGraphId).toEqualData(null);

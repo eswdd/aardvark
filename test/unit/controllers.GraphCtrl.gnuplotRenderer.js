@@ -67,6 +67,10 @@ describe('Aardvark controllers', function () {
             $controller('GraphCtrl', {$scope: scope, $rootScope: rootScope});
             
             rendererInstance = scope.renderers.gnuplot.create();
+            expect(rendererInstance.supports_tsdb_export).toEqualData(true);
+            expect(rendererInstance.tsdb_export_link).toEqualData("");
+            // memory from a previous query
+            rendererInstance.tsdb_export_link = "http://tsdb:4242/oldquery";
         }));
 
         // ---------- gnuplot rendering ----------
@@ -82,6 +86,7 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("");
             expect(scope.renderedContent).toEqualData({abc: { src : '', width : 0, height : 0 }});
             expect(scope.renderErrors).toEqualData({abc:"No start date specified"});
             expect(scope.renderWarnings).toEqualData({});
@@ -98,6 +103,7 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("");
             expect(scope.renderedContent).toEqualData({abc:{ src : '', width : 0, height : 0 }});
             expect(scope.renderErrors).toEqualData({abc:"No metrics specified"});
             expect(scope.renderWarnings).toEqualData({});
@@ -114,6 +120,7 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("");
             expect(scope.renderedContent).toEqualData({abc:{ src : '', width : 0, height : 0 }});
             expect(scope.renderErrors).toEqualData({abc:"Invalid axis specified"});
             expect(scope.renderWarnings).toEqualData({});
@@ -132,6 +139,7 @@ describe('Aardvark controllers', function () {
             rendererInstance.render(global, graph, metrics);
 
             expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+(scope.imageRenderCount/2)+"&m=sum:metric1&o=axis+x1y1&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.supports_tsdb_export).toEqualData(true);
             expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore="+((scope.imageRenderCount/2)+1)+"&m=sum:metric1&o=axis+x1y1");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
