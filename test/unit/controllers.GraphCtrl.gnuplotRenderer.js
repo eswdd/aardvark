@@ -115,8 +115,8 @@ describe('Aardvark controllers', function () {
             scope.renderWarnings = {};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, graphOptions: { axis: "fred" }};
-            var metrics = [ { id: "123", graphOptions: {}, tags: [] } ];
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, graphOptions: {  }};
+            var metrics = [ { id: "123", graphOptions: {axis: "fred"}, tags: [] } ];
 
             rendererInstance.render(global, graph, metrics);
 
@@ -138,9 +138,9 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+(scope.imageRenderCount/2)+"&m=sum:metric1&o=axis+x1y1&png&wxh=0x0",width:0,height:0}});
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:metric1&o=axis+x1y1&nokey&png&wxh=0x0",width:0,height:0}});
             expect(rendererInstance.supports_tsdb_export).toEqualData(true);
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore="+((scope.imageRenderCount/2)+1)+"&m=sum:metric1&o=axis+x1y1");
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -159,8 +159,8 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+(scope.imageRenderCount/2)+"&m=sum:rate:metric1&o=axis+x1y1&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore="+((scope.imageRenderCount/2)+1)+"&m=sum:rate:metric1&o=axis+x1y1");
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:rate:metric1&o=axis+x1y1&nokey&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:rate:metric1&o=axis+x1y1&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -177,8 +177,8 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+(scope.imageRenderCount/2)+"&m=sum:1m-avg:metric1&o=axis+x1y1&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore="+((scope.imageRenderCount/2)+1)+"&m=sum:1m-avg:metric1&o=axis+x1y1");
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:1m-avg:metric1&o=axis+x1y1&nokey&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:1m-avg:metric1&o=axis+x1y1&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -195,8 +195,8 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+(scope.imageRenderCount/2)+"&m=sum:1m-avg:rate:metric1&o=axis+x1y1&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore="+((scope.imageRenderCount/2)+1)+"&m=sum:1m-avg:rate:metric1&o=axis+x1y1");
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:1m-avg:rate:metric1&o=axis+x1y1&nokey&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:1m-avg:rate:metric1&o=axis+x1y1&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -213,8 +213,8 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+(scope.imageRenderCount/2)+"&m=sum:metric1&o=axis+x1y1&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore="+((scope.imageRenderCount/2)+1)+"&m=sum:metric1&o=axis+x1y1");
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:metric1&o=axis+x1y1&nokey&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({abc:"You have specified a rate counter without a rate, ignoring"});
         });
@@ -231,8 +231,8 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+(scope.imageRenderCount/2)+"&m=sum:rate{counter}:metric1&o=axis+x1y1&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore="+((scope.imageRenderCount/2)+1)+"&m=sum:rate{counter}:metric1&o=axis+x1y1");
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:rate{counter}:metric1&o=axis+x1y1&nokey&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:rate{counter}:metric1&o=axis+x1y1&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -249,8 +249,8 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+(scope.imageRenderCount/2)+"&m=sum:rate{counter,123}:metric1&o=axis+x1y1&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore="+((scope.imageRenderCount/2)+1)+"&m=sum:rate{counter,123}:metric1&o=axis+x1y1");
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:rate{counter,123}:metric1&o=axis+x1y1&nokey&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:rate{counter,123}:metric1&o=axis+x1y1&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -267,8 +267,8 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+(scope.imageRenderCount/2)+"&m=sum:rate{counter,,456}:metric1&o=axis+x1y1&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore="+((scope.imageRenderCount/2)+1)+"&m=sum:rate{counter,,456}:metric1&o=axis+x1y1");
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:rate{counter,,456}:metric1&o=axis+x1y1&nokey&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:rate{counter,,456}:metric1&o=axis+x1y1&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -285,8 +285,8 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+(scope.imageRenderCount/2)+"&m=sum:rate{counter,123,456}:metric1&o=axis+x1y1&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore="+((scope.imageRenderCount/2)+1)+"&m=sum:rate{counter,123,456}:metric1&o=axis+x1y1");
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:rate{counter,123,456}:metric1&o=axis+x1y1&nokey&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:rate{counter,123,456}:metric1&o=axis+x1y1&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -303,8 +303,8 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+(scope.imageRenderCount/2)+"&m=sum:metric1{tag1=value1}&o=axis+x1y1&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore="+((scope.imageRenderCount/2)+1)+"&m=sum:metric1{tag1=value1}&o=axis+x1y1");
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:metric1{tag1=value1}&o=axis+x1y1&nokey&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1{tag1=value1}&o=axis+x1y1&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -321,8 +321,8 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+(scope.imageRenderCount/2)+"&m=sum:metric1{tag1=value1|value2}&o=axis+x1y1&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore="+((scope.imageRenderCount/2)+1)+"&m=sum:metric1{tag1=value1|value2}&o=axis+x1y1");
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:metric1{tag1=value1|value2}&o=axis+x1y1&nokey&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1{tag1=value1|value2}&o=axis+x1y1&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -339,8 +339,8 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+(scope.imageRenderCount/2)+"&m=sum:metric1{tag1=*}&o=axis+x1y1&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore="+((scope.imageRenderCount/2)+1)+"&m=sum:metric1{tag1=*}&o=axis+x1y1");
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:metric1{tag1=*}&o=axis+x1y1&nokey&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1{tag1=*}&o=axis+x1y1&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -357,8 +357,8 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+(scope.imageRenderCount/2)+"&m=sum:metric1&o=axis+x1y1&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore="+((scope.imageRenderCount/2)+1)+"&m=sum:metric1&o=axis+x1y1");
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore="+scope.imageRenderCount+"&m=sum:metric1&o=axis+x1y1&nokey&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -375,8 +375,8 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&ylabel=Label+1&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore=2&m=sum:metric1&o=axis+x1y1&ylabel=Label+1");
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&ylabel=Label+1&nokey&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&ylabel=Label+1&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -393,8 +393,8 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y2&y2label=Label+2&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore=2&m=sum:metric1&o=axis+x1y2&y2label=Label+2");
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y2&y2label=Label+2&nokey&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y2&y2label=Label+2&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -411,8 +411,8 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&yformat=Format+1&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore=2&m=sum:metric1&o=axis+x1y1&yformat=Format+1");
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&yformat=Format+1&nokey&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&yformat=Format+1&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -429,8 +429,8 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y2&y2format=Format+2&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore=2&m=sum:metric1&o=axis+x1y2&y2format=Format+2");
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y2&y2format=Format+2&nokey&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y2&y2format=Format+2&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -447,8 +447,8 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&yrange=[0:1]&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore=2&m=sum:metric1&o=axis+x1y1&yrange=[0:1]");
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&yrange=[0:1]&nokey&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&yrange=[0:1]&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -465,8 +465,8 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y2&y2range=[0:2]&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore=2&m=sum:metric1&o=axis+x1y2&y2range=[0:2]");
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y2&y2range=[0:2]&nokey&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y2&y2range=[0:2]&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -483,8 +483,8 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&ylog&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore=2&m=sum:metric1&o=axis+x1y1&ylog");
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&ylog&nokey&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&ylog&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -501,8 +501,8 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y2&y2log&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore=2&m=sum:metric1&o=axis+x1y2&y2log");
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y2&y2log&nokey&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y2&y2log&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -519,8 +519,8 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore=2&m=sum:metric1&o=axis+x1y1");
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&nokey&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -537,8 +537,8 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y2&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore=2&m=sum:metric1&o=axis+x1y2");
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y2&nokey&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y2&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -555,8 +555,8 @@ describe('Aardvark controllers', function () {
 
             rendererInstance.render(global, graph, metrics);
 
-            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&smooth=csplines&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore=2&m=sum:metric1&o=axis+x1y1&smooth=csplines");
+            expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&nokey&smooth=csplines&png&wxh=0x0",width:0,height:0}});
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&nokey&smooth=csplines");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -574,7 +574,7 @@ describe('Aardvark controllers', function () {
             rendererInstance.render(global, graph, metrics);
 
             expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&nokey&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore=2&m=sum:metric1&o=axis+x1y1&nokey");
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&nokey");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -592,7 +592,7 @@ describe('Aardvark controllers', function () {
             rendererInstance.render(global, graph, metrics);
 
             expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&key=top+left&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore=2&m=sum:metric1&o=axis+x1y1&key=top+left");
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&key=top+left");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -610,7 +610,7 @@ describe('Aardvark controllers', function () {
             rendererInstance.render(global, graph, metrics);
 
             expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&key=top+left&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore=2&m=sum:metric1&o=axis+x1y1&key=top+left");
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&key=top+left");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({abc: "Invalid key location specified '', defaulting to top left"});
         });
@@ -628,7 +628,7 @@ describe('Aardvark controllers', function () {
             rendererInstance.render(global, graph, metrics);
 
             expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&key=bottom+right&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore=2&m=sum:metric1&o=axis+x1y1&key=bottom+right");
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&key=bottom+right");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -646,7 +646,7 @@ describe('Aardvark controllers', function () {
             rendererInstance.render(global, graph, metrics);
 
             expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&key=top+left+horiz&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore=2&m=sum:metric1&o=axis+x1y1&key=top+left+horiz");
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&key=top+left+horiz");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -664,7 +664,7 @@ describe('Aardvark controllers', function () {
             rendererInstance.render(global, graph, metrics);
 
             expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&key=top+left+box&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore=2&m=sum:metric1&o=axis+x1y1&key=top+left+box");
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&key=top+left+box");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });
@@ -682,7 +682,7 @@ describe('Aardvark controllers', function () {
             rendererInstance.render(global, graph, metrics);
 
             expect(scope.renderedContent).toEqualData({abc:{src:"http://tsdb:4242/q?start=1d-ago&ignore=1&m=sum:metric1&o=axis+x1y1&key=top+left+horiz+box&png&wxh=0x0",width:0,height:0}});
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&ignore=2&m=sum:metric1&o=axis+x1y1&key=top+left+horiz+box");
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&key=top+left+horiz+box");
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
         });

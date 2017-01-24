@@ -222,7 +222,7 @@ describe('Aardvark controllers', function () {
             ]);
             $httpBackend.flush();
 
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2016/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1h-avg:metric1");
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2016/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1h-avg:metric1&o=axis+x1y1&yrange=[:]&key=top+left");
             expect(heatmapMock.cellSize()).toEqualData(5);
             
             expect(heatmapMock.dayHourRenderParams != null).toEqualData(true);
@@ -254,7 +254,7 @@ describe('Aardvark controllers', function () {
             ]);
             $httpBackend.flush();
             
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2014/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1d-avg:metric1");
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2014/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1d-avg:metric1&o=axis+x1y1&yrange=[:]&key=top+left");
             expect(heatmapMock.cellSize()).toEqualData(5);
             
             expect(heatmapMock.dayHourRenderParams != null).toEqualData(false);
@@ -286,7 +286,7 @@ describe('Aardvark controllers', function () {
             ]);
             $httpBackend.flush();
 
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2016/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1h-avg:metric1");
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2016/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1h-avg:metric1&o=axis+x1y1&yrange=[:]&key=top+left");
             expect(heatmapMock.cellSize()).toEqualData(5);
             expect(heatmapMock.dps()).toEqualData([
                 [1472783200000, 10],
@@ -325,7 +325,7 @@ describe('Aardvark controllers', function () {
             ]);
             $httpBackend.flush();
 
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2016/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1h-avg:metric1");
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2016/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1h-avg:metric1&o=axis+x1y1&yrange=[0:]&key=top+left");
             expect(heatmapMock.cellSize()).toEqualData(5);
             expect(heatmapMock.dps()).toEqualData([
                 [1472783200000, 10],
@@ -364,7 +364,7 @@ describe('Aardvark controllers', function () {
             ]);
             $httpBackend.flush();
 
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2016/10/10 10:10:10&end=2016/10/24 10:10:10&m=sum:1d-avg:metric1");
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2016/10/10 10:10:10&end=2016/10/24 10:10:10&m=sum:1d-avg:metric1&o=axis+x1y1&yrange=[:]&key=top+left");
             expect(heatmapMock.cellSize()).toEqualData(5);
             expect(heatmapMock.dps()).toEqualData([
                 [1234483200000, 10],
@@ -403,7 +403,7 @@ describe('Aardvark controllers', function () {
             ]);
             $httpBackend.flush();
 
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2016/10/10 10:10:10&end=2016/10/24 10:10:10&m=sum:1d-avg:metric1");
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2016/10/10 10:10:10&end=2016/10/24 10:10:10&m=sum:1d-avg:metric1&o=axis+x1y1&yrange=[0:]&key=top+left");
             expect(heatmapMock.cellSize()).toEqualData(5);
             expect(heatmapMock.dps()).toEqualData([
                 [1234483200000, 0],
@@ -442,7 +442,7 @@ describe('Aardvark controllers', function () {
             ]);
             $httpBackend.flush();
 
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2w-ago&ignore=1&m=sum:1d-avg:metric1");
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2w-ago&m=sum:1d-avg:metric1&o=axis+x1y1&yrange=[30:]&key=top+left");
             var filterFn = heatmapMock.weekDayRenderParams[3];
             expect(filterFn(10)).toEqualData(true);
             expect(filterFn(30)).toEqualData(false);
@@ -471,7 +471,7 @@ describe('Aardvark controllers', function () {
             ]);
             $httpBackend.flush();
 
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2w-ago&ignore=1&m=sum:1d-avg:metric1");
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2w-ago&m=sum:1d-avg:metric1&o=axis+x1y1&yrange=[:30]&key=top+left");
             var filterFn = heatmapMock.weekDayRenderParams[3];
             expect(filterFn(10)).toEqualData(false);
             expect(filterFn(30)).toEqualData(false);
@@ -500,7 +500,7 @@ describe('Aardvark controllers', function () {
             ]);
             $httpBackend.flush();
 
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2w-ago&ignore=1&m=sum:1h-avg:metric1");
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2w-ago&m=sum:1h-avg:metric1&o=axis+x1y1&yrange=[30:30]&key=top+left");
             var filterFn = heatmapMock.dayHourRenderParams[3];
             expect(filterFn(10)).toEqualData(true);
             expect(filterFn(30)).toEqualData(false);

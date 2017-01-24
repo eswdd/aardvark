@@ -246,6 +246,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&key=top+left");
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData([
@@ -307,6 +308,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("https://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&key=top+left");
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData([
@@ -368,6 +370,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&key=top+left");
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData([
@@ -450,6 +453,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("https://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&m=sum:metric3&o=axis+x1y2&key=top+left");
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData([
@@ -520,6 +524,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&key=top+left");
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData([
@@ -629,6 +634,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:plantime&o=axis+x1y1&key=top+left");
             expect(renderData.length).toEqualData(36);
             expect(scope.renderErrors).toEqualData({});
             expect(scope.renderWarnings).toEqualData({});
@@ -657,6 +663,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&key=top+left");
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData([
@@ -719,6 +726,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&ylog&key=top+left");
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData([
@@ -780,6 +788,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&yrange=[0:]&key=top+left");
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData([
@@ -852,6 +861,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y2&y2range=[0:]&key=top+left");
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData([
@@ -919,6 +929,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&key=top+left");
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData([
@@ -991,6 +1002,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&yrange=[0:]&key=top+left");
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData([
@@ -1058,6 +1070,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&key=top+left");
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData([
@@ -1130,6 +1143,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&yrange=[0:]&key=top+left");
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData([
@@ -1204,6 +1218,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&key=top+left");
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData([
@@ -1279,6 +1294,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&m=sum:metric3&o=axis+x1y2&key=top+left");
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData([
@@ -1348,6 +1364,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&yrange=[0:]&key=top+left");
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData([
@@ -1430,6 +1447,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y2&m=sum:metric2&o=axis+x1y2&m=sum:metric3&o=axis+x1y1&m=sum:metric4&o=axis+x1y1&y2range=[0:]&key=top+left");
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData([
@@ -1526,6 +1544,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1{host=host1}&o=axis+x1y1&m=sum:metric1{host=host2}&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&key=top+left");
             var expectedDivId = "dygraphDiv_abc";
             var expectedGraphId = "abc";
             var expectedConfig = {
@@ -1619,6 +1638,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&key=top+left");
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData([
@@ -1687,6 +1707,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&yrange=[0:]&key=top+left");
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData([
@@ -1775,6 +1796,7 @@ describe('Aardvark controllers', function () {
             $httpBackend.flush();
     
             if (!expectedErrors) {
+                expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&m=sum:metric3&o=axis+x1y1&m=sum:metric4&o=axis+x1y1&key=top+left");
                 expect(renderDivId).toEqualData("dygraphDiv_abc");
                 expect(renderGraphId).toEqualData("abc");
             
@@ -1794,6 +1816,9 @@ describe('Aardvark controllers', function () {
     
                 expect(renderConfig.labels).toEqualData(expectedLabels);
                 expect(renderData).toEqualData(expectedData);
+            }
+            else {
+                expect(rendererInstance.tsdb_export_link).toEqualData("");
             }
             
             expect(scope.renderErrors).toEqualData(expectedErrors || {});
@@ -1823,6 +1848,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&key=top+left");
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData([
@@ -2210,6 +2236,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&key=top+left");
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData([
@@ -2248,7 +2275,7 @@ describe('Aardvark controllers', function () {
             expect(scope.renderWarnings).toEqualData({abc:"Empty response from TSDB for baseline query"});
         });
 
-        var baselineTest = function(url1, data1, url2, data2, global, graph, metrics, expectedRenderData, labels, seriesAxes) {
+        var baselineTest = function(url1, data1, url2, data2, tsdbExportUrl, global, graph, metrics, expectedRenderData, labels, seriesAxes) {
             if (url1 == null) {
                 url1 = 'http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true';
             }
@@ -2280,7 +2307,10 @@ describe('Aardvark controllers', function () {
 
 
             $httpBackend.flush();
-
+ 
+            if (tsdbExportUrl == null) {
+                expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1"+(graph.dygraph!=null&&graph.dygraph.y1SquashNegative?"&yrange=[0:]":"")+"&key=top+left");
+            }
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData(expectedRenderData);
@@ -2351,7 +2381,7 @@ describe('Aardvark controllers', function () {
                 [new Date(1234567815000), 50, 20]
             ];
 
-            baselineTest(url1, data1, url2, data2, global, null, metrics, renderData, ["x", "metric1", "metric2[BL]"]);
+            baselineTest(url1, data1, url2, data2, "http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&key=top+left", global, null, metrics, renderData, ["x", "metric1", "metric2[BL]"]);
         });
         
         it('should render with dygraph when baselining is enabled', function() {
@@ -2380,7 +2410,7 @@ describe('Aardvark controllers', function () {
                 [new Date(1234567815000), 50, 50]
             ];
 
-            baselineTest(null, data1, null, data2, global, null, null, renderData, null);
+            baselineTest(null, data1, null, data2, null, global, null, null, renderData, null);
         });
         
         it('should render with dygraph when baselining is enabled with negative squashing', function() {
@@ -2410,7 +2440,7 @@ describe('Aardvark controllers', function () {
                 [new Date(1234567815000), 50, 50]
             ];
 
-            baselineTest(null, data1, null, data2, global, graph, null, renderData, null);
+            baselineTest(null, data1, null, data2, null, global, graph, null, renderData, null);
         });
         
         it('should render with dygraph when baselining is enabled with mean adjustment', function() {
@@ -2457,7 +2487,7 @@ describe('Aardvark controllers', function () {
                 [new Date(1234567815000), 20, -20, 20, -20]
             ];
 
-            baselineTest(url1, data1, url2, data2, global, graph, metrics, renderData, ["x", "metric1", "metric2", "metric1[BL]", "metric2[BL]"]);
+            baselineTest(url1, data1, url2, data2, "http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&key=top+left", global, graph, metrics, renderData, ["x", "metric1", "metric2", "metric1[BL]", "metric2[BL]"]);
         });
         
         it('should render with dygraph when baselining is enabled with mean adjustment & negative squashing', function() {
@@ -2506,7 +2536,7 @@ describe('Aardvark controllers', function () {
                 [new Date(1234567815000), 20, -20, 20, -20]
             ];
 
-            baselineTest(url1, data1, url2, data2, global, graph, metrics, renderData, ["x", "metric1", "metric2", "metric1[BL]", "metric2[BL]"]);
+            baselineTest(url1, data1, url2, data2, "http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&key=top+left", global, graph, metrics, renderData, ["x", "metric1", "metric2", "metric1[BL]", "metric2[BL]"]);
         });
         
         it('should render with dygraph when baselining is enabled with ratio graph', function() {
@@ -2553,7 +2583,7 @@ describe('Aardvark controllers', function () {
                 [new Date(1234567815000), 80, 20, 75, 25]
             ];
 
-            baselineTest(url1, data1, url2, data2, global, graph, metrics, renderData, ["x", "metric1", "metric2", "metric1[BL]", "metric2[BL]"]);
+            baselineTest(url1, data1, url2, data2, "http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&key=top+left", global, graph, metrics, renderData, ["x", "metric1", "metric2", "metric1[BL]", "metric2[BL]"]);
         });
         
         it('should render with dygraph when baselining is enabled with ratio graph & negative squashing', function() {
@@ -2602,7 +2632,7 @@ describe('Aardvark controllers', function () {
                 [new Date(1234567815000), 80, 20, 60, 40]
             ];
 
-            baselineTest(url1, data1, url2, data2, global, graph, metrics, renderData, ["x", "metric1", "metric2", "metric1[BL]", "metric2[BL]"]);
+            baselineTest(url1, data1, url2, data2, "http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&yrange=[0:]&key=top+left", global, graph, metrics, renderData, ["x", "metric1", "metric2", "metric1[BL]", "metric2[BL]"]);
         });
         
         it('should render with dygraph when baselining is enabled with auto scaling', function() {
@@ -2650,7 +2680,7 @@ describe('Aardvark controllers', function () {
                 [new Date(1234567815000), 5000, 1000, 5000, 1000]
             ];
 
-            baselineTest(url1, data1, url2, data2, global, graph, metrics, renderData, ["x", "metric1", "100x metric2", "metric1[BL]", "100x metric2[BL]"]);
+            baselineTest(url1, data1, url2, data2, "http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&key=top+left", global, graph, metrics, renderData, ["x", "metric1", "100x metric2", "metric1[BL]", "100x metric2[BL]"]);
         });
         
         it('should render with dygraph when baselining is enabled with auto scaling & negative squashing', function() {
@@ -2699,7 +2729,7 @@ describe('Aardvark controllers', function () {
                 [new Date(1234567815000), 0, 10, 0, 10]
             ];
 
-            baselineTest(url1, data1, url2, data2, global, graph, metrics, renderData, ["x", "metric1", "metric2", "metric1[BL]", "metric2[BL]"]);
+            baselineTest(url1, data1, url2, data2, "http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&yrange=[0:]&key=top+left", global, graph, metrics, renderData, ["x", "metric1", "metric2", "metric1[BL]", "metric2[BL]"]);
         });
         
         it('should remove baseline results when the corresponding main query results are removed by filtering', function() {
@@ -2746,7 +2776,7 @@ describe('Aardvark controllers', function () {
                 [new Date(1234567815000), 10, 20]
             ];
 
-            baselineTest(url1, data1, url2, data2, global, graph, metrics, renderData, ["x", "metric2", "metric2[BL]"]);
+            baselineTest(url1, data1, url2, data2, "http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&key=top+left", global, graph, metrics, renderData, ["x", "metric2", "metric2[BL]"]);
         });
         
         it('should not error when filtering excludes all baseline lines by excluding all corresponding main query results', function() {
@@ -2787,20 +2817,22 @@ describe('Aardvark controllers', function () {
                 [new Date(1234567815000), 10]
             ];
 
-            baselineTest(url1, data1, url2, data2, global, graph, metrics, renderData, ["x", "metric2"]);
+            baselineTest(url1, data1, url2, data2, "http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&key=top+left", global, graph, metrics, renderData, ["x", "metric2"]);
         });
 
         var annotationTest = function(responseData, expectedRenderData, expectedAnnotations, autoScaling, expectedLabels) {
             var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&show_tsuids=true&ms=true&arrays=true&show_query=true";
+            var tsdbExportUrl = "http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&key=top+left";
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
             if (autoScaling) {
                 metrics.push({ id: "123", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } });
                 url = url.replace("metric1","metric1&m=sum:metric2");
+                tsdbExportUrl = tsdbExportUrl.replace("metric1","metric1&o=axis+x1y1&m=sum:metric2");
             }
             if (expectedLabels == null) {
                 expectedLabels = ["x", "metric1"];
             }
-            _annotationTest(false, metrics, null, url, null, responseData, null, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling);
+            _annotationTest(false, metrics, null, url, null, tsdbExportUrl, responseData, null, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling);
         }
         var annotationBaselineTest = function(responseData, baselineResponseData, expectedRenderData, expectedAnnotations, autoScaling, expectedLabels) {
             var datum = moment.utc("2016-06-03");
@@ -2808,19 +2840,22 @@ describe('Aardvark controllers', function () {
             var start = moment.utc("2016-06-01").format("YYYY/MM/DD HH:mm:ss");
             var end = moment.utc("2016-06-02").format("YYYY/MM/DD HH:mm:ss");
             var baselineUrl = "http://tsdb:4242/api/query?start="+start+"&end="+end+"&m=sum:metric1&show_tsuids=true&ms=true&arrays=true&show_query=true";
+            var tsdbExportUrl = "http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&key=top+left";
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
             if (autoScaling) {
                 metrics.push({ id: "123", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } });
                 url = url.replace("metric1","metric1&m=sum:metric2");
                 baselineUrl = baselineUrl.replace("metric1","metric1&m=sum:metric2");
+                tsdbExportUrl = tsdbExportUrl.replace("metric1","metric1&o=axis+x1y1&m=sum:metric2");
             }
             if (expectedLabels == null) {
                 expectedLabels = ["x", "metric1","metric1[BL]"];
             }
-            _annotationTest(false, metrics, datum, url, baselineUrl, responseData, baselineResponseData, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling);
+            _annotationTest(false, metrics, datum, url, baselineUrl, tsdbExportUrl, responseData, baselineResponseData, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling);
         }
         var globalAnnotationTest = function(responseData, expectedRenderData, expectedAnnotations, autoScaling, expectedLabels) {
             var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&show_tsuids=true&global_annotations=true&ms=true&arrays=true&show_query=true";
+            var tsdbExportUrl = "http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&key=top+left&global_annotations";
             var metrics = [ 
                 { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }, 
                 { id: "123", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } 
@@ -2828,7 +2863,7 @@ describe('Aardvark controllers', function () {
             if (expectedLabels == null) {
                 expectedLabels = ["x", "metric1", "metric2"];
             }
-            _annotationTest(true, metrics, null, url, null, responseData, null, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling);
+            _annotationTest(true, metrics, null, url, null, tsdbExportUrl, responseData, null, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling);
         }
         var globalAnnotationBaselineTest = function(responseData, baselineResponseData, expectedRenderData, expectedAnnotations, autoScaling, expectedLabels) {
             var datum = moment.utc("2016-06-03");
@@ -2836,6 +2871,7 @@ describe('Aardvark controllers', function () {
             var start = moment.utc("2016-06-01").format("YYYY/MM/DD HH:mm:ss");
             var end = moment.utc("2016-06-02").format("YYYY/MM/DD HH:mm:ss");
             var baselineUrl = "http://tsdb:4242/api/query?start="+start+"&end="+end+"&m=sum:metric1&show_tsuids=true&m=sum:metric2&global_annotations=true&ms=true&arrays=true&show_query=true";
+            var tsdbExportUrl = "http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&key=top+left&global_annotations";
             var metrics = [
                 { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
                 { id: "123", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }
@@ -2843,9 +2879,9 @@ describe('Aardvark controllers', function () {
             if (expectedLabels == null) {
                 expectedLabels = ["x", "metric1", "metric2","metric1[BL]","metric2[BL]"];
             }
-            _annotationTest(true, metrics, datum, url, baselineUrl, responseData, baselineResponseData, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling);
+            _annotationTest(true, metrics, datum, url, baselineUrl, tsdbExportUrl, responseData, baselineResponseData, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling);
         }
-        var _annotationTest = function(globalAnnotations, metrics, datum, url, baselineUrl, responseData, baselineResponseData, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling, seriesAxes) {
+        var _annotationTest = function(globalAnnotations, metrics, datum, url, baselineUrl, tsdbExportUrl, responseData, baselineResponseData, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling, seriesAxes) {
 
             scope.renderedContent = {};
             scope.renderErrors = {};
@@ -2871,6 +2907,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.flush();
 
+            expect(rendererInstance.tsdb_export_link).toEqualData(tsdbExportUrl);
             expect(renderDivId).toEqualData("dygraphDiv_abc");
             expect(renderGraphId).toEqualData("abc");
             expect(renderData).toEqualData(expectedRenderData);

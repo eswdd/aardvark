@@ -116,7 +116,7 @@ describe('Aardvark controllers', function () {
             ]);
             $httpBackend.flush();
 
-            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2h-ago&ignore=1&m=sum:20s-avg:metric1");
+            expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=2h-ago&m=sum:20s-avg:metric1&o=axis+x1y1&key=top+left");
 //
 //            expect(renderDivId).toEqualData(null);
 //            expect(renderGraphId).toEqualData(null);
