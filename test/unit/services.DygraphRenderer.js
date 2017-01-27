@@ -1,7 +1,7 @@
 'use strict';
 
 /* jasmine specs for controllers go here */
-describe('Aardvark controllers', function () {
+describe('Aardvark renderers', function () {
 
     beforeEach(function () {
         jasmine.addMatchers({
@@ -21,12 +21,72 @@ describe('Aardvark controllers', function () {
 
     beforeEach(module('Aardvark'));
 
-    describe('GraphCtrl.dygraphRenderer', function() {
+    describe('DygraphRenderer', function() {
+        var graphServices, $httpBackend;
+        var renderer, rendererInstance;
+        var renderContext, config;
+        var dygraphHeight, renderAnnotations;
+
+        var renderDivId, renderGraphId, renderData, renderConfig;
+
+        beforeEach(inject(function (DygraphRenderer, GraphServices, _$httpBackend_) {
+            // hmm
+            renderer = DygraphRenderer;
+            graphServices = GraphServices;
+            $httpBackend = _$httpBackend_;
+
+            renderContext = {};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            renderContext.renderMessages = {};
+            renderContext.graphRendered = function() {};
+
+            config = {
+                annotations: {
+                    allowAddEdit: true
+                },
+                tsdbBaseReadUrl: "http://tsdb:4242"
+            };
+
+            graphServices.dygraph_render = function(divId, graphId, data, config) {
+                renderDivId = divId;
+                renderGraphId = graphId;
+                renderData = data;
+                renderConfig = config;
+                return {
+                    height: dygraphHeight,
+                    canvas_: {
+                        style: {}
+                    }
+                };
+            }
+            dygraphHeight = 100;
+
+            graphServices.dygraph_setAnnotations = function(g, anns) {
+                renderAnnotations = anns;
+            }
+
+            renderDivId = null;
+            renderGraphId = null;
+            renderData = null;
+            renderConfig = null;
+
+            rendererInstance = renderer.create();
+            
+            // defaults
+            expect(rendererInstance.supports_tsdb_export).toEqualData(true);
+            expect(rendererInstance.tsdb_export_link).toEqualData("");
+            // memory from a previous query
+            rendererInstance.tsdb_export_link = "http://tsdb:4242/oldquery";
+        }));
+        
+        
+        /*
         var rootScope, $httpBackend, scope;
         var globals, graphs, metricss;
         var configUpdateFunc;
-        var renderDivId, renderGraphId, renderData, renderConfig, renderAnnotations;
-        var dygraphHeight;
+        var renderDivId, renderGraphId, renderData, renderConfig;
         var rendererInstance;
 
         beforeEach(inject(function ($rootScope, _$httpBackend_, $controller) {
@@ -38,7 +98,7 @@ describe('Aardvark controllers', function () {
             graphs = [];
             metricss = [];
 
-            scope.renderers = {};
+            renderContext.renderers = {};
             renderDivId = null;
             renderGraphId = null;
             renderData = null;
@@ -49,7 +109,7 @@ describe('Aardvark controllers', function () {
                 metrics: []
             }
 
-            rootScope.config = {
+            config = {
                 annotations: {
                     allowAddEdit: true
                 },
@@ -71,7 +131,7 @@ describe('Aardvark controllers', function () {
             $controller('GraphCtrl', {$scope: scope, $rootScope: rootScope});
 
 
-            rendererInstance = scope.renderers.dygraph.create();
+            rendererInstance = renderContext.renderers.dygraph.create();
             // defaults
             expect(rendererInstance.supports_tsdb_export).toEqualData(true);
             expect(rendererInstance.tsdb_export_link).toEqualData("");
@@ -97,7 +157,7 @@ describe('Aardvark controllers', function () {
             scope.dygraph_setAnnotations = function(g, anns) {
                 renderAnnotations = anns;
             }
-        }));
+        }));*/
 
         var checkResponseAsExpected = function(expectedDivId, expectedGraphId, expectedConfigExcludingLabels, expectedLabelsAndData, expectedRenderErrors, expectedRenderWarnings) {
 
@@ -135,74 +195,74 @@ describe('Aardvark controllers', function () {
 
             // labels: ["x", "metric1{host=host1}", "metric1{host=host2}", "100x metric2"],
             expect(renderConfig).toEqualData(expectedConfigExcludingLabels);
-            expect(scope.renderErrors).toEqualData(expectedRenderErrors);
-            expect(scope.renderWarnings).toEqualData(expectedRenderWarnings);
+            expect(renderContext.renderErrors).toEqualData(expectedRenderErrors);
+            expect(renderContext.renderWarnings).toEqualData(expectedRenderWarnings);
         }
 
         it('should report an error when trying to render with dygraph and no start time', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
 
             var global = { relativePeriod: "", autoReload: false };
             var graph = { id: "abc", graphWidth: 0, graphHeight: 0 };
             var metrics = [ { id: "123", graphOptions: {} } ];
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
             expect(rendererInstance.tsdb_export_link).toEqualData("");
             expect(renderDivId).toEqualData(null);
             expect(renderGraphId).toEqualData(null);
             expect(renderData).toEqualData(null);
             expect(renderConfig).toEqualData(null);
-            expect(scope.renderErrors).toEqualData({abc:"No start date specified"});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({abc:"No start date specified"});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
 
         it('should report an error when trying to render with dygraph and no metrics', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ ];
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
             expect(rendererInstance.tsdb_export_link).toEqualData("");
             expect(renderDivId).toEqualData(null);
             expect(renderGraphId).toEqualData(null);
             expect(renderData).toEqualData(null);
             expect(renderConfig).toEqualData(null);
-            expect(scope.renderErrors).toEqualData({abc:"No metrics specified"});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({abc:"No metrics specified"});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
 
         it('should report an error when trying to render with dygraph and count filtering of < 1 item', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { countFilter: { count: 0, measure: "max", end: "top" }}};
             var metrics = [{ id: "123", name: "metric1", tags: [{name: "host", value: "host1"}], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
             expect(rendererInstance.tsdb_export_link).toEqualData("");
             expect(renderDivId).toEqualData(null);
             expect(renderGraphId).toEqualData(null);
             expect(renderData).toEqualData(null);
             expect(renderConfig).toEqualData(null);
-            expect(scope.renderErrors).toEqualData({abc:"Minimum count for filtering is 1"});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({abc:"Minimum count for filtering is 1"});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
 
         it('should report an error when the http response is empty', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -210,7 +270,7 @@ describe('Aardvark controllers', function () {
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1{host=host1}&no_annotations=true&ms=true&arrays=true&show_query=true').respond([]);
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
             $httpBackend.flush();
 
@@ -219,15 +279,15 @@ describe('Aardvark controllers', function () {
             expect(renderGraphId).toEqualData(null);
             expect(renderData).toEqualData(null);
             expect(renderConfig).toEqualData(null);
-            expect(scope.renderErrors).toEqualData({abc:"Empty response from TSDB"});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({abc:"Empty response from TSDB"});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
         
         it('should render with dygraph with a relative start time', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -241,7 +301,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 50]
             ]}]);
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -281,15 +341,15 @@ describe('Aardvark controllers', function () {
                     "metric1":{"axis":"y1"}
                 }
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
         
         it('should render with dygraph with a relative start time via https when requested', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "https://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "https://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -303,7 +363,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 50]
             ]}]);
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -343,15 +403,15 @@ describe('Aardvark controllers', function () {
                     "metric1":{"axis":"y1"}
                 }
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
         
         it('should render with dygraph with stacked lines', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { stackedLines: true }};
@@ -365,7 +425,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 50]
             ]}]);
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -406,15 +466,15 @@ describe('Aardvark controllers', function () {
                     "metric1":{"axis":"y1"}
                 }
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
 
         it('should render with dygraph multiple axes', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "https://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "https://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -448,7 +508,7 @@ describe('Aardvark controllers', function () {
                 ]
             );
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -490,15 +550,15 @@ describe('Aardvark controllers', function () {
                     "metric3":{"axis":"y2"}
                 }
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
         
         it('should render with dygraph and correctly indicate gaps in data', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -519,7 +579,7 @@ describe('Aardvark controllers', function () {
                 [1234567816000, 50]
             ]}]);
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -562,15 +622,15 @@ describe('Aardvark controllers', function () {
                     "metric2":{"axis":"y1"}
                 }
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
         
         it('should render with dygraph and correctly indicate gaps in data - issue #87', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -629,22 +689,22 @@ describe('Aardvark controllers', function () {
                 }
             ]);
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
 
             $httpBackend.flush();
 
             expect(rendererInstance.tsdb_export_link).toEqualData("http://tsdb:4242/#start=1d-ago&m=sum:plantime&o=axis+x1y1&key=top+left");
             expect(renderData.length).toEqualData(36);
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
         
         it('should render with dygraph with interpolation', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { interpolateGaps: true }};
@@ -658,7 +718,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 50]
             ]}]);
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -699,15 +759,15 @@ describe('Aardvark controllers', function () {
                     "metric1":{"axis":"y1"}
                 }
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
         
         it('should render with dygraph with logarithmic y axis', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1Log: true }};
@@ -721,7 +781,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 50]
             ]}]);
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -761,15 +821,15 @@ describe('Aardvark controllers', function () {
                     "metric1":{"axis":"y1"}
                 }
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
         
         it('should render with dygraph with negative squashing', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: true }};
@@ -783,7 +843,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 50]
             ]}]);
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -823,15 +883,15 @@ describe('Aardvark controllers', function () {
                     "metric1":{"axis":"y1"}
                 }
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
         
         it('should render with dygraph with negative squashing and 2 axes', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: false, y2SquashNegative: true }};
@@ -856,7 +916,7 @@ describe('Aardvark controllers', function () {
                     ]}
                 ]);
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -897,15 +957,15 @@ describe('Aardvark controllers', function () {
                     "metric2":{"axis":"y2"}
                 }
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
         
         var dygraphMeanAdjustedTest = function(graph) {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
@@ -925,7 +985,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 10]
             ]}]);
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
             $httpBackend.flush();
 
@@ -965,19 +1025,19 @@ describe('Aardvark controllers', function () {
                     "metric2":{"axis":"y1"}
                 }
             });
-            expect(scope.renderErrors).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
         }
         
         it('should render with dygraph with mean adjustment', function() {
             dygraphMeanAdjustedTest({id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: false, meanAdjusted: true }});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
         
         it('should render with dygraph with mean adjustment & negative squashing', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: true, meanAdjusted: true }};
@@ -998,7 +1058,7 @@ describe('Aardvark controllers', function () {
                     [1234567815000, 10]
                 ]}]);
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
             $httpBackend.flush();
 
@@ -1038,15 +1098,15 @@ describe('Aardvark controllers', function () {
                     "metric2":{"axis":"y1"}
                 }
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
         
         var dygraphRatioTest = function(graph) {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
@@ -1066,7 +1126,7 @@ describe('Aardvark controllers', function () {
                     [1234567815000, 10]
                 ]}]);
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
             $httpBackend.flush();
 
@@ -1106,19 +1166,19 @@ describe('Aardvark controllers', function () {
                     "metric2":{"axis":"y1"}
                 }
             });
-            expect(scope.renderErrors).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
         };
 
         it('should render with dygraph with ratio graph', function() { 
             dygraphRatioTest({id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: false, ratioGraph: true }});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
         
         it('should render with dygraph with ratio graph & negative squashing', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: true, ratioGraph: true }};
@@ -1139,7 +1199,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 10]
             ]}]);
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
             $httpBackend.flush();
 
@@ -1179,21 +1239,21 @@ describe('Aardvark controllers', function () {
                     "metric2":{"axis":"y1"}
                 }
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
         
         // identical to ratio only - should ignore mean adjustment as not compatible
         it('should render with dygraph with ratio graph & mean adjustment', function() {
             dygraphRatioTest({id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { meanAdjusted: true, ratioGraph: true }});
-            expect(scope.renderWarnings).toEqualData({abc:"Ignored mean adjustment as not compatible with ratio graphs"});
+            expect(renderContext.renderWarnings).toEqualData({abc:"Ignored mean adjustment as not compatible with ratio graphs"});
         });
         
         it('should render with dygraph with auto scaling', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true }};
@@ -1214,7 +1274,7 @@ describe('Aardvark controllers', function () {
                     [1234567815000, 10]
                 ]}]);
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
             $httpBackend.flush();
 
@@ -1254,15 +1314,15 @@ describe('Aardvark controllers', function () {
                     "100x metric2":{"axis":"y1"}
                 }
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
         
         it('should render with dygraph with auto scaling and 2 axes', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true, y2AutoScale: false }};
@@ -1290,7 +1350,7 @@ describe('Aardvark controllers', function () {
                     [1234567815000, 10]
                 ]}]);
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
             $httpBackend.flush();
 
@@ -1331,15 +1391,15 @@ describe('Aardvark controllers', function () {
                     "metric3":{"axis":"y2"}
                 }
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
 
         it('should render with dygraph with auto scaling & negative squashing', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true, y1SquashNegative: true }};
@@ -1360,7 +1420,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 10]
             ]}]);
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
             $httpBackend.flush();
 
@@ -1400,15 +1460,15 @@ describe('Aardvark controllers', function () {
                     "metric2":{"axis":"y1"}
                 }
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
 
         it('should render with dygraph with auto scaling and negative squashing on 2 axes', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true, y1SquashNegative: false, y2AutoScale: true, y2SquashNegative: true }};
@@ -1443,7 +1503,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 30]
             ]}]);
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
             $httpBackend.flush();
 
@@ -1485,33 +1545,33 @@ describe('Aardvark controllers', function () {
                     "10x metric4":{"axis":"y1"}
                 }
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
 
         // identical to mean adjusted only - should ignore auto scaling as not compatible
         it('should render with dygraph with auto scaling & mean adjustment', function() {
             dygraphMeanAdjustedTest({id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true, meanAdjusted: true }});
-            expect(scope.renderWarnings).toEqualData({abc:"Ignored auto scaling as not compatible with mean adjustment"});
+            expect(renderContext.renderWarnings).toEqualData({abc:"Ignored auto scaling as not compatible with mean adjustment"});
         });
 
         // identical to ratio only - should ignore auto scaling as not compatible
         it('should render with dygraph with auto scaling & ratio graph', function() {
             dygraphRatioTest({id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true, ratioGraph: true }});
-            expect(scope.renderWarnings).toEqualData({abc:"Ignored auto scaling as not compatible with ratio graphs"});
+            expect(renderContext.renderWarnings).toEqualData({abc:"Ignored auto scaling as not compatible with ratio graphs"});
         });
 
         // identical to ratio only - should ignore auto scaling as not compatible
         it('should render with dygraph with auto scaling & ratio graph & mean adjustment', function() {
             dygraphRatioTest({id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true, ratioGraph: true, meanAdjusted: true }});
-            expect(scope.renderWarnings).toEqualData({abc:"Ignored mean adjustment and auto scaling as not compatible with ratio graphs"});
+            expect(renderContext.renderWarnings).toEqualData({abc:"Ignored mean adjustment and auto scaling as not compatible with ratio graphs"});
         });
         
         it('should render with dygraph with auto scaling and scale same metrics same amount', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true }};
@@ -1540,7 +1600,7 @@ describe('Aardvark controllers', function () {
                     [1234567815000, 10]
                 ]}]);
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
             $httpBackend.flush();
 
@@ -1610,10 +1670,10 @@ describe('Aardvark controllers', function () {
         });
 
         it('should render with dygraph with auto scaling of absolute values', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true }};
@@ -1634,7 +1694,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 10]
             ]}]);
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
             $httpBackend.flush();
 
@@ -1674,15 +1734,15 @@ describe('Aardvark controllers', function () {
                     "100x metric2":{"axis":"y1"}
                 }
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
 
         it('should render with dygraph with auto scaling taking account of negative squashing', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true, y1SquashNegative: true }};
@@ -1703,7 +1763,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 10]
             ]}]);
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
             $httpBackend.flush();
 
@@ -1743,15 +1803,15 @@ describe('Aardvark controllers', function () {
                     "metric2":{"axis":"y1"}
                 }
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
         
         var testFiltering = function(dygraphOptions, metricDps, expectedMetrics, expectedWarnings, expectedErrors) {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: dygraphOptions };
@@ -1791,7 +1851,7 @@ describe('Aardvark controllers', function () {
                 }
             ]);
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
     
             $httpBackend.flush();
     
@@ -1821,15 +1881,15 @@ describe('Aardvark controllers', function () {
                 expect(rendererInstance.tsdb_export_link).toEqualData("");
             }
             
-            expect(scope.renderErrors).toEqualData(expectedErrors || {});
-            expect(scope.renderWarnings).toEqualData(expectedWarnings || {});
+            expect(renderContext.renderErrors).toEqualData(expectedErrors || {});
+            expect(renderContext.renderWarnings).toEqualData(expectedWarnings || {});
         }
 
         it('should render with dygraph with filtering count set to empty string', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { countFilter: {count: "", measure: "min", end: "top"} } };
@@ -1843,7 +1903,7 @@ describe('Aardvark controllers', function () {
                 [1234567815000, 50]
             ]}]);
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -1883,8 +1943,8 @@ describe('Aardvark controllers', function () {
                     "metric1":{"axis":"y1"}
                 }
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
 
         it('should render with dygraph with top n filtering based on min', function() {
@@ -2147,23 +2207,23 @@ describe('Aardvark controllers', function () {
             expect(rendererInstance.tsdb_export_link).toEqualData("");
         });
         it('should show an error when lower bound > upper bound', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { valueFilter: { lowerBound: 100, measure: "max", upperBound: "80" }}};
             var metrics = [{ id: "123", name: "metric1", tags: [{name: "host", value: "host1"}], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
-            rendererInstance.render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
             expect(rendererInstance.tsdb_export_link).toEqualData("");
             expect(renderDivId).toEqualData(null);
             expect(renderGraphId).toEqualData(null);
             expect(renderData).toEqualData(null);
             expect(renderConfig).toEqualData(null);
-            expect(scope.renderErrors).toEqualData({abc:"Upper bound on value filter is less than lower bound"});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({abc:"Upper bound on value filter is less than lower bound"});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
         it('should show a warning when lower bound == upper bound', function() {
             testFiltering(
@@ -2180,9 +2240,9 @@ describe('Aardvark controllers', function () {
         });
 
         it('should fail when baselining is enabled and there was an empty response for the main query', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
 
             var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -2199,7 +2259,7 @@ describe('Aardvark controllers', function () {
 
             var datum = moment.utc("2016/01/22 14:10:10", "YYYY/MM/DD HH:mm:ss");
             
-            rendererInstance.render(global, graph, metrics, datum);
+            rendererInstance.render(renderContext, config, global, graph, metrics, datum);
 
             $httpBackend.flush();
 
@@ -2208,14 +2268,14 @@ describe('Aardvark controllers', function () {
             expect(renderGraphId).toEqualData(null);
             expect(renderData).toEqualData(null);
             expect(renderConfig).toEqualData(null);
-            expect(scope.renderErrors).toEqualData({abc:"Empty response from TSDB"});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({abc:"Empty response from TSDB"});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
         
         it('should warn when baselining is enabled and there was an empty response for the baseline query', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
 
             var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -2232,7 +2292,7 @@ describe('Aardvark controllers', function () {
 
             var datum = moment.utc("2016/01/22 14:10:10", "YYYY/MM/DD HH:mm:ss");
             
-            rendererInstance.render(global, graph, metrics, datum);
+            rendererInstance.render(renderContext, config, global, graph, metrics, datum);
 
             $httpBackend.flush();
 
@@ -2271,8 +2331,8 @@ describe('Aardvark controllers', function () {
                     "metric1":{"axis":"y1"}
                 }
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({abc:"Empty response from TSDB for baseline query"});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({abc:"Empty response from TSDB for baseline query"});
         });
 
         var baselineTest = function(url1, data1, url2, data2, tsdbExportUrl, global, graph, metrics, expectedRenderData, labels, seriesAxes) {
@@ -2286,10 +2346,10 @@ describe('Aardvark controllers', function () {
                 labels = ["x", "metric1", "metric1[BL]"];
             }
 
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var datum = moment.utc("2016/01/22 14:10:10", "YYYY/MM/DD HH:mm:ss");
 
@@ -2303,7 +2363,7 @@ describe('Aardvark controllers', function () {
             $httpBackend.expectGET(url1).respond(data1);
             $httpBackend.expectGET(url2).respond(data2);
 
-            rendererInstance.render(global, graph, metrics, datum);
+            rendererInstance.render(renderContext, config, global, graph, metrics, datum);
 
 
             $httpBackend.flush();
@@ -2346,8 +2406,8 @@ describe('Aardvark controllers', function () {
                 },
                 series: expectedSeries
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         }
         
         it('should render baseline lines where we had no corresponding main query lines', function() {
@@ -2883,10 +2943,10 @@ describe('Aardvark controllers', function () {
         }
         var _annotationTest = function(globalAnnotations, metrics, datum, url, baselineUrl, tsdbExportUrl, responseData, baselineResponseData, expectedRenderData, expectedLabels, expectedAnnotations, autoScaling, seriesAxes) {
 
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242",annotations:{allowAddEdit: true}};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242",annotations:{allowAddEdit: true}};
 
             var global = { relativePeriod: "1d", autoReload: false };
             if (baselineUrl != null && baselineResponseData != null) {
@@ -2902,7 +2962,7 @@ describe('Aardvark controllers', function () {
                 $httpBackend.expectGET(baselineUrl).respond(baselineResponseData);
             }
 
-            rendererInstance.render(global, graph, metrics, datum);
+            rendererInstance.render(renderContext, config, global, graph, metrics, datum);
 
 
             $httpBackend.flush();
@@ -2944,8 +3004,8 @@ describe('Aardvark controllers', function () {
                 series: expectedSeries
             });
             expect(renderAnnotations).toEqualData(expectedAnnotations);
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         }
         
         it('should render with dygraph when annotations are enabled and there is an annotation on a series', function() {

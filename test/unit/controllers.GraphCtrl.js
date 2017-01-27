@@ -42,7 +42,7 @@ describe('Aardvark controllers', function () {
                         type: "unittest",
                         supports_tsdb_export: false,
                         supports_grafana_export: false,
-                        render: function(global,graph,metrics) {
+                        render: function(renderContext,config,global,graph,metrics) {
                             globals.push(global);
                             graphs.push(graph);
                             metricss.push(metrics);
@@ -58,7 +58,7 @@ describe('Aardvark controllers', function () {
                         tsdb_export_link: "http://tsdb:4242",
                         supports_grafana_export: true,
                         grafana_export_text: "{}",
-                        render: function(global,graph,metrics) {
+                        render: function(renderContext,config,global,graph,metrics) {
                             globals.push(global);
                             graphs.push(graph);
                             metricss.push(metrics);

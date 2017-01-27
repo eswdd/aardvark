@@ -1,7 +1,7 @@
 'use strict';
 
 /* jasmine specs for controllers go here */
-describe('Aardvark controllers', function () {
+describe('Aardvark renderers', function () {
 
     beforeEach(function () {
         jasmine.addMatchers({
@@ -21,145 +21,122 @@ describe('Aardvark controllers', function () {
 
     beforeEach(module('Aardvark'));
 
-    describe('GraphCtrl.scatterRenderer', function() {
-        var rootScope, $httpBackend, scope;
-        var globals, graphs, metricss;
-        var configUpdateFunc;
+    describe('ScatterRenderer', function() {
+        var graphServices, $httpBackend;
+        var renderer, rendererInstance;
+        var renderContext, config;
+
         var renderDivId, renderGraphId, renderData, renderConfig;
-
-        beforeEach(inject(function ($rootScope, _$httpBackend_, $controller) {
+        
+        beforeEach(inject(function (ScatterRenderer, GraphServices, _$httpBackend_) {
             // hmm
-            rootScope = $rootScope;
+            renderer = ScatterRenderer;
+            graphServices = GraphServices;
             $httpBackend = _$httpBackend_;
-            scope = $rootScope.$new();
-            globals = [];
-            graphs = [];
-            metricss = [];
 
-            scope.renderers = {};
-            renderDivId = null;
-            renderGraphId = null;
-            renderData = null;
-            renderConfig = null;
+            renderContext = {};
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+            renderContext.renderMessages = {};
+            renderContext.graphRendered = function() {};
 
-            rootScope.model = {
-                graphs: [],
-                metrics: []
-            }
+            config = {
+                tsdbBaseReadUrl: "http://tsdb:4242"
+            };
 
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
-
-            rootScope.formEncode = function(val) {
-                var ret = val.replace(" ","+");
-                if (ret != val) {
-                    return rootScope.formEncode(ret);
-                }
-                return ret;
-            }
-
-            rootScope.onConfigUpdate = function(func) {
-                configUpdateFunc = func;
-            }
-
-            $controller('GraphCtrl', {$scope: scope, $rootScope: rootScope});
-
-            // override function to get us a test hook
-            scope.dygraph_render = function(divId, graphId, data, config) {
+            graphServices.dygraph_render = function(divId, graphId, data, config) {
                 renderDivId = divId;
                 renderGraphId = graphId;
                 renderData = data;
                 renderConfig = config;
             }
+
+            renderDivId = null;
+            renderGraphId = null;
+            renderData = null;
+            renderConfig = null;
+
+            rendererInstance = renderer.create();
         }));
         
+        it('should indicate the correct graph type', function() {
+            // defaults
+            expect(rendererInstance.type).toEqualData("scatter");
+        })
+        
         it('should not support tsdb or grafana export', function() {
-            var rendererInstance = scope.renderers.scatter.create();
             // defaults
             expect(rendererInstance.supports_tsdb_export).toEqualData(false);
             expect(rendererInstance.supports_grafana_export).toEqualData(false);
         })
 
         it('should report an error when trying to render with scatter and no start time', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
 
             var global = { relativePeriod: "", autoReload: false };
             var graph = { id: "abc", graphWidth: 0, graphHeight: 0 };
             var metrics = [ { id: "123", graphOptions: {} } ];
 
-            scope.renderers.scatter.create().render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
             expect(renderDivId).toEqualData(null);
             expect(renderGraphId).toEqualData(null);
             expect(renderData).toEqualData(null);
             expect(renderConfig).toEqualData(null);
-            expect(scope.renderErrors).toEqualData({abc:"No start date specified"});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({abc:"No start date specified"});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
 
         it('should report an error when trying to render with scatter and no metrics', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ ];
 
-            scope.renderers.scatter.create().render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
             expect(renderDivId).toEqualData(null);
             expect(renderGraphId).toEqualData(null);
             expect(renderData).toEqualData(null);
             expect(renderConfig).toEqualData(null);
-            expect(scope.renderErrors).toEqualData({abc:"No metrics specified"});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({abc:"No metrics specified"});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
 
         it('should report an error when trying to render with scatter and only one metric', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ { id: "123", graphOptions: {} } ];
 
-            scope.renderers.scatter.create().render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
             expect(renderDivId).toEqualData(null);
             expect(renderGraphId).toEqualData(null);
             expect(renderData).toEqualData(null);
             expect(renderConfig).toEqualData(null);
-            expect(scope.renderErrors).toEqualData({abc:"Require exactly 2 metrics, currently have 1"});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({abc:"Require exactly 2 metrics, currently have 1"});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
 
         it('should report an error when trying to render with scatter and more than two metrics', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ { id: "123", graphOptions: {} }, { id: "124", graphOptions: {} }, { id: "125", graphOptions: {} } ];
 
-            scope.renderers.scatter.create().render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
             expect(renderDivId).toEqualData(null);
             expect(renderGraphId).toEqualData(null);
             expect(renderData).toEqualData(null);
             expect(renderConfig).toEqualData(null);
-            expect(scope.renderErrors).toEqualData({abc:"Require exactly 2 metrics, currently have 3"});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({abc:"Require exactly 2 metrics, currently have 3"});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
         
         it('should render with scatter with a relative start time and no axes specified', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -187,7 +164,7 @@ describe('Aardvark controllers', function () {
                 }
             ]);
 
-            scope.renderers.scatter.create().render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -218,15 +195,12 @@ describe('Aardvark controllers', function () {
                 labelsDivWidth: 1000,
                 axes: {y:{},x:{}}
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
         
         it('should render with scatter with a relative start time and axes swapped', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, scatter: { swapAxes: true }};
@@ -254,7 +228,7 @@ describe('Aardvark controllers', function () {
                 }
             ]);
 
-            scope.renderers.scatter.create().render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -285,15 +259,12 @@ describe('Aardvark controllers', function () {
                 labelsDivWidth: 1000,
                 axes: {y:{},x:{}}
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
         
         it('should render with scatter with a relative start time and axes specified as x/y', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -321,7 +292,7 @@ describe('Aardvark controllers', function () {
                 }
             ]);
 
-            scope.renderers.scatter.create().render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -352,15 +323,12 @@ describe('Aardvark controllers', function () {
                 labelsDivWidth: 1000,
                 axes: {y:{},x:{}}
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
         
         it('should render with scatter with a relative start time and axes specified as y/x', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -388,7 +356,7 @@ describe('Aardvark controllers', function () {
                 }
             ]);
 
-            scope.renderers.scatter.create().render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -419,15 +387,12 @@ describe('Aardvark controllers', function () {
                 labelsDivWidth: 1000,
                 axes: {y:{},x:{}}
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
 
         it('should render with scatter with a relative start time and negatives excluded', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, scatter: {excludeNegative:true}};
@@ -455,7 +420,7 @@ describe('Aardvark controllers', function () {
                 }
             ]);
 
-            scope.renderers.scatter.create().render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
 
             $httpBackend.flush();
@@ -484,15 +449,12 @@ describe('Aardvark controllers', function () {
                 labelsDivWidth: 1000,
                 axes: {y:{},x:{}}
             });
-            expect(scope.renderErrors).toEqualData({});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
         });
 
         it('should show a render errror with scatter when TSDB response contains more than 2 time series', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, scatter: {excludeNegative:true}};
@@ -529,14 +491,14 @@ describe('Aardvark controllers', function () {
                 }
             ]);
 
-            scope.renderers.scatter.create().render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
 
             $httpBackend.flush();
 
-            expect(scope.renderErrors).toEqualData({abc: "TSDB results doesn't contain exactly 2 metrics, was 3"});
-            expect(scope.renderMessages).toEqualData({abc:""});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({abc: "TSDB results doesn't contain exactly 2 metrics, was 3"});
+            expect(renderContext.renderMessages).toEqualData({abc:""});
+            expect(renderContext.renderWarnings).toEqualData({});
             
             expect(renderDivId).toEqualData(null);
             expect(renderGraphId).toEqualData(null);
@@ -545,10 +507,7 @@ describe('Aardvark controllers', function () {
         });
 
         it('should show a render errror with scatter when TSDB response contains less than 2 time series', function() {
-            scope.renderedContent = {};
-            scope.renderErrors = {};
-            scope.renderWarnings = {};
-            rootScope.config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, scatter: {excludeNegative:true}};
@@ -567,14 +526,14 @@ describe('Aardvark controllers', function () {
                 }
             ]);
 
-            scope.renderers.scatter.create().render(global, graph, metrics);
+            rendererInstance.render(renderContext, config, global, graph, metrics);
 
 
             $httpBackend.flush();
 
-            expect(scope.renderErrors).toEqualData({abc: "TSDB results doesn't contain exactly 2 metrics, was 1"});
-            expect(scope.renderMessages).toEqualData({abc:""});
-            expect(scope.renderWarnings).toEqualData({});
+            expect(renderContext.renderErrors).toEqualData({abc: "TSDB results doesn't contain exactly 2 metrics, was 1"});
+            expect(renderContext.renderMessages).toEqualData({abc:""});
+            expect(renderContext.renderWarnings).toEqualData({});
             
             expect(renderDivId).toEqualData(null);
             expect(renderGraphId).toEqualData(null);

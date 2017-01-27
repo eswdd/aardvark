@@ -1,7 +1,7 @@
 'use strict';
 
 /* jasmine specs for controllers go here */
-describe('Aardvark controllers', function () {
+describe('Aardvark services', function () {
 
     beforeEach(function () {
         jasmine.addMatchers({
@@ -21,45 +21,12 @@ describe('Aardvark controllers', function () {
 
     beforeEach(module('Aardvark'));
 
-    describe('GraphCtrl.cubismHelperFunctions', function() {
-        var rootScope, $httpBackend, scope;
-        var globals, graphs, metricss;
-        var configUpdateFunc;
+    describe('GraphServices.cubismHelperFunctions', function() {
+        var graphServices;
 
-        beforeEach(inject(function ($rootScope, _$httpBackend_, $controller) {
+        beforeEach(inject(function (GraphServices) {
             // hmm
-            rootScope = $rootScope;
-            $httpBackend = _$httpBackend_;
-            scope = $rootScope.$new();
-            globals = [];
-            graphs = [];
-            metricss = [];
-
-            scope.renderers = {};
-            scope.renderers["unittest"] = function(global,graph,metrics) {
-                globals.push(global);
-                graphs.push(graph);
-                metricss.push(metrics);
-            }
-
-            rootScope.model = {
-                graphs: [],
-                metrics: []
-            }
-
-            rootScope.formEncode = function(val) {
-                var ret = val.replace(" ","+");
-                if (ret != val) {
-                    return rootScope.formEncode(ret);
-                }
-                return ret;
-            }
-
-            rootScope.onConfigUpdate = function(func) {
-                configUpdateFunc = func;
-            }
-
-            $controller('GraphCtrl', {$scope: scope, $rootScope: rootScope});
+            graphServices = GraphServices;
         }));
 
         // ---------- rendering helper functions -----
@@ -67,7 +34,7 @@ describe('Aardvark controllers', function () {
         it('should return an empty array when parsing for cubism and an empty reponse is received', function() {
             var json = [];
 
-            var parsed = scope.cubism_parser(json, 1365966000, 1, 1365966010, false, false);
+            var parsed = graphServices.cubism_parser(json, 1365966000, 1, 1365966010, false, false);
 
             expect(parsed).toEqualData([[]]);
         });
@@ -82,7 +49,7 @@ describe('Aardvark controllers', function () {
                 }
             ];
 
-            var parsed = scope.cubism_parser(json, 1365966000, 1, 1365966010, false, false);
+            var parsed = graphServices.cubism_parser(json, 1365966000, 1, 1365966010, false, false);
 
             expect(parsed).toEqualData([[]]);
         });
@@ -109,7 +76,7 @@ describe('Aardvark controllers', function () {
                 }
             ];
 
-            var parsed = scope.cubism_parser(json, 1365966000, 1, 1365966010, false, false);
+            var parsed = graphServices.cubism_parser(json, 1365966000, 1, 1365966010, false, false);
 
             expect(parsed).toEqualData([[1,1,2,5,3,2,1,4,10,9,4]]);
         });
@@ -136,7 +103,7 @@ describe('Aardvark controllers', function () {
                 }
             ];
 
-            var parsed = scope.cubism_parser(json, 1365966000, 1, 1365966010, false, true);
+            var parsed = graphServices.cubism_parser(json, 1365966000, 1, 1365966010, false, true);
 
             expect(parsed).toEqualData([[1,1,2,0,3,2,1,4,0,9,4]]);
         });
@@ -161,7 +128,7 @@ describe('Aardvark controllers', function () {
                 }
             ];
 
-            var parsed = scope.cubism_parser(json, 1365966000, 10, 1365966100, false, false);
+            var parsed = graphServices.cubism_parser(json, 1365966000, 10, 1365966100, false, false);
 
             expect(parsed).toEqualData([[1,1,2,-5,null,3,2,null,-10,9,4]]);
         });
@@ -186,7 +153,7 @@ describe('Aardvark controllers', function () {
                 }
             ];
 
-            var parsed = scope.cubism_parser(json, 1365966000, 10, 1365966100, true, false);
+            var parsed = graphServices.cubism_parser(json, 1365966000, 10, 1365966100, true, false);
 
             expect(parsed).toEqualData([[1,1,2,-5,-1,3,2,-4,-10,9,4]]);
         });
@@ -210,7 +177,7 @@ describe('Aardvark controllers', function () {
                 }
             ];
 
-            var parsed = scope.cubism_parser(json, 1365966000, 10, 1365966100, true, true);
+            var parsed = graphServices.cubism_parser(json, 1365966000, 10, 1365966100, true, true);
 
             expect(parsed).toEqualData([[1,1,2,0,0,3,2,0,0,9,4]]);
 
@@ -232,7 +199,7 @@ describe('Aardvark controllers', function () {
                 }
             ];
 
-            var parsed2 = scope.cubism_parser(json2, 1365966000, 10, 1365966100, true, true);
+            var parsed2 = graphServices.cubism_parser(json2, 1365966000, 10, 1365966100, true, true);
 
             expect(parsed2).toEqualData([[1,1,2,0,2,9,12,1,0,9,4]]);
         });
@@ -1146,7 +1113,7 @@ describe('Aardvark controllers', function () {
                 }
             ];
 
-            var parsed = scope.cubism_parser(json, 1365967000, 1000, 1366067000, true, false);
+            var parsed = graphServices.cubism_parser(json, 1365967000, 1000, 1366067000, true, false);
 
             expect(parsed).toEqualData([[]]);
         });
@@ -1173,7 +1140,7 @@ describe('Aardvark controllers', function () {
                 }
             ];
 
-            var parsed = scope.cubism_parser(json, 1365966000, 10, 1365966010, false, false);
+            var parsed = graphServices.cubism_parser(json, 1365966000, 10, 1365966010, false, false);
 
             expect(parsed).toEqualData([[1,4]]);
         });
