@@ -63,7 +63,8 @@ module.exports = function (config) {
             'static-content/*Ctrl.js': ['coverage'], 
             'static-content/*Services.js': ['coverage'], 
             'static-content/*Renderer.js': ['coverage'], 
-            'static-content/TsdbClient.js': ['coverage'] 
+            'static-content/TsdbClient.js': ['coverage'], 
+            'static-content/TsdbUtils.js': ['coverage'] 
         },
 
         junitReporter: {
