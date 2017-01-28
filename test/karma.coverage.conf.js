@@ -62,6 +62,7 @@ module.exports = function (config) {
         preprocessors: { 
             'static-content/*Ctrl.js': ['coverage'], 
             'static-content/*Services.js': ['coverage'], 
+            'static-content/*Renderer.js': ['coverage'], 
             'static-content/TsdbClient.js': ['coverage'] 
         },
 
