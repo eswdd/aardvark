@@ -522,6 +522,14 @@
                                         <input type="checkbox" id="swapAxesScatter" ng-model="graph.scatter.swapAxes" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                         <label for="swapAxesScatter">Swap axes?</label>
                                     </div>
+                                    <div>
+                                        <input type="checkbox" id="xlogScatter" ng-model="graph.scatter.xlog" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                        <label for="xlogScatter">Logarithmic x-axis?</label>
+                                    </div>
+                                    <div>
+                                        <input type="checkbox" id="ylogScatter" ng-model="graph.scatter.ylog" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
+                                        <label for="ylogScatter">Logarithmic y-axis?</label>
+                                    </div>
                                 </div>
                                 <div ng-show="graph.type == 'heatmap'">
                                     <aa-collapsible-panel title="Rendering" initial-collapsed="false" icon="glyphicon-stats">

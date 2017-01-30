@@ -119,12 +119,12 @@ aardvark
                                 legend: "always",
                                 drawPoints: true,
                                 strokeWidth: 0.0,
-                                //                logscale: scatterOptions.ylog,
                                 axisLabelFontSize: 9,
                                 labelsDivStyles: { fontSize: 9, textAlign: 'right' },
                                 labelsSeparateLines: true,
                                 labelsDiv: labelsDiv,
                                 labelsDivWidth: 1000,
+                                logscale: scatterOptions.ylog,
                                 axes: {
                                     y: {
                                         valueFormatter: function(num, opts, seriesName, g, row, col) {
@@ -150,7 +150,8 @@ aardvark
                                                 sep = ", "
                                             }
                                             return timesText;
-                                        }
+                                        },
+                                        logscale: scatterOptions.xlog
                                     }
                                 }
                             };
