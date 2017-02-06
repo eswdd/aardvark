@@ -73,7 +73,8 @@ aardvark
                             var data = [];
                             for (var t in xSeries.dps) {
                                 if (xSeries.dps.hasOwnProperty(t) && ySeries.dps.hasOwnProperty(t)) {
-                                    if (scatterOptions.excludeNegative && (xSeries.dps[t] < 0 || ySeries.dps[t] < 0)) {
+                                    if ((scatterOptions.xSquashNegative && xSeries.dps[t] < 0) 
+                                        || (scatterOptions.ySquashNegative && ySeries.dps[t] < 0)) {
                                         continue;
                                     }
                                     var xval = xSeries.dps[t];
@@ -131,7 +132,8 @@ aardvark
                                             var xval = g.getValue(row, 0);
                                             var yval = g.getValue(row, 1);
                                             return xval + " vs " + yval;
-                                        }
+                                        },
+                                        valueRange: graphServices.parseDygraphAxisRange(scatterOptions.yRange)
                                     },
                                     x: {
                                         valueFormatter: function(num, opts, seriesName, g, row, col) {
@@ -151,7 +153,8 @@ aardvark
                                             }
                                             return timesText;
                                         },
-                                        logscale: scatterOptions.xlog
+                                        logscale: scatterOptions.xlog,
+                                        valueRange: graphServices.parseDygraphAxisRange(scatterOptions.xRange)
                                     }
                                 }
                             };

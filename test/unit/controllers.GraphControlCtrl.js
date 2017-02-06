@@ -117,6 +117,10 @@ describe('Aardvark controllers', function () {
                         filterLowerBound: "",
                         filterUpperBound: "",
                         colourScheme:"RdYlGn"
+                    },
+                    scatter: {
+                        xRange: "[:]",
+                        yRange: "[:]"
                     }
                 }
             ]);
@@ -166,6 +170,10 @@ describe('Aardvark controllers', function () {
                         filterLowerBound: "",
                         filterUpperBound: "",
                         colourScheme:"RdYlGn"
+                    },
+                    scatter: {
+                        xRange: "[:]",
+                        yRange: "[:]"
                     }
                 }
             ]);
@@ -231,6 +239,10 @@ describe('Aardvark controllers', function () {
                         filterLowerBound: "",
                         filterUpperBound: "",
                         colourScheme:"RdYlGn"
+                    },
+                    scatter: {
+                        xRange: "[:]",
+                        yRange: "[:]"
                     }
                 }
             ]);
@@ -276,6 +288,10 @@ describe('Aardvark controllers', function () {
                         filterLowerBound: "",
                         filterUpperBound: "",
                         colourScheme:"RdYlGn"
+                    },
+                    scatter: {
+                        xRange: "[:]",
+                        yRange: "[:]"
                     }
                 },
                 {
@@ -315,6 +331,10 @@ describe('Aardvark controllers', function () {
                         filterLowerBound: "",
                         filterUpperBound: "",
                         colourScheme:"RdYlGn"
+                    },
+                    scatter: {
+                        xRange: "[:]",
+                        yRange: "[:]"
                     }
                 }
             ]);
@@ -364,6 +384,10 @@ describe('Aardvark controllers', function () {
                         filterLowerBound: "",
                         filterUpperBound: "",
                         colourScheme:"RdYlGn"
+                    },
+                    scatter: {
+                        xRange: "[:]",
+                        yRange: "[:]"
                     }
                 }
             ]);
@@ -409,6 +433,10 @@ describe('Aardvark controllers', function () {
                         filterLowerBound: "",
                         filterUpperBound: "",
                         colourScheme:"RdYlGn"
+                    },
+                    scatter: {
+                        xRange: "[:]",
+                        yRange: "[:]"
                     }
                 },
                 {
@@ -448,6 +476,10 @@ describe('Aardvark controllers', function () {
                         filterLowerBound: "",
                         filterUpperBound: "",
                         colourScheme:"RdYlGn"
+                    },
+                    scatter: {
+                        xRange: "[:]",
+                        yRange: "[:]"
                     }
                 }
             ]);

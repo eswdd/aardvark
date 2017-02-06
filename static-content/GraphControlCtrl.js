@@ -321,6 +321,10 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
                 filterLowerBound: "",
                 filterUpperBound: "",
                 colourScheme: 'RdYlGn'
+            },
+            scatter: {
+                xRange: "[:]",
+                yRange: "[:]"
             }
         });
         $scope.showEdit[id] = true;

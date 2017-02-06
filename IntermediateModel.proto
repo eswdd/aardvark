@@ -63,6 +63,11 @@ message Heatmap {
   
 }
 
+message Scatter {
+  optional string xAxisRange = 1 [ default = "[:]" ];
+  optional string yAxisRange = 2 [ default = "[:]" ];
+}
+
 message Graph {
   optional int32 id = 1;
   optional int32 type = 2;
@@ -71,6 +76,7 @@ message Graph {
   optional Gnuplot gnuplot = 5;
   optional Dygraph dygraph = 6;
   optional Heatmap heatmap = 7;
+  optional Scatter scatter = 8;
 }
 
 message TagPair {

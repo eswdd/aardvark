@@ -6,6 +6,40 @@ aardvark
         ret.imageRenderCount = 0;
         ret.dygraphs = {};
 
+
+        ret.parseDygraphAxisRange = function(axisRangeString) {
+            var toReturn = [null, null]
+            if (axisRangeString != null && axisRangeString != "") {
+                var s = axisRangeString.replace("[","").replace("]","");
+                var colon = s.indexOf(":");
+                var error = false;
+                if (colon > 0) {
+                    try {
+                        var low = s.substring(0,colon);
+                        if (low != "") {
+                            toReturn[0] = parseInt(low);
+                        }
+                        var high = s.substring(colon+1);
+                        if (high != "") {
+                            toReturn[1] = parseInt(high);
+                        }
+                    }
+                    catch (parseError) {
+                        error = true;
+                    }
+                }
+                else {
+                    error = true;
+                }
+                if (error) {
+                    renderContext.renderWarnings[graph.id] = "Y-axis value range invalid, defaulting to [:]";
+                    toReturn = [null,null];
+                }
+            }
+            return toReturn;
+
+        }
+
         ret.formEncode = function(val) {
             var newVal = val.replace(" ","+");
             if (newVal != val) {

@@ -515,21 +515,42 @@
                                 </div>
                                 <div ng-show="graph.type == 'scatter'">
                                     <div>
-                                        <input type="checkbox" id="excludeNegativeScatter" ng-model="graph.scatter.excludeNegative" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                        <label for="excludeNegativeScatter">Exclude negative values?</label>
-                                    </div>
-                                    <div>
                                         <input type="checkbox" id="swapAxesScatter" ng-model="graph.scatter.swapAxes" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                         <label for="swapAxesScatter">Swap axes?</label>
                                     </div>
-                                    <div>
-                                        <input type="checkbox" id="xlogScatter" ng-model="graph.scatter.xlog" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                        <label for="xlogScatter">Logarithmic x-axis?</label>
-                                    </div>
-                                    <div>
-                                        <input type="checkbox" id="ylogScatter" ng-model="graph.scatter.ylog" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                        <label for="ylogScatter">Logarithmic y-axis?</label>
-                                    </div>
+                                    <table>
+                                        <tr>
+                                            <th style="text-align: center">Y</th>
+                                            <th style="text-align: center">Y2</th>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">
+                                                Squash -ve?
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><input type="checkbox" id="xSquashNegativeScatter" ng-model="graph.scatter.xSquashNegative" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                            <td><input type="checkbox" id="ySquashNegativeScatter" ng-model="graph.scatter.ySquashNegative" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">
+                                                Logarithmic y-axis?
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><input type="checkbox" id="xLogScatter" ng-model="graph.scatter.xlog" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                            <td><input type="checkbox" id="yLogScatter" ng-model="graph.scatter.ylog" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">
+                                                Range:
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><input id="yRangeScatter" type="text" size="4" ng-model="graph.scatter.xRange" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                            <td><input id="xRangeScatter" type="text" size="4" ng-model="graph.scatter.yRange" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" /></td>
+                                        </tr>
+                                    </table>
                                 </div>
                                 <div ng-show="graph.type == 'heatmap'">
                                     <aa-collapsible-panel title="Rendering" initial-collapsed="false" icon="glyphicon-stats">

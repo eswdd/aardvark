@@ -193,7 +193,11 @@ describe('Aardvark renderers', function () {
                 labelsSeparateLines: true,
                 labelsDiv: null,
                 labelsDivWidth: 1000,
-                axes: {y:{},x:{}}
+                axes: {y:{
+                    valueRange: [null, null]
+                },x:{
+                    valueRange: [null, null]
+                }}
             });
             expect(renderContext.renderErrors).toEqualData({});
             expect(renderContext.renderWarnings).toEqualData({});
@@ -257,7 +261,11 @@ describe('Aardvark renderers', function () {
                 labelsSeparateLines: true,
                 labelsDiv: null,
                 labelsDivWidth: 1000,
-                axes: {y:{},x:{}}
+                axes: {y:{
+                    valueRange: [null, null]
+                },x:{
+                    valueRange: [null, null]
+                }}
             });
             expect(renderContext.renderErrors).toEqualData({});
             expect(renderContext.renderWarnings).toEqualData({});
@@ -323,9 +331,11 @@ describe('Aardvark renderers', function () {
                 labelsDivWidth: 1000,
                 axes: {
                     y:{
+                        valueRange: [null, null]
                     },
                     x:{
-                        logscale: true
+                        logscale: true,
+                        valueRange: [null, null]
                     }
                 }
             });
@@ -394,8 +404,11 @@ describe('Aardvark renderers', function () {
                 logscale: true,
                 axes: {
                     y:{
+                        valueRange: [null, null]
                     },
-                    x:{}
+                    x:{
+                        valueRange: [null, null]
+                    }
                 }
             });
             expect(renderContext.renderErrors).toEqualData({});
@@ -463,9 +476,11 @@ describe('Aardvark renderers', function () {
                 logscale: true,
                 axes: {
                     y:{
+                        valueRange: [null, null]
                     },
                     x:{
-                        logscale: true
+                        logscale: true,
+                        valueRange: [null, null]
                     }
                 }
             });
@@ -473,11 +488,82 @@ describe('Aardvark renderers', function () {
             expect(renderContext.renderWarnings).toEqualData({});
         });
 
-        it('should render with scatter with a relative start time and negatives excluded', function() {
+        it('should render with scatter with a relative start time and different ranges specified both axes', function() {
             config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, scatter: {excludeNegative:true}};
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, scatter: { xRange: "[20:100]", yRange:"[-30:50]" }};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } },
+                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } } ];
+
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
+                {
+                    metric: "metric1", tags: {}, dps:{
+                    1234567811000: 11,
+                    1234567812000: 21,
+                    1234567813000: 31,
+                    1234567814000: 41,
+                    1234567815000: 51
+                }
+                },
+                {
+                    metric: "metric2", tags: {}, dps:{
+                    1234567811000: 10,
+                    1234567812000: 20,
+                    1234567813000: 30,
+                    1234567814000: 40,
+                    1234567815000: 50
+                }
+                }
+            ]);
+
+            rendererInstance.render(renderContext, config, global, graph, metrics);
+
+
+            $httpBackend.flush();
+
+            expect(renderDivId).toEqualData("scatterDiv_abc");
+            expect(renderGraphId).toEqualData("abc");
+            expect(renderData).toEqualData([
+                [11, 10],
+                [21, 20],
+                [31, 30],
+                [41, 40],
+                [51, 50]
+            ]);
+            expect(renderConfig).toEqualData({
+                labels: ["x", "metric1 (x) vs metric2 (y)"],
+                width: 0,
+                height: 0,
+                legend: "always",
+                drawPoints: true,
+                strokeWidth: 0.0,
+                axisLabelFontSize: 9,
+                labelsDivStyles: {
+                    fontSize: 9,
+                    textAlign: "right"
+                },
+                labelsSeparateLines: true,
+                labelsDiv: null,
+                labelsDivWidth: 1000,
+                axes: {
+                    y:{
+                        valueRange: [-30, 50]
+                    },
+                    x:{
+                        valueRange: [20, 100]
+                    }
+                }
+            });
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
+        });
+
+        it('should render with scatter with a relative start time and negatives excluded on both axes', function() {
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+
+            var global = { relativePeriod: "1d", autoReload: false };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, scatter: {xSquashNegative:true, ySquashNegative: true}};
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } } ];
 
@@ -529,7 +615,133 @@ describe('Aardvark renderers', function () {
                 labelsSeparateLines: true,
                 labelsDiv: null,
                 labelsDivWidth: 1000,
-                axes: {y:{},x:{}}
+                axes: {y:{valueRange: [null, null]},x:{valueRange: [null, null]}}
+            });
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
+        });
+
+        it('should render with scatter with a relative start time and negatives excluded on x axis', function() {
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+
+            var global = { relativePeriod: "1d", autoReload: false };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, scatter: {xSquashNegative:true}};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } },
+                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } } ];
+
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
+                {
+                    metric: "metric1", tags: {}, dps:{
+                        1234567811000: 11,
+                        1234567812000: -21,
+                        1234567813000: 31,
+                        1234567814000: 41,
+                        1234567815000: 51
+                    }
+                },
+                {
+                    metric: "metric2", tags: {}, dps:{
+                        1234567811000: 10,
+                        1234567812000: 20,
+                        1234567813000: 30,
+                        1234567814000: -40,
+                        1234567815000: 50
+                    }
+                }
+            ]);
+
+            rendererInstance.render(renderContext, config, global, graph, metrics);
+
+
+            $httpBackend.flush();
+
+            expect(renderDivId).toEqualData("scatterDiv_abc");
+            expect(renderGraphId).toEqualData("abc");
+            expect(renderData).toEqualData([
+                [11, 10],
+                [31, 30],
+                [41, -40],
+                [51, 50]
+            ]);
+            expect(renderConfig).toEqualData({
+                labels: ["x", "metric1 (x) vs metric2 (y)"],
+                width: 0,
+                height: 0,
+                legend: "always",
+                drawPoints: true,
+                strokeWidth: 0.0,
+                axisLabelFontSize: 9,
+                labelsDivStyles: {
+                    fontSize: 9,
+                    textAlign: "right"
+                },
+                labelsSeparateLines: true,
+                labelsDiv: null,
+                labelsDivWidth: 1000,
+                axes: {y:{valueRange: [null, null]},x:{valueRange: [null, null]}}
+            });
+            expect(renderContext.renderErrors).toEqualData({});
+            expect(renderContext.renderWarnings).toEqualData({});
+        });
+
+        it('should render with scatter with a relative start time and negatives excluded on y axis', function() {
+            config = {tsdbBaseReadUrl: "http://tsdb:4242"};
+
+            var global = { relativePeriod: "1d", autoReload: false };
+            var graph = {id:"abc", graphWidth: 0, graphHeight: 0, scatter: {ySquashNegative: true}};
+            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } },
+                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } } ];
+
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
+                {
+                    metric: "metric1", tags: {}, dps:{
+                        1234567811000: 11,
+                        1234567812000: -21,
+                        1234567813000: 31,
+                        1234567814000: 41,
+                        1234567815000: 51
+                    }
+                },
+                {
+                    metric: "metric2", tags: {}, dps:{
+                        1234567811000: 10,
+                        1234567812000: 20,
+                        1234567813000: 30,
+                        1234567814000: -40,
+                        1234567815000: 50
+                    }
+                }
+            ]);
+
+            rendererInstance.render(renderContext, config, global, graph, metrics);
+
+
+            $httpBackend.flush();
+
+            expect(renderDivId).toEqualData("scatterDiv_abc");
+            expect(renderGraphId).toEqualData("abc");
+            expect(renderData).toEqualData([
+                [-21, 20],
+                [11, 10],
+                [31, 30],
+                [51, 50]
+            ]);
+            expect(renderConfig).toEqualData({
+                labels: ["x", "metric1 (x) vs metric2 (y)"],
+                width: 0,
+                height: 0,
+                legend: "always",
+                drawPoints: true,
+                strokeWidth: 0.0,
+                axisLabelFontSize: 9,
+                labelsDivStyles: {
+                    fontSize: 9,
+                    textAlign: "right"
+                },
+                labelsSeparateLines: true,
+                labelsDiv: null,
+                labelsDivWidth: 1000,
+                axes: {y:{valueRange: [null, null]},x:{valueRange: [null, null]}}
             });
             expect(renderContext.renderErrors).toEqualData({});
             expect(renderContext.renderWarnings).toEqualData({});

@@ -37,6 +37,8 @@ describe('Aardvark services', function() {
                 {path:"graphs.gnuplot.y2AxisRange.",sep:":"},
                 {path:"graphs.dygraph.yAxisRange.",sep:":"},
                 {path:"graphs.dygraph.y2AxisRange.",sep:":"},
+                {path:"graphs.scatter.xAxisRange.",sep:":"},
+                {path:"graphs.scatter.yAxisRange.",sep:":"},
                 {path:"metrics.name.",sep:"."},
                 {path:"metrics.tags.name.",sep:"."},
                 {path:"metrics.tags.value.",sep:"."}
@@ -118,7 +120,6 @@ describe('Aardvark services', function() {
                         type: "scatter",
                         title: "Graph 5",
                         scatter: {
-                            excludeNegative: true
                         }
                     }
                     
@@ -231,6 +232,12 @@ describe('Aardvark services', function() {
                 model.graphs[3].dygraph.y2AutoScale = false;
                 model.graphs[3].dygraph.y2Log = false;
                 model.graphs[4].scatter.swapAxes = false;
+                model.graphs[4].scatter.xlog = false;
+                model.graphs[4].scatter.ylog = false;
+                model.graphs[4].scatter.xSquashNegative = false;
+                model.graphs[4].scatter.ySquashNegative = false;
+                model.graphs[4].scatter.xRange = "[:]";
+                model.graphs[4].scatter.yRange = "[:]";
             });  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
         }));
         
@@ -321,7 +328,6 @@ describe('Aardvark services', function() {
                         type: "scatter",
                         title: "Graph 5",
                         scatter: {
-                            excludeNegative: true
                         }
                     }
                     
@@ -428,6 +434,12 @@ describe('Aardvark services', function() {
                 model.graphs[1].dygraph.globalAnnotations = false;
                 model.graphs[1].dygraph.y1Log = false;
                 model.graphs[2].scatter.swapAxes = false;
+                model.graphs[2].scatter.xlog = false;
+                model.graphs[2].scatter.ylog = false;
+                model.graphs[2].scatter.xSquashNegative = false;
+                model.graphs[2].scatter.ySquashNegative = false;
+                model.graphs[2].scatter.xRange = "[:]";
+                model.graphs[2].scatter.yRange = "[:]";
             });  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
         }));
         
@@ -601,7 +613,6 @@ describe('Aardvark services', function() {
                         type: "scatter",
                         title: "Graph 5",
                         scatter: {
-                            excludeNegative: true
                         }
                     }
                 ],
@@ -644,6 +655,12 @@ describe('Aardvark services', function() {
                 model.global.autoGraphHeight = false;
                 model.global.graphHeight = null;
                 model.graphs[0].scatter.swapAxes = false;
+                model.graphs[0].scatter.xlog = false;
+                model.graphs[0].scatter.ylog = false;
+                model.graphs[0].scatter.xSquashNegative = false;
+                model.graphs[0].scatter.ySquashNegative = false;
+                model.graphs[0].scatter.xRange = "[:]";
+                model.graphs[0].scatter.yRange = "[:]";
                 model.metrics[0].graphOptions.downsample = false;
                 model.metrics[1].graphOptions.downsample = false;
             });

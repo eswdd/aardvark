@@ -39,40 +39,8 @@ aardvark
                     if (dygraphOptions.valueFilter != null && dygraphOptions.valueFilter.lowerBound != "" && dygraphOptions.valueFilter.upperBound != "" && dygraphOptions.valueFilter.lowerBound == dygraphOptions.valueFilter.upperBound) {
                         renderContext.renderWarnings[graph.id] = "Lower bound on value filter is same as upper bound";
                     }
-                    var parseAxisRange = function(axisRangeString) {
-                        var toReturn = [null, null]
-                        if (axisRangeString != null && axisRangeString != "") {
-                            var s = axisRangeString.replace("[","").replace("]","");
-                            var colon = s.indexOf(":");
-                            var error = false;
-                            if (colon > 0) {
-                                try {
-                                    var low = s.substring(0,colon);
-                                    if (low != "") {
-                                        toReturn[0] = parseInt(low);
-                                    }
-                                    var high = s.substring(colon+1);
-                                    if (high != "") {
-                                        toReturn[1] = parseInt(high);
-                                    }
-                                }
-                                catch (parseError) {
-                                    error = true;
-                                }
-                            }
-                            else {
-                                error = true;
-                            }
-                            if (error) {
-                                renderContext.renderWarnings[graph.id] = "Y-axis value range invalid, defaulting to [:]";
-                                toReturn = [null,null];
-                            }
-                        }
-                        return toReturn;
-
-                    }
-                    var y1AxisRange = parseAxisRange(dygraphOptions.y1AxisRange);
-                    var y2AxisRange = parseAxisRange(dygraphOptions.y2AxisRange);
+                    var y1AxisRange = graphServices.parseDygraphAxisRange(dygraphOptions.y1AxisRange);
+                    var y2AxisRange = graphServices.parseDygraphAxisRange(dygraphOptions.y2AxisRange);
 
                     renderContext.renderMessages[graph.id] = "Loading...";
 

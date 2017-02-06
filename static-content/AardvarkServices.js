@@ -502,6 +502,8 @@ aardvark
                 {prefix:"graphs.gnuplot.y2AxisRange",sep:":"},
                 {prefix:"graphs.dygraph.yAxisRange",sep:":"},
                 {prefix:"graphs.dygraph.y2AxisRange",sep:":"},
+                {prefix:"graphs.scatter.xAxisRange",sep:":"},
+                {prefix:"graphs.scatter.yAxisRange",sep:":"},
                 {prefix:"graphs",sep:" "}
             ];
             var ret = [];
@@ -764,11 +766,17 @@ aardvark
                         break;
                     case "scatter":
                         if (graph.scatter != null) {
+                            intermediateGraph.scatter = {
+                                xAxisRange: graph.scatter.xRange,
+                                yAxisRange: graph.scatter.yRange
+                            };
                             intermediateGraph.flags = blitting.toBlittedInt([
-                                graph.scatter.excludeNegative,
+                                graph.scatter.xSquashNegative || graph.scatter.ySquashNegative,
                                 graph.scatter.swapAxes,
                                 graph.scatter.xlog,
-                                graph.scatter.ylogg
+                                graph.scatter.ylog,
+                                graph.scatter.xSquashNegative,
+                                graph.scatter.ySquashNegative
                             ]);
                         }
                         break;
@@ -1088,12 +1096,20 @@ aardvark
                         }
                         break;
                     case "scatter":
-                        var scatterFlags = blitting.fromBlittedInt(intermediateGraph.flags, [false, false]);
+                        var scatterFlags = blitting.fromBlittedInt(intermediateGraph.flags, [false, false, false, false]);
                         graph.scatter = {};
-                        graph.scatter.excludeNegative = scatterFlags[0];
+                        var excludeNegative = scatterFlags[0];
                         graph.scatter.swapAxes = scatterFlags[1];
                         graph.scatter.xlog = scatterFlags[2];
                         graph.scatter.ylog = scatterFlags[3];
+                        scatterFlags = blitting.fromBlittedInt(intermediateGraph.flags, [false, false, false, false, excludeNegative, excludeNegative]);
+                        // these 2 have been split out seperately from the old single excludeNegativeFlag
+                        graph.scatter.xSquashNegative = scatterFlags[4];
+                        graph.scatter.ySquashNegative = scatterFlags[5];
+                        if (intermediateGraph.scatter != null) {
+                            graph.scatter.xRange = intermediateGraph.scatter.xAxisRange;
+                            graph.scatter.yRange = intermediateGraph.scatter.yAxisRange;
+                        }
                         break;
                     case "heatmap":
                         var heatmapFlags = blitting.fromBlittedInt(intermediateGraph.flags, [false,false]);
