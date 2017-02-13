@@ -7,13 +7,13 @@ aardvark
         ret.dygraphs = {};
 
 
-        ret.parseDygraphAxisRange = function(axisRangeString) {
-            var toReturn = [null, null]
+        ret.parseDygraphAxisRange = function(renderContext,graph,axisRangeString) {
+            var toReturn = [null, null];
             if (axisRangeString != null && axisRangeString != "") {
                 var s = axisRangeString.replace("[","").replace("]","");
                 var colon = s.indexOf(":");
                 var error = false;
-                if (colon > 0) {
+                if (colon >= 0) {
                     try {
                         var low = s.substring(0,colon);
                         if (low != "") {

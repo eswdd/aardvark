@@ -39,8 +39,8 @@ aardvark
                     if (dygraphOptions.valueFilter != null && dygraphOptions.valueFilter.lowerBound != "" && dygraphOptions.valueFilter.upperBound != "" && dygraphOptions.valueFilter.lowerBound == dygraphOptions.valueFilter.upperBound) {
                         renderContext.renderWarnings[graph.id] = "Lower bound on value filter is same as upper bound";
                     }
-                    var y1AxisRange = graphServices.parseDygraphAxisRange(dygraphOptions.y1AxisRange);
-                    var y2AxisRange = graphServices.parseDygraphAxisRange(dygraphOptions.y2AxisRange);
+                    var y1AxisRange = graphServices.parseDygraphAxisRange(renderContext, graph, dygraphOptions.y1AxisRange);
+                    var y2AxisRange = graphServices.parseDygraphAxisRange(renderContext, graph, dygraphOptions.y2AxisRange);
 
                     renderContext.renderMessages[graph.id] = "Loading...";
 
