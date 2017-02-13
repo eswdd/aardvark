@@ -52,7 +52,9 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
         });
 
         $scope.$watch('model.absoluteTimeSpecification', function(newVal, oldVal, scope) {
-            $scope.saveAndRenderGraphsIfAutoUpdate();
+            if (newVal != oldVal) {
+                $scope.saveAndRenderGraphsIfAutoUpdate();
+            }
         });
     }
 
