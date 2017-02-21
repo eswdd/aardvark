@@ -1,7 +1,7 @@
 /*
  * Graph rendering
  */
-aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal', 'tsdbClient', 'tsdbUtils', '$injector', function GraphCtrl($scope, $rootScope, $http, $uibModal, $tsdbClient, $tsdbUtils, $injector) {
+aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal', 'tsdbClient', 'tsdbUtils', '$injector', 'deepUtils', function GraphCtrl($scope, $rootScope, $http, $uibModal, $tsdbClient, $tsdbUtils, $injector, deepUtils) {
     
     $scope.renderedContent = {};
     $scope.renderErrors = {};
@@ -147,9 +147,44 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
             graphRendered: $scope.graphRendered
         };
         
+        var getUpdateGraphModelFunction = function(graph) {
+            var id = graph.id;
+            return function(preReqSkeleton, toApplySkeleton, fromOutsideAngular) {
+                var g = null;
+                for (var i=0; i<$rootScope.model.graphs.length; i++) {
+                    if ($rootScope.model.graphs[i].id == id) {
+                        g = $rootScope.model.graphs[i];
+                        break;
+                    }
+                }
+                if (g == null) {
+                    //console.log("Couldn't find graph with id "+id+" has it been deleted?");
+                    return;
+                }
+                var f = function() {
+                    if (deepUtils.deepCheck(g,preReqSkeleton)) {
+                        if (deepUtils.deepApply(g,toApplySkeleton)) {
+                            // run this until we can get $apply to work
+                            $rootScope.$emit("modelUpdated");
+                        }
+                    }
+                };
+                // for some reason this doesn't seem to work!
+                if (fromOutsideAngular) {
+                    $scope.$apply(f);
+                }
+                else {
+                    f();
+                }
+            }
+        }
+        
         var global = $rootScope.model.global || {};
         for (var i=0; i<$rootScope.model.graphs.length; i++) {
             var graph = $rootScope.model.graphs[i];
+
+            renderContext.updateGraphModel = getUpdateGraphModelFunction(graph);
+                
             var renderer = null;
             // have we already got an instance of the correct renderer for this graph
             if ($scope.renderedGraphs.hasOwnProperty(graph.id) && $scope.renderedGraphs[graph.id].type == graph.type) {

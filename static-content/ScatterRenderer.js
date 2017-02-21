@@ -268,6 +268,36 @@ aardvark
 
                         positionLegend();
 
+//                        var originalXRangeInDygraph;
+                        var originalYRangeInDygraph;
+//                        var originalXRangeInGraph = graph.scatter.xRange;
+                        var originalYRangeInGraph = graph.scatter ? graph.scatter.yRange : "";
+                        var drawCallback = function(dygraph, is_initial) {
+                            if (is_initial) {
+//                                originalXRangeInDygraph = dygraph.xAxisRange();
+                                originalYRangeInDygraph = dygraph.yAxisRange(0);
+                            }
+                        }
+                        var zoomCallback = function(minX, maxX, yRanges) {
+//                            var newXRange;
+                            var newYRange;
+//                            if (minX == originalXRangeInDygraph[0] && maxX == originalXRangeInDygraph[1]) {
+//                                newXRange = originalXRangeInGraph;
+//                            }
+//                            else {
+//                                newXRange = graphServices.dygraphAxisRangeToString([minX, maxX]);
+//                            }
+                            var yRange = yRanges[0];
+                            if (yRange[0] == originalYRangeInDygraph[0] && yRange[1] == originalYRangeInDygraph[1]) {
+                                newYRange = originalYRangeInGraph;
+                            }
+                            else {
+                                newYRange = graphServices.dygraphAxisRangeToString(yRange);
+                            }
+//                            renderContext.updateGraphModel(null, {scatter:{xRange:newXRange,yRange:newYRange}}, true);
+                            renderContext.updateGraphModel(null, {scatter:{yRange:newYRange}}, true);
+                        }
+
                         var labelsDiv = document.getElementById("scatterLegend_"+graph.id);
 
                         var width = Math.floor(graph.graphWidth);
@@ -285,6 +315,8 @@ aardvark
                             labelsDiv: labelsDiv,
                             labelsDivWidth: 1000,
                             logscale: scatterOptions.ylog,
+                            zoomCallback: zoomCallback,
+                            drawCallback: drawCallback,
                             axes: {
                                 y: {
                                     valueFormatter: function(num, opts, seriesName, g, row, col) {

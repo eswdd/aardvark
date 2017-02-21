@@ -7,6 +7,7 @@ aardvark
         ret.dygraphs = {};
 
 
+        
         ret.parseDygraphAxisRange = function(renderContext,graph,axisRangeString) {
             var toReturn = [null, null];
             if (axisRangeString != null && axisRangeString != "") {
@@ -37,7 +38,21 @@ aardvark
                 }
             }
             return toReturn;
-
+        }
+        ret.dygraphAxisRangeToString = function(axisRange) {
+            var string = "[";
+            if (axisRange == null || axisRange.length == 0) {
+                string += ":";
+            }
+            else {
+                string += axisRange[0] == null ? "" : axisRange[0];
+                string += ":";
+                if (axisRange.length > 1) {
+                    string += axisRange[1] == null ? "" : axisRange[1];
+                }
+            }
+            string += "]";
+            return string;
         }
 
         ret.formEncode = function(val) {

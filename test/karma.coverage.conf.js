@@ -22,6 +22,7 @@ module.exports = function (config) {
             'node_modules/angular-resizable/src/angular-resizable.js',
             'test/mocks/**/*.js',
             'static-content/aardvark-client.js',
+            'static-content/DeepUtils.js',
             'static-content/StringSerialisation.js',
             'static-content/IntermediateModel.js',
             'static-content/rawIntermediateModel.js',
@@ -64,7 +65,8 @@ module.exports = function (config) {
             'static-content/*Services.js': ['coverage'], 
             'static-content/*Renderer.js': ['coverage'], 
             'static-content/TsdbClient.js': ['coverage'], 
-            'static-content/TsdbUtils.js': ['coverage'] 
+            'static-content/TsdbUtils.js': ['coverage'], 
+            'static-content/DeepUtils.js': ['coverage'] 
         },
 
         junitReporter: {

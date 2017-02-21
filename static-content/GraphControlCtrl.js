@@ -4,7 +4,12 @@
  * - global graph options
  * - per-graph options (shared and type specific)
  */
-aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator', 'tsdbClient', function GraphControlCtrl($scope, $rootScope, idGenerator, $tsdbClient) {
+aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator', 'tsdbClient', 'deepUtils', function GraphControlCtrl($scope, $rootScope, idGenerator, $tsdbClient, deepUtils) {
+    $scope.lastHash = "";
+    $scope.hashModel = function(model) {
+        // todo: something better?
+        return JSON.stringify(model);
+    }
     // accordion openings
     $scope.isOpen={};
 
@@ -56,6 +61,23 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
                 $scope.saveAndRenderGraphsIfAutoUpdate();
             }
         });
+
+        /*
+        // $apply(fn()) is not working in GraphCtrl so we do it manually via a custom event
+        $rootScope.$watch('model.global', function(newVal, oldVal, scope) {
+            console.log("rootScope.model.global changed, updating GraphControlCtrl model")
+            $scope.loadModel(null, false);
+        });
+        $rootScope.$watch('model.graphs', function(newVal, oldVal, scope) {
+            console.log("rootScope.model.graphs changed, updating GraphControlCtrl model")
+            $scope.loadModel(null, false);
+        });
+        */
+        $rootScope.$on("modelUpdated", function(event,data) {
+            //console.log("rootScope.modelUpdated received, updating GraphControlCtrl model")
+            $scope.loadModel(null, false);
+        });
+        $scope.loadModel(null, true);
     }
 
     $scope.openFromDatePopup = function() {
@@ -90,9 +112,8 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
     }
     
     $scope.now = function() {
-        // todo: doesn't appeat to be working - no change on ui
         if ($scope.autoReload) {
-            $scope.saveAndRenderGraphs();
+            $scope.saveAndRenderGraphsInternal(true);
         }
         else {
             $scope.toDate = moment.utc().format("YYYY/MM/DD");
@@ -124,6 +145,9 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
     }
 
     $scope.getHeatmapStyleLabel = function(graph) {
+        if (graph.heatmap == null) {
+            return null;
+        }
         return $scope.heatmapStyleLabels[graph.heatmap.style];
     }
     
@@ -140,6 +164,9 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
     }
     
     $scope.getHeatmapColourSchemeLabel = function(graph) {
+        if (graph.heatmap == null) {
+            return null;
+        }
         return $scope.heatmapColourSchemeLabels[graph.heatmap.colourScheme];
     }
     
@@ -158,11 +185,20 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
         $scope.saveAndRenderGraphsIfAutoUpdate();
     }
 
-    $scope.loadModel = function(datum) {
-        // initial state
-        $scope.isOpen={};
-        $scope.showEdit={};
+    $scope.loadModel = function(datum, forceRender) {
         
+        // now load the model
+        var model = $rootScope.model;
+        var hash = $scope.hashModel(model);
+        // prevent recursion
+        if (hash == $scope.lastHash) {
+            //console.log("graph range 1: "+model.graphs[0].scatter.yRange);
+            //console.log("Hash check fail - no change to apply");
+            return;
+        }
+        $scope.lastHash = hash;
+
+        // default state
         $scope.graphs = [];
         $scope.model.relativePeriod = "2h";
         $scope.model.absoluteTimeSpecification = false;
@@ -185,14 +221,13 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
         $scope.model.baselineToDate = "";
         $scope.model.baselineToTime = "";
         
-        // now load the model
-        var model = $rootScope.model;
         if (model.graphs == null || model.graphs.length == 0) {
             model.graphs = [];
             $scope.addGraph();
         }
         else {
-            $scope.graphs = $scope.deepClone(model.graphs);
+            $scope.graphs = deepUtils.deepClone(model.graphs);
+            //console.log("graph range 2: "+model.graphs[0].scatter.yRange);
     
             if (model.global != null) {
                 var now = datum ? datum.clone() : moment.utc();
@@ -241,44 +276,8 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
                 $scope.model.autoGraphHeight = model.global.autoGraphHeight;
             }
         }
-        $scope.saveAndRenderGraphs();
+        $scope.saveAndRenderGraphsInternal(forceRender);
     }
-
-    $scope.deepClone = function(incoming) {
-        var ret;
-        if (incoming == null) {
-            return null;
-        }
-        switch (typeof incoming)
-        {
-            case 'string':
-            case 'number':
-            case 'boolean':
-                return incoming;
-            case 'object':
-                if (incoming instanceof Array)
-                {
-                    ret = [];
-                    for (var i=0; i<incoming.length; i++) {
-                        ret[i] = $scope.deepClone(incoming[i]);
-                    }
-                }
-                else {
-                    ret = {};
-                    for (var k in incoming) {
-                        if (incoming.hasOwnProperty(k)) {
-                            ret[k] = $scope.deepClone(incoming[k]);
-                        }
-                    }
-                }
-                break;
-            default:
-                throw 'Unrecognized type: '+(typeof incoming);
-        }
-
-
-        return ret;
-    };
 
     $scope.addGraph = function() {
         var id = idGenerator.nextId();
@@ -356,12 +355,16 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
     }
     $scope.saveAndRenderGraphsIfAutoUpdate = function() {
         if ($rootScope.autoUpdateEnabled()) {
-            $scope.saveAndRenderGraphs();
+            $scope.saveAndRenderGraphsInternal(true);
         }
     }
+    // for button on ui
     $scope.saveAndRenderGraphs = function() {
+        $scope.saveAndRenderGraphsInternal(true);
+    }
+    $scope.saveAndRenderGraphsInternal = function(forceRender) {
         // now save for rendering
-        $rootScope.model.graphs = $scope.deepClone($scope.graphs);
+        $rootScope.model.graphs = deepUtils.deepClone($scope.graphs);
 
         $rootScope.model.global = {
             fromDate: $scope.model.fromDate,
@@ -385,9 +388,8 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
             minGraphHeight: $scope.model.minGraphHeight,
             autoGraphHeight: $scope.model.autoGraphHeight
         };
-        $rootScope.saveModel(true);
+        $rootScope.saveModel(forceRender);
     }
     
     $scope.bindWatchExpressions();
-    $rootScope.onConfigUpdate($scope.loadModel);
 }]);
