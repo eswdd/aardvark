@@ -809,7 +809,7 @@ describe('Aardvark controllers', function () {
             var datum = moment.utc("2016/08/20 12:10:10", "YYYY/MM/DD HH:mm:ss");
             rootScope.model.global.absoluteTimeSpecification = true;
             scope.loadModel(datum);
-            expect(scope.model.relativePeriod).toEqualData("");
+            expect(scope.model.relativePeriod).toEqualData("2h");
             expect(scope.model.fromDate).toEqualData("2016/08/20");
             expect(scope.model.fromTime).toEqualData("10:10:10");
         });

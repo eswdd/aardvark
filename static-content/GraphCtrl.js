@@ -177,12 +177,31 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                     f();
                 }
             }
-        }
+        };
+        
+        var updateGlobalModel = function(preReqSkeleton, toApplySkeleton, fromOutsideAngular) {
+            var f = function() {
+                if (deepUtils.deepCheck($rootScope.model.global,preReqSkeleton)) {
+                    if (deepUtils.deepApply($rootScope.model.global,toApplySkeleton)) {
+                        // run this until we can get $apply to work
+                        $rootScope.$emit("modelUpdated");
+                    }
+                }
+            };
+            // for some reason this doesn't seem to work!
+            if (fromOutsideAngular) {
+                $scope.$apply(f);
+            }
+            else {
+                f();
+            }
+        };
         
         var global = $rootScope.model.global || {};
         for (var i=0; i<$rootScope.model.graphs.length; i++) {
             var graph = $rootScope.model.graphs[i];
 
+            renderContext.updateGlobalModel = updateGlobalModel;
             renderContext.updateGraphModel = getUpdateGraphModelFunction(graph);
                 
             var renderer = null;

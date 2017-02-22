@@ -58,6 +58,7 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
 
         $scope.$watch('model.absoluteTimeSpecification', function(newVal, oldVal, scope) {
             if (newVal != oldVal) {
+                // todo: want to block this if the change came from a graph modification..
                 $scope.saveAndRenderGraphsIfAutoUpdate();
             }
         });
@@ -227,53 +228,24 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
         }
         else {
             $scope.graphs = deepUtils.deepClone(model.graphs);
-            //console.log("graph range 2: "+model.graphs[0].scatter.yRange);
     
             if (model.global != null) {
+                $scope.model = deepUtils.deepClone(model.global);
                 var now = datum ? datum.clone() : moment.utc();
                 var twoHoursAgo = now.subtract(2, "hours");
                 if (model.global.absoluteTimeSpecification) {
-                    if (model.global.fromDate != null && model.global.fromDate != "") {
-                        $scope.model.fromDate = model.global.fromDate;
-                    }
-                    else {
+                    if (model.global.fromDate == null || model.global.fromDate == "") {
                         $scope.model.fromDate = twoHoursAgo.format("YYYY/MM/DD");
                     }
-                    if (model.global.fromTime != null && model.global.fromTime != "") {
-                        $scope.model.fromTime = model.global.fromTime;
-                    }
-                    else {
+                    if (model.global.fromTime == null || model.global.fromTime == "") {
                         $scope.model.fromTime = twoHoursAgo.format("HH:mm:ss");
                     }
-                    $scope.model.relativePeriod = "";
                 }
                 else {
-                    if (model.global.relativePeriod != null && model.global.relativePeriod != "") {
-                        $scope.model.relativePeriod = model.global.relativePeriod;
-                    }
-                    else {
+                    if (model.global.relativePeriod == null || model.global.relativePeriod == "") {
                         $scope.model.relativePeriod = "2h";
                     }
-                    $scope.model.fromDate = "";
-                    $scope.model.fromTime = "";
                 }
-                $scope.model.autoReload = model.global.autoReload;
-                $scope.model.autoReloadPeriod = model.global.autoReloadPeriod;
-                $scope.model.absoluteTimeSpecification = model.global.absoluteTimeSpecification;
-                $scope.model.toDate = model.global.toDate;
-                $scope.model.toTime = model.global.toTime;
-                $scope.model.globalDownsampling = model.global.globalDownsampling;
-                $scope.model.globalDownsampleTo = model.global.globalDownsampleTo;
-                $scope.model.baselining = model.global.baselining;
-                $scope.model.baselineDatumStyle = model.global.baselineDatumStyle;
-                $scope.model.baselineRelativePeriod = model.global.baselineRelativePeriod;
-                $scope.model.baselineFromDate = model.global.baselineFromDate;
-                $scope.model.baselineFromTime = model.global.baselineFromTime;
-                $scope.model.baselineToDate = model.global.baselineToDate;
-                $scope.model.baselineToTime = model.global.baselineToTime;
-                $scope.model.graphHeight = model.global.graphHeight;
-                $scope.model.minGraphHeight = model.global.minGraphHeight;
-                $scope.model.autoGraphHeight = model.global.autoGraphHeight;
             }
         }
         $scope.saveAndRenderGraphsInternal(forceRender);
@@ -365,29 +337,7 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
     $scope.saveAndRenderGraphsInternal = function(forceRender) {
         // now save for rendering
         $rootScope.model.graphs = deepUtils.deepClone($scope.graphs);
-
-        $rootScope.model.global = {
-            fromDate: $scope.model.fromDate,
-            fromTime: $scope.model.fromTime,
-            autoReload: $scope.model.autoReload,
-            autoReloadPeriod: $scope.model.autoReloadPeriod,
-            absoluteTimeSpecification: $scope.model.absoluteTimeSpecification,
-            relativePeriod: $scope.model.relativePeriod,
-            toDate: $scope.model.toDate,
-            toTime: $scope.model.toTime,
-            globalDownsampling: $scope.model.globalDownsampling,
-            globalDownsampleTo: $scope.model.globalDownsampleTo,
-            baselining: $scope.model.baselining,
-            baselineDatumStyle: $scope.model.baselineDatumStyle,
-            baselineRelativePeriod: $scope.model.baselineRelativePeriod,
-            baselineFromDate: $scope.model.baselineFromDate,
-            baselineFromTime: $scope.model.baselineFromTime,
-            baselineToDate: $scope.model.baselineToDate,
-            baselineToTime: $scope.model.baselineToTime,
-            graphHeight: $scope.model.graphHeight,
-            minGraphHeight: $scope.model.minGraphHeight,
-            autoGraphHeight: $scope.model.autoGraphHeight
-        };
+        $rootScope.model.global = deepUtils.deepClone($scope.model);
         $rootScope.saveModel(forceRender);
     }
     

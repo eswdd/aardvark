@@ -786,6 +786,69 @@ aardvark
                             }
                         }
 
+
+                        var originalXRangeInDygraph;
+                        var originalY1RangeInDygraph;
+                        var originalY2RangeInDygraph;
+                        var originalXRangeInGraph = {
+                            absoluteTimeSpecification: global.absoluteTimeSpecification,
+                            relativePeriod: global.relativePeriod,
+                            fromDate: global.fromDate,
+                            fromTime: global.fromTime,
+                            toDate: global.toDate,
+                            toTime: global.toTime                            
+                        };
+                        var originalY1RangeInGraph = graph.dygraph ? graph.dygraph.y1AxisRange : "";
+                        var originalY2RangeInGraph = graph.dygraph ? graph.dygraph.y2AxisRange : "";
+                        var drawCallback = function(dygraph, is_initial) {
+                            if (is_initial) {
+                                originalXRangeInDygraph = dygraph.xAxisRange();
+                                originalY1RangeInDygraph = dygraph.yAxisRange(0);
+                                originalY2RangeInDygraph = dygraph.yAxisRange(1);
+                            }
+                        }
+                        var zoomCallback = function(minX, maxX, yRanges) {
+                            var newXRange;
+                            var newY1Range;
+                            if (minX == originalXRangeInDygraph[0] && maxX == originalXRangeInDygraph[1]) {
+                                newXRange = originalXRangeInGraph;
+                            }
+                            else {
+                                var fromMoment = moment.utc(minX);
+                                var toMoment = moment.utc(maxX);
+                                newXRange = {
+                                    absoluteTimeSpecification: true,
+                                    relativePeriod: originalXRangeInGraph.relativePeriod,
+                                    fromDate: fromMoment.format("YYYY/MM/DD"),
+                                    fromTime: fromMoment.format("HH:mm:ss"),
+                                    toDate: toMoment.format("YYYY/MM/DD"),
+                                    toTime: toMoment.format("HH:mm:ss")
+                                }
+                            }
+                            var y1Range = yRanges[0];
+                            if (y1Range[0] == originalY1RangeInDygraph[0] && y1Range[1] == originalY1RangeInDygraph[1]) {
+                                newY1Range = originalY1RangeInGraph;
+                            }
+                            else {
+                                newY1Range = graphServices.dygraphAxisRangeToString(y1Range);
+                            }
+                            var graphUpdate = {y1AxisRange:newY1Range};
+                            if (yRanges.length > 1 && yRanges[1] != null) {
+                                var newY2Range;
+                                var y2Range = yRanges[1];
+                                if (y2Range[1] == originalY2RangeInDygraph[0] && y2Range[1] == originalY2RangeInDygraph[1]) {
+                                    newY2Range = originalY2RangeInGraph;
+                                }
+                                else {
+                                    newY2Range = graphServices.dygraphAxisRangeToString(y2Range);
+                                }
+                                graphUpdate.y2AxisRange = newY2Range;
+                            }
+//                            renderContext.updateGraphModel(null, {scatter:{xRange:newXRange,yRange:newYRange}}, true);
+                            renderContext.updateGlobalModel(null, newXRange, true);
+                            renderContext.updateGraphModel(null, {dygraph:graphUpdate}, true);
+                        }
+                        
                         // default to no-op
                         var dygraphPointClickHandler = null;
                         var dygraphAnnotationClickHandler = null;
@@ -814,6 +877,8 @@ aardvark
                             labelsDivWidth: (width-100),
                             labelsSeparateLines: true,
                             series: seriesOptions,
+                            zoomCallback: zoomCallback,
+                            drawCallback: drawCallback,
                             axes: {
                                 y: {
                                     valueFormatter: function(y) {
