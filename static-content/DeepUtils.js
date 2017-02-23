@@ -27,7 +27,7 @@ aardvark
                         }
                     }
                     else {
-                        for (var k in incoming) {
+                        for (var k in target) {
                             if (toCheck.hasOwnProperty(k)) {
                                 if (!target.hasOwnProperty(k)) {
                                     return false;
@@ -48,7 +48,7 @@ aardvark
          * Deep applies a skeleton change to the target object
          */
         var deepApply = function(target, skeleton) {
-            console.log("Applying change: "+JSON.stringify(skeleton));
+//            console.log("Applying change: "+JSON.stringify(skeleton));
             if (skeleton == null) {
                 return false;
             }
@@ -75,11 +75,11 @@ aardvark
                                 case 'string':
                                 case 'number':
                                 case 'boolean':
-                                    changed = changed || (target[i] != skeleton[i]);
+                                    changed = (target[i] != skeleton[i]) || changed;
                                     target[i] = skeleton[i];
                                     break;
                                 case 'object':
-                                    changed = changed || deepApply(target[i], skeleton[i]);
+                                    changed = deepApply(target[i], skeleton[i]) || changed;
                                     break;
                                 default:
                                     throw 'Unrecognized type: '+(typeof skeleton[i]);
@@ -96,11 +96,11 @@ aardvark
                                         case 'string':
                                         case 'number':
                                         case 'boolean':
-                                            changed = changed || target[k] != skeleton[k];
+                                            changed = target[k] != skeleton[k] || changed;
                                             target[k] = skeleton[k];
                                             break;
                                         case 'object':
-                                            changed = changed || deepApply(target[k], skeleton[k]);
+                                            changed = deepApply(target[k], skeleton[k]) || changed;
                                             break;
                                         default:
                                             throw 'Unrecognized type: '+(typeof skeleton[i]);
