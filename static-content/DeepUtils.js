@@ -40,7 +40,7 @@ aardvark
                     }
                     break;
                 default:
-                    throw 'Unrecognized type: '+(typeof incoming);
+                    throw 'Unrecognized type: '+(typeof toCheck);
             }
             return true;
         };
@@ -71,6 +71,9 @@ aardvark
                         }
                         var changed = false;
                         for (var i=0; i<skeleton.length; i++) {
+                            if (skeleton[i] == null) {
+                                continue;
+                            }
                             switch (typeof skeleton[i]) {
                                 case 'string':
                                 case 'number':
@@ -92,6 +95,9 @@ aardvark
                         for (var k in skeleton) {
                             if (skeleton.hasOwnProperty(k)) {
                                 if (target.hasOwnProperty(k)) {
+                                    if (skeleton[k] == null) {
+                                        continue;
+                                    }
                                     switch (typeof skeleton[k]) {
                                         case 'string':
                                         case 'number':
@@ -103,7 +109,7 @@ aardvark
                                             changed = deepApply(target[k], skeleton[k]) || changed;
                                             break;
                                         default:
-                                            throw 'Unrecognized type: '+(typeof skeleton[i]);
+                                            throw 'Unrecognized type: '+(typeof skeleton[k]);
                                     }
                                 }
                                 else {
