@@ -384,7 +384,7 @@ aardvark
                     var downsampleOverrideFn = function(by) {return downsampleTo+"-"+(by?by:"avg")};
                     var url = config.tsdbBaseReadUrl+"/api/query";
 
-                    url += "?" + graphServices.tsdb_queryString(renderContext, global, graph, metrics, null, downsampleOverrideFn);
+                    url += "?" + graphServices.tsdb_queryString(renderContext, global, graph, metrics, null/*perLineFn*/, null/*datum*/, downsampleOverrideFn);
 
                     url += "&ms=true&arrays=true";
 

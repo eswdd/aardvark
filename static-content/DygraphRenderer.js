@@ -1139,7 +1139,7 @@ aardvark
                     }
 
                     // 1. make both queries 
-                    var urls = constructUrls(graphServices.tsdb_queryString, null);
+                    var urls = constructUrls(graphServices.tsdb_queryString, datum);
                     var baselineUrls = global.baselining ? constructUrls(graphServices.tsdb_queryStringForBaseline, datum) : null;
 
                     var expectedNormalResponses = urls.length;

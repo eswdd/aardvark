@@ -251,19 +251,19 @@ aardvark
             }
         }
 
-        ret.tsdb_queryStringForBaseline = function(renderContext, global, graph, metrics, perLineFn, datum, downsampleOverrideFn) {
+        ret.tsdb_queryStringForBaseline = function(renderContext, global, graph, metrics, perLineFn, datum, downsampleOverrideFn, noIgnore) {
             var fromTimestamp = ret.tsdb_baselineFromTimestampAsTsdbString(global, datum);
             var toTimestamp = ret.tsdb_baselineToTimestampAsTsdbString(global, datum);
-            return ret.tsdb_queryStringInternal(renderContext, fromTimestamp, toTimestamp, global.autoReload, global.globalDownsampling, global.globalDownsampleTo, graph, metrics, perLineFn, downsampleOverrideFn);
+            return ret.tsdb_queryStringInternal(renderContext, datum, fromTimestamp, toTimestamp, global.autoReload, false, global.globalDownsampling, global.globalDownsampleTo, graph, metrics, perLineFn, downsampleOverrideFn);
         }
 
-        ret.tsdb_queryString = function(renderContext, global, graph, metrics, perLineFn, downsampleOverrideFn, noIgnore) {
+        ret.tsdb_queryString = function(renderContext, global, graph, metrics, perLineFn, datum, downsampleOverrideFn, noIgnore) {
             var fromTimestamp = ret.tsdb_fromTimestampAsTsdbString(global);
             var toTimestamp = ret.tsdb_toTimestampAsTsdbString(global);
-            return ret.tsdb_queryStringInternal(renderContext, fromTimestamp, toTimestamp, global.autoReload, global.globalDownsampling, global.globalDownsampleTo, graph, metrics, perLineFn, downsampleOverrideFn, noIgnore);
+            return ret.tsdb_queryStringInternal(renderContext, datum, fromTimestamp, toTimestamp, global.autoReload, true, global.globalDownsampling, global.globalDownsampleTo, graph, metrics, perLineFn, downsampleOverrideFn, noIgnore);
         }
 
-        ret.tsdb_queryStringInternal = function(renderContext, fromTimestamp, toTimestamp, autoReload, globalDownsampling, globalDownsampleTo, graph, metrics, perLineFn, downsampleOverrideFn, noIgnore) {
+        ret.tsdb_queryStringInternal = function(renderContext, datum, fromTimestamp, toTimestamp, autoReload, allowAutoReloadOverrideEndDate, globalDownsampling, globalDownsampleTo, graph, metrics, perLineFn, downsampleOverrideFn, noIgnore) {
             // validation
             if (fromTimestamp == null || fromTimestamp == "") {
                 renderContext.renderErrors[graph.id] = "No start date specified";
@@ -278,8 +278,9 @@ aardvark
             var url = "";
 
             url += "start=" + fromTimestamp;
-            if (autoReload) {
-                url += "&end="+moment.utc().format("YYYY/MM/DD-HH:mm:ss");
+            if (autoReload && allowAutoReloadOverrideEndDate) {
+                var now = datum ? datum.clone() : moment.utc();
+                url += "&end="+now.format("YYYY/MM/DD HH:mm:ss");
             }
             else {
                 if (toTimestamp != null) {
@@ -369,7 +370,7 @@ aardvark
                     return "&o=axis+x1y1";
                 }
                 return "&o=axis+"+metric.graphOptions.axis;
-            }, downsampleOverrideFn, !addIgnore);
+            }, null/*datum*/, downsampleOverrideFn, !addIgnore);
 
             if (qs == "") {
                 return;

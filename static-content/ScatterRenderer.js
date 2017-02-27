@@ -110,8 +110,8 @@ aardvark
                     // url construction - one per metric query
                     var url1 = config.tsdbBaseReadUrl+"/api/query";
                     var url2 = config.tsdbBaseReadUrl+"/api/query";
-                    url1 += "?" + graphServices.tsdb_queryString(renderContext, global, graph, [metrics[0]]);
-                    url2 += "?" + graphServices.tsdb_queryString(renderContext, global, graph, [metrics[1]]);
+                    url1 += "?" + graphServices.tsdb_queryString(renderContext, global, graph, [metrics[0]], null/*perLineFn*/, null/*datum*/);
+                    url2 += "?" + graphServices.tsdb_queryString(renderContext, global, graph, [metrics[1]], null/*perLineFn*/, null/*datum*/);
                     url1 += "&no_annotations=true&ms=true&show_query=true";
                     url2 += "&no_annotations=true&ms=true&show_query=true";
                     

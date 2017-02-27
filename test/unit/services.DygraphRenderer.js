@@ -2473,6 +2473,39 @@ describe('Aardvark renderers', function () {
             baselineTest(null, data1, null, data2, null, global, null, null, renderData, null);
         });
         
+        it('should only render query period with dygraph when baselining is enabled and auto reload selected - issue #183', function() {
+            var global = { relativePeriod: "1h", autoReload: true, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
+
+            var data1 = [{metric: "metric1", tags: {}, dps:[
+                [1234567811000, 10],
+                [1234567812000, 20],
+                [1234567813000, 30],
+                [1234567814000, 40],
+                [1234567815000, 50]
+            ]}];
+            var data2 = [{metric: "metric1", tags: {}, dps:[
+                [1234481411000, 10],
+                [1234481412000, 20],
+                [1234481413000, 30],
+                [1234481414000, 40],
+                [1234481415000, 50]
+            ]}];
+            
+            var renderData = [
+                [new Date(1234567811000), 10, 10],
+                [new Date(1234567812000), 20, 20],
+                [new Date(1234567813000), 30, 30],
+                [new Date(1234567814000), 40, 40],
+                [new Date(1234567815000), 50, 50]
+            ];
+
+            var url1 = "http://tsdb:4242/api/query?start=1h-ago&end=2016/01/22 14:10:10&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true";
+            var url2 = "http://tsdb:4242/api/query?start=2016/01/21 13:10:10&end=2016/01/21 14:10:10&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true";
+            var tsdbUrl = "http://tsdb:4242/#start=1h-ago&end=2016/01/22 14:10:10&m=sum:metric1&o=axis+x1y1&key=top+left";
+            
+            baselineTest(url1, data1, url2, data2, tsdbUrl, global, null, null, renderData, null);
+        });
+        
         it('should render with dygraph when baselining is enabled with negative squashing', function() {
             var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: true }};

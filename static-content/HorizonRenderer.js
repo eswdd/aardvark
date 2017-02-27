@@ -210,7 +210,7 @@ aardvark
 
                 var url = config.tsdbBaseReadUrl+"/api/query";
 
-                url += "?" + graphServices.tsdb_queryString(renderContext, global, graph, metrics, null, downsampleOverrideFn);
+                url += "?" + graphServices.tsdb_queryString(renderContext, global, graph, metrics, null/*perLineFn*/, null/*datum*/, downsampleOverrideFn);
 
                 url += "&ms=true&arrays=true&show_query=true";
 
