@@ -508,10 +508,11 @@ describe('Aardvark controllers', function () {
                             }
                         ],
                         graphOptions: {
-                            graphId: 'abc',
+                            graphId: 123,
                             rate: true,
                             downsample: true,
-                            downsampleBy: '10m'
+                            downsampleBy: '10m',
+                            axis: "x1y2"
                         }
                     }
                 ]
@@ -562,6 +563,8 @@ describe('Aardvark controllers', function () {
             expect(scope.localModel.rate).toEqualData(true);
             expect(scope.localModel.downsample).toEqualData(true);
             expect(scope.localModel.downsampleBy).toEqualData('10m');
+            expect(scope.localModel.rightAxis).toEqualData(true);
+            expect(scope.localModel.graphId).toEqualData("123");
             expect(scope.nodeSelectionDisabled).toEqualData(false);
             expect(scope.clearButtonEnabled()).toEqualData(true);
             expect(scope.addButtonVisible()).toEqualData(false);

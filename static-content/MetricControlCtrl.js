@@ -198,13 +198,13 @@ aardvark.directive('tagFilterSelection', function() {
         }
         // populate graph options
         if (metric.graphOptions) {
-            $scope.localModel.graphId = metric.graphOptions.graphId;
+            $scope.localModel.graphId = metric.graphOptions.graphId + "";
             $scope.localModel.rate = metric.graphOptions.rate;
             $scope.localModel.rateCounter = metric.graphOptions.rateCounter;
             $scope.localModel.rateCounterReset = metric.graphOptions.rateCounterReset;
             $scope.localModel.rateCounterMax = metric.graphOptions.rateCounterMax;
             $scope.localModel.aggregator = metric.graphOptions.aggregator;
-            $scope.localModel.rightAxis = metric.graphOptions.rightAxis;
+            $scope.localModel.rightAxis = metric.graphOptions.axis == "x1y2";
             $scope.localModel.downsample = metric.graphOptions.downsample;
             $scope.localModel.downsampleBy = metric.graphOptions.downsampleBy;
             $scope.localModel.downsampleTo = metric.graphOptions.downsampleTo;
