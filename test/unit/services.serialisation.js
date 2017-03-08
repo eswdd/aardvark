@@ -187,7 +187,8 @@ describe('Aardvark services', function() {
                             aggregator: "sum",
                             downsample: false,
                             downsampleBy: "",
-                            downsampleTo: ""
+                            downsampleTo: "",
+                            dygraph:{drawLines:false,drawPoints:false}
                         }
                     },
                     {
@@ -210,7 +211,7 @@ describe('Aardvark services', function() {
             };
             // tag had value "" which won't be serialised
             // todo: need to get this down to 460
-            checkRoundTrips(serialisation, model, 469, function(model) {
+            checkRoundTrips(serialisation, model, 477, function(model) {
                 model.metrics[4].tags = [];
                 // defaults
                 for (var m=0; m<model.metrics.length; m++) {
@@ -395,7 +396,8 @@ describe('Aardvark services', function() {
                             aggregator: "sum",
                             downsample: false,
                             downsampleBy: "",
-                            downsampleTo: ""
+                            downsampleTo: "",
+                            dygraph:{drawLines:true,drawPoints:false}
                         }
                     },
                     {
@@ -411,14 +413,15 @@ describe('Aardvark services', function() {
                             aggregator: "sum",
                             downsample: false,
                             downsampleBy: "",
-                            downsampleTo: ""
+                            downsampleTo: "",
+                            dygraph:{drawLines:true,drawPoints:false}
                         }
                     }
                 ]
             };
             // todo: need to get this down to 460
             // tag had value "" which won't be serialised
-            checkRoundTrips(serialisation, model, 513, function(model) {
+            checkRoundTrips(serialisation, model, 521, function(model) {
                 model.metrics[4].tags = [];
                 // defaults
                 for (var m=0; m<model.metrics.length; m++) {

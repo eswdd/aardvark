@@ -26,14 +26,30 @@ describe('Aardvark renderers', function () {
         var renderer, rendererInstance;
         var renderContext, config;
         var dygraphHeight, renderAnnotations;
+        var deepUtils;
 
         var renderDivId, renderGraphId, renderData, renderConfig;
 
-        beforeEach(inject(function (DygraphRenderer, GraphServices, _$httpBackend_) {
+        beforeEach(inject(function (DygraphRenderer, GraphServices, _$httpBackend_, _deepUtils_) {
             // hmm
             renderer = DygraphRenderer;
             graphServices = GraphServices;
             $httpBackend = _$httpBackend_;
+            deepUtils = _deepUtils_;
+            jasmine.addMatchers({
+                toSkeletonEqual: function(util, customEqualityTesters) {
+                    return {
+                        compare: function(actual, expected) {
+                            var passed = deepUtils.deepCheck(actual, expected);
+                            return {
+                                pass: passed,
+                                message: 'Expected ' + JSON.stringify(actual) + '\nto match ' + JSON.stringify(expected)
+                            };
+                        }
+                    };
+                    
+                }
+            });
 
             renderContext = {};
             renderContext.renderedContent = {};
@@ -80,84 +96,6 @@ describe('Aardvark renderers', function () {
             // memory from a previous query
             rendererInstance.tsdb_export_link = "http://tsdb:4242/oldquery";
         }));
-        
-        
-        /*
-        var rootScope, $httpBackend, scope;
-        var globals, graphs, metricss;
-        var configUpdateFunc;
-        var renderDivId, renderGraphId, renderData, renderConfig;
-        var rendererInstance;
-
-        beforeEach(inject(function ($rootScope, _$httpBackend_, $controller) {
-            // hmm
-            rootScope = $rootScope;
-            $httpBackend = _$httpBackend_;
-            scope = $rootScope.$new();
-            globals = [];
-            graphs = [];
-            metricss = [];
-
-            renderContext.renderers = {};
-            renderDivId = null;
-            renderGraphId = null;
-            renderData = null;
-            renderConfig = null;
-
-            rootScope.model = {
-                graphs: [],
-                metrics: []
-            }
-
-            config = {
-                annotations: {
-                    allowAddEdit: true
-                },
-                tsdbBaseReadUrl: "http://tsdb:4242"
-            };
-
-            rootScope.formEncode = function(val) {
-                var ret = val.replace(" ","+");
-                if (ret != val) {
-                    return rootScope.formEncode(ret);
-                }
-                return ret;
-            }
-
-            rootScope.onConfigUpdate = function(func) {
-                configUpdateFunc = func;
-            }
-
-            $controller('GraphCtrl', {$scope: scope, $rootScope: rootScope});
-
-
-            rendererInstance = renderContext.renderers.dygraph.create();
-            // defaults
-            expect(rendererInstance.supports_tsdb_export).toEqualData(true);
-            expect(rendererInstance.tsdb_export_link).toEqualData("");
-            // memory from a previous query
-            rendererInstance.tsdb_export_link = "http://tsdb:4242/oldquery";
-
-            // override function to get us a test hook
-            scope.dygraph_render = function(divId, graphId, data, config) {
-                renderDivId = divId;
-                renderGraphId = graphId;
-                renderData = data;
-                renderConfig = config;
-                return {
-                    height: dygraphHeight,
-                    canvas_: {
-                        style: {}
-                    }
-                };
-            }
-
-            dygraphHeight = 100;
-            
-            scope.dygraph_setAnnotations = function(g, anns) {
-                renderAnnotations = anns;
-            }
-        }));*/
 
         var checkResponseAsExpected = function(expectedDivId, expectedGraphId, expectedConfigExcludingLabels, expectedLabelsAndData, expectedRenderErrors, expectedRenderWarnings) {
 
@@ -194,7 +132,7 @@ describe('Aardvark renderers', function () {
             expect(actualLabels.length).toEqualData(expectedLabelCount);
 
             // labels: ["x", "metric1{host=host1}", "metric1{host=host2}", "100x metric2"],
-            expect(renderConfig).toEqualData(expectedConfigExcludingLabels);
+            expect(renderConfig).toSkeletonEqual(expectedConfigExcludingLabels);
             expect(renderContext.renderErrors).toEqualData(expectedRenderErrors);
             expect(renderContext.renderWarnings).toEqualData(expectedRenderWarnings);
         }
@@ -316,27 +254,8 @@ describe('Aardvark renderers', function () {
                 [new Date(1234567814000), 40],
                 [new Date(1234567815000), 50]
             ]);
-            expect(renderConfig).toEqualData({
+            expect(renderConfig).toSkeletonEqual({
                 labels: ["x", "metric1"],
-                width: 0,
-                height: 0,
-                legend: "always",
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null] },
-                    y2:{ valueRange: [null, null] }
-                },
                 series:{
                     "metric1":{"axis":"y1"}
                 }
@@ -378,27 +297,8 @@ describe('Aardvark renderers', function () {
                 [new Date(1234567814000), 40],
                 [new Date(1234567815000), 50]
             ]);
-            expect(renderConfig).toEqualData({
+            expect(renderConfig).toSkeletonEqual({
                 labels: ["x", "metric1"],
-                width: 0,
-                height: 0,
-                legend: "always",
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null] },
-                    y2:{ valueRange: [null, null] }
-                },
                 series:{
                     "metric1":{"axis":"y1"}
                 }
@@ -440,28 +340,8 @@ describe('Aardvark renderers', function () {
                 [new Date(1234567814000), 40],
                 [new Date(1234567815000), 50]
             ]);
-            expect(renderConfig).toEqualData({
+            expect(renderConfig).toSkeletonEqual({
                 labels: ["x", "metric1"],
-                width: 0,
-                height: 0,
-                legend: "always",
-                stackedGraph: true,
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null] },
-                    y2:{ valueRange: [null, null] }
-                },
                 series:{
                     "metric1":{"axis":"y1"}
                 }
@@ -523,27 +403,8 @@ describe('Aardvark renderers', function () {
                 [new Date(1234567814000), 40, 40, 40],
                 [new Date(1234567815000), 50, 50, 50]
             ]);
-            expect(renderConfig).toEqualData({
+            expect(renderConfig).toSkeletonEqual({
                 labels: ["x", "metric1", "metric2", "metric3"],
-                width: 0,
-                height: 0,
-                legend: "always",
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null] },
-                    y2:{ valueRange: [null, null] }
-                },
                 series:{
                     "metric1":{"axis":"y1"},
                     "metric2":{"axis":"y1"},
@@ -596,27 +457,8 @@ describe('Aardvark renderers', function () {
                 [new Date(1234567815000), 50, 50],
                 [new Date(1234567816000), null, 50]
             ]);
-            expect(renderConfig).toEqualData({
+            expect(renderConfig).toSkeletonEqual({
                 labels: ["x", "metric1", "metric2"],
-                width: 0,
-                height: 0,
-                legend: "always",
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null] },
-                    y2:{ valueRange: [null, null] }
-                },
                 series:{
                     "metric1":{"axis":"y1"},
                     "metric2":{"axis":"y1"}
@@ -733,28 +575,8 @@ describe('Aardvark renderers', function () {
                 [new Date(1234567814000), 40],
                 [new Date(1234567815000), 50]
             ]);
-            expect(renderConfig).toEqualData({
+            expect(renderConfig).toSkeletonEqual({
                 labels: ["x", "metric1"],
-                width: 0,
-                height: 0,
-                legend: "always",
-                connectSeparatedPoints: true,
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null] },
-                    y2:{ valueRange: [null, null] }
-                },
                 series:{
                     "metric1":{"axis":"y1"}
                 }
@@ -796,27 +618,8 @@ describe('Aardvark renderers', function () {
                 [new Date(1234567814000), 40],
                 [new Date(1234567815000), 50]
             ]);
-            expect(renderConfig).toEqualData({
+            expect(renderConfig).toSkeletonEqual({
                 labels: ["x", "metric1"],
-                width: 0,
-                height: 0,
-                legend: "always",
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null], logscale: true },
-                    y2:{ valueRange: [null, null] }
-                },
                 series:{
                     "metric1":{"axis":"y1"}
                 }
@@ -858,27 +661,8 @@ describe('Aardvark renderers', function () {
                 [new Date(1234567814000), 0],
                 [new Date(1234567815000), 50]
             ]);
-            expect(renderConfig).toEqualData({
+            expect(renderConfig).toSkeletonEqual({
                 labels: ["x", "metric1"],
-                width: 0,
-                height: 0,
-                legend: "always",
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null] },
-                    y2:{ valueRange: [null, null] }
-                },
                 series:{
                     "metric1":{"axis":"y1"}
                 }
@@ -931,27 +715,8 @@ describe('Aardvark renderers', function () {
                 [new Date(1234567814000), -40, 0],
                 [new Date(1234567815000), 50, 50]
             ]);
-            expect(renderConfig).toEqualData({
+            expect(renderConfig).toSkeletonEqual({
                 labels: ["x", "metric1", "metric2"],
-                width: 0,
-                height: 0,
-                legend: "always",
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null] },
-                    y2:{ valueRange: [null, null] }
-                },
                 series:{
                     "metric1":{"axis":"y1"},
                     "metric2":{"axis":"y2"}
@@ -999,27 +764,8 @@ describe('Aardvark renderers', function () {
                 [new Date(1234567814000), -40, 40],
                 [new Date(1234567815000), 20, -20]
             ]);
-            expect(renderConfig).toEqualData({
+            expect(renderConfig).toSkeletonEqual({
                 labels: ["x", "metric1", "metric2"],
-                width: 0,
-                height: 0,
-                legend: "always",
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null] },
-                    y2:{ valueRange: [null, null] }
-                },
                 series:{
                     "metric1":{"axis":"y1"},
                     "metric2":{"axis":"y1"}
@@ -1072,32 +818,6 @@ describe('Aardvark renderers', function () {
                 [new Date(1234567814000), -20, 20],
                 [new Date(1234567815000), 20, -20]
             ]);
-            expect(renderConfig).toEqualData({
-                labels: ["x", "metric1", "metric2"],
-                width: 0,
-                height: 0,
-                legend: "always",
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null] },
-                    y2:{ valueRange: [null, null] }
-                },
-                series:{
-                    "metric1":{"axis":"y1"},
-                    "metric2":{"axis":"y1"}
-                }
-            });
             expect(renderContext.renderErrors).toEqualData({});
             expect(renderContext.renderWarnings).toEqualData({});
         });
@@ -1140,27 +860,8 @@ describe('Aardvark renderers', function () {
                 [new Date(1234567814000), -50, 50],
                 [new Date(1234567815000), 80, 20]
             ]);
-            expect(renderConfig).toEqualData({
+            expect(renderConfig).toSkeletonEqual({
                 labels: ["x", "metric1", "metric2"],
-                width: 0,
-                height: 0,
-                legend: "always",
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null] },
-                    y2:{ valueRange: [null, null] }
-                },
                 series:{
                     "metric1":{"axis":"y1"},
                     "metric2":{"axis":"y1"}
@@ -1213,27 +914,8 @@ describe('Aardvark renderers', function () {
                 [new Date(1234567814000), 0, 100],
                 [new Date(1234567815000), 80, 20]
             ]);
-            expect(renderConfig).toEqualData({
+            expect(renderConfig).toSkeletonEqual({
                 labels: ["x", "metric1", "metric2"],
-                width: 0,
-                height: 0,
-                legend: "always",
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null] },
-                    y2:{ valueRange: [null, null] }
-                },
                 series:{
                     "metric1":{"axis":"y1"},
                     "metric2":{"axis":"y1"}
@@ -1288,27 +970,8 @@ describe('Aardvark renderers', function () {
                 [new Date(1234567814000), 4000, 4000],
                 [new Date(1234567815000), 5000, 1000]
             ]);
-            expect(renderConfig).toEqualData({
+            expect(renderConfig).toSkeletonEqual({
                 labels: ["x", "metric1", "100x metric2"],
-                width: 0,
-                height: 0,
-                legend: "always",
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null] },
-                    y2:{ valueRange: [null, null] }
-                },
                 series:{
                     "metric1":{"axis":"y1"},
                     "100x metric2":{"axis":"y1"}
@@ -1364,27 +1027,8 @@ describe('Aardvark renderers', function () {
                 [new Date(1234567814000), 4000, 4000, 40],
                 [new Date(1234567815000), 5000, 1000, 10]
             ]);
-            expect(renderConfig).toEqualData({
+            expect(renderConfig).toSkeletonEqual({
                 labels: ["x", "metric1", "100x metric2", "metric3"],
-                width: 0,
-                height: 0,
-                legend: "always",
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null] },
-                    y2:{ valueRange: [null, null] }
-                },
                 series:{
                     "metric1":{"axis":"y1"},
                     "100x metric2":{"axis":"y1"},
@@ -1434,27 +1078,8 @@ describe('Aardvark renderers', function () {
                 [new Date(1234567814000), 0, 40],
                 [new Date(1234567815000), 0, 10]
             ]);
-            expect(renderConfig).toEqualData({
+            expect(renderConfig).toSkeletonEqual({
                 labels: ["x", "metric1", "metric2"],
-                width: 0,
-                height: 0,
-                legend: "always",
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null] },
-                    y2:{ valueRange: [null, null] }
-                },
                 series:{
                     "metric1":{"axis":"y1"},
                     "metric2":{"axis":"y1"}
@@ -1517,27 +1142,8 @@ describe('Aardvark renderers', function () {
                 [new Date(1234567814000), 0, 40, -400, 600],
                 [new Date(1234567815000), 0, 10, -100, 300]
             ]);
-            expect(renderConfig).toEqualData({
+            expect(renderConfig).toSkeletonEqual({
                 labels: ["x", "metric1", "metric2", "metric3", "10x metric4"],
-                width: 0,
-                height: 0,
-                legend: "always",
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null] },
-                    y2:{ valueRange: [null, null] }
-                },
                 series:{
                     "metric1":{"axis":"y2"},
                     "metric2":{"axis":"y2"},
@@ -1608,25 +1214,6 @@ describe('Aardvark renderers', function () {
             var expectedDivId = "dygraphDiv_abc";
             var expectedGraphId = "abc";
             var expectedConfig = {
-                width: 0,
-                height: 0,
-                legend: "always",
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null] },
-                    y2:{ valueRange: [null, null] }
-                },
                 series:{
                     "metric1{host=host1}":{"axis":"y1"},
                     "metric1{host=host2}":{"axis":"y1"},
@@ -1708,27 +1295,8 @@ describe('Aardvark renderers', function () {
                 [new Date(1234567814000), -4000, 4000],
                 [new Date(1234567815000), -5000, 1000]
             ]);
-            expect(renderConfig).toEqualData({
+            expect(renderConfig).toSkeletonEqual({
                 labels: ["x", "metric1", "100x metric2"],
-                width: 0,
-                height: 0,
-                legend: "always",
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null] },
-                    y2:{ valueRange: [null, null] }
-                },
                 series:{
                     "metric1":{"axis":"y1"},
                     "100x metric2":{"axis":"y1"}
@@ -1777,27 +1345,8 @@ describe('Aardvark renderers', function () {
                 [new Date(1234567814000), 0, 40],
                 [new Date(1234567815000), 0, 10]
             ]);
-            expect(renderConfig).toEqualData({
+            expect(renderConfig).toSkeletonEqual({
                 labels: ["x", "metric1", "metric2"],
-                width: 0,
-                height: 0,
-                legend: "always",
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null] },
-                    y2:{ valueRange: [null, null] }
-                },
                 series:{
                     "metric1":{"axis":"y1"},
                     "metric2":{"axis":"y1"}
@@ -1918,27 +1467,8 @@ describe('Aardvark renderers', function () {
                 [new Date(1234567814000), 40],
                 [new Date(1234567815000), 50]
             ]);
-            expect(renderConfig).toEqualData({
+            expect(renderConfig).toSkeletonEqual({
                 labels: ["x", "metric1"],
-                width: 0,
-                height: 0,
-                legend: "always",
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null] },
-                    y2:{ valueRange: [null, null] }
-                },
                 series:{
                     "metric1":{"axis":"y1"}
                 }
@@ -2306,27 +1836,8 @@ describe('Aardvark renderers', function () {
                 [new Date(1234567814000), 40],
                 [new Date(1234567815000), 50]
             ]);
-            expect(renderConfig).toEqualData({
+            expect(renderConfig).toSkeletonEqual({
                 labels: ["x", "metric1"],
-                width: 0,
-                height: 0,
-                legend: "always",
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null] },
-                    y2:{ valueRange: [null, null] }
-                },
                 series:{
                     "metric1":{"axis":"y1"}
                 }
@@ -2383,27 +1894,8 @@ describe('Aardvark renderers', function () {
                     expectedSeries[labels[i]] = {axis: "y1"};
                 }
             }
-            expect(renderConfig).toEqualData({
+            expect(renderConfig).toSkeletonEqual({
                 labels: labels,
-                width: 0,
-                height: 0,
-                legend: "always",
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes: {
-                    y:{ valueRange: [null, null] },
-                    y2:{ valueRange: [null, null] }
-                },
                 series: expectedSeries
             });
             expect(renderContext.renderErrors).toEqualData({});
@@ -3013,27 +2505,8 @@ describe('Aardvark renderers', function () {
                     expectedSeries[expectedLabels[i]] = {axis: "y1"};
                 }
             }
-            expect(renderConfig).toEqualData({
+            expect(renderConfig).toSkeletonEqual({
                 labels: expectedLabels,
-                width: 0,
-                height: 0,
-                legend: "always",
-                drawGapEdgePoints: true,
-                axisLabelFontSize: 9,
-                labelsDivWidth: -100,
-                labelsDivStyles: {
-                    fontSize: 9,
-                    textAlign: "left",
-                    left:"100px",
-                    width:"-100px",
-                    "background-color":"rgba(255,255,255,0)",
-                    "padding-top":"20px"
-                },
-                labelsSeparateLines: true,
-                axes:{
-                    y:{ valueRange: [null, null] },
-                    y2:{ valueRange: [null, null] }
-                },
                 series: expectedSeries
             });
             expect(renderAnnotations).toEqualData(expectedAnnotations);

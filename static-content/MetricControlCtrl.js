@@ -53,6 +53,20 @@ aardvark.directive('tagFilterSelection', function() {
     $rootScope.$on('globalDownsamplingChanged', function (event, data) {
         $scope.globalDownsampling = data;
     });
+        
+    $scope.$watch('localModel.dygraph.drawLines', function(newVal, oldVal, scope) {
+        // one of them must be true!
+        if (newVal != oldVal && !newVal) {
+            $scope.localModel.dygraph.drawPoints = true;
+        }
+    })
+        
+    $scope.$watch('localModel.dygraph.drawPoints', function(newVal, oldVal, scope) {
+        // one of them must be true!
+        if (newVal != oldVal && !newVal) {
+            $scope.localModel.dygraph.drawLines = true;
+        }
+    })
 
     $scope.addButtonVisible = function() {
         var ret = $scope.selectedMetric != "";
@@ -208,6 +222,10 @@ aardvark.directive('tagFilterSelection', function() {
             $scope.localModel.downsample = metric.graphOptions.downsample;
             $scope.localModel.downsampleBy = metric.graphOptions.downsampleBy;
             $scope.localModel.downsampleTo = metric.graphOptions.downsampleTo;
+            if (metric.graphOptions.dygraph) {
+                $scope.localModel.dygraph.drawLines = metric.graphOptions.dygraph.drawLines;
+                $scope.localModel.dygraph.drawPoints = metric.graphOptions.dygraph.drawPoints;
+            }
         }
     }
         
@@ -335,7 +353,11 @@ aardvark.directive('tagFilterSelection', function() {
             axis: $scope.localModel.rightAxis ? "x1y2" : "x1y1",
             downsample: $scope.localModel.downsample,
             downsampleBy: $scope.localModel.downsampleBy,
-            downsampleTo: $scope.localModel.downsampleTo
+            downsampleTo: $scope.localModel.downsampleTo,
+            dygraph: {
+                drawLines: $scope.localModel.dygraph.drawLines,
+                drawPoints: $scope.localModel.dygraph.drawPoints
+            }
         };
         $rootScope.saveModel(true);
         $scope.selectedMetric = "";
@@ -494,6 +516,11 @@ aardvark.directive('tagFilterSelection', function() {
         $scope.localModel.downsampleTo = "";
         $scope.localModel.rightAxis = false;
         $scope.localModel.aggregator = "sum";
+        if (!$scope.localModel.dygraph) {
+            $scope.localModel.dygraph = {};
+        }
+        $scope.localModel.dygraph.drawLines = true;
+        $scope.localModel.dygraph.drawPoints = false;
     }
 
     // todo: need better way of defining defaulting and copying between scope and model on per graph type basis

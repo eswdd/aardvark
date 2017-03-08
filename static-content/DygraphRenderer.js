@@ -487,13 +487,33 @@ aardvark
                             mainLabels.push(name);
                             var axis = isY1Axis(mainJson[t].aardvark_metric.graphOptions.axis) ? "y1" : "y2";
                             seriesOptions[name] = { axis: axis };
+                            seriesOptions[name].strokeWidth = 0;
+                            seriesOptions[name].drawPoints = false;
+                            seriesOptions[name].pointSize = 2;
+                            // must have one, if none then assume lines
+                            if (!mainJson[t].aardvark_metric.graphOptions.dygraph || mainJson[t].aardvark_metric.graphOptions.dygraph.drawLines || !mainJson[t].aardvark_metric.graphOptions.dygraph.drawPoints) {
+                                seriesOptions[name].strokeWidth = 1;
+                            }
+                            if (mainJson[t].aardvark_metric.graphOptions.dygraph && mainJson[t].aardvark_metric.graphOptions.dygraph.drawPoints) {
+                                seriesOptions[name].drawPoints = true;
+                            }
                         }
                         if (baselining) {
                             for (var t=0; t<baselineJson.length; t++) {
-                                var name = graphServices.timeSeriesName(baselineJson[t]);
-                                baselineLabels.push(name+"[BL]");
+                                var name = graphServices.timeSeriesName(baselineJson[t]) + "[BL]";
+                                baselineLabels.push(name);
                                 var axis = isY1Axis(baselineJson[t].aardvark_metric.graphOptions.axis) ? "y1" : "y2";
-                                seriesOptions[name+"[BL]"] = { axis: axis };
+                                seriesOptions[name] = { axis: axis };
+                                seriesOptions[name].strokeWidth = 0;
+                                seriesOptions[name].drawPoints = false;
+                                seriesOptions[name].pointSize = 2;
+                                // must have one, if none then assume lines
+                                if (!mainJson[t].aardvark_metric.graphOptions.dygraph || baselineJson[t].aardvark_metric.graphOptions.drawLines || !baselineJson[t].aardvark_metric.graphOptions.drawPoints) {
+                                    seriesOptions[name].strokeWidth = 1;
+                                }
+                                if (baselineJson[t].aardvark_metric.graphOptions.drawPoints) {
+                                    seriesOptions[name].drawPoints = true;
+                                }
                             }
                         }
 
@@ -879,6 +899,7 @@ aardvark
                             series: seriesOptions,
                             zoomCallback: zoomCallback,
                             drawCallback: drawCallback,
+                            highlightCircleSize: 4,
                             axes: {
                                 y: {
                                     valueFormatter: function(y) {
@@ -917,9 +938,10 @@ aardvark
                         };
                         if (dygraphOptions.highlightLines) {
                             dygraphConfig.highlightSeriesOpts = {
-                                strokeWidth: 3,
+                                strokeWidth: 2,
                                 strokeBorderWidth: 1,
-                                highlightCircleSize: 5
+                                highlightCircleSize: 6,
+                                pointSize: 4
                             };
                             /*
                              dygraphConfig.highlightCallback = function(event, x, points, row, seriesName) {

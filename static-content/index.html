@@ -828,6 +828,17 @@
                                 <input id="metricControl_editMetric_rightAxis" type="checkbox" ng-model="localModel.rightAxis" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
                                 <label for="metricControl_editMetric_rightAxis">Right Axis</label>
                             </div>
+                            <div ng-show="graphType() == 'dygraph'">
+                                Dygraph options:
+                            </div>
+                            <div ng-show="graphType() == 'dygraph'">
+                                <input type="checkbox" id="metricControl_dygraph_drawLines" ng-model="localModel.dygraph.drawLines" ng-change="saveMetricIfAutoUpdate()" />
+                                <label for="metricControl_dygraph_drawLines">Draw lines</label>
+                            </div>
+                            <div ng-show="graphType() == 'dygraph'">
+                                <input type="checkbox" id="metricControl_dygraph_drawPoints" ng-model="localModel.dygraph.drawPoints" ng-change="saveMetricIfAutoUpdate()" />
+                                <label for="metricControl_dygraph_drawPoints">Draw points</label>
+                            </div>
                         </aa-collapsible-panel>
                     </div>
                 </div>

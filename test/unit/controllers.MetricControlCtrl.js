@@ -389,6 +389,7 @@ describe('Aardvark controllers', function () {
             scope.localModel.downsample = true;
             scope.localModel.downsampleBy = "zimsum";
             scope.localModel.downsampleTo = "10m";
+            scope.localModel.dygraph = { drawLines: true, drawPoints: false };
             scope.nodeSelectionDisabled = true; // set by nodeSelectedForAddition normally
 
             scope.addMetric();
@@ -426,7 +427,8 @@ describe('Aardvark controllers', function () {
                         rateCounterReset: '1',
                         downsample: true,
                         downsampleBy: 'zimsum',
-                        downsampleTo: '10m'
+                        downsampleTo: '10m',
+                        dygraph:{drawLines:true,drawPoints:false}
                     }
                 }
             ]);
@@ -452,6 +454,7 @@ describe('Aardvark controllers', function () {
             scope.localModel.downsample = true;
             scope.localModel.downsampleBy = "sum";
             scope.localModel.downsampleTo = "10m";
+            scope.localModel.dygraph = { drawLines: true, drawPoints: false };
             scope.nodeSelectionDisabled = true; // set by nodeSelectedForAddition normally
 
             scope.clearMetric();
@@ -618,6 +621,7 @@ describe('Aardvark controllers', function () {
             scope.localModel.downsample = true;
             scope.localModel.downsampleTo = "10m";
             scope.localModel.downsampleBy = "sum";
+            scope.localModel.dygraph = { drawLines: true, drawPoints: false };
 
             scope.saveMetric();
 
@@ -674,7 +678,8 @@ describe('Aardvark controllers', function () {
                                 rateCounterReset: '456',
                                 downsample: true,
                                 downsampleBy: 'sum',
-                                downsampleTo: '10m'
+                                downsampleTo: '10m',
+                                dygraph:{drawLines:true,drawPoints:false}
                             }
                         }
                     ]

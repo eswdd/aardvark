@@ -586,6 +586,18 @@ aardvark
             }
             return moment.utc(singleDate).format("HH:mm:ss");
         }
+        var graphForMetric = function(graphs, metric) {
+            var graphId = metric.graphOptions && metric.graphOptions.graphId ? metric.graphOptions.graphId : 0;
+            var graph = null;
+            if (graphs != null) {
+                for (var g=0; g<graphs.length; g++) {
+                    if (graphs[g].id == graphId) {
+                        graph = graphs[g];
+                    }
+                }
+            }
+            return graph;
+        }
         serialiser.IntermediateModel = builder.build("IntermediateModel");
         serialiser.compactIds = function(model) {
             // compact the ids!
@@ -826,10 +838,20 @@ aardvark
                 }
                 intermediateMetric.tags = tagsToWrite;
                 if (metric.graphOptions != null ) {
+                    var graphFlag1 = false;
+                    var graphFlag2 = false;
+                    var graph = graphForMetric(model.graphs, metric);
+                    if (graph && graph.type == "dygraph" && metric.graphOptions.dygraph) {
+                        graphFlag1 = metric.graphOptions.dygraph.drawLines;
+                        graphFlag2 = metric.graphOptions.dygraph.drawPoints;
+                    }
+                    
                     intermediateMetric.flags = blitting.toBlittedInt([
                         metric.graphOptions.rate,
                         metric.graphOptions.rateCounter,
-                        metric.graphOptions.downsample
+                        metric.graphOptions.downsample,
+                        graphFlag1,
+                        graphFlag2
                     ]);
                     if (metric.graphOptions.graphId == null) {
                         metric.graphOptions.graphId = "0";
@@ -1140,6 +1162,7 @@ aardvark
                     name: intermediateMetric.name,
                     tags: [],
                     graphOptions: {
+                        graphId: intermediateMetric.graphId
                     }
                 };
                 
@@ -1153,11 +1176,25 @@ aardvark
                     });
                 }
 
-                var metricFlags = blitting.fromBlittedInt(intermediateMetric.flags, [false,false,false]);
+
+                var graphFlag1Default = false;
+                var graphFlag2Default = false;
+                var graph = graphForMetric(model.graphs, metric);
+                if (graph && graph.type == "dygraph") {
+                    graphFlag1Default = true;  //metric.graphOptions.dygraph.drawLines;
+                    graphFlag2Default = false; //metric.graphOptions.dygraph.drawPoints;
+                }
+                var metricFlags = blitting.fromBlittedInt(intermediateMetric.flags, [false,false,false,graphFlag1Default,graphFlag2Default]);
                 metric.graphOptions.rate = metricFlags[0];
                 metric.graphOptions.rateCounter = metricFlags[1];
                 metric.graphOptions.downsample = metricFlags[2];
-                metric.graphOptions.graphId = intermediateMetric.graphId;
+                if (graph && graph.type == "dygraph") {
+                    metric.graphOptions.dygraph = {
+                        drawLines: metricFlags[3],
+                        drawPoints: metricFlags[4]
+                    }
+                }
+                
                 if (metric.graphOptions.rate && metric.graphOptions.rateCounter) {
                     metric.graphOptions.rateCounterReset = intermediateMetric.rateCounterReset.toNumber();
                     metric.graphOptions.rateCounterMax = intermediateMetric.rateCounterMax.toNumber();
