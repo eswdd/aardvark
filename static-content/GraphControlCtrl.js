@@ -147,8 +147,8 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
     }
 
     $scope.getHeatmapStyleLabel = function(graph) {
-        if (graph.heatmap == null) {
-            return null;
+        if (graph.heatmap == null || graph.heatmap.style == null || graph.heatmap.style == "") {
+            return $scope.heatmapStyleLabels.auto;
         }
         return $scope.heatmapStyleLabels[graph.heatmap.style];
     }
@@ -166,8 +166,8 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
     }
     
     $scope.getHeatmapColourSchemeLabel = function(graph) {
-        if (graph.heatmap == null) {
-            return null;
+        if (graph.heatmap == null || graph.heatmap.colourScheme == null || graph.heatmap.colourScheme == "") {
+            return $scope.heatmapColourSchemeLabels.RdYlGn;
         }
         return $scope.heatmapColourSchemeLabels[graph.heatmap.colourScheme];
     }

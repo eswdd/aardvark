@@ -207,7 +207,7 @@
                         <div class="panel-heading">
                             <h4 class="panel-title">
                                 <span ng-class="{'text-muted': isDisabled}">
-                                    <button type="button" class="btn btn-primary btn-xs" ng-model="graph.editingTitle" uib-btn-checkbox btn-checkbox-true="1" btn-checkbox-false="0">
+                                    <button type="button" class="btn btn-primary btn-xs" ng-model="graph.editingTitle" uib-btn-checkbox btn-checkbox-true="1" btn-checkbox-false="0" uib-tooltip="Toggle title editing" tooltip-placement="right">
                                         <span class="glyphicon glyphicon-pencil"></span>
                                     </button>
                                 </span>
@@ -216,7 +216,7 @@
                                 </a>
                                 <span ng-class="{'text-muted': isDisabled}">
                                     <input ng-show="graph.editingTitle" type="text" class="form-control form-control-xs form-control-inline" style="width: 140px" ng-model="graph.title" ng-blur="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
-                                    <button ng-hide="graph.editingTitle" class="pull-right btn btn-primary btn-xs" ng-click="deleteGraph(graph.id)"><span class="glyphicon glyphicon-trash"></span></button>
+                                    <button ng-hide="graph.editingTitle" class="pull-right btn btn-warning btn-xs" ng-click="deleteGraph(graph.id)" uib-tooltip="Delete graph" tooltip-placement="above"><span class="glyphicon glyphicon-trash"></span></button>
                                 </span>
                             </h4>
                         </div>
@@ -235,7 +235,7 @@
                                 </div>
                 
                                 <div ng-show="graph.type == 'gnuplot'">
-                                    <aa-collapsible-panel title="y-Axis Control" initial-collapsed="true" icon="glyphicon-object-align-bottom">
+                                    <aa-collapsible-panel title="y-Axis Control" icon="glyphicon-object-align-bottom">
                                         <table style="padding: 1px">
                                             <tr>
                                                 <th></th>
@@ -393,7 +393,7 @@
                                     </div>
                                 </div>
                                 <div ng-show="graph.type == 'dygraph'">
-                                    <aa-collapsible-panel title="Rendering" initial-collapsed="false" icon="glyphicon-stats">
+                                    <aa-collapsible-panel title="Rendering" icon="glyphicon-stats">
                                         <div>
                                             <input type="checkbox" id="interpolateGapsDygraph" ng-model="graph.dygraph.interpolateGaps" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                             <label for="interpolateGapsDygraph">Interpolate gaps?</label>
@@ -554,7 +554,7 @@
                                     </table>
                                 </div>
                                 <div ng-show="graph.type == 'heatmap'">
-                                    <aa-collapsible-panel title="Rendering" initial-collapsed="false" icon="glyphicon-stats">
+                                    <aa-collapsible-panel title="Rendering" icon="glyphicon-stats">
                                         <div>
                                             <input type="checkbox" id="excludeNegativeHeatmap" ng-model="graph.heatmap.excludeNegative" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                             <label for="excludeNegativeHeatmap">Squash -ve?</label>
@@ -722,12 +722,12 @@
             <div ng-controller="MetricControlCtrl" style="height: 100%; display: flex; flex-flow: column nowrap; justify-content: space-between; align-items: stretch" >
                 <div id="metric-control-panel-tree" style="border-width: 1px; padding: 2px; flex: 1 1 auto; flex-basis: 50%;  overflow-y: scroll" class="metric-control-panel standard-border">
                     <div>
-                        <input class="btn btn-primary btn-xs" type="button" value="+" ng-click="expandAll()" ng-show="expandAllVisible()" alt="Expand all nodes">
-                        <input class="btn btn-primary btn-xs" type="button" value="-" ng-click="collapseAll()" alt="Collapse all nodes">
-                        <input class="btn btn-primary btn-xs" type="button" value="F" ng-click="showHideFilterInput()" ng-show="treeFilterButtonVisible()" alt="Filter...">
-                        <input class="btn btn-primary btn-xs" type="button" value="R" ng-click="updateTree()" alt="Update tree from TSDB">
-                        <input class="btn btn-primary btn-xs" type="button" value="S" ng-click="showIgnoredPrefixes()" ng-show="showIgnoredPrefixesVisible()" alt="Show ignored prefixes">
-                        <input class="btn btn-primary btn-xs" type="button" value="H" ng-click="hideIgnoredPrefixes()" ng-show="hideIgnoredPrefixesVisible()" alt="Hide ignored prefixes">
+                        <input class="btn btn-primary btn-xs" type="button" value="+" ng-click="expandAll()" ng-show="expandAllVisible()" uib-tooltip="Expand all nodes" tooltip-placement="above">
+                        <input class="btn btn-primary btn-xs" type="button" value="-" ng-click="collapseAll()" uib-tooltip="Collapse all nodes" tooltip-placement="above">
+                        <input class="btn btn-primary btn-xs" type="button" value="F" ng-click="showHideFilterInput()" ng-show="treeFilterButtonVisible()" uib-tooltip="Filter..." tooltip-placement="above">
+                        <input class="btn btn-primary btn-xs" type="button" value="R" ng-click="updateTree()" uib-tooltip="Update tree from TSDB" tooltip-placement="above">
+                        <input class="btn btn-primary btn-xs" type="button" value="S" ng-click="showIgnoredPrefixes()" ng-show="showIgnoredPrefixesVisible()" uib-tooltip="Show ignored prefixes" tooltip-placement="above">
+                        <input class="btn btn-primary btn-xs" type="button" value="H" ng-click="hideIgnoredPrefixes()" ng-show="hideIgnoredPrefixesVisible()" uib-tooltip="Hide ignored prefixes" tooltip-placement="above">
                     </div>
                     <div ng-show="treeFilterVisible()">
                         <input type="text" ng-model="filter">
@@ -755,12 +755,12 @@
                             <option ng-repeat="metric in model.metrics track by metric.id" value="{{metric.id}}">{{metric.name}}</option>
                         </select>
                         <input type="text" id="metricControl_metricName"  style="width: 0; height: 0; color: rgba(0,0,0,0); background-color: rgba(0,0,0,0); border: none" value="{{currentMetricName()}}" />
-                        <button style="padding: 1px; vertical-align: top" class="btn btn-primary btn-xs glyphicon glyphicon-copy" ngclipboard data-clipboard-target="#metricControl_metricName" ng-disabled="currentMetricName() == null">
+                        <button style="padding: 1px; vertical-align: top" class="btn btn-primary btn-xs glyphicon glyphicon-copy" ngclipboard data-clipboard-target="#metricControl_metricName" ng-disabled="currentMetricName() == null" uib-tooltip="Copy metric name to clipboard" tooltip-placement="above">
                         </button> 
                     </div>
 
                     <div>
-                        <aa-collapsible-panel title="Query" initial-collapsed="false" icon="glyphicon-search">
+                        <aa-collapsible-panel title="Query" icon="glyphicon-search">
                             <div>
                                 <label for="metricControl_editMetric_aggregator">Aggregator</label>
                                 <select id="metricControl_editMetric_aggregator" ng-model="localModel.aggregator" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()">
@@ -814,7 +814,7 @@
                                 </table>
                             </div>
                         </aa-collapsible-panel>
-                        <aa-collapsible-panel title="Rendering" initial-collapsed="false" icon="glyphicon-stats">
+                        <aa-collapsible-panel title="Rendering" icon="glyphicon-stats">
                             <div>
                                 <label for="metricControl_editMetric_selectGraph">Graph</label>
                                 <select id="metricControl_editMetric_selectGraph" ng-model="localModel.graphId" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()">
@@ -845,7 +845,7 @@
                 <div id="metric-control-panel-buttons" class="standard-border" style="border-width: 1px; flex: none; padding: 2px">
                     <input type="button" class="btn btn-primary btn-xs" value="Cancel" ng-click="clearMetric()" ng-disabled="!clearButtonEnabled()">
                     <input type="button" class="btn btn-primary btn-xs" value="Add" ng-click="addMetric()" ng-show="addButtonVisible()" ng-disabled="!addButtonVisible()">
-                    <input type="button" class="btn btn-primary btn-xs" value="Delete" ng-click="deleteMetric()" ng-show="deleteButtonVisible()" ng-disabled="!deleteButtonVisible()">
+                    <input type="button" class="btn btn-warning btn-xs" value="Delete" ng-click="deleteMetric()" ng-show="deleteButtonVisible()" ng-disabled="!deleteButtonVisible()">
                     <input type="button" class="btn btn-primary btn-xs" value="Save" ng-click="saveMetric()" ng-show="saveButtonVisible()" ng-disabled="!saveButtonVisible()">
                 </div>
             </div>
