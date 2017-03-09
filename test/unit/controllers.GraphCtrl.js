@@ -25,11 +25,13 @@ describe('Aardvark controllers', function () {
         var rootScope, $httpBackend, scope;
         var globals, graphs, metricss;
         var configUpdateFunc;
+        var idGenerator;
 
-        beforeEach(inject(function ($rootScope, _$httpBackend_, $controller) {
+        beforeEach(inject(function ($rootScope, _$httpBackend_, $controller, _idGenerator_) {
             // hmm
             rootScope = $rootScope;
             $httpBackend = _$httpBackend_;
+            idGenerator = _idGenerator_;
             scope = $rootScope.$new();
             globals = [];
             graphs = [];
@@ -243,6 +245,30 @@ describe('Aardvark controllers', function () {
 
             expect(scope.grafanaExportText(not_exportable)).toEqualData("");
             expect(scope.grafanaExportText(exportable)).toEqualData("{}");
+        });
+        
+        it('should clone a graph and all associated metrics', function () {
+            var graph = { id: idGenerator.nextId(), type: "dygrapgh", title: "Graph 1"};
+            var metric1 = { id: idGenerator.nextId(), graphOptions: { graphId: graph.id }};
+            var metric2 = { id: "456", graphOptions: { graphId: graph.id }};
+            rootScope.model.global = {};
+            rootScope.model.graphs = [ graph ];
+            rootScope.model.metrics = [ metric1, metric2 ];
+            
+            scope.cloneGraph(graph);
+            
+            expect(rootScope.model.graphs.length).toEqualData(2);
+            expect(rootScope.model.metrics.length).toEqualData(4);
+            expect(rootScope.model.graphs[0].id == rootScope.model.graphs[1].id).toEqualData(false);
+            expect(rootScope.model.metrics[0].id == rootScope.model.metrics[2].id).toEqualData(false);
+            expect(rootScope.model.metrics[0].id == rootScope.model.metrics[3].id).toEqualData(false);
+            expect(rootScope.model.metrics[1].id == rootScope.model.metrics[2].id).toEqualData(false);
+            expect(rootScope.model.metrics[1].id == rootScope.model.metrics[3].id).toEqualData(false);
+            expect(rootScope.model.metrics[2].id == rootScope.model.metrics[3].id).toEqualData(false);
+            expect(rootScope.model.graphs[0].title).toEqualData("Graph 1");
+            expect(rootScope.model.graphs[1].title).toEqualData("Graph 2 (Clone of Graph 1)");
+            
+            
         });
     });
 });

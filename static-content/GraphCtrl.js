@@ -1,7 +1,7 @@
 /*
  * Graph rendering
  */
-aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal', 'tsdbClient', 'tsdbUtils', '$injector', 'deepUtils', function GraphCtrl($scope, $rootScope, $http, $uibModal, $tsdbClient, $tsdbUtils, $injector, deepUtils) {
+aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal', 'tsdbClient', 'tsdbUtils', '$injector', 'deepUtils', 'idGenerator', function GraphCtrl($scope, $rootScope, $http, $uibModal, $tsdbClient, $tsdbUtils, $injector, deepUtils, idGenerator) {
     
     $scope.renderedContent = {};
     $scope.renderErrors = {};
@@ -34,6 +34,24 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
 
     $scope.clearGraphRenderListeners = function() {
         $scope.renderListeners = {};
+    }
+    
+    $scope.cloneGraph = function(graph) {
+        var clone = deepUtils.deepClone(graph);
+        clone.id = idGenerator.nextId();
+        clone.title = "Graph "+($rootScope.model.graphs.length+1)+" (Clone of "+clone.title+")";
+        $rootScope.model.graphs.push(clone);
+        for (var m=0; m<$rootScope.model.metrics.length; m++) {
+            var metric = $rootScope.model.metrics[m];
+            var metricGraphId = metric.graphOptions.graphId;
+            if (metricGraphId == graph.id) {
+                var newMetric = deepUtils.deepClone(metric);
+                newMetric.id = idGenerator.nextId();
+                newMetric.graphOptions.graphId = clone.id;
+                $rootScope.model.metrics.push(newMetric);
+            }
+        }
+        $rootScope.$emit("modelUpdated");
     }
     
     $scope.tsdbExportLink = function(graph) {

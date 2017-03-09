@@ -639,6 +639,11 @@ aardvark.directive('tagFilterSelection', function() {
         // init internal copy
         $scope.globalDownsampling = $rootScope.model.global.globalDownsampling && true; // force to boolean
     }
+        
+    $rootScope.$on("modelUpdated", function(event,data) {
+        //console.log("rootScope.modelUpdated received, updating GraphControlCtrl model")
+        $scope.updateModel();
+    });
 
     // tell the main app controller to call us on any update of the config
     // it will call us if it's already loaded too
