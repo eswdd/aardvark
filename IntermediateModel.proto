@@ -60,12 +60,15 @@ message Heatmap {
   optional int32 valueFilterLowerBound = 2;
   optional int32 valueFilterUpperBound = 3;
   optional int32 colourScheme = 4 [ default = "RdYlGn" ];
-  
 }
 
 message Scatter {
   optional string xAxisRange = 1 [ default = "[:]" ];
   optional string yAxisRange = 2 [ default = "[:]" ];
+}
+
+message Horizon {
+  optional int32 sortMethod = 1 [ default = "name" ];
 }
 
 message Graph {
@@ -77,6 +80,7 @@ message Graph {
   optional Dygraph dygraph = 6;
   optional Heatmap heatmap = 7;
   optional Scatter scatter = 8;
+  optional Horizon horizon = 9;
 }
 
 message TagPair {

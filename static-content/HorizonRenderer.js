@@ -150,6 +150,111 @@ aardvark
                 tsdb_export_link: "",
                 grafana_export_text: ""
             };
+            ret.context = function() {
+                return cubism.context();
+            };
+            ret.d3render = function(renderContext, graph, context, cMetrics, divSelector) {
+
+                // remove old horizon charts
+                d3.select(divSelector)
+                    .selectAll(".horizon")
+                    .remove();
+                // remove everything else
+                d3.select(divSelector)
+                    .selectAll(".axis")
+                    .remove();
+                d3.select(divSelector)
+                    .selectAll(".rule")
+                    .remove();
+                d3.select(divSelector)
+                    .selectAll(".value")
+                    .remove();
+
+                var cubism_axisFormatSeconds = d3.time.format("%H:%M:%S"),
+                    cubism_axisFormatMinutes = d3.time.format("%H:%M"),
+                    cubism_axisFormatDays = d3.time.format("%B %d");
+
+                var axisFormat = context.step() < 6e4 ? cubism_axisFormatSeconds
+                    : context.step() < 864e5 ? cubism_axisFormatMinutes
+                    : cubism_axisFormatDays;
+
+                d3.select(divSelector)
+                    .selectAll(".axis")
+                    .data(["top", "bottom"])
+                    .enter()
+                    .append("div")
+                    .attr("id", function(d) {
+                        return "horizonAxis_" + d + "_" + graph.id;
+                    })
+                    .attr("class", function(d) {
+                        return d + " axis";
+                    })
+                    .each(function(d) {
+                        d3.select(this).call(context.axis().focusFormat(axisFormat).ticks(12).orient(d));
+                    });
+
+                context.on("focus", function(i) {
+                    d3.selectAll(".value").style("right", "10px");
+                });
+
+                var topAxisBox = d3.select("#horizonAxis_top_"+graph.id).node().getBoundingClientRect();
+                var bottomAxisBox = d3.select("#horizonAxis_bottom_"+graph.id).node().getBoundingClientRect();
+
+                var height = Math.floor(graph.graphHeight);
+                var topAxisHeight = topAxisBox.height;
+                var bottomAxisHeight = bottomAxisBox.height;
+                var totalAxesHeight = topAxisHeight + bottomAxisHeight;
+
+                var minLineHeight = 25;
+                var maxLineHeight = 60;
+
+                var perLineHeight = ((height - totalAxesHeight)/cMetrics.length)-2;
+                perLineHeight = Math.min(Math.max(perLineHeight,minLineHeight),maxLineHeight);
+                d3.select(divSelector).selectAll(".horizon")
+                    .data(cMetrics)
+                    .enter().insert("div", ".bottom")
+                    .attr("class", "horizon")
+                    .call(context.horizon().height(perLineHeight).format(d3.format(".2f")));
+
+                var leftOffsetContainer = {
+                    leftOffset: 0
+                }
+
+                // rendering of graphs doesn't change horizontal location
+                // NOTE: resizing of window does, but we don't try and handle that (yet)
+                var graphContentPanel = d3.select("#graph-content-panel").node().getBoundingClientRect();
+                var ruleLeft = graphContentPanel.left;
+                leftOffsetContainer.leftOffset = ruleLeft;
+                // now we can add rule safely as we know height as well
+                d3.select(divSelector).append("div")
+                    .attr("class", "rule")
+                    .attr("id","horizonRule_"+graph.id)
+                    .call(renderer.cubism_rule(context, leftOffsetContainer));
+                //                .call(context.rule());
+
+
+                var resizeFocusRule = function() {
+                    //var graphPanelBox = d3.select("#graph-content-panel").node().getBoundingClientRect();
+                    // top needs to be relative to the whole window
+                    var ruleTop = topAxisBox.top;
+                    var ruleHeight = totalAxesHeight + (perLineHeight * cMetrics.length);
+                    // and now we just go find the rule we added and set the top/height
+                    d3.select("#horizonRule_"+graph.id)
+                        .select(".line")
+                        .style("top", ruleTop+"px")
+                        .style("height",ruleHeight+"px")
+                        .style("bottom",null);
+                }
+
+                resizeFocusRule();
+
+                renderContext.addGraphRenderListener(function (graphId) {
+                    if (graphId != graph.id) {
+                        resizeFocusRule();
+                    }
+                });
+                
+            };
             ret.render = function(renderContext, config, global, graph, metrics) {
                 renderContext.renderMessages[graph.id] = "Loading...";
                 ret.tsdb_export_link = "";
@@ -168,7 +273,7 @@ aardvark
 
                 // cubism plots a pixel per step, so we need to calculate step size (we ignore downsampling time measure)
                 var width = Math.floor(graph.graphWidth);
-                var height = Math.floor(graph.graphHeight);
+                
                 var start = graphServices.tsdb_fromTimestampAsMoment(global);
                 var stop = graphServices.tsdb_toTimestampAsMoment(global);
                 var diff = moment.utc().diff(start);
@@ -220,12 +325,91 @@ aardvark
 
                     var interpolate = graph.horizon && graph.horizon.interpolateGaps;
                     var squash = graph.horizon && graph.horizon.squashNegative;
+                    var sortMethod = graph.horizon && graph.horizon.sortMethod ? graph.horizon.sortMethod : "name";
+                    
+                    // do sorting before we parse
+
+                    function reducer(individualSeries, initialFunction, reductionFunction) {
+                        if (individualSeries.length == 0) {
+                            return NaN;
+                        }
+                        var initial = initialFunction(individualSeries[0][1]);
+                        var i=1;
+                        for (; initial==null && i<individualSeries.length; i++) {
+                            initial = initialFunction(individualSeries[i][1]);
+                        }
+                        for (; i<individualSeries.length; i++) {
+                            if (individualSeries[i][1] != null) {
+                                initial = reductionFunction(initial, individualSeries[i][1]);
+                            }
+                        }
+                        return initial;
+                    }
+
+                    function avg(individualSeries) {
+                        return reducer(individualSeries, function(a) {return a}, function(a,b) {return a+b})  // sum
+                            / reducer(individualSeries, function(a) {return a==null?null:1}, function(a,_) {return a+1;}); // count
+                    }
+
+                    function preCacheSortParameters(allJson, f) {
+                        for (var i=0; i<allJson.length; i++) {
+                            var val = f(allJson[i].dps);
+                            allJson[i]._preCachedSortParameter = val;
+                        }
+                    }
+
+                    function compareStrings(a,b) {
+                        for (var pos=0; ; pos++) {
+                            if (a.length > pos && b.length > pos) {
+                                if (a.charAt(pos) < b.charAt(pos)) {
+                                    return -1;
+                                }
+                                if (a.charAt(pos) > b.charAt(pos)) {
+                                    return 1;
+                                }
+                            }
+                            else if (a.length > pos) {
+                                return 1;
+                            }
+                            else if (b.length > pos) {
+                                return -1;
+                            }
+                            else {
+                                return 0;
+                            }
+                        }
+                    }
+
+                    // sorting of responses
+                    switch (sortMethod) {
+                        case "min":
+                            preCacheSortParameters(json, function(series) {return reducer(series, function(a) {return a;}, Math.min)});
+                            json.sort(function(a,b) {return a._preCachedSortParameter- b._preCachedSortParameter});
+                            break;
+                        case "max":
+                            preCacheSortParameters(json, function(series) {return reducer(series, function(a) {return a;}, Math.max)});
+                            json.sort(function(a,b) {return a._preCachedSortParameter- b._preCachedSortParameter});
+                            break;
+                        case "avg":
+                            preCacheSortParameters(json, function(series) {return avg(series)});
+                            json.sort(function(a,b) {return a._preCachedSortParameter- b._preCachedSortParameter});
+                            break;
+                        // these are sorted later
+                        case "name":
+                        default:
+                            var sortFunction = function (a,b) {
+                                return compareStrings(graphServices.timeSeriesName(a),graphServices.timeSeriesName(b));
+                            };
+                            // default: by name
+                            json.sort(sortFunction);
+                    }
 
                     var parsed = renderer.cubism_parser(json, start, stepSize, stop, interpolate, squash); // array response
+                    
                     // construct cMetrics
                     var cMetrics = [];
 
-                    var context = cubism.context()
+                    var context = ret.context()
                         .serverDelay(diff)
                         .step(stepSize)
                         .size(width)
@@ -239,109 +423,12 @@ aardvark
                     }
 
 
-
                     for (var i=0; i<parsed.length; i++) {
                         var name = graphServices.timeSeriesName(json[i]);
                         addMetric(cMetrics, parsed[i], name);
                     }
-
-                    // remove old horizon charts
-                    d3.select(divSelector)
-                        .selectAll(".horizon")
-                        .remove();
-                    // remove everything else
-                    d3.select(divSelector)
-                        .selectAll(".axis")
-                        .remove();
-                    d3.select(divSelector)
-                        .selectAll(".rule")
-                        .remove();
-                    d3.select(divSelector)
-                        .selectAll(".value")
-                        .remove();
-
-                    var cubism_axisFormatSeconds = d3.time.format("%H:%M:%S"),
-                        cubism_axisFormatMinutes = d3.time.format("%H:%M"),
-                        cubism_axisFormatDays = d3.time.format("%B %d");
-
-                    var axisFormat = context.step() < 6e4 ? cubism_axisFormatSeconds
-                        : context.step() < 864e5 ? cubism_axisFormatMinutes
-                        : cubism_axisFormatDays;
-
-                    d3.select(divSelector)
-                        .selectAll(".axis")
-                        .data(["top", "bottom"])
-                        .enter()
-                        .append("div")
-                        .attr("id", function(d) {
-                            return "horizonAxis_" + d + "_" + graph.id;
-                        })
-                        .attr("class", function(d) {
-                            return d + " axis";
-                        })
-                        .each(function(d) {
-                            d3.select(this).call(context.axis().focusFormat(axisFormat).ticks(12).orient(d));
-                        });
-
-                    context.on("focus", function(i) {
-                        d3.selectAll(".value").style("right", "10px");
-                    });
-
-                    var topAxisBox = d3.select("#horizonAxis_top_"+graph.id).node().getBoundingClientRect();
-                    var bottomAxisBox = d3.select("#horizonAxis_bottom_"+graph.id).node().getBoundingClientRect();
-
-                    var topAxisHeight = topAxisBox.height;
-                    var bottomAxisHeight = bottomAxisBox.height;
-                    var totalAxesHeight = topAxisHeight + bottomAxisHeight;
-
-                    var minLineHeight = 25;
-                    var maxLineHeight = 60;
-
-                    var perLineHeight = ((height - totalAxesHeight)/cMetrics.length)-2;
-                    perLineHeight = Math.min(Math.max(perLineHeight,minLineHeight),maxLineHeight);
-                    d3.select(divSelector).selectAll(".horizon")
-                        .data(cMetrics)
-                        .enter().insert("div", ".bottom")
-                        .attr("class", "horizon")
-                        .call(context.horizon().height(perLineHeight).format(d3.format(".2f")));
-
-                    var leftOffsetContainer = {
-                        leftOffset: 0
-                    }
-
-                    // rendering of graphs doesn't change horizontal location
-                    // NOTE: resizing of window does, but we don't try and handle that (yet)
-                    var graphContentPanel = d3.select("#graph-content-panel").node().getBoundingClientRect();
-                    var ruleLeft = graphContentPanel.left;
-                    leftOffsetContainer.leftOffset = ruleLeft;
-                    // now we can add rule safely as we know height as well
-                    d3.select(divSelector).append("div")
-                        .attr("class", "rule")
-                        .attr("id","horizonRule_"+graph.id)
-                        .call(renderer.cubism_rule(context, leftOffsetContainer));
-                    //                .call(context.rule());
-
-
-                    var resizeFocusRule = function() {
-                        //var graphPanelBox = d3.select("#graph-content-panel").node().getBoundingClientRect();
-                        // top needs to be relative to the whole window
-                        var ruleTop = topAxisBox.top;
-                        var ruleHeight = totalAxesHeight + (perLineHeight * cMetrics.length);
-                        // and now we just go find the rule we added and set the top/height
-                        d3.select("#horizonRule_"+graph.id)
-                            .select(".line")
-                            .style("top", ruleTop+"px")
-                            .style("height",ruleHeight+"px")
-                            .style("bottom",null);
-                    }
-
-                    resizeFocusRule();
-
-                    renderContext.addGraphRenderListener(function (graphId) {
-                        if (graphId != graph.id) {
-                            resizeFocusRule();
-                        }
-                    });
+                    
+                    ret.d3render(renderContext, graph, context, cMetrics, divSelector);
 
                     var yAxisParams = {
                         squashNegative: squash

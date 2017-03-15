@@ -186,6 +186,11 @@ aardvark.controller('GraphControlCtrl', [ '$scope', '$rootScope', 'idGenerator',
         graph.dygraph.valueFilter.measure = measure;
         $scope.saveAndRenderGraphsIfAutoUpdate();
     }
+    
+    $scope.setHorizonSortMethod = function(graph, method) {
+        graph.horizon.sortMethod = method;
+        $scope.saveAndRenderGraphsIfAutoUpdate();
+    }
 
     $scope.loadModel = function(datum, renderIfUpdatesExist) {
         

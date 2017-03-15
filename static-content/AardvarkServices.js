@@ -441,6 +441,7 @@ aardvark
         var datumStyles = mapping.generateBiDiMapping(["relative","from","to"]);
         var heatmapStyles = mapping.generateBiDiMapping(["auto","week_day","day_hour"]);
         var heatmapColourSchemes = mapping.generateBiDiMapping(["RdYlGn","Gn","Bl","Rd"]);
+        var horizonSortMethods = mapping.generateBiDiMapping(["name","avg","min","max"]);
         var ProtoBuf = dcodeIO.ProtoBuf;
         var builder = ProtoBuf.loadJson(intermediateModelJson);
         // helper data structures
@@ -731,6 +732,10 @@ aardvark
                                 graph.horizon.interpolateGaps,
                                 graph.horizon.squashNegative
                             ]);
+                            intermediateGraph.horizon = {};
+                            if (graph.horizon.sortMethod != null && graph.horizon.sortMethod != "") {
+                                intermediateGraph.horizon.sortMethod = horizonSortMethods.valueToId(graph.horizon.sortMethod);
+                            }
                         }
                         break;
                     case "dygraph":
@@ -1081,6 +1086,10 @@ aardvark
                         graph.horizon = {};
                         graph.horizon.interpolateGaps = horizonFlags[0];
                         graph.horizon.squashNegative = horizonFlags[1];
+                        // added in 1.5.0
+                        if (intermediateGraph.horizon != null) {
+                            graph.horizon.sortMethod = horizonSortMethods.idToValue(intermediateGraph.horizon.sortMethod);
+                        }
                         break;
                     case "dygraph":
                         var dygraphFlags = blitting.fromBlittedInt(intermediateGraph.flags, [true, false, false, true, false, false, false, false, true, false, false, false, false]);

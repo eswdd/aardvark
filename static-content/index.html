@@ -391,6 +391,20 @@
                                         <input type="checkbox" id="squashNegativeHorizon" ng-model="graph.horizon.squashNegative" ng-change="saveAndRenderGraphsIfAutoUpdate()" aardvark-enter="saveAndRenderGraphs()" />
                                         <label for="squashNegativeHorizon">Squash -ve y?</label>
                                     </div>
+                                    <div>
+                                        Sort by:
+                                        <div class="btn-group btn-group-xs" uib-dropdown is-open="wibble8" style="display: inline-block">
+                                            <button style="width: 80px; text-align: left" id="single-button5" type="button" class="btn btn-primary btn-xs" uib-dropdown-toggle ng-disabled="disabled">
+                                                <span>{{graph.horizon.sortMethod}}</span> <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="single-button5">
+                                                <li role="menuitem"><a ng-click="setHorizonSortMethod(graph, 'name')">Name</a></li>
+                                                <li role="menuitem"><a ng-click="setHorizonSortMethod(graph, 'avg')">Mean value</a></li>
+                                                <li role="menuitem"><a ng-click="setHorizonSortMethod(graph, 'min')">Min value</a></li>
+                                                <li role="menuitem"><a ng-click="setHorizonSortMethod(graph, 'max')">Max value</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div ng-show="graph.type == 'dygraph'">
                                     <aa-collapsible-panel title="Rendering" icon="glyphicon-stats">
@@ -472,10 +486,10 @@
                                     <aa-collapsible-panel title="Filtering" initial-collapsed="true" icon="glyphicon-filter">
                                         <div>
                                             <div class="btn-group btn-group-xs" uib-dropdown is-open="wibble" style="display: inline-block">
-                                                <button style="width: 60px; text-align: left" id="single-button" type="button" class="btn btn-primary btn-xs" uib-dropdown-toggle ng-disabled="disabled">
+                                                <button style="width: 60px; text-align: left" id="single-button1" type="button" class="btn btn-primary btn-xs" uib-dropdown-toggle ng-disabled="disabled">
                                                     <span>{{graph.dygraph.countFilter.end}}</span> <span class="caret"></span>
                                                 </button>
-                                                <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="single-button">
+                                                <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="single-button1">
                                                     <li role="menuitem"><a ng-click="setCountFilterEnd(graph, 'top')">top</a></li>
                                                     <li role="menuitem"><a ng-click="setCountFilterEnd(graph, 'bottom')">bottom</a></li>
                                                 </ul>
@@ -498,7 +512,7 @@
                                         <div style="padding-top: 2px">
                                             <input class="form-control form-control-xs form-control-inline" type="text" style="width: 40px" ng-model="graph.dygraph.valueFilter.lowerBound" />
                                             &lt;=
-                                            <div class="btn-group btn-group-xs" uib-dropdown is-open="wibble3" style="display: inline-block">
+                                            <div class="btn-group btn-group-xs" uib-dropdown is-open="wibble7" style="display: inline-block">
                                                 <button style="width: 50px; text-align: left" id="single-button3" type="button" class="btn btn-primary btn-xs" uib-dropdown-toggle ng-disabled="disabled">
                                                     <span>{{graph.dygraph.valueFilter.measure}}</span> <span class="caret"></span>
                                                 </button>

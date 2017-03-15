@@ -27,6 +27,13 @@ describe('Aardvark renderers', function () {
         var renderer, rendererInstance;
         var renderContext, config;
         var renderDiv, graphPanel;
+        
+        var d3render_orig;
+        var d3render_renderContext;
+        var d3render_graph;
+        var d3render_context;
+        var d3render_cMetrics;
+        var d3render_divSelector;
 
         beforeEach(inject(function (HorizonRenderer, GraphServices, _$httpBackend_) {
             // hmm
@@ -59,14 +66,268 @@ describe('Aardvark renderers', function () {
             expect(rendererInstance.tsdb_export_link).toEqualData("");
             // memory from a previous query
             rendererInstance.tsdb_export_link = "http://tsdb:4242/oldquery";
+            d3render_orig = rendererInstance.d3render;
+            rendererInstance.d3render = function(renderContext, graph, context, cMetrics, divSelector) {
+                d3render_renderContext = renderContext;
+                d3render_graph = graph;
+                d3render_context = context;
+                d3render_cMetrics = cMetrics;
+                d3render_divSelector = divSelector;
+            }
         }));
+        
+        var mockContext;
+        var mockUpContext = function() {
+            mockContext = {
+                _serverDelay: null,
+                _stepSize: null,
+                _size: null,
+                _metricKeys: [],
+                _metrics: {}
+            };
+            mockContext.serverDelay = function(diff) {
+                mockContext._serverDelay = diff;
+                return mockContext;
+            }
+            mockContext.step = function(stepSize) {
+                mockContext._step = stepSize;
+                return mockContext;
+            }
+            mockContext.size = function(width) {
+                mockContext._size = width;
+                return mockContext;
+            }
+            mockContext.stop = function() {
+                return mockContext;
+            }
+            // getDataFn(start, stop, step, callback)
+            mockContext.metric = function(getDataFn, name) {
+                var m = {
+                    fn: getDataFn,
+                    name: name,
+                    toString: function() { return name; }
+                };
+                mockContext._metricKeys.push(name);
+                mockContext._metrics[name] = m;
+                return m;
+            }
+            mockContext.metricData = function(name) {
+                var d;
+                var callback = function(_, data) {
+                    d = data;
+                }
+                mockContext._metrics[name].fn(0/*start*/, 0/*stop*/, mockContext._step, callback);
+                return d;
+            }
+            rendererInstance.context = function() {
+                return mockContext;
+            };
+        }
         
         afterEach(function() {
             renderDiv.remove();
             renderDiv = null;
             graphPanel.remove();
             graphPanel = null;
-        })
+        });
+        
+        it('should render correctly when using a mocked cubism library', function() {
+            mockUpContext();
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+//
+            var global = { absoluteTimeSpecification: true, fromDate: "2017/01/01", fromTime: "00:00:00", toDate: "2017/01/01", toTime: "00:05:00", autoReload: false };
+            var graph = { id: "abc", graphWidth: 25, graphHeight: 100 };
+            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
+
+            rendererInstance.render(renderContext, config, global, graph, metrics);
+
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2017/01/01 00:00:00&end=2017/01/01 00:05:00&m=sum:20s-avg:metric1&ms=true&arrays=true&show_query=true").respond([
+                {metric: "metric1", tags: {}, dps:[
+                    [1483228800000,  10],
+                    [1483228820000,  20],
+                    [1483228840000,  30],
+                    [1483228860000,  40],
+                    [1483228880000,  50],
+                    [1483228900000,  60],
+                    [1483228920000,  70],
+                    [1483228940000,  80],
+                    [1483229100000, 100]
+                ]}
+            ]);
+            $httpBackend.flush();
+            
+            expect(mockContext._step).toEqualData(20000);
+            expect(mockContext._size).toEqualData(15);
+            expect(mockContext._metricKeys).toEqualData(["metric1"]);
+            expect(mockContext._metrics.hasOwnProperty("metric1")).toEqualData(true);
+            expect(mockContext.metricData("metric1")).toEqualData([10,20,30,40,50,60,70,80,null,null,null,null,null,null,null,100]);
+        });
+        
+        it('should order metrics by name by default', function() {
+            mockUpContext();
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+//
+            var global = { absoluteTimeSpecification: true, fromDate: "2017/01/01", fromTime: "00:00:00", toDate: "2017/01/01", toTime: "00:05:00", autoReload: false };
+            var graph = { id: "abc", graphWidth: 25, graphHeight: 100 };
+            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] }
+                           ,{ id: "123", name:"metric2", graphOptions: {aggregator: "sum"}, tags: [{name:"host",value:"*",groupBy:true}] }
+                           ,{ id: "123", name:"metric3", graphOptions: {aggregator: "sum"}, tags: [] }];
+
+            rendererInstance.render(renderContext, config, global, graph, metrics);
+
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2017/01/01 00:00:00&end=2017/01/01 00:05:00&m=sum:20s-avg:metric1&m=sum:20s-avg:metric2{host=*}&m=sum:20s-avg:metric3&ms=true&arrays=true&show_query=true").respond([
+                {metric: "metric1", tags: {}, dps:[
+                    [1483228800000,  10],
+                    [1483229100000, 100]
+                ]}
+                ,{metric: "metric3", tags: {}, dps:[
+                    [1483228800000,  10],
+                    [1483229100000, 100]
+                ]}
+                ,{metric: "metric2", tags: {host:"host2"}, dps:[
+                    [1483228800000,  10],
+                    [1483229100000, 100]
+                ]}
+                ,{metric: "metric2", tags: {host:"host1"}, dps:[
+                    [1483228800000,  10],
+                    [1483229100000, 100]
+                ]}
+            ]);
+            $httpBackend.flush();
+            
+            expect(d3render_cMetrics.length).toEqualData(4);
+            expect(d3render_cMetrics[0].name).toEqualData("metric1");
+            expect(d3render_cMetrics[1].name).toEqualData("metric2{host=host1}");
+            expect(d3render_cMetrics[2].name).toEqualData("metric2{host=host2}");
+            expect(d3render_cMetrics[3].name).toEqualData("metric3");
+        });
+        
+        it('should order metrics by min value', function() {
+            mockUpContext();
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+//
+            var global = { absoluteTimeSpecification: true, fromDate: "2017/01/01", fromTime: "00:00:00", toDate: "2017/01/01", toTime: "00:05:00", autoReload: false };
+            var graph = { id: "abc", graphWidth: 25, graphHeight: 100, horizon: { sortMethod: "min" } };
+            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] }
+                           ,{ id: "123", name:"metric2", graphOptions: {aggregator: "sum"}, tags: [{name:"host",value:"*",groupBy:true}] }
+                           ,{ id: "123", name:"metric3", graphOptions: {aggregator: "sum"}, tags: [] }];
+
+            rendererInstance.render(renderContext, config, global, graph, metrics);
+
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2017/01/01 00:00:00&end=2017/01/01 00:05:00&m=sum:20s-avg:metric1&m=sum:20s-avg:metric2{host=*}&m=sum:20s-avg:metric3&ms=true&arrays=true&show_query=true").respond([
+                {metric: "metric1", tags: {}, dps:[
+                    [1483228800000,  40],
+                    [1483229100000, 100]
+                ]}
+                ,{metric: "metric2", tags: {host:"host1"}, dps:[
+                    [1483228800000,  20],
+                    [1483229100000, 100]
+                ]}
+                ,{metric: "metric2", tags: {host:"host2"}, dps:[
+                    [1483228800000,  30],
+                    [1483229100000, 100]
+                ]}
+                ,{metric: "metric3", tags: {}, dps:[
+                    [1483228800000,  10],
+                    [1483229100000, 100]
+                ]}
+            ]);
+            $httpBackend.flush();
+            
+            expect(d3render_cMetrics.length).toEqualData(4);
+            expect(d3render_cMetrics[0].name).toEqualData("metric3");
+            expect(d3render_cMetrics[1].name).toEqualData("metric2{host=host1}");
+            expect(d3render_cMetrics[2].name).toEqualData("metric2{host=host2}");
+            expect(d3render_cMetrics[3].name).toEqualData("metric1");
+        });
+        
+        it('should order metrics by max value', function() {
+            mockUpContext();
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+//
+            var global = { absoluteTimeSpecification: true, fromDate: "2017/01/01", fromTime: "00:00:00", toDate: "2017/01/01", toTime: "00:05:00", autoReload: false };
+            var graph = { id: "abc", graphWidth: 25, graphHeight: 100, horizon: { sortMethod: "max" } };
+            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] }
+                           ,{ id: "123", name:"metric2", graphOptions: {aggregator: "sum"}, tags: [{name:"host",value:"*",groupBy:true}] }
+                           ,{ id: "123", name:"metric3", graphOptions: {aggregator: "sum"}, tags: [] }];
+
+            rendererInstance.render(renderContext, config, global, graph, metrics);
+
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2017/01/01 00:00:00&end=2017/01/01 00:05:00&m=sum:20s-avg:metric1&m=sum:20s-avg:metric2{host=*}&m=sum:20s-avg:metric3&ms=true&arrays=true&show_query=true").respond([
+                {metric: "metric1", tags: {}, dps:[
+                    [1483228800000,  10],
+                    [1483229100000, 150]
+                ]}
+                ,{metric: "metric2", tags: {host:"host1"}, dps:[
+                    [1483228800000,  10],
+                    [1483229100000, 100]
+                ]}
+                ,{metric: "metric2", tags: {host:"host2"}, dps:[
+                    [1483228800000,  10],
+                    [1483229100000, 130]
+                ]}
+                ,{metric: "metric3", tags: {}, dps:[
+                    [1483228800000,  10],
+                    [1483229100000, 110]
+                ]}
+            ]);
+            $httpBackend.flush();
+            
+            expect(d3render_cMetrics.length).toEqualData(4);
+            expect(d3render_cMetrics[0].name).toEqualData("metric2{host=host1}");
+            expect(d3render_cMetrics[1].name).toEqualData("metric3");
+            expect(d3render_cMetrics[2].name).toEqualData("metric2{host=host2}");
+            expect(d3render_cMetrics[3].name).toEqualData("metric1");
+        });
+        
+        it('should order metrics by avg value', function() {
+            mockUpContext();
+            renderContext.renderedContent = {};
+            renderContext.renderErrors = {};
+            renderContext.renderWarnings = {};
+//
+            var global = { absoluteTimeSpecification: true, fromDate: "2017/01/01", fromTime: "00:00:00", toDate: "2017/01/01", toTime: "00:05:00", autoReload: false };
+            var graph = { id: "abc", graphWidth: 25, graphHeight: 100, horizon: { sortMethod: "avg" } };
+            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] }
+                           ,{ id: "123", name:"metric2", graphOptions: {aggregator: "sum"}, tags: [{name:"host",value:"*",groupBy:true}] }
+                           ,{ id: "123", name:"metric3", graphOptions: {aggregator: "sum"}, tags: [] }];
+
+            rendererInstance.render(renderContext, config, global, graph, metrics);
+
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2017/01/01 00:00:00&end=2017/01/01 00:05:00&m=sum:20s-avg:metric1&m=sum:20s-avg:metric2{host=*}&m=sum:20s-avg:metric3&ms=true&arrays=true&show_query=true").respond([
+                {metric: "metric1", tags: {}, dps:[
+                    [1483228800000, 10],
+                    [1483229100000, 90] // 40
+                ]}
+                ,{metric: "metric2", tags: {host:"host1"}, dps:[
+                    [1483228800000, 30],
+                    [1483229100000, 90] // 60 
+                ]}
+                ,{metric: "metric2", tags: {host:"host2"}, dps:[
+                    [1483228800000, 20],
+                    [1483229100000, 40] // 30
+                ]}
+                ,{metric: "metric3", tags: {}, dps:[
+                    [1483228800000, 40],
+                    [1483229100000, 60] // 50
+                ]}
+            ]);
+            $httpBackend.flush();
+            
+            expect(d3render_cMetrics.length).toEqualData(4);
+            expect(d3render_cMetrics[0].name).toEqualData("metric2{host=host2}");
+            expect(d3render_cMetrics[1].name).toEqualData("metric1");
+            expect(d3render_cMetrics[2].name).toEqualData("metric3");
+            expect(d3render_cMetrics[3].name).toEqualData("metric2{host=host1}");
+        });
 
         it('should report an error when trying to render with horizon and no start time', function() {
             renderContext.renderedContent = {};
