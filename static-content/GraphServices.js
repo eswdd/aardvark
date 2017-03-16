@@ -1,5 +1,5 @@
 aardvark
-    .factory('GraphServices', [ 'tsdbClient', function($tsdbClient) {
+    .factory('GraphServices', [ 'tsdbClient', '$http', function($tsdbClient, $http) {
 
         var ret = {};
 
@@ -547,5 +547,159 @@ aardvark
             g.setAnnotations(annotations);
         }
         
+        ret.perform_queries = function(renderContext, config, global, graph, metrics, options, datum) {
+
+            var constructUrls = function(queryStringFn, datum) {
+                // split metrics up so that we end up with only a single instance of each metric in each set of queries
+                var metricIndexes = {};
+                var maxCount = 0;
+                for (var m=0; m<metrics.length; m++) {
+                    if (!metricIndexes.hasOwnProperty(metrics[m].name)) {
+                        metricIndexes[metrics[m].name] = [];
+                    }
+                    metricIndexes[metrics[m].name].push(m);
+                    maxCount = Math.max(maxCount, metricIndexes[metrics[m].name].length);
+                }
+                var seperatedMetricsDicts = [];
+                var seperatedMetricsArrays = [];
+                for (var i=0; i<maxCount; i++) {
+                    var dict = {};
+                    var arr = [];
+                    for (var metricName in metricIndexes) {
+                        if (metricIndexes.hasOwnProperty(metricName)) {
+                            if (metricIndexes[metricName].length > i) {
+                                var metric = metrics[metricIndexes[metricName][i]];
+                                dict[metricName] = metric;
+                                arr.push(metric)
+                            }
+                        }
+                    }
+                    seperatedMetricsDicts.push(dict);
+                    seperatedMetricsArrays.push(arr);
+                }
+
+                var ret = [];
+                for (var i=0; i<maxCount; i++) {
+
+                    var url = config.tsdbBaseReadUrl+"/api/query?";
+
+                    url += queryStringFn(renderContext, global, graph, seperatedMetricsArrays[i], null/*perLineFn*/, datum, options.downsampleOverrideFn, false/*noIgnore*/);
+
+                    if (options.supports_annotations && (options.annotations || options.globalAnnotations)) {
+                        url += "&show_tsuids=true";
+                        if (options.globalAnnotations) {
+                            url += "&global_annotations=true";
+                        }
+                    }
+                    else {
+                        url += "&no_annotations=true";
+                    }
+
+                    url += "&ms=true";
+                    // todo: put this after show query append when we don't have renderer tests expecting http calls
+                    if (options.require_arrays) {
+                        url += "&arrays=true";
+                    }
+                    url += "&show_query=true";
+                    ret.push({metrics: seperatedMetricsDicts[i], url: url});
+                }
+                return ret;
+            }
+
+            var mainJson = null;
+            var baselineJson = null;
+            var errorResponse = false;
+            
+            var urls = constructUrls(ret.tsdb_queryString, datum);
+            var baselineUrls = global.baselining && options.supports_baselining ? constructUrls(ret.tsdb_queryStringForBaseline, datum) : null;
+            var expectedNormalResponses = urls.length;
+            var receivedNormalResponses = 0;
+            var expectedBaselineResponses = global.baselining && options.supports_baselining ? urls.length : 0;
+            var receivedBaselineResponses = 0;
+
+            var mainJsons = [];
+            var baselineJsons = [];
+
+            var mergeJsons = function(jsons) {
+                var ret = [];
+                for (var j=0; j<jsons.length; j++) {
+                    var metricsAndJson = jsons[j];
+                    var json = metricsAndJson.response;
+                    var metricsByMetric = metricsAndJson.metrics;
+                    for (var i=0; i<json.length; i++) {
+                        var metric = json[i].metric;
+                        json[i].aardvark_metric = metricsByMetric[metric];
+                        ret.push(json[i]);
+                    }
+                }
+                return ret;
+            };
+
+            var doMain = function(metricsAndUrl) {
+                $http.get(metricsAndUrl.url, {withCredentials:config.authenticatedReads}).success(function (json) {
+                    if (errorResponse) {
+                        return;
+                    }
+                    mainJsons.push({metrics:metricsAndUrl.metrics, response: json});
+                    receivedNormalResponses++;
+                    if (expectedNormalResponses == receivedNormalResponses) {
+                        //console.log("got all my responses")
+                        mainJson = mergeJsons(mainJsons);
+                        if (expectedBaselineResponses == receivedBaselineResponses) {
+                            options.processJson(mainJson, baselineJson);
+                        }
+                    }
+                    // else wait for baseline data
+                }).error(function (arg) {
+                        renderContext.renderMessages[graph.id] = "Error loading data: "+arg;
+                        errorResponse = true;
+                        options.errorResponse();
+                        return;
+                    });
+
+            }
+            var doBaseline = function(metricsAndUrl) {
+                $http.get(metricsAndUrl.url, {withCredentials:config.authenticatedReads}).success(function (json) {
+                    if (errorResponse) {
+                        return;
+                    }
+                    baselineJsons.push({metrics:metricsAndUrl.metrics, response: json});
+                    receivedBaselineResponses++;
+                    if (expectedBaselineResponses == receivedBaselineResponses) {
+                        baselineJson = mergeJsons(baselineJsons);
+                        if (expectedNormalResponses == receivedNormalResponses) {
+                            options.processJson(mainJson, baselineJson);
+                        }
+                    }
+                    // else wait for baseline data
+                }).error(function (arg) {
+                        renderContext.renderMessages[graph.id] = "Error loading data: "+arg;
+                        errorResponse = true;
+                        options.errorResponse();
+                        return;
+                    });
+
+            }
+
+            for (var u=0; u<urls.length; u++) {
+                doMain(urls[u]);
+            }
+
+            if (global.baselining && options.supports_baselining) {
+                for (var u=0; u<baselineUrls.length; u++) {
+                    doBaseline(baselineUrls[u]);
+                }
+            }
+        }
+        /*
+        perform_queries_config = {
+            supports_annotations: false,
+            supports_baselining: false,
+            annotations: false,
+            globalAnnotations: false,
+            processJson: function(json) {},
+            errorResponse: function(json) {}
+        }
+        */
         return ret;
     }]);

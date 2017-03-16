@@ -160,7 +160,7 @@ describe('Aardvark renderers', function () {
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } }, 
                             { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } } ];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&show_query=true').respond([
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
                 {
                     metric: "metric1", tags: {}, dps:{
                         1234567811000: 11,
@@ -169,10 +169,7 @@ describe('Aardvark renderers', function () {
                         1234567814000: 41,
                         1234567815000: 51
                     }
-                }
-            ]);
-
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=2&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
+                },
                 {
                     metric: "metric2", tags: {}, dps:{
                         1234567811000: 10,
@@ -231,7 +228,7 @@ describe('Aardvark renderers', function () {
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } }, 
                             { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } } ];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&show_query=true').respond([
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
                 {
                     metric: "metric1", tags: {}, dps:{
                         1234567811000: 11,
@@ -240,10 +237,7 @@ describe('Aardvark renderers', function () {
                         1234567814000: 41,
                         1234567815000: 51
                     }
-                }
-            ]);
-
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=2&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
+                },
                 {
                     metric: "metric2", tags: {}, dps:{
                         1234567811000: 10,
@@ -302,27 +296,24 @@ describe('Aardvark renderers', function () {
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } } ];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&show_query=true').respond([
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
                 {
                     metric: "metric1", tags: {}, dps:{
-                    1234567811000: 11,
-                    1234567812000: 21,
-                    1234567813000: 31,
-                    1234567814000: 41,
-                    1234567815000: 51
-                }
-                }
-            ]);
-
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=2&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
+                        1234567811000: 11,
+                        1234567812000: 21,
+                        1234567813000: 31,
+                        1234567814000: 41,
+                        1234567815000: 51
+                    }
+                },
                 {
                     metric: "metric2", tags: {}, dps:{
-                    1234567811000: 10,
-                    1234567812000: 20,
-                    1234567813000: 30,
-                    1234567814000: 40,
-                    1234567815000: 50
-                }
+                        1234567811000: 10,
+                        1234567812000: 20,
+                        1234567813000: 30,
+                        1234567814000: 40,
+                        1234567815000: 50
+                    }
                 }
             ]);
 
@@ -377,27 +368,24 @@ describe('Aardvark renderers', function () {
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } } ];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&show_query=true').respond([
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
                 {
                     metric: "metric1", tags: {}, dps:{
-                    1234567811000: 11,
-                    1234567812000: 21,
-                    1234567813000: 31,
-                    1234567814000: 41,
-                    1234567815000: 51
-                }
-                }
-            ]);
-
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=2&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
+                        1234567811000: 11,
+                        1234567812000: 21,
+                        1234567813000: 31,
+                        1234567814000: 41,
+                        1234567815000: 51
+                    }
+                },
                 {
                     metric: "metric2", tags: {}, dps:{
-                    1234567811000: 10,
-                    1234567812000: 20,
-                    1234567813000: 30,
-                    1234567814000: 40,
-                    1234567815000: 50
-                }
+                        1234567811000: 10,
+                        1234567812000: 20,
+                        1234567813000: 30,
+                        1234567814000: 40,
+                        1234567815000: 50
+                    }
                 }
             ]);
 
@@ -452,27 +440,28 @@ describe('Aardvark renderers', function () {
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } } ];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&show_query=true').respond([
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
                 {
-                    metric: "metric1", tags: {}, dps:{
-                    1234567811000: 11,
-                    1234567812000: 21,
-                    1234567813000: 31,
-                    1234567814000: 41,
-                    1234567815000: 51
-                }
-                }
-            ]);
-
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=2&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
+                    metric: "metric1", 
+                    tags: {}, 
+                    dps:{
+                        1234567811000: 11,
+                        1234567812000: 21,
+                        1234567813000: 31,
+                        1234567814000: 41,
+                        1234567815000: 51
+                    }
+                },
                 {
-                    metric: "metric2", tags: {}, dps:{
-                    1234567811000: 10,
-                    1234567812000: 20,
-                    1234567813000: 30,
-                    1234567814000: 40,
-                    1234567815000: 50
-                }
+                    metric: "metric2", 
+                    tags: {}, 
+                    dps:{
+                        1234567811000: 10,
+                        1234567812000: 20,
+                        1234567813000: 30,
+                        1234567814000: 40,
+                        1234567815000: 50
+                    }
                 }
             ]);
 
@@ -528,27 +517,24 @@ describe('Aardvark renderers', function () {
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } } ];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&show_query=true').respond([
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
                 {
                     metric: "metric1", tags: {}, dps:{
-                    1234567811000: 11,
-                    1234567812000: 21,
-                    1234567813000: 31,
-                    1234567814000: 41,
-                    1234567815000: 51
-                }
-                }
-            ]);
-
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=2&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
+                        1234567811000: 11,
+                        1234567812000: 21,
+                        1234567813000: 31,
+                        1234567814000: 41,
+                        1234567815000: 51
+                    }
+                },
                 {
                     metric: "metric2", tags: {}, dps:{
-                    1234567811000: 10,
-                    1234567812000: 20,
-                    1234567813000: 30,
-                    1234567814000: 40,
-                    1234567815000: 50
-                }
+                        1234567811000: 10,
+                        1234567812000: 20,
+                        1234567813000: 30,
+                        1234567814000: 40,
+                        1234567815000: 50
+                    }
                 }
             ]);
 
@@ -602,7 +588,7 @@ describe('Aardvark renderers', function () {
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } } ];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&show_query=true').respond([
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
                 {
                     metric: "metric1", tags: {}, dps:{
                         1234567811000: 11,
@@ -611,10 +597,7 @@ describe('Aardvark renderers', function () {
                         1234567814000: 41,
                         1234567815000: 51
                     }
-                }
-            ]);
-
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=2&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
+                },
                 {
                     metric: "metric2", tags: {}, dps:{
                         1234567811000: 10,
@@ -667,7 +650,7 @@ describe('Aardvark renderers', function () {
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } } ];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&show_query=true').respond([
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
                 {
                     metric: "metric1", tags: {}, dps:{
                         1234567811000: 11,
@@ -676,10 +659,7 @@ describe('Aardvark renderers', function () {
                         1234567814000: 41,
                         1234567815000: 51
                     }
-                }
-            ]);
-
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=2&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
+                },
                 {
                     metric: "metric2", tags: {}, dps:{
                         1234567811000: 10,
@@ -733,7 +713,7 @@ describe('Aardvark renderers', function () {
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } } ];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&show_query=true').respond([
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
                 {
                     metric: "metric1", tags: {}, dps:{
                         1234567811000: 11,
@@ -742,10 +722,7 @@ describe('Aardvark renderers', function () {
                         1234567814000: 41,
                         1234567815000: 51
                     }
-                }
-            ]);
-
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=2&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
+                },
                 {
                     metric: "metric2", tags: {}, dps:{
                         1234567811000: 10,
@@ -894,7 +871,7 @@ describe('Aardvark renderers', function () {
             var metrics = [ { id: "123", name: "metric1", tags: [{name:"host",value:"*",groupBy:true}], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } },
                 { id: "124", name: "metric2", tags: [{name:"host",value:"*",groupBy:true}], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } } ];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1{host=*}&no_annotations=true&ms=true&show_query=true').respond([
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1{host=*}&m=sum:metric2{host=*}&no_annotations=true&ms=true&show_query=true').respond([
                 {
                     metric: "metric1", tags: {host:"host1"}, dps:{
                         1234567811000: 11,
@@ -912,10 +889,7 @@ describe('Aardvark renderers', function () {
                         1234567814000: 42,
                         1234567815000: 52
                     }
-                }
-            ]);
-
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=2&m=sum:metric2{host=*}&no_annotations=true&ms=true&show_query=true').respond([
+                },
                 {
                     metric: "metric2", tags: {host:"host1"}, dps:{
                         1234567811000: 10,
@@ -988,7 +962,7 @@ describe('Aardvark renderers', function () {
             var metrics = [ { id: "123", name: "metric1", tags: [{name:"host",value:"*",groupBy:true}], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } },
                 { id: "124", name: "metric2", tags: [{name:"host",value:"*",groupBy:true}], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } } ];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1{host=*}&no_annotations=true&ms=true&show_query=true').respond([
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1{host=*}&m=sum:metric2{host=*}&no_annotations=true&ms=true&show_query=true').respond([
                 {
                     metric: "metric1", tags: {host:"host1"}, dps:{
                         1234567811000: 11,
@@ -1015,10 +989,7 @@ describe('Aardvark renderers', function () {
                         1234567814000: 44,
                         1234567815000: 54
                     }
-                }
-            ]);
-
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=2&m=sum:metric2{host=*}&no_annotations=true&ms=true&show_query=true').respond([
+                },
                 {
                     metric: "metric2", tags: {host:"host1"}, dps:{
                         1234567811000: 10,
@@ -1100,7 +1071,7 @@ describe('Aardvark renderers', function () {
             var metrics = [ { id: "123", name: "metric1", tags: [{name:"host",value:"*",groupBy:true},{name:"type",value:"*",groupBy:true}], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } },
                 { id: "124", name: "metric2", tags: [{name:"host",value:"*",groupBy:true},{name:"type",value:"*",groupBy:true}], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } } ];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1{host=*,type=*}&no_annotations=true&ms=true&show_query=true').respond([
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1{host=*,type=*}&m=sum:metric2{host=*,type=*}&no_annotations=true&ms=true&show_query=true').respond([
                 {
                     metric: "metric1", tags: {host:"host1", type:"type1"}, dps:{
                         1234567811000: 11,
@@ -1136,10 +1107,7 @@ describe('Aardvark renderers', function () {
                         1234567814000: 45,
                         1234567815000: 55
                     }
-                }
-            ]);
-
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=2&m=sum:metric2{host=*,type=*}&no_annotations=true&ms=true&show_query=true').respond([
+                },
                 {
                     metric: "metric2", tags: {host:"host1", type: "type1"}, dps:{
                         1234567811000: 10,
@@ -1246,7 +1214,7 @@ describe('Aardvark renderers', function () {
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } } ];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&show_query=true').respond([
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
                 {
                     metric: "metric1", tags: {}, dps:{
                         1234567811000: 11,
@@ -1255,10 +1223,7 @@ describe('Aardvark renderers', function () {
                         1234567814000: 41,
                         1234567815000: 51
                     }
-                }
-            ]);
-
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=2&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
+                },
                 {
                     metric: "metric2", tags: {}, dps:{
                         1234567811000: 10,
@@ -1302,7 +1267,7 @@ describe('Aardvark renderers', function () {
             var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } },
                 { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", scatter: {} } } ];
 
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&show_query=true').respond([
+            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
                 {
                     metric: "metric1", tags: {}, dps:{
                         1234567811000: 11,
@@ -1312,9 +1277,6 @@ describe('Aardvark renderers', function () {
                         1234567815000: 51
                     }
                 }
-            ]);
-
-            $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=2&m=sum:metric2&no_annotations=true&ms=true&show_query=true').respond([
             ]);
 
             rendererInstance.render(renderContext, config, global, graph, metrics);

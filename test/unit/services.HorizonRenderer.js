@@ -143,7 +143,7 @@ describe('Aardvark renderers', function () {
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
-            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2017/01/01 00:00:00&end=2017/01/01 00:05:00&m=sum:20s-avg:metric1&ms=true&arrays=true&show_query=true").respond([
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2017/01/01 00:00:00&end=2017/01/01 00:05:00&m=sum:20s-avg:metric1&no_annotations=true&ms=true&arrays=true&show_query=true").respond([
                 {metric: "metric1", tags: {}, dps:[
                     [1483228800000,  10],
                     [1483228820000,  20],
@@ -179,7 +179,7 @@ describe('Aardvark renderers', function () {
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
-            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2017/01/01 00:00:00&end=2017/01/01 00:05:00&m=sum:20s-avg:metric1&m=sum:20s-avg:metric2{host=*}&m=sum:20s-avg:metric3&ms=true&arrays=true&show_query=true").respond([
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2017/01/01 00:00:00&end=2017/01/01 00:05:00&m=sum:20s-avg:metric1&m=sum:20s-avg:metric2{host=*}&m=sum:20s-avg:metric3&no_annotations=true&ms=true&arrays=true&show_query=true").respond([
                 {metric: "metric1", tags: {}, dps:[
                     [1483228800000,  10],
                     [1483229100000, 100]
@@ -220,7 +220,7 @@ describe('Aardvark renderers', function () {
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
-            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2017/01/01 00:00:00&end=2017/01/01 00:05:00&m=sum:20s-avg:metric1&m=sum:20s-avg:metric2{host=*}&m=sum:20s-avg:metric3&ms=true&arrays=true&show_query=true").respond([
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2017/01/01 00:00:00&end=2017/01/01 00:05:00&m=sum:20s-avg:metric1&m=sum:20s-avg:metric2{host=*}&m=sum:20s-avg:metric3&no_annotations=true&ms=true&arrays=true&show_query=true").respond([
                 {metric: "metric1", tags: {}, dps:[
                     [1483228800000,  40],
                     [1483229100000, 100]
@@ -261,7 +261,7 @@ describe('Aardvark renderers', function () {
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
-            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2017/01/01 00:00:00&end=2017/01/01 00:05:00&m=sum:20s-avg:metric1&m=sum:20s-avg:metric2{host=*}&m=sum:20s-avg:metric3&ms=true&arrays=true&show_query=true").respond([
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2017/01/01 00:00:00&end=2017/01/01 00:05:00&m=sum:20s-avg:metric1&m=sum:20s-avg:metric2{host=*}&m=sum:20s-avg:metric3&no_annotations=true&ms=true&arrays=true&show_query=true").respond([
                 {metric: "metric1", tags: {}, dps:[
                     [1483228800000,  10],
                     [1483229100000, 150]
@@ -302,7 +302,7 @@ describe('Aardvark renderers', function () {
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
-            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2017/01/01 00:00:00&end=2017/01/01 00:05:00&m=sum:20s-avg:metric1&m=sum:20s-avg:metric2{host=*}&m=sum:20s-avg:metric3&ms=true&arrays=true&show_query=true").respond([
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2017/01/01 00:00:00&end=2017/01/01 00:05:00&m=sum:20s-avg:metric1&m=sum:20s-avg:metric2{host=*}&m=sum:20s-avg:metric3&no_annotations=true&ms=true&arrays=true&show_query=true").respond([
                 {metric: "metric1", tags: {}, dps:[
                     [1483228800000, 10],
                     [1483229100000, 90] // 40
@@ -356,7 +356,7 @@ describe('Aardvark renderers', function () {
 //
             rendererInstance.render(renderContext, config, global, graph, metrics);
             
-            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2h-ago&ignore=1&m=sum:20s-avg:metric1&ms=true&arrays=true&show_query=true").respond([
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2h-ago&ignore=1&m=sum:20s-avg:metric1&no_annotations=true&ms=true&arrays=true&show_query=true").respond([
                 {metric: "metric1", tags: {}, dps:[
                     [1234567811000, 10],
                     [1234567812000, 20],

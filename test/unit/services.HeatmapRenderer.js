@@ -252,7 +252,7 @@ describe('Aardvark renderers', function () {
 //
             rendererInstance.render(renderContext, config, global, graph, metrics);
             
-            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1h-avg:metric1&ms=true&arrays=true").respond([
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1h-avg:metric1&no_annotations=true&ms=true&arrays=true&show_query=true").respond([
                 {metric: "metric1", tags: {}, dps:[
                     [1472783200000, 10],
                     [1472786800000, 20],
@@ -284,7 +284,7 @@ describe('Aardvark renderers', function () {
 //
             rendererInstance.render(renderContext, config, global, graph, metrics);
             
-            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2014/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1d-avg:metric1&ms=true&arrays=true").respond([
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2014/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1d-avg:metric1&no_annotations=true&ms=true&arrays=true&show_query=true").respond([
                 {metric: "metric1", tags: {}, dps:[
                     [1472783200000, 10],
                     [1472786800000, 20],
@@ -316,7 +316,7 @@ describe('Aardvark renderers', function () {
 //
             rendererInstance.render(renderContext, config, global, graph, metrics);
             
-            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1h-avg:metric1&ms=true&arrays=true").respond([
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1h-avg:metric1&no_annotations=true&ms=true&arrays=true&show_query=true").respond([
                 {metric: "metric1", tags: {}, dps:[
                     [1472783200000, 10],
                     [1472786800000, 20],
@@ -355,7 +355,7 @@ describe('Aardvark renderers', function () {
 //
             rendererInstance.render(renderContext, config, global, graph, metrics);
             
-            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1h-avg:metric1&ms=true&arrays=true").respond([
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/09/02 00:00:00&end=2016/09/12 00:00:00&m=sum:1h-avg:metric1&no_annotations=true&ms=true&arrays=true&show_query=true").respond([
                 {metric: "metric1", tags: {}, dps:[
                     [1472783200000, 10],
                     [1472786800000, -20],
@@ -394,7 +394,7 @@ describe('Aardvark renderers', function () {
 //
             rendererInstance.render(renderContext, config, global, graph, metrics);
             
-            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/10/10 10:10:10&end=2016/10/24 10:10:10&m=sum:1d-avg:metric1&ms=true&arrays=true").respond([
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/10/10 10:10:10&end=2016/10/24 10:10:10&m=sum:1d-avg:metric1&no_annotations=true&ms=true&arrays=true&show_query=true").respond([
                 {metric: "metric1", tags: {}, dps:[
                     [1234483200000, 10],
                     [1234569600000, 20],
@@ -433,7 +433,7 @@ describe('Aardvark renderers', function () {
 //
             rendererInstance.render(renderContext, config, global, graph, metrics);
             
-            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/10/10 10:10:10&end=2016/10/24 10:10:10&m=sum:1d-avg:metric1&ms=true&arrays=true").respond([
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2016/10/10 10:10:10&end=2016/10/24 10:10:10&m=sum:1d-avg:metric1&no_annotations=true&ms=true&arrays=true&show_query=true").respond([
                 {metric: "metric1", tags: {}, dps:[
                     [1234483200000, -10],
                     [1234569600000, 20],
@@ -472,7 +472,7 @@ describe('Aardvark renderers', function () {
 //
             rendererInstance.render(renderContext, config, global, graph, metrics);
             
-            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2w-ago&ignore=1&m=sum:1d-avg:metric1&ms=true&arrays=true").respond([
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2w-ago&ignore=1&m=sum:1d-avg:metric1&no_annotations=true&ms=true&arrays=true&show_query=true").respond([
                 {metric: "metric1", tags: {}, dps:[
                     [1234483200000, 10],
                     [1234569600000, 20],
@@ -501,7 +501,7 @@ describe('Aardvark renderers', function () {
 //
             rendererInstance.render(renderContext, config, global, graph, metrics);
             
-            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2w-ago&ignore=1&m=sum:1d-avg:metric1&ms=true&arrays=true").respond([
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2w-ago&ignore=1&m=sum:1d-avg:metric1&no_annotations=true&ms=true&arrays=true&show_query=true").respond([
                 {metric: "metric1", tags: {}, dps:[
                     [1234483200000, 10],
                     [1234569600000, 20],
@@ -530,7 +530,7 @@ describe('Aardvark renderers', function () {
 //
             rendererInstance.render(renderContext, config, global, graph, metrics);
             
-            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2w-ago&ignore=1&m=sum:1h-avg:metric1&ms=true&arrays=true").respond([
+            $httpBackend.expectGET("http://tsdb:4242/api/query?start=2w-ago&ignore=1&m=sum:1h-avg:metric1&no_annotations=true&ms=true&arrays=true&show_query=true").respond([
                 {metric: "metric1", tags: {}, dps:[
                     [1234483200000, 10],
                     [1234569600000, 20],

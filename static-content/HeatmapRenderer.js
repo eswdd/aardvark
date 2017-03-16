@@ -382,14 +382,9 @@ aardvark
 
                     // url construction
                     var downsampleOverrideFn = function(by) {return downsampleTo+"-"+(by?by:"avg")};
-                    var url = config.tsdbBaseReadUrl+"/api/query";
-
-                    url += "?" + graphServices.tsdb_queryString(renderContext, global, graph, metrics, null/*perLineFn*/, null/*datum*/, downsampleOverrideFn);
-
-                    url += "&ms=true&arrays=true";
 
                     // now we have the url, so call it!
-                    $http.get(url, {withCredentials:config.authenticatedReads}).success(function (json) {
+                    function processJson (json) {
                         if (json.length != 1) {
                             renderContext.renderErrors[graph.id] = "TSDB results doesn't contain exactly 1 metric, was "+json.length;
                             renderContext.renderMessages[graph.id] = "";
@@ -482,11 +477,20 @@ aardvark
                         renderContext.renderMessages[graph.id] = "";
                         renderContext.graphRendered(graph.id);
                         return;
-                    })
-                        .error(function (arg) {
-                            renderContext.renderMessages[graph.id] = "Error loading data: "+arg;
-                            return;
-                        });
+                    }
+
+                    var options = {
+                        supports_annotations: false,
+                        supports_baselining: false,
+                        require_arrays: true,
+                        annotations: false,
+                        globalAnnotations: false,
+                        processJson: processJson,
+                        errorResponse: function(json) {},
+                        downsampleOverrideFn: downsampleOverrideFn
+                    };
+
+                    graphServices.perform_queries(renderContext, config, global, graph, metrics, options, null/*datum*/);
                 }
                 return ret;
             };

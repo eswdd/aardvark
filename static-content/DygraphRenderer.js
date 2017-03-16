@@ -44,64 +44,6 @@ aardvark
 
                     renderContext.renderMessages[graph.id] = "Loading...";
 
-                    var constructUrls = function(queryStringFn, datum) {
-                        // split metrics up so that we end up with only a single instance of each metric in each set of queries
-                        var metricIndexes = {};
-                        var maxCount = 0;
-                        for (var m=0; m<metrics.length; m++) {
-                            if (!metricIndexes.hasOwnProperty(metrics[m].name)) {
-                                metricIndexes[metrics[m].name] = [];
-                            }
-                            metricIndexes[metrics[m].name].push(m);
-                            maxCount = Math.max(maxCount, metricIndexes[metrics[m].name].length);
-                        }
-                        var seperatedMetricsDicts = [];
-                        var seperatedMetricsArrays = [];
-                        for (var i=0; i<maxCount; i++) {
-                            var dict = {};
-                            var arr = [];
-                            for (var metricName in metricIndexes) {
-                                if (metricIndexes.hasOwnProperty(metricName)) {
-                                    if (metricIndexes[metricName].length > i) {
-                                        var metric = metrics[metricIndexes[metricName][i]];
-                                        dict[metricName] = metric;
-                                        arr.push(metric)
-                                    }
-                                }
-                            }
-                            seperatedMetricsDicts.push(dict);
-                            seperatedMetricsArrays.push(arr);
-                        }
-
-                        var ret = [];
-                        for (var i=0; i<maxCount; i++) {
-
-                            var url = config.tsdbBaseReadUrl+"/api/query?";
-
-                            url += queryStringFn(renderContext, global, graph, seperatedMetricsArrays[i], null, datum);
-
-                            if (dygraphOptions.annotations || dygraphOptions.globalAnnotations) {
-                                url += "&show_tsuids=true";
-                                if (dygraphOptions.globalAnnotations) {
-                                    url += "&global_annotations=true";
-                                }
-                            }
-                            else {
-                                url += "&no_annotations=true";
-                            }
-
-                            url += "&ms=true&arrays=true&show_query=true";
-                            ret.push({metrics: seperatedMetricsDicts[i], url: url});
-                        }
-                        return ret;
-                    }
-
-
-                    var mainJson = null;
-                    var baselineJson = null;
-
-                    var errorResponse = false;
-
                     // baseline approach
                     // 1. make both queries
                     // 2. link results together so that we have a way of mapping from main to baseline
@@ -118,7 +60,7 @@ aardvark
                     // 10. merge labels
                     // 11. render graph
 
-                    var processJson = function() {
+                    var processJson = function(mainJson, baselineJson) {
                         if (!mainJson || mainJson.length == 0) {
                             renderContext.renderErrors[graph.id] = "Empty response from TSDB";
                             renderContext.renderMessages[graph.id] = "";
@@ -1159,87 +1101,20 @@ aardvark
                         return;
 
                     }
-
-                    // 1. make both queries 
-                    var urls = constructUrls(graphServices.tsdb_queryString, datum);
-                    var baselineUrls = global.baselining ? constructUrls(graphServices.tsdb_queryStringForBaseline, datum) : null;
-
-                    var expectedNormalResponses = urls.length;
-                    var receivedNormalResponses = 0;
-                    var expectedBaselineResponses = global.baselining ? urls.length : 0;
-                    var receivedBaselineResponses = 0;
-
-                    var mainJsons = [];
-                    var baselineJsons = [];
-
-                    var mergeJsons = function(jsons) {
-                        var ret = [];
-                        for (var j=0; j<jsons.length; j++) {
-                            var metricsAndJson = jsons[j];
-                            var json = metricsAndJson.response;
-                            var metricsByMetric = metricsAndJson.metrics;
-                            for (var i=0; i<json.length; i++) {
-                                var metric = json[i].metric;
-                                json[i].aardvark_metric = metricsByMetric[metric];
-                                ret.push(json[i]);
-                            }
-                        }
-                        return ret;
+                    
+                    var options = {
+                        supports_annotations: true,
+                        supports_baselining: true,
+                        require_arrays: true,
+                        annotations: dygraphOptions.annotations,
+                        globalAnnotations: dygraphOptions.globalAnnotations,
+                        processJson: processJson,
+                        errorResponse: function(json) {},
+                        downsampleOverrideFn: null
                     };
-
-                    var doMain = function(metricsAndUrl) {
-                        $http.get(metricsAndUrl.url, {withCredentials:config.authenticatedReads}).success(function (json) {
-                            if (errorResponse) {
-                                return;
-                            }
-                            mainJsons.push({metrics:metricsAndUrl.metrics, response: json});
-                            receivedNormalResponses++;
-                            if (expectedNormalResponses == receivedNormalResponses) {
-                                //console.log("got all my responses")
-                                mainJson = mergeJsons(mainJsons);
-                                if (expectedBaselineResponses == receivedBaselineResponses) {
-                                    processJson();
-                                }
-                            }
-                            // else wait for baseline data
-                        }).error(function (arg) {
-                                renderContext.renderMessages[graph.id] = "Error loading data: "+arg;
-                                errorResponse = true;
-                                return;
-                            });
-
-                    }
-                    var doBaseline = function(metricsAndUrl) {
-                        $http.get(metricsAndUrl.url, {withCredentials:config.authenticatedReads}).success(function (json) {
-                            if (errorResponse) {
-                                return;
-                            }
-                            baselineJsons.push({metrics:metricsAndUrl.metrics, response: json});
-                            receivedBaselineResponses++;
-                            if (expectedBaselineResponses == receivedBaselineResponses) {
-                                baselineJson = mergeJsons(baselineJsons);
-                                if (expectedNormalResponses == receivedNormalResponses) {
-                                    processJson();
-                                }
-                            }
-                            // else wait for baseline data
-                        }).error(function (arg) {
-                                renderContext.renderMessages[graph.id] = "Error loading data: "+arg;
-                                errorResponse = true;
-                                return;
-                            });
-
-                    }
-
-                    for (var u=0; u<urls.length; u++) {
-                        doMain(urls[u]);
-                    }
-
-                    if (global.baselining) {
-                        for (var u=0; u<baselineUrls.length; u++) {
-                            doBaseline(baselineUrls[u]);
-                        }
-                    }
+                    
+                    graphServices.perform_queries(renderContext, config, global, graph, metrics, options, datum);
+                    
                 }
                 return ret;
             }

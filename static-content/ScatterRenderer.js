@@ -75,7 +75,7 @@ aardvark
                     
                     return first;
                 }
-                instance.render = function(renderContext, config, global, graph, metrics) {
+                instance.render = function(renderContext, config, global, graph, metrics, datum) {
                     var fromTimestamp = graphServices.tsdb_fromTimestampAsTsdbString(global);
                     // validation
                     if (fromTimestamp == null || fromTimestamp == "") {
@@ -107,24 +107,27 @@ aardvark
 
                     renderContext.renderMessages[graph.id] = "Loading...";
 
-                    // url construction - one per metric query
-                    var url1 = config.tsdbBaseReadUrl+"/api/query";
-                    var url2 = config.tsdbBaseReadUrl+"/api/query";
-                    url1 += "?" + graphServices.tsdb_queryString(renderContext, global, graph, [metrics[0]], null/*perLineFn*/, null/*datum*/);
-                    url2 += "?" + graphServices.tsdb_queryString(renderContext, global, graph, [metrics[1]], null/*perLineFn*/, null/*datum*/);
-                    url1 += "&no_annotations=true&ms=true&show_query=true";
-                    url2 += "&no_annotations=true&ms=true&show_query=true";
-                    
-                    var results = [null,null];
-                    var errors = [null,null];
-
-                    var processResults = function() {
-                        if (multiTags.length == 0 && (results[0].length != 1 || results[1].length != 1)) {
-                            renderContext.renderErrors[graph.id] = "TSDB response doesn't contain exactly 2 timeseries, was "+(results[0].length+results[1].length);
+                    var processJson = function(json, _) {
+                        if (multiTags.length == 0 && json.length != 2) {
+                            renderContext.renderErrors[graph.id] = "TSDB response doesn't contain exactly 2 timeseries, was "+json.length;
                             renderContext.renderMessages[graph.id] = "";
                             return;
                         }
                         
+                        var queryIds = [];
+                        var jsonByQueryId = {};
+                        for (var j=0; j<json.length; j++) {
+                            var id = json[j].aardvark_metric.id;
+                            if (queryIds.indexOf(id) < 0) {
+                                queryIds.push(id);
+                                jsonByQueryId[id] = [];
+                            }
+                            jsonByQueryId[id].push(json[j]);
+                        }
+
+                        var results = [jsonByQueryId[metrics[0].id],jsonByQueryId[metrics[1].id]];
+
+
                         var keyResults = function(json) {
                             var ret = {};
                             for (var j=0; j<json.length; j++) {
@@ -141,10 +144,10 @@ aardvark
                             }
                             return ret;
                         }
-                        
+
                         var keyedResults1 = keyResults(results[0]);
                         var keyedResults2 = keyResults(results[1]);
-                        
+
 
                         var xSeries;
                         var ySeries;
@@ -157,7 +160,7 @@ aardvark
                             xSeries = keyedResults1;
                             ySeries = keyedResults2;
                         }
-                        
+
                         // remove non-matches
                         for (var k in keyedResults1) {
                             if (keyedResults1.hasOwnProperty(k) && !keyedResults2.hasOwnProperty(k)) {
@@ -169,7 +172,7 @@ aardvark
                                 delete keyedResults2[k];
                             }
                         }
-                        
+
                         // so now we have a set of keys.
                         // for each key we need:
                         //   a set of points (x vs y)
@@ -200,7 +203,7 @@ aardvark
                             });
                             return data;
                         }
-                        
+
                         // should both be sorted already
                         var merge = function(into, data) {
                             var existingDataLen = into.length == 0 ? 0 : into[0].length - 1;
@@ -237,7 +240,7 @@ aardvark
                                 j++;
                             }
                         }
-                        
+
                         var seriesIndexes = {};
                         var seriesKeys = [null];
                         var labels = [];
@@ -347,7 +350,7 @@ aardvark
                                                 }
                                             }
                                         }
-                                        
+
                                         return timesText;
                                     },
                                     logscale: scatterOptions.xlog,
@@ -361,29 +364,19 @@ aardvark
                         renderContext.renderMessages[graph.id] = "";
                         renderContext.graphRendered(graph.id);
                     }
-
-                    $http
-                        .get(url1).success(function (json) {
-                            results[0] = json;
-                            if (results[1] != null) {
-                                processResults();
-                            }
-                        })
-                        .error(function (arg) {
-                            errors[0] = arg;
-                            renderContext.renderMessages[graph.id] = "Error loading data: "+arg;
-                        });
-                    $http
-                        .get(url2).success(function (json) {
-                            results[1] = json;
-                            if (results[0] != null) {
-                                processResults();
-                            }
-                        })
-                        .error(function (arg) {
-                            errors[1] = arg;
-                            renderContext.renderMessages[graph.id] = "Error loading data: "+arg;
-                        });
+                    
+                    var options = {
+                        supports_annotations: false,
+                        supports_baselining: false,
+                        require_arrays: false,
+                        annotations: false,
+                        globalAnnotations: false,
+                        processJson: processJson,
+                        errorResponse: function(json) {},
+                        downsampleOverrideFn: null
+                    };
+                    
+                    graphServices.perform_queries(renderContext, config, global, graph, metrics, options, datum);
                 }
                 return instance;
             }
