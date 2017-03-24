@@ -6,7 +6,10 @@ message IntermediateModel {
   optional StringSerialisationData aaStringSerialisedForm = 1;
   optional Global global = 2;
   repeated Graph graphs = 3;
-  repeated Metric metrics = 4;
+  // deprecated in favour of queries, to be removed in 1.6.0
+  repeated Metric metrics = 4; 
+  repeated Query queries = 5;
+  optional int32 version = 6 [ default = 1 ];
 }
 
 message TimePeriod {
@@ -94,6 +97,7 @@ message Metric {
   optional int32 id = 2;
   optional string name = 3;
   repeated TagPair tags = 4;
+  // deprecated from 1.5.0 and moved to query - to be removed in 1.6.0
   optional int32 graphId = 5 [ default = 0 ];
   optional int64 rateCounterReset = 6;
   optional int64 rateCounterMax = 7;
@@ -102,5 +106,31 @@ message Metric {
   optional TimePeriod downsampleTo = 10 [ default = "10m" ];
   // realised that axis control should be in the graph options
   // optional int32 scatterAxis = 11 [ default = "x" ];
+  // deprecated from 1.5.0 and moved to query - to be removed in 1.6.0
   optional int32 axis = 12 [ default = "x1y1" ];
+}
+
+message GraphiteExpression {
+  optional string function = 1;
+  repeated int32 metrics = 2;
+  optional string argument = 3;
+}
+
+message Expression {
+  map<string, int32> variables = 1;
+  optional string expression = 2;
+}
+
+message Query {
+  // read from Metric.id when deserialising from pre-1.5.0
+  optional int32 id = 1;
+  // read from Metric.graphId when deserialising from pre-1.5.0
+  optional int32 graphId = 2 [ default = 0 ];
+  // read from Metric.axis when deserialising from pre-1.5.0
+  optional int32 axis = 3 [ default = "x1y1" ];
+  // read from Metric.flags when deserialising from pre-1.5.0
+  optional int32 renderFlags = 4;
+  optional int32 metric = 5;
+  optional GraphiteExpression gexp = 6;
+  optional Expression exp = 7;
 }

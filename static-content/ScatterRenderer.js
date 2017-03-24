@@ -7,22 +7,22 @@ aardvark
                     supports_tsdb_export: false,
                     supports_grafana_export: false
                 };
-                instance.findAndCheckMultiTagQueries = function(metrics) {
+                instance.findAndCheckMultiTagQueries = function(queries) {
                     // should compare tag queries in the (exactly) 2 metrics in the array
                     // looking for the multi-queries (grouped only)
                     // if the set is the same then all good and return the list of tags
                     // else throw error
                     
                     // should never happen as should be checked by render method which calls this
-                    if (metrics.length != 2) {
+                    if (queries.length != 2) {
                         throw 'Expected exactly 2 metric queries';
                     }
                     
-                    var findMultiTags = function(metric) {
+                    var findMultiTags = function(query) {
                         var wildcarded = {};
                         
-                        for (var t=0; t<metric.tags.length; t++) {
-                            var tag = metric.tags[t];
+                        for (var t=0; t<query.tags.length; t++) {
+                            var tag = query.tags[t];
                             if (tag.groupBy) {
                                 var isMultiValue = false;
                                 if (tag.value.indexOf("*") >= 0 || tag.value.indexOf("|") >= 0) {
@@ -58,9 +58,9 @@ aardvark
                         return ret;
                     }
                     
-                    var first = findMultiTags(metrics[0]);
+                    var first = findMultiTags(queries[0]);
                     first.sort();
-                    var second = findMultiTags(metrics[1]);
+                    var second = findMultiTags(queries[1]);
                     second.sort();
                     
                     if (first.length != second.length) {
@@ -75,25 +75,25 @@ aardvark
                     
                     return first;
                 }
-                instance.render = function(renderContext, config, global, graph, metrics, datum) {
+                instance.render = function(renderContext, config, global, graph, queries, datum) {
                     var fromTimestamp = graphServices.tsdb_fromTimestampAsTsdbString(global);
                     // validation
                     if (fromTimestamp == null || fromTimestamp == "") {
                         renderContext.renderErrors[graph.id] = "No start date specified";
                         return;
                     }
-                    if (metrics == null || metrics.length == 0) {
-                        renderContext.renderErrors[graph.id] = "No metrics specified";
+                    if (queries == null || queries.length == 0) {
+                        renderContext.renderErrors[graph.id] = "No queries specified";
                         return;
                     }
-                    if (metrics.length != 2) {
-                        renderContext.renderErrors[graph.id] = "Require exactly 2 metrics, currently have "+metrics.length;
+                    if (queries.length != 2) {
+                        renderContext.renderErrors[graph.id] = "Require exactly 2 queries, currently have "+queries.length;
                         return;
                     }
                     
                     var multiTags;
                     try {
-                        multiTags = instance.findAndCheckMultiTagQueries(metrics);
+                        multiTags = instance.findAndCheckMultiTagQueries(queries);
                     }
                     catch (e) {
                         renderContext.renderErrors[graph.id] = e;
@@ -117,7 +117,7 @@ aardvark
                         var queryIds = [];
                         var jsonByQueryId = {};
                         for (var j=0; j<json.length; j++) {
-                            var id = json[j].aardvark_metric.id;
+                            var id = json[j].aardvark_query.id;
                             if (queryIds.indexOf(id) < 0) {
                                 queryIds.push(id);
                                 jsonByQueryId[id] = [];
@@ -125,7 +125,7 @@ aardvark
                             jsonByQueryId[id].push(json[j]);
                         }
 
-                        var results = [jsonByQueryId[metrics[0].id],jsonByQueryId[metrics[1].id]];
+                        var results = [jsonByQueryId[queries[0].id],jsonByQueryId[queries[1].id]];
 
 
                         var keyResults = function(json) {
@@ -376,7 +376,7 @@ aardvark
                         downsampleOverrideFn: null
                     };
                     
-                    graphServices.perform_queries(renderContext, config, global, graph, metrics, options, datum);
+                    graphServices.perform_queries(renderContext, config, global, graph, queries, options, datum);
                 }
                 return instance;
             }

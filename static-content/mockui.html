@@ -66,7 +66,7 @@
                     $rootScope.tagNames = [];
                     $rootScope.tagValues = {};
                     $rootScope.lastId = 0;
-                    $rootScope.selectedMetricId = 0;
+                    $rootScope.selectedQueryId = 0;
                     $rootScope.nodeSelectionDisabled = false;
 
                     $rootScope.graphId = "0";
@@ -247,7 +247,7 @@
                         $rootScope.selectedMetric = valid ? node.id : '';
                         $rootScope.nodeSelectionDisabled = valid;
                         if (valid) {
-                            $rootScope.selectedMetricId = "0";
+                            $rootScope.selectedQueryId = "0";
                             if ($rootScope.model.graphs.length == 1) {
                                 $rootScope.graphId = $rootScope.model.graphs[0].id;
                             }
@@ -267,7 +267,7 @@
                         $rootScope.tag = {};
                         $rootScope.graphId = "0";
                         $rootScope.selectedMetric = "";
-                        $rootScope.selectedMetricId = "0";
+                        $rootScope.selectedQueryId = "0";
                         $rootScope.rate = false;
                         $rootScope.rateCounter = false;
                         $rootScope.rateCounterMax = "";
@@ -331,10 +331,10 @@
                         return $rootScope.selectedMetric != "";
                     };
                     $rootScope.deleteButtonVisible = function() {
-                        return $rootScope.selectedMetricId != "0";
+                        return $rootScope.selectedQueryId != "0";
                     };
                     $rootScope.saveButtonVisible = function() {
-                        return $rootScope.selectedMetricId != "0";
+                        return $rootScope.selectedQueryId != "0";
                     };
                     $rootScope.clearButtonEnabled = function() {
                         return $rootScope.addButtonVisible() || $rootScope.saveButtonVisible();
@@ -606,7 +606,7 @@
                         <div>
                             <label for="metricControl_selectMetric">Metric</label>
                             <select id="metricControl_selectMetric" ng-model="selectedMetricId" ng-change="nodeSelectedForEditing()" ng-disabled="nodeSelectionDisabled">
-                                <option ng-repeat="metric in model.metrics track by metric.id" value="{{metric.id}}">{{metric.name}}</option>
+                                <option ng-repeat="query in model.queries track by query.id" value="{{query.id}}">{{query.name}}</option>
                             </select>
                         </div>
 

@@ -492,13 +492,13 @@ describe('Aardvark services', function () {
             expect(renderContext.renderErrors.abc).toEqualData("No start date specified");
         });
         
-        it('expects the url generation to record a warning if there are no metrics', function() {
+        it('expects the url generation to record a warning if there are no queries', function() {
             expect(graphServices.tsdb_queryStringInternal(renderContext, null, "1d","1h",false, true, false, null, {id:"abc"}, null, null)).toEqualData("");
-            expect(renderContext.renderErrors.abc).toEqualData("No metrics specified");
+            expect(renderContext.renderErrors.abc).toEqualData("No queries specified");
 
             delete renderContext.renderErrors["abc"];
             expect(graphServices.tsdb_queryStringInternal(renderContext, null, "1d","1h",false, true, false, null, {id:"abc"}, [], null)).toEqualData("");
-            expect(renderContext.renderErrors.abc).toEqualData("No metrics specified");
+            expect(renderContext.renderErrors.abc).toEqualData("No queries specified");
         });
         
         it('expects the url to be generated correctly with no graph options and 1 metric with no tags', function() {

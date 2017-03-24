@@ -209,7 +209,7 @@ describe('Aardvark renderers', function () {
             expect(renderContext.renderWarnings).toEqualData({});
         });
 
-        it('should report an error when trying to render with heatmap and no metrics', function() {
+        it('should report an error when trying to render with heatmap and no queries', function() {
             renderContext.renderedContent = {};
             renderContext.renderErrors = {};
             renderContext.renderWarnings = {};
@@ -221,11 +221,11 @@ describe('Aardvark renderers', function () {
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
             expect(rendererInstance.tsdb_export_link).toEqualData("");
-            expect(renderContext.renderErrors).toEqualData({abc:"No metrics specified"});
+            expect(renderContext.renderErrors).toEqualData({abc:"No queries specified"});
             expect(renderContext.renderWarnings).toEqualData({});
         });
 
-        it('should report an error when trying to render with heatmap and too many metrics', function() {
+        it('should report an error when trying to render with heatmap and too many queries', function() {
             renderContext.renderedContent = {};
             renderContext.renderErrors = {};
             renderContext.renderWarnings = {};
@@ -237,7 +237,7 @@ describe('Aardvark renderers', function () {
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
             expect(rendererInstance.tsdb_export_link).toEqualData("");
-            expect(renderContext.renderErrors).toEqualData({abc:"Require exactly 1 metric, currently have 2"});
+            expect(renderContext.renderErrors).toEqualData({abc:"Require exactly 1 query, currently have 2"});
             expect(renderContext.renderWarnings).toEqualData({});
         });
 

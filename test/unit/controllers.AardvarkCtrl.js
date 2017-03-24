@@ -44,7 +44,7 @@ describe('Aardvark controllers', function () {
             expect(rootScope.model).toEqualData({
                 global: {},
                 graphs: [],
-                metrics: []
+                queries: []
             });
             $httpBackend.flush();
 
@@ -108,16 +108,20 @@ describe('Aardvark controllers', function () {
             expect(rootScope.model).toEqualData({
                 global: {},
                 graphs: [],
-                metrics: []
+                queries: []
             });
 
             rootScope.model = {
                 global: {},
                 graphs: [],
-                metrics: [
+                queries: [
                     {
                         id: "1",
-                        name: "fred"
+                        type: "metric",
+                        name: "fred",
+                        graphOptions: {
+                            graphId: 0
+                        }
                     }
                 ]
             };
@@ -131,12 +135,43 @@ describe('Aardvark controllers', function () {
             expect(rootScope.model).toEqualData({
                 global: {},
                 graphs: [],
-                metrics: []
+                queries: []
             });
 
             location.hash(encoded);
             ctrl = controllerCreator('AardvarkCtrl', {$scope: scope, $rootScope: rootScope});
-            expect(rootScope.model).toEqualData({"global":{"absoluteTimeSpecification":false,"autoReload":false,"autoGraphHeight":false,globalDownsampling:false,"relativePeriod":"2h","baselining":false,"graphHeight":null},"graphs":[],"metrics":[{"id":1,"name":"fred","tags":[],"graphOptions":{"rate":false,"rateCounter":false,"downsample":false,"graphId":0,"rateCounterReset":"","rateCounterMax":"","downsampleBy":"","downsampleTo":""}}]});
+            expect(rootScope.model).toEqualData(
+                {
+                    "global":{
+                        "absoluteTimeSpecification":false,
+                        "autoReload":false,
+                        "autoGraphHeight":false,
+                        globalDownsampling:false,
+                        "relativePeriod":"2h",
+                        "baselining":false,
+                        "graphHeight":null
+                    },
+                    "graphs":[],
+                    "queries":[
+                        {
+                            "id":1,
+                            type: "metric",
+                            "name":"fred",
+                            "tags":[],
+                            "graphOptions":{
+                                "rate":false,
+                                "rateCounter":false,
+                                "downsample":false,
+                                "graphId":0,
+                                "rateCounterReset":"",
+                                "rateCounterMax":"",
+                                "downsampleBy":"",
+                                "downsampleTo":"",
+                                aggregator: null
+                            }
+                        }
+                    ]
+                });
             rootScope.saveModel();
 
             expect(location.url().indexOf('#')).toEqualData(0);
@@ -144,15 +179,47 @@ describe('Aardvark controllers', function () {
 
             location.hash("");
             ctrl = controllerCreator('AardvarkCtrl', {$scope: scope, $rootScope: rootScope});
-            expect(rootScope.model).toEqualData({
-                global: {},
-                graphs: [],
-                metrics: []
-            });
+            expect(rootScope.model).toEqualData(
+                {
+                    global: {},
+                    graphs: [],
+                    queries: []
+                });
 
             location.hash(encoded);
             ctrl = controllerCreator('AardvarkCtrl', {$scope: scope, $rootScope: rootScope});
-            expect(rootScope.model).toEqualData({"global":{"absoluteTimeSpecification":false,"autoReload":false,"autoGraphHeight":false,globalDownsampling:false,"relativePeriod":"2h","baselining":false,"graphHeight":null},"graphs":[],"metrics":[{"id":1,"name":"fred","tags":[],"graphOptions":{"rate":false,"rateCounter":false,"downsample":false,"graphId":0,"rateCounterReset":"","rateCounterMax":"","downsampleBy":"","downsampleTo":""}}]});
+            expect(rootScope.model).toEqualData(
+                {
+                    "global":{
+                        "absoluteTimeSpecification":false,
+                        "autoReload":false,
+                        "autoGraphHeight":false,
+                        globalDownsampling:false,
+                        "relativePeriod":"2h",
+                        "baselining":false,
+                        "graphHeight":null
+                    },
+                    "graphs":[],
+                    "queries":[
+                        {
+                            "id":1,
+                            type: "metric",
+                            "name":"fred",
+                            "tags":[],
+                            "graphOptions":{
+                                "rate":false,
+                                "rateCounter":false,
+                                "downsample":false,
+                                "graphId":0,
+                                "rateCounterReset":"",
+                                "rateCounterMax":"",
+                                "downsampleBy":"",
+                                "downsampleTo":"",
+                                aggregator: null
+                            }
+                        }
+                    ]
+                });
             rootScope.saveModel();
             expect(location.url()).toEqualData(encoded);
         });
@@ -166,7 +233,7 @@ describe('Aardvark controllers', function () {
                     autoReloadPeriod: "60"
                 },
                 graphs: [],
-                metrics: []
+                queries: []
             }
             
             rootScope.resetAutoReload();
@@ -180,7 +247,7 @@ describe('Aardvark controllers', function () {
                     autoReloadPeriod: "120"
                 },
                 graphs: [],
-                metrics: []
+                queries: []
             }
 
             rootScope.resetAutoReload();
@@ -193,7 +260,7 @@ describe('Aardvark controllers', function () {
                     autoReload: false
                 },
                 graphs: [],
-                metrics: []
+                queries: []
             }
 
             rootScope.resetAutoReload();

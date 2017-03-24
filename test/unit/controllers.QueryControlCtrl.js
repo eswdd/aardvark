@@ -21,7 +21,7 @@ describe('Aardvark controllers', function () {
 
     beforeEach(module('Aardvark'));
 
-    describe('MetricControlCtrl', function() {
+    describe('QueryControlCtrl', function() {
         var rootScope, scope, ctrl, controllerCreator;
         var configUpdateFunc;
         var saveModelCalled = false;
@@ -71,10 +71,10 @@ describe('Aardvark controllers', function () {
                 saveModelCalled = true;
             }
             saveModelCalled = false;
-            rootScope.model = { global: {}, graphs: [], metrics: [] };
+            rootScope.model = { global: {}, graphs: [], queries: [] };
 
             scope = $rootScope.$new();
-            ctrl = $controller('MetricControlCtrl', {$scope: scope, $rootScope: rootScope, tsdbClient: mockTsdbClient, tsdbUtils: mockTsdbUtils});
+            ctrl = $controller('QueryControlCtrl', {$scope: scope, $rootScope: rootScope, tsdbClient: mockTsdbClient, tsdbUtils: mockTsdbUtils});
         }));
 
         afterEach(function() {
@@ -255,7 +255,7 @@ describe('Aardvark controllers', function () {
             // simple results
             expect(scope.addButtonVisible()).toEqualData(false);
             expect(scope.clearButtonEnabled()).toEqualData(false);
-            expect(scope.selectedMetricId).toEqualData("0");
+            expect(scope.selectedQueryId).toEqualData("0");
             expect(scope.selectedMetric).toEqualData("");
             expect(scope.tagNames).toEqualData([]);
             expect(scope.tagValues).toEqualData({});
@@ -377,7 +377,7 @@ describe('Aardvark controllers', function () {
             expect(scope.tagValuesMatchCountFiltering(tagFilter)).toEqualData("(2)");
         });
 
-        it('should add the metric to the model when addMetric() is called', function() {
+        it('should add the metric to the model when addQuery() is called', function() {
             scope.tagNames = ["tag1","tag2","tag3"];
             scope.localModel.tagFilters = [{name:"tag1", value: ''}, {name:"tag2", value: '*'}, {name:"tag3",value: 'value'}];
             scope.selectedMetric = "some.metric.name";
@@ -392,13 +392,14 @@ describe('Aardvark controllers', function () {
             scope.localModel.dygraph = { drawLines: true, drawPoints: false };
             scope.nodeSelectionDisabled = true; // set by nodeSelectedForAddition normally
 
-            scope.addMetric();
+            scope.addQuery();
 
             expect(saveModelCalled).toEqualData(true);
             var newMetricId = idGeneratorRef.prev();
-            expect(rootScope.model.metrics).toEqualData([
+            expect(rootScope.model.queries).toEqualData([
                 {
                     id: newMetricId,
+                    type: 'metric',
                     name: 'some.metric.name',
                     tags: [
                         {
@@ -433,7 +434,7 @@ describe('Aardvark controllers', function () {
                 }
             ]);
             expect(scope.selectedMetric).toEqualData("");
-            expect(scope.selectedMetricId).toEqualData(newMetricId);
+            expect(scope.selectedQueryId).toEqualData(newMetricId);
             expect(scope.nodeSelectionDisabled).toEqualData(true);
             expect(scope.saveButtonVisible()).toEqualData(true);
             expect(scope.clearButtonEnabled()).toEqualData(true);
@@ -457,7 +458,7 @@ describe('Aardvark controllers', function () {
             scope.localModel.dygraph = { drawLines: true, drawPoints: false };
             scope.nodeSelectionDisabled = true; // set by nodeSelectedForAddition normally
 
-            scope.clearMetric();
+            scope.clearQuery();
 
             expect(saveModelCalled).toEqualData(false);
             expect(scope.tagNames).toEqualData([]);
@@ -489,9 +490,10 @@ describe('Aardvark controllers', function () {
                         title: "Title1"
                     }
                 ],
-                metrics: [
+                queries: [
                     {
                         id: "123",
+                        type: 'metric',
                         name: 'some.metric.name',
                         tags: [
                             {
@@ -521,7 +523,7 @@ describe('Aardvark controllers', function () {
                 ]
             }
 
-            scope.selectedMetricId = "123";
+            scope.selectedQueryId = "123";
 
 
             var response = {
@@ -578,9 +580,10 @@ describe('Aardvark controllers', function () {
         it('should update the model when a user clicks save from an existing metric being edited', function() {
             rootScope.model = {
                 graphs: [],
-                    metrics: [
+                    queries: [
                     {
                         id: "123",
+                        type: 'metric',
                         name: 'some.metric.name',
                         tags: [
                             {
@@ -611,7 +614,7 @@ describe('Aardvark controllers', function () {
 
             scope.tagNames = ["tag1","tag2","tag3"];
             scope.localModel.tagFilters = [{name:"tag1",value: ''}, {name:"tag2", value: '*'}, {name:"tag3",value: 'value'}];
-            scope.selectedMetricId = "123";
+            scope.selectedQueryId = "123";
             scope.localModel.aggregator = 'zimsum';
             scope.localModel.rightAxis = false;
             scope.localModel.rate = false;
@@ -623,12 +626,12 @@ describe('Aardvark controllers', function () {
             scope.localModel.downsampleBy = "sum";
             scope.localModel.dygraph = { drawLines: true, drawPoints: false };
 
-            scope.saveMetric();
+            scope.saveQuery();
 
             expect(saveModelCalled).toEqualData(true);
             expect(scope.tagNames).toEqualData(["tag1","tag2","tag3"]);
             expect(scope.localModel.tagFilters).toEqualData([{name:"tag1",value: ''}, {name:"tag2", value: '*'}, {name:"tag3",value: 'value'}]);
-            expect(scope.selectedMetricId).toEqualData('123');
+            expect(scope.selectedQueryId).toEqualData('123');
             expect(scope.selectedMetric).toEqualData('');
             expect(scope.localModel.aggregator).toEqualData('zimsum');
             expect(scope.localModel.rightAxis).toEqualData(false);
@@ -647,9 +650,10 @@ describe('Aardvark controllers', function () {
             expect(rootScope.model).toEqualData(
                 {
                     graphs: [],
-                    metrics: [
+                    queries: [
                         {
                             id: "123",
+                            type: 'metric',
                             name: 'some.metric.name',
                             tags: [
                                 {
@@ -690,9 +694,10 @@ describe('Aardvark controllers', function () {
         it('should update the model when a user clicks delete from an existing metric being edited', function() {
             rootScope.model = {
                 graphs: [],
-                    metrics: [
+                    queries: [
                     {
                         id: "123",
+                        type: 'metric',
                         name: 'some.metric.name',
                         tags: [
                             {
@@ -723,7 +728,7 @@ describe('Aardvark controllers', function () {
 
             scope.tagNames = ["tag1","tag2","tag3"];
             scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
-            scope.selectedMetricId = "123";
+            scope.selectedQueryId = "123";
             scope.selectedTreeNode = "mock-node";
             scope.localModel.aggregator = 'zimsum';
             scope.localModel.rightAxis = false;
@@ -735,12 +740,12 @@ describe('Aardvark controllers', function () {
             scope.localModel.downsampleTo = "10m";
             scope.localModel.downsampleBy = "sum";
 
-            scope.deleteMetric();
+            scope.deleteQuery();
 
             expect(saveModelCalled).toEqualData(true);
             expect(scope.tagNames).toEqualData([]);
             expect(scope.tag).toEqualData({});
-            expect(scope.selectedMetricId).toEqualData('0');
+            expect(scope.selectedQueryId).toEqualData('0');
             expect(scope.selectedMetric).toEqualData('');
             expect(scope.localModel.aggregator).toEqualData('sum');
             expect(scope.localModel.rightAxis).toEqualData(false);
@@ -761,7 +766,7 @@ describe('Aardvark controllers', function () {
             expect(rootScope.model).toEqualData(
                 {
                     graphs: [],
-                    metrics: []
+                    queries: []
                 }
             );
         });
@@ -769,9 +774,10 @@ describe('Aardvark controllers', function () {
         it('should only delete the selected metric when a user clicks delete from an existing metric being edited', function() {
             rootScope.model = {
                 graphs: [],
-                    metrics: [
+                    queries: [
                     {
                         id: "123",
+                        type: 'metric',
                         name: 'some.metric.name',
                         tags: [
                             {
@@ -796,6 +802,7 @@ describe('Aardvark controllers', function () {
                     },
                     {
                         id: "456",
+                        type: 'metric',
                         name: 'some.metric.name',
                         tags: [
                             {
@@ -823,7 +830,7 @@ describe('Aardvark controllers', function () {
 
             scope.tagNames = ["tag1","tag2","tag3"];
             scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
-            scope.selectedMetricId = "123";
+            scope.selectedQueryId = "123";
             scope.selectedTreeNode = "mock-node";
             scope.localModel.aggregator = 'zimsum';
             scope.localModel.rightAxis = false;
@@ -835,12 +842,12 @@ describe('Aardvark controllers', function () {
             scope.localModel.downsampleTo = "10m";
             scope.localModel.downsampleBy = "sum";
 
-            scope.deleteMetric();
+            scope.deleteQuery();
 
             expect(saveModelCalled).toEqualData(true);
             expect(scope.tagNames).toEqualData([]);
             expect(scope.tag).toEqualData({});
-            expect(scope.selectedMetricId).toEqualData('0');
+            expect(scope.selectedQueryId).toEqualData('0');
             expect(scope.selectedMetric).toEqualData('');
             expect(scope.localModel.aggregator).toEqualData('sum');
             expect(scope.localModel.rightAxis).toEqualData(false);
@@ -861,9 +868,10 @@ describe('Aardvark controllers', function () {
             expect(rootScope.model).toEqualData(
                 {
                     graphs: [],
-                    metrics: [
+                    queries: [
                         {
                             id: "456",
+                            type: 'metric',
                             name: 'some.metric.name',
                             tags: [
                                 {
@@ -893,7 +901,7 @@ describe('Aardvark controllers', function () {
         it('should clear the form when a user cancels editing an existing metric', function() {
             scope.tagNames = ["tag1","tag2","tag3"];
             scope.tag = {tag1: '', tag2: '*', tag3: 'value'};
-            scope.selectedMetricId = "123";
+            scope.selectedQueryId = "123";
             scope.selectedTreeNode = "mock-node";
             scope.localModel.aggregator = "avg";
             scope.localModel.rightAxis = true;
@@ -905,12 +913,12 @@ describe('Aardvark controllers', function () {
             scope.localModel.downsampleTo = "10m";
             scope.localModel.downsampleBy = "sum";
 
-            scope.clearMetric();
+            scope.clearQuery();
 
             expect(saveModelCalled).toEqualData(false);
             expect(scope.tagNames).toEqualData([]);
             expect(scope.tag).toEqualData({});
-            expect(scope.selectedMetricId).toEqualData('0');
+            expect(scope.selectedQueryId).toEqualData('0');
             expect(scope.localModel.aggregator).toEqualData('sum');
             expect(scope.localModel.rightAxis).toEqualData(false);
             expect(scope.localModel.rate).toEqualData(false);
@@ -970,7 +978,7 @@ describe('Aardvark controllers', function () {
 
             var checkDefaults = function() {
                 expect(scope.localModel.tagFilters).toEqualData([]);
-                expect(scope.selectedMetricId).toEqualData("0");
+                expect(scope.selectedQueryId).toEqualData("0");
                 expect(scope.localModel.rate).toEqualData(false);
                 expect(scope.localModel.rateCounter).toEqualData(false);
                 expect(scope.localModel.rateCounterMax).toEqualData("");

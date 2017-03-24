@@ -50,7 +50,7 @@
     <script type="text/javascript" src="HeatmapRenderer.js"></script>
     <!-- / Renderers go in here -->
     <script type="text/javascript" src="GraphCtrl.js"></script>
-    <script type="text/javascript" src="MetricControlCtrl.js"></script>
+    <script type="text/javascript" src="QueryControlCtrl.js"></script>
     <script type="text/javascript" src="UserPrefsDialogCtrl.js"></script>
     <!-- App CSS -->
     <link rel="stylesheet" href="aardvark.css">
@@ -635,7 +635,7 @@
                         <span>{{graph.title}}</span>
                         <span ng-show="renderMessages[graph.id] != null && renderMessages[graph.id] != ''"> - {{renderMessages[graph.id]}}</span>
                         <!-- clone graph -->
-                        <button style="padding: 1px 3px 1px 3px; vertical-align: top" class="btn btn-primary btn-xs glyphicon glyphicon-duplicate pull-right" ng-click="cloneGraph(graph)" uib-tooltip="Clone graph and metrics"></button>
+                        <button style="padding: 1px 3px 1px 3px; vertical-align: top" class="btn btn-primary btn-xs glyphicon glyphicon-duplicate pull-right" ng-click="cloneGraph(graph)" uib-tooltip="Clone graph and queries"></button>
                         <!-- grafana export -->
                         <input type="text" id="grafanaExportInput_{{graph.id}}"  style="width: 0; height: 0; color: rgba(0,0,0,0); background-color: rgba(0,0,0,0); border: none" value="{{grafanaExportText(graph)}}" />
                         <button ng-show="supportsGrafanaExport(graph)" style="padding: 1px 2px 1px 2px; vertical-align: top" class="btn btn-primary btn-xs glyphicon glyphicon-copy pull-right" ngclipboard data-clipboard-target="#grafanaExportInput_{{graph.id}}" uib-tooltip="Export to Grafana (copies panel JSON to clipboard)"></button>
@@ -734,9 +734,9 @@
 
             </div>
         </div>
-        <div id="right-panel" style="flex: 0 0 auto; flex-basis: 250px" class="metric-control-panel" resizable r-directions="['left']" r-flex="true">
-            <div ng-controller="MetricControlCtrl" style="height: 100%; display: flex; flex-flow: column nowrap; justify-content: space-between; align-items: stretch" >
-                <div id="metric-control-panel-tree" style="border-width: 1px; padding: 2px; flex: 1 1 auto; flex-basis: 50%;  overflow-y: scroll" class="metric-control-panel standard-border">
+        <div id="right-panel" style="flex: 0 0 auto; flex-basis: 250px" class="query-control-panel" resizable r-directions="['left']" r-flex="true">
+            <div ng-controller="QueryControlCtrl" style="height: 100%; display: flex; flex-flow: column nowrap; justify-content: space-between; align-items: stretch" >
+                <div id="query-control-panel-tree" style="border-width: 1px; padding: 2px; flex: 1 1 auto; flex-basis: 50%;  overflow-y: scroll" class="query-control-panel standard-border">
                     <div>
                         <input class="btn btn-primary btn-xs" type="button" value="+" ng-click="expandAll()" ng-show="expandAllVisible()" uib-tooltip="Expand all nodes" tooltip-placement="above">
                         <input class="btn btn-primary btn-xs" type="button" value="-" ng-click="collapseAll()" uib-tooltip="Collapse all nodes" tooltip-placement="above">
@@ -764,45 +764,45 @@
                         </div>
                     </div>
                 </div>
-                <div id="metric-control-panel-metric"  style="border-width: 1px 1px 0 1px; flex: 1 0 auto; flex-basis: 50%; margin-top: 14px;" class="metric-control-panel standard-border" resizable r-directions="['top']" r-flex="true">
+                <div id="query-control-panel-query"  style="border-width: 1px 1px 0 1px; flex: 1 0 auto; flex-basis: 50%; margin-top: 14px;" class="query-control-panel standard-border" resizable r-directions="['top']" r-flex="true">
                     <div>
-                        <label for="metricControl_selectMetric" style="vertical-align: middle">Metric</label>
-                        <select id="metricControl_selectMetric" style="vertical-align: middle" ng-model="selectedMetricId" ng-change="nodeSelectedForEditing()" ng-disabled="nodeSelectionDisabled">
-                            <option ng-repeat="metric in model.metrics track by metric.id" value="{{metric.id}}">{{metric.name}}</option>
+                        <label for="queryControl_selectQuery" style="vertical-align: middle">Metric</label>
+                        <select id="queryControl_selectQuery" style="vertical-align: middle" ng-model="selectedQueryId" ng-change="nodeSelectedForEditing()" ng-disabled="nodeSelectionDisabled">
+                            <option ng-repeat="query in model.queries track by query.id" value="{{query.id}}">{{query.name}}</option>
                         </select>
-                        <input type="text" id="metricControl_metricName"  style="width: 0; height: 0; color: rgba(0,0,0,0); background-color: rgba(0,0,0,0); border: none" value="{{currentMetricName()}}" />
-                        <button style="padding: 1px; vertical-align: top" class="btn btn-primary btn-xs glyphicon glyphicon-copy" ngclipboard data-clipboard-target="#metricControl_metricName" ng-disabled="currentMetricName() == null" uib-tooltip="Copy metric name to clipboard" tooltip-placement="above">
+                        <input type="text" id="queryControl_metricName"  style="width: 0; height: 0; color: rgba(0,0,0,0); background-color: rgba(0,0,0,0); border: none" value="{{currentMetricName()}}" />
+                        <button style="padding: 1px; vertical-align: top" class="btn btn-primary btn-xs glyphicon glyphicon-copy" ngclipboard data-clipboard-target="#queryControl_metricName" ng-disabled="currentMetricName() == null" uib-tooltip="Copy metric name to clipboard" tooltip-placement="above">
                         </button> 
                     </div>
 
-                    <div>
+                    <div ng-show="isMetricQuery()">
                         <aa-collapsible-panel title="Query" icon="glyphicon-search">
                             <div>
-                                <label for="metricControl_editMetric_aggregator">Aggregator</label>
-                                <select id="metricControl_editMetric_aggregator" ng-model="localModel.aggregator" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()">
+                                <label for="queryControl_editQuery_aggregator">Aggregator</label>
+                                <select id="queryControl_editQuery_aggregator" ng-model="localModel.aggregator" ng-disabled="!clearButtonEnabled()" ng-change="saveQueryIfAutoUpdate()" aardvark-enter="addOrSaveQuery()">
                                     <option ng-repeat="aggregator in allAggregators">{{aggregator}}</option>
                                 </select>
                             </div>
                             <div>
-                                <label for="metricControl_editMetric_rate">Rate?</label>
-                                <input id="metricControl_editMetric_rate" type="checkbox" ng-model="localModel.rate" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
-                                <label for="metricControl_editMetric_rate">Rate Ctr?</label>
-                                <input id="metricControl_editMetric_rateCounter" type="checkbox" ng-model="localModel.rateCounter" ng-disabled="!clearButtonEnabled() && !rate" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
+                                <label for="queryControl_editQuery_rate">Rate?</label>
+                                <input id="queryControl_editQuery_rate" type="checkbox" ng-model="localModel.rate" ng-disabled="!clearButtonEnabled()" ng-change="saveQueryIfAutoUpdate()" aardvark-enter="addOrSaveQuery()" />
+                                <label for="queryControl_editQuery_rate">Rate Ctr?</label>
+                                <input id="queryControl_editQuery_rateCounter" type="checkbox" ng-model="localModel.rateCounter" ng-disabled="!clearButtonEnabled() && !rate" ng-change="saveQueryIfAutoUpdate()" aardvark-enter="addOrSaveQuery()" />
                             </div>
                             <div ng-show="rateCounter">
-                                <label for="metricControl_editMetric_rateCounterMax">Counter max</label>
-                                <input id="metricControl_editMetric_rateCounterMax" type="text" ng-model="localModel.rateCounterMax" ng-blur="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
-                                <label for="metricControl_editMetric_rateCounterReset">Counter reset</label>
-                                <input id="metricControl_editMetric_rateCounterReset" type="text" ng-model="localModel.rateCounterReset" ng-blur="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
+                                <label for="queryControl_editQuery_rateCounterMax">Counter max</label>
+                                <input id="queryControl_editQuery_rateCounterMax" type="text" ng-model="localModel.rateCounterMax" ng-blur="saveQueryIfAutoUpdate()" aardvark-enter="addOrSaveQuery()" />
+                                <label for="queryControl_editQuery_rateCounterReset">Counter reset</label>
+                                <input id="queryControl_editQuery_rateCounterReset" type="text" ng-model="localModel.rateCounterReset" ng-blur="saveQueryIfAutoUpdate()" aardvark-enter="addOrSaveQuery()" />
                             </div>
                             <div>
-                                <label for="metricControl_editMetric_downsample">Downsample?</label>
-                                <input id="metricControl_editMetric_downsample" type="checkbox" ng-model="localModel.downsample" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
-                                <label for="metricControl_editMetric_downsampleBy">by</label>
-                                <select id="metricControl_editMetric_downsampleBy" ng-model="localModel.downsampleBy" ng-disabled="!downsampleByEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()">
+                                <label for="queryControl_editQuery_downsample">Downsample?</label>
+                                <input id="queryControl_editQuery_downsample" type="checkbox" ng-model="localModel.downsample" ng-disabled="!clearButtonEnabled()" ng-change="saveQueryIfAutoUpdate()" aardvark-enter="addOrSaveQuery()" />
+                                <label for="queryControl_editQuery_downsampleBy">by</label>
+                                <select id="queryControl_editQuery_downsampleBy" ng-model="localModel.downsampleBy" ng-disabled="!downsampleByEnabled()" ng-change="saveQueryIfAutoUpdate()" aardvark-enter="addOrSaveQuery()">
                                     <option ng-repeat="aggregator in allAggregators">{{aggregator}}</option>
                                 </select>
-                                <input type="text" ng-model="localModel.downsampleTo" ng-disabled="!localModel.downsample" ng-blur="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
+                                <input type="text" ng-model="localModel.downsampleTo" ng-disabled="!localModel.downsample" ng-blur="saveQueryIfAutoUpdate()" aardvark-enter="addOrSaveQuery()" />
                             </div>
     
                             <div>
@@ -830,39 +830,50 @@
                                 </table>
                             </div>
                         </aa-collapsible-panel>
-                        <aa-collapsible-panel title="Rendering" icon="glyphicon-stats">
+                        <aa-collapsible-panel title="Graph allocation and options" icon="glyphicon-stats">
                             <div>
-                                <label for="metricControl_editMetric_selectGraph">Graph</label>
-                                <select id="metricControl_editMetric_selectGraph" ng-model="localModel.graphId" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()">
+                                <label for="queryControl_editQuery_selectGraph">Graph</label>
+                                <select id="queryControl_editQuery_selectGraph" ng-model="localModel.graphId" ng-disabled="!clearButtonEnabled()" ng-change="saveQueryIfAutoUpdate()" aardvark-enter="addOrSaveQuery()">
                                     <option value="0" selected="selected">None</option>
                                     <option ng-repeat="graph in model.graphs track by graph.id" value="{{graph.id}}">
                                         {{graph.title}}
                                     </option>
                                 </select>
                             </div>
-                            <div>
-                                <input id="metricControl_editMetric_rightAxis" type="checkbox" ng-model="localModel.rightAxis" ng-disabled="!clearButtonEnabled()" ng-change="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" />
-                                <label for="metricControl_editMetric_rightAxis">Right Axis</label>
+                            <div ng-show="expressionQueriesSupported()" uib-tooltip="Use the query editor to setup expression queries" tooltip-placement="left">
+                                Usage: <span class="badge">{{expressionQueryCount(graph)}}</span> expression queries
+                            </div>
+                            <div ng-show="graphType() == 'gnuplot'">
+                                Gnuplot options:
+                            </div>
+                            <div ng-show="graphType() == 'gnuplot'">
+                                <input id="queryControl_editQuery_gnuplot_rightAxis" type="checkbox" ng-model="localModel.rightAxis" ng-disabled="!clearButtonEnabled()" ng-change="saveQueryIfAutoUpdate()" aardvark-enter="addOrSaveQuery()" />
+                                <label for="queryControl_editQuery_gnuplot_rightAxis">Right Axis</label>
                             </div>
                             <div ng-show="graphType() == 'dygraph'">
                                 Dygraph options:
                             </div>
                             <div ng-show="graphType() == 'dygraph'">
-                                <input type="checkbox" id="metricControl_dygraph_drawLines" ng-model="localModel.dygraph.drawLines" ng-change="saveMetricIfAutoUpdate()" />
-                                <label for="metricControl_dygraph_drawLines">Draw lines</label>
+                                <input id="queryControl_editQuery_dygraph_rightAxis" type="checkbox" ng-model="localModel.rightAxis" ng-disabled="!clearButtonEnabled()" ng-change="saveQueryIfAutoUpdate()" aardvark-enter="addOrSaveQuery()" />
+                                <label for="queryControl_editQuery_dygraph_rightAxis">Right Axis</label>
                             </div>
                             <div ng-show="graphType() == 'dygraph'">
-                                <input type="checkbox" id="metricControl_dygraph_drawPoints" ng-model="localModel.dygraph.drawPoints" ng-change="saveMetricIfAutoUpdate()" />
-                                <label for="metricControl_dygraph_drawPoints">Draw points</label>
+                                <input type="checkbox" id="queryControl_dygraph_drawLines" ng-model="localModel.dygraph.drawLines" ng-change="saveQueryIfAutoUpdate()" />
+                                <label for="queryControl_dygraph_drawLines">Draw lines</label>
+                            </div>
+                            <div ng-show="graphType() == 'dygraph'">
+                                <input type="checkbox" id="queryControl_dygraph_drawPoints" ng-model="localModel.dygraph.drawPoints" ng-change="saveQueryIfAutoUpdate()" />
+                                <label for="queryControl_dygraph_drawPoints">Draw points</label>
                             </div>
                         </aa-collapsible-panel>
                     </div>
                 </div>
-                <div id="metric-control-panel-buttons" class="standard-border" style="border-width: 1px; flex: none; padding: 2px">
-                    <input type="button" class="btn btn-primary btn-xs" value="Cancel" ng-click="clearMetric()" ng-disabled="!clearButtonEnabled()">
-                    <input type="button" class="btn btn-primary btn-xs" value="Add" ng-click="addMetric()" ng-show="addButtonVisible()" ng-disabled="!addButtonVisible()">
-                    <input type="button" class="btn btn-warning btn-xs" value="Delete" ng-click="deleteMetric()" ng-show="deleteButtonVisible()" ng-disabled="!deleteButtonVisible()">
-                    <input type="button" class="btn btn-primary btn-xs" value="Save" ng-click="saveMetric()" ng-show="saveButtonVisible()" ng-disabled="!saveButtonVisible()">
+                <div id="query-control-panel-buttons" class="standard-border" style="border-width: 1px; flex: none; padding: 2px">
+                    <input type="button" class="btn btn-primary btn-xs" value="Cancel" ng-click="clearQuery()" ng-disabled="!clearButtonEnabled()">
+                    <input type="button" class="btn btn-primary btn-xs" value="Add" ng-click="addQuery()" ng-show="addButtonVisible()" ng-disabled="!addButtonVisible()">
+                    <input type="button" class="btn btn-warning btn-xs" value="Delete" ng-click="deleteQuery()" ng-show="deleteButtonVisible()" ng-disabled="!deleteButtonVisible()">
+                    <input type="button" class="btn btn-primary btn-xs" value="Save" ng-click="saveQuery()" ng-show="saveButtonVisible()" ng-disabled="!saveButtonVisible()">
+                    <input type="button" class="btn btn-primary btn-xs pull-right" value="Open Editor" ng-click="openQueryDialog()" ng-show="expressionQueriesSupported()" uib-tooltip="Use the query editor to setup expression queries" tooltip-placement="left">
                 </div>
             </div>
 

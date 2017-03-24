@@ -255,7 +255,7 @@ aardvark
                 });
                 
             };
-            ret.render = function(renderContext, config, global, graph, metrics) {
+            ret.render = function(renderContext, config, global, graph, queries) {
                 renderContext.renderMessages[graph.id] = "Loading...";
                 ret.tsdb_export_link = "";
                 var divSelector = "#horizonDiv_"+graph.id;
@@ -305,8 +305,8 @@ aardvark
                     renderContext.renderErrors[graph.id] = "No start date specified";
                     return;
                 }
-                if (metrics == null || metrics.length == 0) {
-                    renderContext.renderErrors[graph.id] = "No metrics specified";
+                if (queries == null || queries.length == 0) {
+                    renderContext.renderErrors[graph.id] = "No queries specified";
                     return;
                 }
 
@@ -427,7 +427,7 @@ aardvark
                     var yAxisParams = {
                         squashNegative: squash
                     };
-                    ret.tsdb_export_link = graphServices.tsdbGraphUrl("/#", renderContext, config, global, graph, metrics, "x1y1", downsampleOverrideFn, yAxisParams, /*y2AxisParams*/null, /*keyParams*/{}, /*lineSmoothing*/false, /*style*/null, /*globalAnnotations*/false);
+                    ret.tsdb_export_link = graphServices.tsdbGraphUrl("/#", renderContext, config, global, graph, queries, "x1y1", downsampleOverrideFn, yAxisParams, /*y2AxisParams*/null, /*keyParams*/{}, /*lineSmoothing*/false, /*style*/null, /*globalAnnotations*/false);
                     renderContext.renderMessages[graph.id] = "";
                     renderContext.graphRendered(graph.id);
                     return;
@@ -445,7 +445,7 @@ aardvark
                     downsampleOverrideFn: downsampleOverrideFn
                 };
 
-                graphServices.perform_queries(renderContext, config, global, graph, metrics, options, null/*datum*/);
+                graphServices.perform_queries(renderContext, config, global, graph, queries, options, null/*datum*/);
             }
             return ret;
         };

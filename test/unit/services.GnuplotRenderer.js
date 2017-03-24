@@ -64,7 +64,7 @@ describe('Aardvark renderers', function () {
             expect(renderContext.renderWarnings).toEqualData({});
         });
 
-        it('should report an error when trying to render with gnuplot and no metrics', function() {
+        it('should report an error when trying to render with gnuplot and no queries', function() {
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             var metrics = [ ];
@@ -73,7 +73,7 @@ describe('Aardvark renderers', function () {
 
             expect(rendererInstance.tsdb_export_link).toEqualData("");
             expect(renderContext.renderedContent).toEqualData({abc:{ src : '', width : 0, height : 0 }});
-            expect(renderContext.renderErrors).toEqualData({abc:"No metrics specified"});
+            expect(renderContext.renderErrors).toEqualData({abc:"No queries specified"});
             expect(renderContext.renderWarnings).toEqualData({});
         });
 

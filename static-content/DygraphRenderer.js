@@ -10,7 +10,7 @@ aardvark
                     tsdb_export_link: "",
                     grafana_export_text: ""
                 };
-                ret.render = function(renderContext, config, global, graph, metrics, datum) {
+                ret.render = function(renderContext, config, global, graph, queries, datum) {
                     ret.tsdb_export_link = "";
                     var fromTimestamp = graphServices.tsdb_fromTimestampAsTsdbString(global);
                     // validation
@@ -18,8 +18,8 @@ aardvark
                         renderContext.renderErrors[graph.id] = "No start date specified";
                         return;
                     }
-                    if (metrics == null || metrics.length == 0) {
-                        renderContext.renderErrors[graph.id] = "No metrics specified";
+                    if (queries == null || queries.length == 0) {
+                        renderContext.renderErrors[graph.id] = "No queries specified";
                         return;
                     }
 
@@ -427,16 +427,16 @@ aardvark
                         for (var t=0; t<mainJson.length; t++) {
                             var name = graphServices.timeSeriesName(mainJson[t]);
                             mainLabels.push(name);
-                            var axis = isY1Axis(mainJson[t].aardvark_metric.graphOptions.axis) ? "y1" : "y2";
+                            var axis = isY1Axis(mainJson[t].aardvark_query.graphOptions.axis) ? "y1" : "y2";
                             seriesOptions[name] = { axis: axis };
                             seriesOptions[name].strokeWidth = 0;
                             seriesOptions[name].drawPoints = false;
                             seriesOptions[name].pointSize = 2;
                             // must have one, if none then assume lines
-                            if (!mainJson[t].aardvark_metric.graphOptions.dygraph || mainJson[t].aardvark_metric.graphOptions.dygraph.drawLines || !mainJson[t].aardvark_metric.graphOptions.dygraph.drawPoints) {
+                            if (!mainJson[t].aardvark_query.graphOptions.dygraph || mainJson[t].aardvark_query.graphOptions.dygraph.drawLines || !mainJson[t].aardvark_query.graphOptions.dygraph.drawPoints) {
                                 seriesOptions[name].strokeWidth = 1;
                             }
-                            if (mainJson[t].aardvark_metric.graphOptions.dygraph && mainJson[t].aardvark_metric.graphOptions.dygraph.drawPoints) {
+                            if (mainJson[t].aardvark_query.graphOptions.dygraph && mainJson[t].aardvark_query.graphOptions.dygraph.drawPoints) {
                                 seriesOptions[name].drawPoints = true;
                             }
                         }
@@ -444,24 +444,24 @@ aardvark
                             for (var t=0; t<baselineJson.length; t++) {
                                 var name = graphServices.timeSeriesName(baselineJson[t]) + "[BL]";
                                 baselineLabels.push(name);
-                                var axis = isY1Axis(baselineJson[t].aardvark_metric.graphOptions.axis) ? "y1" : "y2";
+                                var axis = isY1Axis(baselineJson[t].aardvark_query.graphOptions.axis) ? "y1" : "y2";
                                 seriesOptions[name] = { axis: axis };
                                 seriesOptions[name].strokeWidth = 0;
                                 seriesOptions[name].drawPoints = false;
                                 seriesOptions[name].pointSize = 2;
                                 // must have one, if none then assume lines
-                                if (!mainJson[t].aardvark_metric.graphOptions.dygraph || baselineJson[t].aardvark_metric.graphOptions.drawLines || !baselineJson[t].aardvark_metric.graphOptions.drawPoints) {
+                                if (!mainJson[t].aardvark_query.graphOptions.dygraph || baselineJson[t].aardvark_query.graphOptions.drawLines || !baselineJson[t].aardvark_query.graphOptions.drawPoints) {
                                     seriesOptions[name].strokeWidth = 1;
                                 }
-                                if (baselineJson[t].aardvark_metric.graphOptions.drawPoints) {
+                                if (baselineJson[t].aardvark_query.graphOptions.drawPoints) {
                                     seriesOptions[name].drawPoints = true;
                                 }
                             }
                         }
 
                         var isNegativeSquashingEnabled = function(json) {
-                            return (isY1Axis(json.aardvark_metric.graphOptions.axis) && dygraphOptions.y1SquashNegative)
-                                || (isY2Axis(json.aardvark_metric.graphOptions.axis) && dygraphOptions.y2SquashNegative);
+                            return (isY1Axis(json.aardvark_query.graphOptions.axis) && dygraphOptions.y1SquashNegative)
+                                || (isY2Axis(json.aardvark_query.graphOptions.axis) && dygraphOptions.y2SquashNegative);
                         }
 
                         var scaleMultiplierByMetricNameY1 = {}; // default 1
@@ -471,7 +471,7 @@ aardvark
 
                             var initScaleMultipliers = function(json) {
                                 for (var s=0; s<json.length; s++) {
-                                    if (axisMatchFn(json[s].aardvark_metric.graphOptions.axis)) {
+                                    if (axisMatchFn(json[s].aardvark_query.graphOptions.axis)) {
                                         perAxisScaleMultipliers[json[s].metric] = 1;
                                     }
                                 }
@@ -485,7 +485,7 @@ aardvark
 
                             var calcMaxValues = function(json) {
                                 for (var s=0; s<json.length; s++) {
-                                    if (axisMatchFn(json[s].aardvark_metric.graphOptions.axis)) {
+                                    if (axisMatchFn(json[s].aardvark_query.graphOptions.axis)) {
                                         perAxisScaleMultipliers[json[s].metric] = 1;
                                         var max = 0;
                                         var min = Number.MAX_VALUE;
@@ -530,7 +530,7 @@ aardvark
 
                             var updateScaleFactors = function(json, labels) {
                                 for (var s=0;s<json.length;s++) {
-                                    if (axisMatchFn(json[s].aardvark_metric.graphOptions.axis)) {
+                                    if (axisMatchFn(json[s].aardvark_query.graphOptions.axis)) {
                                         var scale = perAxisScaleMultipliers[json[s].metric];
                                         if (scale > 1) {
                                             var oldLabel = labels[s+1];
@@ -667,7 +667,7 @@ aardvark
                                 else {
                                     if (dygraphOptions.y1AutoScale) {
                                         for (var s=0; s<json.length; s++) {
-                                            if (isY1Axis(json[s].aardvark_metric.graphOptions.axis)) {
+                                            if (isY1Axis(json[s].aardvark_query.graphOptions.axis)) {
                                                 if (hadValue[s] && json[s].dps[indices[s]-1][1]!=null && !isNaN(json[s].dps[indices[s]-1][1])) {
                                                     json[s].dps[indices[s]-1][1] *= scaleMultiplierByMetricNameY1[json[s].metric];
                                                 }
@@ -677,7 +677,7 @@ aardvark
                                     }
                                     if (dygraphOptions.y2AutoScale) {
                                         for (var s=0; s<json.length; s++) {
-                                            if (isY2Axis(json[s].aardvark_metric.graphOptions.axis)) {
+                                            if (isY2Axis(json[s].aardvark_query.graphOptions.axis)) {
                                                 if (hadValue[s] && json[s].dps[indices[s]-1][1]!=null && !isNaN(json[s].dps[indices[s]-1][1])) {
                                                     json[s].dps[indices[s]-1][1] *= scaleMultiplierByMetricNameY2[json[s].metric];
                                                 }
@@ -922,7 +922,7 @@ aardvark
                             }
 
                             var label = graphServices.timeSeriesName(series);
-                            var scale = isY1Axis(seriesAndAnnotation[0].aardvark_metric.graphOptions.axis) ? scaleMultiplierByMetricNameY1[seriesAndAnnotation[0].metric] : scaleMultiplierByMetricNameY1[seriesAndAnnotation[0].metric];
+                            var scale = isY1Axis(seriesAndAnnotation[0].aardvark_query.graphOptions.axis) ? scaleMultiplierByMetricNameY1[seriesAndAnnotation[0].metric] : scaleMultiplierByMetricNameY1[seriesAndAnnotation[0].metric];
                             if (scale > 1) {
                                 label = scale+"x "+label;
                             }
@@ -962,7 +962,7 @@ aardvark
                                 var adding = annotationIndex == -1;
                                 var seriesAndQueries = {};
                                 for (var i=0; i<mainJson.length; i++) {
-                                    seriesAndQueries[graphServices.timeSeriesName(mainJson[i])] = mainJson[i].aardvark_metric;
+                                    seriesAndQueries[graphServices.timeSeriesName(mainJson[i])] = mainJson[i].aardvark_query;
                                 }
                                 var modalInstance = $uibModal.open({
                                     animation: false,
@@ -1001,10 +1001,10 @@ aardvark
                                             return point ? point.name : null;
                                         },
                                         $tsdbClient: function() {
-                                            return $tsdbClient;
+                                            return tsdbClient;
                                         },
                                         $tsdbUtils: function() {
-                                            return $tsdbUtils;
+                                            return tsdbUtils;
                                         }
                                     }
                                 });
@@ -1095,7 +1095,7 @@ aardvark
                             squashNegative:dygraphOptions.y2SquashNegative,
                             logscale:dygraphOptions.y2Log
                         };
-                        ret.tsdb_export_link = graphServices.tsdbGraphUrl("/#", renderContext, config, global, graph, metrics, /*forceAxis*/null, /*downsampleOverrideFn*/null, yAxisParams, y2AxisParams, /*keyParams*/{}, /*lineSmoothing*/false, /*style*/null, dygraphOptions.globalAnnotations);
+                        ret.tsdb_export_link = graphServices.tsdbGraphUrl("/#", renderContext, config, global, graph, queries, /*forceAxis*/null, /*downsampleOverrideFn*/null, yAxisParams, y2AxisParams, /*keyParams*/{}, /*lineSmoothing*/false, /*style*/null, dygraphOptions.globalAnnotations);
                         renderContext.renderMessages[graph.id] = "";
                         renderContext.graphRendered(graph.id);
                         return;
@@ -1113,7 +1113,7 @@ aardvark
                         downsampleOverrideFn: null
                     };
                     
-                    graphServices.perform_queries(renderContext, config, global, graph, metrics, options, datum);
+                    graphServices.perform_queries(renderContext, config, global, graph, queries, options, datum);
                     
                 }
                 return ret;

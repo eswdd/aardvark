@@ -41,14 +41,14 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
         clone.id = idGenerator.nextId();
         clone.title = "Graph "+($rootScope.model.graphs.length+1)+" (Clone of "+clone.title+")";
         $rootScope.model.graphs.push(clone);
-        for (var m=0; m<$rootScope.model.metrics.length; m++) {
-            var metric = $rootScope.model.metrics[m];
-            var metricGraphId = metric.graphOptions.graphId;
-            if (metricGraphId == graph.id) {
-                var newMetric = deepUtils.deepClone(metric);
-                newMetric.id = idGenerator.nextId();
-                newMetric.graphOptions.graphId = clone.id;
-                $rootScope.model.metrics.push(newMetric);
+        for (var m=0; m<$rootScope.model.queries.length; m++) {
+            var query = $rootScope.model.queries[m];
+            var queryGraphId = query.graphOptions.graphId;
+            if (queryGraphId == graph.id) {
+                var newQuery = deepUtils.deepClone(query);
+                newQuery.id = idGenerator.nextId();
+                newQuery.graphOptions.graphId = clone.id;
+                $rootScope.model.queries.push(newQuery);
             }
         }
         $rootScope.$emit("modelUpdated");
@@ -232,14 +232,14 @@ aardvark.controller('GraphCtrl', [ '$scope', '$rootScope', '$http', '$uibModal',
                 $scope.renderedGraphs[graph.id] = renderer;
             }
             if (renderer) {
-                var metrics = [];
-                for (var j=0; j<$rootScope.model.metrics.length; j++) {
-                    var metricGraphId = $rootScope.model.metrics[j].graphOptions.graphId;
-                    if (metricGraphId==graph.id) {
-                        metrics.splice(metrics.length, 0, $rootScope.model.metrics[j]);
+                var queries = [];
+                for (var j=0; j<$rootScope.model.queries.length; j++) {
+                    var queryGraphId = $rootScope.model.queries[j].graphOptions.graphId;
+                    if (queryGraphId==graph.id) {
+                        queries.splice(queries.length, 0, $rootScope.model.queries[j]);
                     }
                 }
-                renderer.render(renderContext, $rootScope.config, global, graph, metrics);
+                renderer.render(renderContext, $rootScope.config, global, graph, queries);
             }
         }
     };

@@ -2,7 +2,7 @@ aardvark
     .factory('GnuplotRenderer', ['GraphServices', '$http', '$uibModal', 'tsdbClient', 'tsdbUtils', function(graphServices, $http, $uibModal, tsdbClient, tsdbUtils) {
         var renderer = {
             create: function() {
-                var tsdbRendererLink = function(renderContext, path, config, global, graph, metrics, addIgnore) {
+                var tsdbRendererLink = function(renderContext, path, config, global, graph, queries, addIgnore) {
 
                     var yAxisParams = {};
                     var y2AxisParams = {};
@@ -81,7 +81,7 @@ aardvark
                         globalAnnotations = graph.gnuplot.globalAnnotations;
                     }
 
-                    return graphServices.tsdbGraphUrl(path, renderContext, config, global, graph, metrics, /*forceAxis*/null, /*downsampleOverrideFn*/null, yAxisParams, y2AxisParams, keyParams, lineSmoothing, style, globalAnnotations, addIgnore);
+                    return graphServices.tsdbGraphUrl(path, renderContext, config, global, graph, queries, /*forceAxis*/null, /*downsampleOverrideFn*/null, yAxisParams, y2AxisParams, keyParams, lineSmoothing, style, globalAnnotations, addIgnore);
                 };
                 var ret = {
                     type: "gnuplot",
@@ -90,14 +90,14 @@ aardvark
                     tsdb_export_link: "",
                     grafana_export_text: ""
                 };
-                ret.render = function(renderContext, config, global, graph, metrics) {
+                ret.render = function(renderContext, config, global, graph, queries) {
                     if (renderContext.renderedContent[graph.id] == null) {
                         renderContext.renderedContent[graph.id] = { src: "", width: 0, height: 0 };
                     }
                     renderContext.renderMessages[graph.id] = "Loading...";
                     ret.tsdb_export_link = "";
 
-                    var url = tsdbRendererLink(renderContext, "/q?", config, global, graph, metrics, true);
+                    var url = tsdbRendererLink(renderContext, "/q?", config, global, graph, queries, true);
 
                     if (url != null) {
                         url += "&png";
@@ -108,7 +108,7 @@ aardvark
                         url += "&wxh="+width+"x"+height;
 
                         renderContext.renderedContent[graph.id] = { src: url, width: width, height: height };
-                        ret.tsdb_export_link = tsdbRendererLink(renderContext, "/#", config, global, graph, metrics, false);
+                        ret.tsdb_export_link = tsdbRendererLink(renderContext, "/#", config, global, graph, queries, false);
                     }
                 }
                 return ret;

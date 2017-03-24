@@ -181,8 +181,8 @@ describe('Aardvark services', function() {
         }));
         
         it('captured scenario 1', inject(function(strings) {
-            var objectGraph = {"global":{"flags":21,"relativePeriod":null},"graphs":[{"id":1,"type":4,"dygraph":{},"flags":54615}],"metrics":[{"id":2,"name":"tsd.rpc.received","tags":[],"flags":85,"graphId":1,"aggregator":null,"scatterAxis":null},{"id":3,"name":"tsd.rpc.errors","tags":[],"flags":85,"graphId":1,"aggregator":null,"scatterAxis":null}]};
-            var pathsAndSeps = [{"path":"graphs.title.","sep":" "},{"path":"graphs.gnuplot.yAxisLabel.","sep":" "},{"path":"graphs.gnuplot.y2AxisLabel.","sep":" "},{"path":"graphs.gnuplot.yAxisFormat.","sep":" "},{"path":"graphs.gnuplot.y2AxisFormat.","sep":" "},{"path":"graphs.gnuplot.yAxisRange.","sep":":"},{"path":"graphs.gnuplot.y2AxisRange.","sep":":"},{"path":"metrics.name.","sep":"."},{"path":"metrics.tags.name.","sep":"."},{"path":"metrics.tags.value.","sep":"."}];
+            var objectGraph = {"global":{"flags":21,"relativePeriod":null},"graphs":[{"id":1,"type":4,"dygraph":{},"flags":54615}],"queries":[{"id":2,"name":"tsd.rpc.received","tags":[],"flags":85,"graphId":1,"aggregator":null,"scatterAxis":null},{"id":3,"name":"tsd.rpc.errors","tags":[],"flags":85,"graphId":1,"aggregator":null,"scatterAxis":null}]};
+            var pathsAndSeps = [{"path":"graphs.title.","sep":" "},{"path":"graphs.gnuplot.yAxisLabel.","sep":" "},{"path":"graphs.gnuplot.y2AxisLabel.","sep":" "},{"path":"graphs.gnuplot.yAxisFormat.","sep":" "},{"path":"graphs.gnuplot.y2AxisFormat.","sep":" "},{"path":"graphs.gnuplot.yAxisRange.","sep":":"},{"path":"graphs.gnuplot.y2AxisRange.","sep":":"},{"path":"queries.name.","sep":"."},{"path":"queries.tags.name.","sep":"."},{"path":"queries.tags.value.","sep":"."}];
             strings.compactStringsForWrite(objectGraph, pathsAndSeps);
         }))
         

@@ -270,7 +270,7 @@ aardvark
                 return "";
             }
             if (metrics == null || metrics.length == 0) {
-                renderContext.renderErrors[graph.id] = "No metrics specified";
+                renderContext.renderErrors[graph.id] = "No queries specified";
                 return "";
             }
 
@@ -547,18 +547,18 @@ aardvark
             g.setAnnotations(annotations);
         }
         
-        ret.perform_queries = function(renderContext, config, global, graph, metrics, options, datum) {
+        ret.perform_queries = function(renderContext, config, global, graph, queries, options, datum) {
 
-            var constructUrls = function(queryStringFn, datum) {
+            var constructQueriesAndUrls = function(queryStringFn, datum) {
                 // split metrics up so that we end up with only a single instance of each metric in each set of queries
                 var metricIndexes = {};
                 var maxCount = 0;
-                for (var m=0; m<metrics.length; m++) {
-                    if (!metricIndexes.hasOwnProperty(metrics[m].name)) {
-                        metricIndexes[metrics[m].name] = [];
+                for (var q=0; q<queries.length; q++) {
+                    if (!metricIndexes.hasOwnProperty(queries[q].name)) {
+                        metricIndexes[queries[q].name] = [];
                     }
-                    metricIndexes[metrics[m].name].push(m);
-                    maxCount = Math.max(maxCount, metricIndexes[metrics[m].name].length);
+                    metricIndexes[queries[q].name].push(q);
+                    maxCount = Math.max(maxCount, metricIndexes[queries[q].name].length);
                 }
                 var seperatedMetricsDicts = [];
                 var seperatedMetricsArrays = [];
@@ -568,7 +568,7 @@ aardvark
                     for (var metricName in metricIndexes) {
                         if (metricIndexes.hasOwnProperty(metricName)) {
                             if (metricIndexes[metricName].length > i) {
-                                var metric = metrics[metricIndexes[metricName][i]];
+                                var metric = queries[metricIndexes[metricName][i]];
                                 dict[metricName] = metric;
                                 arr.push(metric)
                             }
@@ -601,7 +601,7 @@ aardvark
                         url += "&arrays=true";
                     }
                     url += "&show_query=true";
-                    ret.push({metrics: seperatedMetricsDicts[i], url: url});
+                    ret.push({queries: seperatedMetricsDicts[i], url: url});
                 }
                 return ret;
             }
@@ -610,11 +610,11 @@ aardvark
             var baselineJson = null;
             var errorResponse = false;
             
-            var urls = constructUrls(ret.tsdb_queryString, datum);
-            var baselineUrls = global.baselining && options.supports_baselining ? constructUrls(ret.tsdb_queryStringForBaseline, datum) : null;
-            var expectedNormalResponses = urls.length;
+            var queriesAndUrls = constructQueriesAndUrls(ret.tsdb_queryString, datum);
+            var baselineQueriesAndUrls = global.baselining && options.supports_baselining ? constructQueriesAndUrls(ret.tsdb_queryStringForBaseline, datum) : null;
+            var expectedNormalResponses = queriesAndUrls.length;
             var receivedNormalResponses = 0;
-            var expectedBaselineResponses = global.baselining && options.supports_baselining ? urls.length : 0;
+            var expectedBaselineResponses = global.baselining && options.supports_baselining ? queriesAndUrls.length : 0;
             var receivedBaselineResponses = 0;
 
             var mainJsons = [];
@@ -625,22 +625,22 @@ aardvark
                 for (var j=0; j<jsons.length; j++) {
                     var metricsAndJson = jsons[j];
                     var json = metricsAndJson.response;
-                    var metricsByMetric = metricsAndJson.metrics;
+                    var queriesByMetric = metricsAndJson.queries;
                     for (var i=0; i<json.length; i++) {
                         var metric = json[i].metric;
-                        json[i].aardvark_metric = metricsByMetric[metric];
+                        json[i].aardvark_query = queriesByMetric[metric];
                         ret.push(json[i]);
                     }
                 }
                 return ret;
             };
 
-            var doMain = function(metricsAndUrl) {
-                $http.get(metricsAndUrl.url, {withCredentials:config.authenticatedReads}).success(function (json) {
+            var doMain = function(queriesAndUrl) {
+                $http.get(queriesAndUrl.url, {withCredentials:config.authenticatedReads}).success(function (json) {
                     if (errorResponse) {
                         return;
                     }
-                    mainJsons.push({metrics:metricsAndUrl.metrics, response: json});
+                    mainJsons.push({queries:queriesAndUrl.queries, response: json});
                     receivedNormalResponses++;
                     if (expectedNormalResponses == receivedNormalResponses) {
                         //console.log("got all my responses")
@@ -663,7 +663,7 @@ aardvark
                     if (errorResponse) {
                         return;
                     }
-                    baselineJsons.push({metrics:metricsAndUrl.metrics, response: json});
+                    baselineJsons.push({queries:metricsAndUrl.queries, response: json});
                     receivedBaselineResponses++;
                     if (expectedBaselineResponses == receivedBaselineResponses) {
                         baselineJson = mergeJsons(baselineJsons);
@@ -681,13 +681,13 @@ aardvark
 
             }
 
-            for (var u=0; u<urls.length; u++) {
-                doMain(urls[u]);
+            for (var u=0; u<queriesAndUrls.length; u++) {
+                doMain(queriesAndUrls[u]);
             }
 
             if (global.baselining && options.supports_baselining) {
-                for (var u=0; u<baselineUrls.length; u++) {
-                    doBaseline(baselineUrls[u]);
+                for (var u=0; u<baselineQueriesAndUrls.length; u++) {
+                    doBaseline(baselineQueriesAndUrls[u]);
                 }
             }
         }

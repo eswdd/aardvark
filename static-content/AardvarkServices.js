@@ -408,7 +408,10 @@ aardvark
         return strings;
     }])
     // aardvark (de)serialisation - via an intermediate model 
-    .factory('serialisation', [ 'blitting', 'mapping', 'strings', 'idGenerator', function(blitting, mapping, strings, idGenerator) {
+    .factory('serialisation', [ 'blitting', 'mapping', 'strings', 'idGenerator', 'deepUtils', function(blitting, mapping, strings, idGenerator, deepUtils) {
+        String.prototype.replaceAll = function(from, to) {
+            return this.split(from).join(to);
+        }
         var serialiser = {};
         // Issue #110 - debug now dead
         var graphTypes = mapping.generateBiDiMapping(["debug", "gnuplot", "horizon", "dygraph", "scatter", "heatmap"]);
@@ -462,6 +465,10 @@ aardvark
         var updateDefaultToLookupValue = function(fieldDef, lookup) {
             fieldDef.options.default = lookup.valueToId(fieldDef.options.default);
         }
+        // all versions pre-dating the existence of a version property default to v1
+        const MODEL_VERSION_LEGACY = 1; 
+        const MODEL_VERSION_EXPRESSIONS = 2;
+        const MODEL_VERSION_CURRENT = MODEL_VERSION_EXPRESSIONS;
         updateDefaultToLookupValue(rawIntermediateModelByType.Gnuplot.fieldsByName.keyLocation, gnuplotKeyLocations);
         updateDefaultToLookupValue(rawIntermediateModelByType.Gnuplot.fieldsByName.style, gnuplotStyles);
         updateDefaultToLookupValue(rawIntermediateModelByType.Metric.fieldsByName.aggregator, aggregationFunctions);
@@ -499,6 +506,7 @@ aardvark
             // default is space
             var stringSepByPrefix = [
                 {prefix:"metrics",sep:"."},
+                {prefix:"queries",sep:" "},
                 {prefix:"graphs.gnuplot.yAxisRange",sep:":"},
                 {prefix:"graphs.gnuplot.y2AxisRange",sep:":"},
                 {prefix:"graphs.dygraph.yAxisRange",sep:":"},
@@ -608,33 +616,118 @@ aardvark
                 origToNew[model.graphs[i].id] = ++idSource;
                 model.graphs[i].id = idSource;
             }
-            for (var i=0; i<model.metrics.length; i++) {
-                if (model.metrics[i].graphOptions != null) {
-                    model.metrics[i].graphOptions.graphId = origToNew[model.metrics[i].graphOptions.graphId];
+            for (var i=0; i<model.queries.length; i++) {
+                if (model.queries[i].graphOptions != null) {
+                    model.queries[i].graphOptions.graphId = origToNew[model.queries[i].graphOptions.graphId];
                 }
-                model.metrics[i].id = ++idSource;
+                model.queries[i].id = ++idSource;
             }
         }
         serialiser.decompactIds = function(model) {
             for (var i=0; i<model.graphs.length; i++) {
                 idGenerator.updateMax(model.graphs[i].id);
             }
-            for (var i=0; i<model.metrics.length; i++) {
-                idGenerator.updateMax(model.metrics[i].id);
+            for (var i=0; i<model.queries.length; i++) {
+                idGenerator.updateMax(model.queries[i].id);
+            }
+        }
+        serialiser.removeDefaults = function(intermediateModel, rawProtoObject) {
+            if (Array.isArray(intermediateModel)) {
+                for (var i=0; i<intermediateModel.length; i++) {
+                    serialiser.removeDefaults(intermediateModel[i], rawProtoObject);
+                }
+                return;
+            }
+//            console.log("Removing defaults from type: "+rawProtoObject.name)
+            for (var i=0; i<rawProtoObject.fields.length; i++) {
+                var field = rawProtoObject.fields[i];
+                if (intermediateModel.hasOwnProperty(field.name)) {
+//                    console.log(" Both model and proto have field: "+field.name+" which has type: "+field.type);
+                    if (field.options != null && field.options.default != null) {
+//                        console.log(" And has a default supplied!")
+                        switch (field.type) {
+                            case 'int32':
+                            case 'int64':
+                            case 'string':
+                                if (intermediateModel[field.name] == field.options.default) {
+//                                    console.log("  Removed default value of "+field.options.default+" on field "+field.name);
+                                    intermediateModel[field.name] = null;
+                                }
+                                continue;
+                            case 'TimePeriod':
+                                if (fromTimePeriod(intermediateModel[field.name], field.options.default) == field.options.default) {
+//                                    console.log("  Removed default value of "+field.options.default+" on field "+field.name);
+                                    intermediateModel[field.name] = null;
+                                }
+                                continue;
+                        }
+                        if (rawIntermediateModelByType.hasOwnProperty(field.type)) {
+                            serialiser.removeDefaults(intermediateModel[field.name], rawIntermediateModelByType[field.type]);
+                        }
+                    }
+                    else {
+                        if (rawIntermediateModelByType.hasOwnProperty(field.type)) {
+                            serialiser.removeDefaults(intermediateModel[field.name], rawIntermediateModelByType[field.type]);
+                        }
+                    }
+                }
+            }
+        }
+        serialiser.fillInDefaults = function(intermediateModel, rawProtoObject) {
+            if (Array.isArray(intermediateModel)) {
+                for (var i=0; i<intermediateModel.length; i++) {
+                    serialiser.fillInDefaults(intermediateModel[i], rawProtoObject);
+                }
+                return;
+            }
+//            console.log("Filling in defaults for type: "+rawProtoObject.name)
+            for (var i=0; i<rawProtoObject.fields.length; i++) {
+                var field = rawProtoObject.fields[i];
+//                    console.log(" Both model and proto have field: "+field.name+" which has type: "+field.type);
+                if (intermediateModel.hasOwnProperty(field.name) && intermediateModel[field.name] != null) {
+                    if (rawIntermediateModelByType.hasOwnProperty(field.type)) {
+//                        console.log("  Inserted default value of "+field.options.default+" on field "+field.name);
+                        serialiser.fillInDefaults(intermediateModel[field.name], rawIntermediateModelByType[field.type]);
+                    }
+                }
+                else if (field.options != null && field.options.default != null) {
+//                        console.log(" And has a default supplied!")
+                    switch (field.type) {
+                        case 'int32':
+                        case 'int64':
+                        case 'string':
+                            intermediateModel[field.name] = field.options.default;
+                            continue;
+                        case 'TimePeriod':
+                            intermediateModel[field.name] = toTimePeriod(field.options.default);
+                            continue;
+                    }
+                    if (rawIntermediateModelByType.hasOwnProperty(field.type)) {
+//                        console.log("  Inserted default value of "+field.options.default+" on field "+field.name);
+                        serialiser.fillInDefaults(intermediateModel[field.name], rawIntermediateModelByType[field.type]);
+                    }
+                }
             }
         }
         
-        serialiser.generateIntermediateModel = function(m) {
+        // we only support being able to deserialse one previous version (ie 1.6.0 should be able to deserialise a 1.5.0 model)
+        // but to test we also need to be able to generate it. we wrap old style serialisation in a check forPreviousVersion
+        // and then discard that code when we start coding the next version
+        serialiser.generateIntermediateModel = function(m, forPreviousVersion) {
             // take copy of model
-            var model = JSON.parse(JSON.stringify(m));
+            var model = deepUtils.deepClone(m);
 
             serialiser.compactIds(model);
             
             var intermediateModel = {
+                version: forPreviousVersion ? MODEL_VERSION_LEGACY : MODEL_VERSION_CURRENT,
                 global: {},
                 graphs: [],
                 metrics: []
             };
+            if (!forPreviousVersion) {
+                intermediateModel.queries = [];
+            }
 
             // minimally populate global
             intermediateModel.global.flags = blitting.toBlittedInt([
@@ -819,10 +912,8 @@ aardvark
                 }
                 intermediateModel.graphs.push(intermediateGraph);
             }
-
-            for (var i=0; i<model.metrics.length; i++) {
-                var metric = model.metrics[i];
-                
+            
+            var serialiseMetric = function(metric) {
                 var intermediateMetric = {
                     id: toInt(metric.id),
                     name: metric.name
@@ -845,23 +936,22 @@ aardvark
                 if (metric.graphOptions != null ) {
                     var graphFlag1 = false;
                     var graphFlag2 = false;
-                    var graph = graphForMetric(model.graphs, metric);
-                    if (graph && graph.type == "dygraph" && metric.graphOptions.dygraph) {
-                        graphFlag1 = metric.graphOptions.dygraph.drawLines;
-                        graphFlag2 = metric.graphOptions.dygraph.drawPoints;
+                    if (forPreviousVersion) {
+                        var graph = graphForMetric(model.graphs, metric);
+                        if (graph && graph.type == "dygraph" && metric.graphOptions.dygraph) {
+                            graphFlag1 = metric.graphOptions.dygraph.drawLines;
+                            graphFlag2 = metric.graphOptions.dygraph.drawPoints;
+                        }
                     }
-                    
+
                     intermediateMetric.flags = blitting.toBlittedInt([
                         metric.graphOptions.rate,
                         metric.graphOptions.rateCounter,
                         metric.graphOptions.downsample,
+                        // these could in theory be re-used in later versions
                         graphFlag1,
                         graphFlag2
                     ]);
-                    if (metric.graphOptions.graphId == null) {
-                        metric.graphOptions.graphId = "0";
-                    }
-                    intermediateMetric.graphId = toInt(metric.graphOptions.graphId);
                     if (metric.graphOptions.rate && metric.graphOptions.rateCounter) {
                         intermediateMetric.rateCounterReset = toInt(metric.graphOptions.rateCounterReset);
                         intermediateMetric.rateCounterMax = toInt(metric.graphOptions.rateCounterMax);
@@ -871,9 +961,70 @@ aardvark
                         intermediateMetric.downsampleBy = aggregationFunctions.valueToId(metric.graphOptions.downsampleBy);
                         intermediateMetric.downsampleTo = toTimePeriod(metric.graphOptions.downsampleTo);
                     }
-                    intermediateMetric.axis = axes.valueToId(metric.graphOptions.axis);
+                    if (forPreviousVersion) {
+                        if (metric.graphOptions.graphId == null) {
+                            metric.graphOptions.graphId = "0";
+                        }
+                        intermediateMetric.graphId = toInt(metric.graphOptions.graphId);
+                        intermediateMetric.axis = axes.valueToId(metric.graphOptions.axis);
+                    }
                 }
-                intermediateModel.metrics.push(intermediateMetric);
+                return intermediateMetric;
+            }
+
+            for (var i=0; i<model.queries.length; i++) {
+                var query = model.queries[i];
+
+
+                var intermediateQuery = {
+                    id: toInt(query.id)
+                };
+                
+                var queryType = forPreviousVersion ? "metric" : query.type;
+                
+                switch (queryType) {
+                    case "metric":
+                        var intermediateMetric = serialiseMetric(query);
+                        intermediateModel.metrics.push(intermediateMetric);
+                        if (!forPreviousVersion) {
+                            intermediateQuery.metric = intermediateMetric.id;
+                        }
+                        break;
+                    case "gexp":
+                        // todo
+                        break;
+                    case "exp":
+                        // todo:
+                        break;
+                    default:
+                        throw "Unrecognised query type: "+queryType;
+                        
+                }
+
+                
+                if (!forPreviousVersion) {
+                    if (query.graphOptions.graphId == null) {
+                        query.graphOptions.graphId = "0";
+                    }
+                    // todo: no graph = no graph association = no query, just a metric definition?
+                    var graphId = toInt(query.graphOptions.graphId);
+                    intermediateQuery.graphId = graphId;
+                    intermediateQuery.axis = axes.valueToId(query.graphOptions.axis);
+                    var graphFlag1 = false;
+                    var graphFlag2 = false;
+                    var graph = graphForMetric(model.graphs, query);
+                    if (graph && graph.type == "dygraph" && query.graphOptions.dygraph) {
+                        graphFlag1 = query.graphOptions.dygraph.drawLines;
+                        graphFlag2 = query.graphOptions.dygraph.drawPoints;
+                    }
+                    intermediateQuery.renderFlags = blitting.toBlittedInt([
+                        graphFlag1,
+                        graphFlag2
+                    ]);
+                    
+                    
+                    intermediateModel.queries.push(intermediateQuery);
+                }
             }
 
             serialiser.removeDefaults(intermediateModel, rawIntermediateModelByType["IntermediateModel"]);
@@ -882,113 +1033,6 @@ aardvark
 
             return intermediateModel;
         };
-        String.prototype.replaceAll = function(from, to) {
-            return this.split(from).join(to);
-        }
-        serialiser.serialise = function(model) {
-//            var origLen = JSON.stringify(model).length;
-            var intermediate = serialiser.generateIntermediateModel(model);
-            
-            var proto = new serialiser.IntermediateModel(intermediate);
-//            var buffer = proto.encode().toArrayBuffer();
-            var encoded = proto.toBase64().replaceAll("+","-").replaceAll("/","_").replaceAll("=",",");
-            
-//            console.log("buffer = "+encoded);
-//            console.log("buflen = "+encoded.length);
-//            console.log("orilen = "+origLen);
-
-            /*
-            var compressjs = require('compressjs');
-            var algorithm = compressjs.Lzp3;
-            var data = new Buffer('Example data', 'utf8');
-            var compressed = algorithm.compressFile(data);
-            var decompressed = algorithm.decompressFile(compressed);
-            // convert from array back to string
-            var data2 = new Buffer(decompressed).toString('utf8');
-            console.log(data2);*/
-
-
-            // - version '0' is initial
-            return "0"+encoded;
-        }
-        serialiser.removeDefaults = function(intermediateModel, rawProtoObject) {
-            if (Array.isArray(intermediateModel)) {
-                for (var i=0; i<intermediateModel.length; i++) {
-                    serialiser.removeDefaults(intermediateModel[i], rawProtoObject);
-                }
-                return;
-            }
-//            console.log("Removing defaults from type: "+rawProtoObject.name)
-            for (var i=0; i<rawProtoObject.fields.length; i++) {
-                var field = rawProtoObject.fields[i];
-                if (intermediateModel.hasOwnProperty(field.name)) {
-//                    console.log(" Both model and proto have field: "+field.name+" which has type: "+field.type);
-                    if (field.options != null && field.options.default != null) {
-//                        console.log(" And has a default supplied!")
-                        switch (field.type) {
-                            case 'int32':
-                            case 'int64':
-                            case 'string':
-                                if (intermediateModel[field.name] == field.options.default) {
-//                                    console.log("  Removed default value of "+field.options.default+" on field "+field.name);
-                                    intermediateModel[field.name] = null;
-                                }
-                                continue;
-                            case 'TimePeriod':
-                                if (fromTimePeriod(intermediateModel[field.name], field.options.default) == field.options.default) {
-//                                    console.log("  Removed default value of "+field.options.default+" on field "+field.name);
-                                    intermediateModel[field.name] = null;
-                                }
-                                continue;
-                        }
-                        if (rawIntermediateModelByType.hasOwnProperty(field.type)) {
-                            serialiser.removeDefaults(intermediateModel[field.name], rawIntermediateModelByType[field.type]);
-                        } 
-                    }
-                    else {
-                        if (rawIntermediateModelByType.hasOwnProperty(field.type)) {
-                            serialiser.removeDefaults(intermediateModel[field.name], rawIntermediateModelByType[field.type]);
-                        }
-                    }
-                }
-            }
-        }
-        serialiser.fillInDefaults = function(intermediateModel, rawProtoObject) {
-            if (Array.isArray(intermediateModel)) {
-                for (var i=0; i<intermediateModel.length; i++) {
-                    serialiser.fillInDefaults(intermediateModel[i], rawProtoObject);
-                }
-                return;
-            }
-//            console.log("Filling in defaults for type: "+rawProtoObject.name)
-            for (var i=0; i<rawProtoObject.fields.length; i++) {
-                var field = rawProtoObject.fields[i];
-//                    console.log(" Both model and proto have field: "+field.name+" which has type: "+field.type);
-                if (intermediateModel.hasOwnProperty(field.name) && intermediateModel[field.name] != null) {
-                    if (rawIntermediateModelByType.hasOwnProperty(field.type)) {
-//                        console.log("  Inserted default value of "+field.options.default+" on field "+field.name);
-                        serialiser.fillInDefaults(intermediateModel[field.name], rawIntermediateModelByType[field.type]);
-                    }
-                }
-                else if (field.options != null && field.options.default != null) {
-//                        console.log(" And has a default supplied!")
-                    switch (field.type) {
-                        case 'int32':
-                        case 'int64':
-                        case 'string':
-                            intermediateModel[field.name] = field.options.default;
-                            continue;
-                        case 'TimePeriod':
-                            intermediateModel[field.name] = toTimePeriod(field.options.default);
-                            continue;
-                    }
-                    if (rawIntermediateModelByType.hasOwnProperty(field.type)) {
-//                        console.log("  Inserted default value of "+field.options.default+" on field "+field.name);
-                        serialiser.fillInDefaults(intermediateModel[field.name], rawIntermediateModelByType[field.type]);
-                    }
-                }
-            }
-        }
         serialiser.readIntermediateModel = function(intermediateModel) {
 //            console.log("String mode = "+intermediateModel.aaStringSerialisedForm.mode);
             
@@ -998,10 +1042,12 @@ aardvark
             
             serialiser.fillInDefaults(intermediateModel, rawIntermediateModelByType["IntermediateModel"]);
             
+            var version = intermediateModel.version;
+            
             var model = {
                 global: {},
                 graphs: [],
-                metrics: []
+                queries: []
             };
             
             var globalFlags = blitting.fromBlittedInt(intermediateModel.global.flags, [false,false,true,false,false]);
@@ -1163,6 +1209,7 @@ aardvark
                 model.graphs.push(graph);   
             }
 
+            var metricsById = {};
             for (var i=0; i<intermediateModel.metrics.length; i++) {
                 var intermediateMetric = intermediateModel.metrics[i];
 
@@ -1170,11 +1217,14 @@ aardvark
                     id: toInt(intermediateMetric.id),
                     name: intermediateMetric.name,
                     tags: [],
-                    graphOptions: {
-                        graphId: intermediateMetric.graphId
-                    }
+                    graphOptions: {}
                 };
                 
+                if (version == MODEL_VERSION_LEGACY) {
+                    metric.type = "metric";
+                    metric.graphOptions.graphId = intermediateMetric.graphId;
+                }
+
                 for (var t=0; t<intermediateMetric.tags.length; t++) {
                     var iTag = intermediateMetric.tags[t];
                     var tagFlags = blitting.fromBlittedInt(iTag.flags, [true]);
@@ -1186,24 +1236,30 @@ aardvark
                 }
 
 
+                // only persisted in legacy model serialisation
                 var graphFlag1Default = false;
                 var graphFlag2Default = false;
-                var graph = graphForMetric(model.graphs, metric);
-                if (graph && graph.type == "dygraph") {
-                    graphFlag1Default = true;  //metric.graphOptions.dygraph.drawLines;
-                    graphFlag2Default = false; //metric.graphOptions.dygraph.drawPoints;
+                if (version == MODEL_VERSION_LEGACY) {
+                    var graph = graphForMetric(model.graphs, metric);
+                    if (graph && graph.type == "dygraph") {
+                        graphFlag1Default = true;  //metric.graphOptions.dygraph.drawLines;
+                        graphFlag2Default = false; //metric.graphOptions.dygraph.drawPoints;
+                    }
                 }
                 var metricFlags = blitting.fromBlittedInt(intermediateMetric.flags, [false,false,false,graphFlag1Default,graphFlag2Default]);
                 metric.graphOptions.rate = metricFlags[0];
                 metric.graphOptions.rateCounter = metricFlags[1];
                 metric.graphOptions.downsample = metricFlags[2];
-                if (graph && graph.type == "dygraph") {
-                    metric.graphOptions.dygraph = {
-                        drawLines: metricFlags[3],
-                        drawPoints: metricFlags[4]
+                // flags 3&4 available for use with non-legacy versions
+                if (version == MODEL_VERSION_LEGACY) {
+                    if (graph && graph.type == "dygraph") {
+                        metric.graphOptions.dygraph = {
+                            drawLines: metricFlags[3],
+                            drawPoints: metricFlags[4]
+                        }
                     }
                 }
-                
+
                 if (metric.graphOptions.rate && metric.graphOptions.rateCounter) {
                     metric.graphOptions.rateCounterReset = intermediateMetric.rateCounterReset.toNumber();
                     metric.graphOptions.rateCounterMax = intermediateMetric.rateCounterMax.toNumber();
@@ -1223,12 +1279,77 @@ aardvark
                     metric.graphOptions.downsampleBy = "";
                     metric.graphOptions.downsampleTo = "";
                 }
-                metric.graphOptions.axis = axes.idToValue(intermediateMetric.axis);
-                
-                model.metrics.push(metric);
+                if (version == MODEL_VERSION_LEGACY) {
+                    metric.graphOptions.axis = axes.idToValue(intermediateMetric.axis);
+                }
+
+                if (version == MODEL_VERSION_LEGACY) {
+                    model.queries.push(metric);
+                }
+                else {
+                    metricsById[metric.id] = metric;
+                }
+            }
+
+            if (version > MODEL_VERSION_LEGACY) {
+                for (var i=0; i<intermediateModel.queries.length; i++) {
+                    var intermediateQuery = intermediateModel.queries[i];
+                    
+                    var metricId = intermediateQuery.metric;
+                    
+                    var metric = metricsById[metricId];
+                    if (metric != null) {
+                        query = deepUtils.deepClone(metric);
+                        query.type = "metric";
+                        query.graphOptions.graphId = intermediateQuery.graphId;
+                        query.graphOptions.axis = axes.idToValue(intermediateQuery.axis);
+                        
+                        var graphFlag1Default = false;
+                        var graphFlag2Default = false;
+                        var graph = graphForMetric(model.graphs, query);
+                        if (graph && graph.type == "dygraph") {
+                            graphFlag1Default = true;  //metric.graphOptions.dygraph.drawLines;
+                            graphFlag2Default = false; //metric.graphOptions.dygraph.drawPoints;
+                        }
+                        var renderFlags = blitting.fromBlittedInt(intermediateQuery.renderFlags, [graphFlag1Default,graphFlag2Default]);
+                        if (graph && graph.type == "dygraph") {
+                            query.graphOptions.dygraph = {
+                                drawLines: renderFlags[0],
+                                drawPoints: renderFlags[1]
+                            }
+                        }
+                        model.queries.push(query);
+                    }
+                }
             }
             
             return model;
+        }
+        serialiser.serialise = function(model, forPreviousVersion) {
+//            var origLen = JSON.stringify(model).length;
+            var intermediate = serialiser.generateIntermediateModel(model, forPreviousVersion);
+
+            var proto = new serialiser.IntermediateModel(intermediate);
+//            var buffer = proto.encode().toArrayBuffer();
+            var encoded = proto.toBase64().replaceAll("+","-").replaceAll("/","_").replaceAll("=",",");
+
+//            console.log("buffer = "+encoded);
+//            console.log("buflen = "+encoded.length);
+//            console.log("orilen = "+origLen);
+
+            /*
+             var compressjs = require('compressjs');
+             var algorithm = compressjs.Lzp3;
+             var data = new Buffer('Example data', 'utf8');
+             var compressed = algorithm.compressFile(data);
+             var decompressed = algorithm.decompressFile(compressed);
+             // convert from array back to string
+             var data2 = new Buffer(decompressed).toString('utf8');
+             console.log(data2);*/
+
+
+            // - version '0' is initial
+            return "0"+encoded;
         }
         serialiser.deserialise = function(ser) {
             var b64str = ser.replaceAll(",","=").replaceAll("_","/").replaceAll("-","+");

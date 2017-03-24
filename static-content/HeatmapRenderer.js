@@ -253,7 +253,7 @@ aardvark
                     tsdb_export_link: "",
                     grafana_export_text: ""
                 };
-                ret.render = function(renderContext, config, global, graph, metrics) {
+                ret.render = function(renderContext, config, global, graph, queries) {
                     ret.tsdb_export_link = "";
 
                     // validation
@@ -262,12 +262,12 @@ aardvark
                         renderContext.renderErrors[graph.id] = "No start date specified";
                         return;
                     }
-                    if (metrics == null || metrics.length == 0) {
-                        renderContext.renderErrors[graph.id] = "No metrics specified";
+                    if (queries == null || queries.length == 0) {
+                        renderContext.renderErrors[graph.id] = "No queries specified";
                         return;
                     }
-                    if (metrics.length != 1) {
-                        renderContext.renderErrors[graph.id] = "Require exactly 1 metric, currently have "+metrics.length;
+                    if (queries.length != 1) {
+                        renderContext.renderErrors[graph.id] = "Require exactly 1 query, currently have "+queries.length;
                         return;
                     }
 
@@ -473,7 +473,7 @@ aardvark
                         var yAxisParams = {
                             range: "[" + tsdbLinkRangeLower + ":" + tsdbLinkRangeUpper + "]"
                         };
-                        ret.tsdb_export_link = graphServices.tsdbGraphUrl("/#", renderContext, config, global, graph, metrics, "x1y1", downsampleOverrideFn, yAxisParams, /*y2AxisParams*/null, /*keyParams*/{}, /*lineSmoothing*/false, /*style*/null, /*globalAnnotations*/false);
+                        ret.tsdb_export_link = graphServices.tsdbGraphUrl("/#", renderContext, config, global, graph, queries, "x1y1", downsampleOverrideFn, yAxisParams, /*y2AxisParams*/null, /*keyParams*/{}, /*lineSmoothing*/false, /*style*/null, /*globalAnnotations*/false);
                         renderContext.renderMessages[graph.id] = "";
                         renderContext.graphRendered(graph.id);
                         return;
@@ -490,7 +490,7 @@ aardvark
                         downsampleOverrideFn: downsampleOverrideFn
                     };
 
-                    graphServices.perform_queries(renderContext, config, global, graph, metrics, options, null/*datum*/);
+                    graphServices.perform_queries(renderContext, config, global, graph, queries, options, null/*datum*/);
                 }
                 return ret;
             };

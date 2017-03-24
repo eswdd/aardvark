@@ -1,20 +1,20 @@
 /*
- * Used to render the tag value rows in the metrics control panel.
+ * Used to render the tag value rows in the queries control panel.
  */
 //noinspection JSLint
 aardvark.directive('tagFilterSelection', function() {
     return {
-        template: '<div mass-autocomplete><input type="text" ng-model="tag.value" mass-autocomplete-item="tagOptions[tag.name]" size="15" ng-blur="saveMetricIfAutoUpdate()" aardvark-enter="addOrSaveMetric()" /> {{tagValuesMatchCountFiltering(tag)}}</div>'
+        template: '<div mass-autocomplete><input type="text" ng-model="tag.value" mass-autocomplete-item="tagOptions[tag.name]" size="15" ng-blur="saveQueryIfAutoUpdate()" aardvark-enter="addOrSaveQuery()" /> {{tagValuesMatchCountFiltering(tag)}}</div>'
     }
 })
 /*
- * Metric management:
+ * Query management:
  * - adding/removing
  * - graph association
- * - per metric graphing options (timeseries selection, aggregation)
+ * - per query graphing options (timeseries selection, aggregation)
  * - graph type specific graphing options
  */
-.controller('MetricControlCtrl', [ '$scope', '$rootScope', '$sce', 'idGenerator', 'tsdbClient', 'tsdbUtils', function MetricControlCtrl($scope, $rootScope, $sce, idGenerator, $tsdbClient, $tsdbUtils) {
+.controller('QueryControlCtrl', [ '$scope', '$rootScope', '$sce', 'idGenerator', 'tsdbClient', 'tsdbUtils', function QueryControlCtrl($scope, $rootScope, $sce, idGenerator, $tsdbClient, $tsdbUtils) {
 
     $scope.localModel = {};
     
@@ -29,11 +29,11 @@ aardvark.directive('tagFilterSelection', function() {
     $scope.tagValues = {};
     $scope.localModel.tagFilters = [];
         
-    $scope.selectedMetricId = 0;
+    $scope.selectedQueryId = 0;
     $scope.nodeSelectionDisabled = false;
 
     // TODO load aggregators from /aggregators on tsdb..
-    $scope.localModel.allAggregators = ["avg", "min", "max", "sum", "zimsum", "mimmax", "mimmin", "raw", "dev", "count", "p999", "p99", "p95", "p90", "p75", "p50", "ep999r7", "ep99r7", "ep95r7", "ep90r7", "ep75r7", "ep50r7", "ep999r3", "ep99r3", "ep95r3", "ep90r3", "ep75r3", "ep50r3"];
+    $scope.allAggregators = ["avg", "min", "max", "sum", "zimsum", "mimmax", "mimmin", "raw", "dev", "count", "p999", "p99", "p95", "p90", "p75", "p50", "ep999r7", "ep99r7", "ep95r7", "ep90r7", "ep75r7", "ep50r7", "ep999r3", "ep99r3", "ep95r3", "ep90r3", "ep75r3", "ep50r3"];
 
     $scope.localModel.graphId = "0";
     $scope.localModel.aggregator = "sum";
@@ -73,10 +73,10 @@ aardvark.directive('tagFilterSelection', function() {
         return ret;
     };
     $scope.deleteButtonVisible = function() {
-        return $scope.selectedMetricId != "0";
+        return $scope.selectedQueryId != "0";
     };
     $scope.saveButtonVisible = function() {
-        return $scope.selectedMetricId != "0";
+        return $scope.selectedQueryId != "0";
     };
     $scope.clearButtonEnabled = function() {
         return $scope.addButtonVisible() || $scope.saveButtonVisible();
@@ -87,6 +87,9 @@ aardvark.directive('tagFilterSelection', function() {
     $scope.tagFilteringSupported = function() {
         return $tsdbClient.versionNumber >= $tsdbClient.TSDB_2_2;
     };
+    $scope.expressionQueriesSupported = function() {
+        return $tsdbClient.versionNumber >= $tsdbClient.TSDB_2_3;
+    }
     $scope.clearSelectedTreeNode = function() {
         $scope.selectedTreeNode = undefined;
     }
@@ -102,29 +105,29 @@ aardvark.directive('tagFilterSelection', function() {
             return $scope.selectedMetric;
         }
 
-        var metricId = $scope.selectedMetricId;
-        if (metricId == "0") {
+        var queryId = $scope.selectedQueryId;
+        if (queryId == "0") {
             return "";
         }
-        for (var i=0; i<$rootScope.model.metrics.length; i++) {
-            var m = $rootScope.model.metrics[i];
-            if (m.id == metricId) {
-                return m.name;
+        for (var i=0; i<$rootScope.model.queries.length; i++) {
+            var q = $rootScope.model.queries[i];
+            if (q.id == queryId) {
+                return q.name;
             }
         }
         return "";
     }
-    $scope.addOrSaveMetric = function() {
+    $scope.addOrSaveQuery = function() {
         if ($scope.addButtonVisible()) {
-            $scope.addMetric();
+            $scope.addQuery();
         }
         else {
-            $scope.saveMetric();
+            $scope.saveQuery();
         }
     }
-    $scope.saveMetricIfAutoUpdate = function() {
+    $scope.saveQueryIfAutoUpdate = function() {
         if (!$scope.addButtonVisible() && $rootScope.autoUpdateEnabled()) {
-            $scope.saveMetric();
+            $scope.saveQuery();
         }
     }
         
@@ -166,7 +169,7 @@ aardvark.directive('tagFilterSelection', function() {
         $scope.selectedMetric = valid ? node.id : '';
         $scope.nodeSelectionDisabled = valid;
         if (valid) {
-            $scope.selectedMetricId = "0";
+            $scope.selectedQueryId = "0";
             if ($rootScope.model.graphs.length == 1) {
                 $scope.localModel.graphId = $rootScope.model.graphs[0].id;
             }
@@ -181,28 +184,28 @@ aardvark.directive('tagFilterSelection', function() {
     };
 
     $scope.nodeSelectedForEditing = function() {
-        var metricId = $scope.selectedMetricId;
-        if (metricId == "0") {
+        var queryId = $scope.selectedQueryId;
+        if (queryId == "0") {
             return;
         }
-        var metric = null;
-        for (var i=0; i<$rootScope.model.metrics.length; i++) {
-            var m = $rootScope.model.metrics[i];
-            if (m.id == metricId) {
-                metric = m;
+        var query = null;
+        for (var i=0; i<$rootScope.model.queries.length; i++) {
+            var q = $rootScope.model.queries[i];
+            if (q.id == queryId) {
+                query = q;
                 break;
             }
         }
 
-        if (metric == null) {
-            alert("couldn't find metric "+metricId);
+        if (query == null) {
+            alert("couldn't find query "+queryId);
             return;
         }
 
         // load the tag names / possible values
-        $scope.metricSelected(metric.name, false);
+        $scope.metricSelected(query.name, false);
         // populate tag chosen values / re flags
-        $scope.localModel.tagFilters = metric.tags;
+        $scope.localModel.tagFilters = query.tags;
         for (var t=0; t<$scope.localModel.tagFilters.length; t++) {
             var tag = $scope.localModel.tagFilters[t];
             $scope.tag[tag.name] = tag.value;
@@ -211,20 +214,20 @@ aardvark.directive('tagFilterSelection', function() {
             }
         }
         // populate graph options
-        if (metric.graphOptions) {
-            $scope.localModel.graphId = metric.graphOptions.graphId + "";
-            $scope.localModel.rate = metric.graphOptions.rate;
-            $scope.localModel.rateCounter = metric.graphOptions.rateCounter;
-            $scope.localModel.rateCounterReset = metric.graphOptions.rateCounterReset;
-            $scope.localModel.rateCounterMax = metric.graphOptions.rateCounterMax;
-            $scope.localModel.aggregator = metric.graphOptions.aggregator;
-            $scope.localModel.rightAxis = metric.graphOptions.axis == "x1y2";
-            $scope.localModel.downsample = metric.graphOptions.downsample;
-            $scope.localModel.downsampleBy = metric.graphOptions.downsampleBy;
-            $scope.localModel.downsampleTo = metric.graphOptions.downsampleTo;
-            if (metric.graphOptions.dygraph) {
-                $scope.localModel.dygraph.drawLines = metric.graphOptions.dygraph.drawLines;
-                $scope.localModel.dygraph.drawPoints = metric.graphOptions.dygraph.drawPoints;
+        if (query.graphOptions) {
+            $scope.localModel.graphId = query.graphOptions.graphId + "";
+            $scope.localModel.rate = query.graphOptions.rate;
+            $scope.localModel.rateCounter = query.graphOptions.rateCounter;
+            $scope.localModel.rateCounterReset = query.graphOptions.rateCounterReset;
+            $scope.localModel.rateCounterMax = query.graphOptions.rateCounterMax;
+            $scope.localModel.aggregator = query.graphOptions.aggregator;
+            $scope.localModel.rightAxis = query.graphOptions.axis == "x1y2";
+            $scope.localModel.downsample = query.graphOptions.downsample;
+            $scope.localModel.downsampleBy = query.graphOptions.downsampleBy;
+            $scope.localModel.downsampleTo = query.graphOptions.downsampleTo;
+            if (query.graphOptions.dygraph) {
+                $scope.localModel.dygraph.drawLines = query.graphOptions.dygraph.drawLines;
+                $scope.localModel.dygraph.drawPoints = query.graphOptions.dygraph.drawPoints;
             }
         }
     }
@@ -296,43 +299,44 @@ aardvark.directive('tagFilterSelection', function() {
         return node.isMetric ? "underline" : "none";
     };
 
-    $scope.addMetric = function() {
-        var metric = {
+    $scope.addQuery = function() {
+        var query = {
             id: idGenerator.nextId(),
             name: $scope.selectedMetric
         };
-        $rootScope.model.metrics.push(metric);
-        $scope.persistViewToExistingMetric(metric);
+        $rootScope.model.queries.push(query);
+        $scope.persistViewToExistingQuery(query);
     }
 
-    $scope.saveMetric = function() {
-        // unlike the function above, this wants to save the state into the existing metric
-        for (var i=0; i<$rootScope.model.metrics.length; i++) {
-            if ($rootScope.model.metrics[i].id == $scope.selectedMetricId) {
-                $scope.persistViewToExistingMetric($rootScope.model.metrics[i]);
+    $scope.saveQuery = function() {
+        // unlike the function above, this wants to save the state into the existing query
+        for (var i=0; i<$rootScope.model.queries.length; i++) {
+            if ($rootScope.model.queries[i].id == $scope.selectedQueryId) {
+                $scope.persistViewToExistingQuery($rootScope.model.queries[i]);
                 return;
             }
         }
     }
 
-    $scope.deleteMetric = function() {
-        for (var i=0; i<$rootScope.model.metrics.length; i++) {
-            if ($rootScope.model.metrics[i].id == $scope.selectedMetricId) {
-                $rootScope.model.metrics.splice(i,1);
+    $scope.deleteQuery = function() {
+        for (var i=0; i<$rootScope.model.queries.length; i++) {
+            if ($rootScope.model.queries[i].id == $scope.selectedQueryId) {
+                $rootScope.model.queries.splice(i,1);
                 $rootScope.saveModel(true);
-                $scope.clearMetric();
+                $scope.clearQuery();
                 return;
             }
         }
     }
 
-    $scope.clearMetric = function() {
+    $scope.clearQuery = function() {
         $scope.metricDeselected();
         $scope.clearSelectedTreeNode();
     }
 
-    $scope.persistViewToExistingMetric = function(metric) {
-        metric.tags = [];
+    $scope.persistViewToExistingQuery = function(query) {
+        query.type = "metric"; // all we support right now
+        query.tags = [];
         for (var t=0; t<$scope.localModel.tagFilters.length; t++) {
             var tag = {name:$scope.localModel.tagFilters[t].name,value:$scope.localModel.tagFilters[t].value};
             if ($scope.localModel.tagFilters[t].groupBy != null) {
@@ -341,9 +345,9 @@ aardvark.directive('tagFilterSelection', function() {
             else { // older versions
                 tag.groupBy = true;
             }
-            metric.tags.push(tag);
+            query.tags.push(tag);
         }
-        metric.graphOptions = {
+        query.graphOptions = {
             graphId: $scope.localModel.graphId,
             rate: $scope.localModel.rate,
             rateCounter: $scope.localModel.rateCounter,
@@ -361,7 +365,7 @@ aardvark.directive('tagFilterSelection', function() {
         };
         $rootScope.saveModel(true);
         $scope.selectedMetric = "";
-        $scope.selectedMetricId = "" + metric.id;
+        $scope.selectedQueryId = "" + query.id;
     }
 
     $scope.addTagRow = function(tagk) {
@@ -468,10 +472,10 @@ aardvark.directive('tagFilterSelection', function() {
         });
     };
 
-    $scope.metricSelected = function(metricName, newMetric) {
+    $scope.metricSelected = function(metricName, isNewMetric) {
         $scope.tagOptions = {};
         $scope.tag = {};
-        $scope.resetUserMetricOptions();
+        $scope.resetUserQueryOptions();
         
         $tsdbUtils.getTags(metricName, function(tagValues) {
             var tagNames = [];
@@ -491,7 +495,7 @@ aardvark.directive('tagFilterSelection', function() {
                             return $scope.suggestTagValues(term, localKey);
                         }
                     };
-                    if (newMetric) {
+                    if (isNewMetric) {
                         $scope.tag[localKey] = '';
                     }
                 }
@@ -504,8 +508,8 @@ aardvark.directive('tagFilterSelection', function() {
         });
     };
         
-    // reset user entered metric state, used when switching between metrics
-    $scope.resetUserMetricOptions = function() {
+    // reset user entered query state, used when switching between queries
+    $scope.resetUserQueryOptions = function() {
         $scope.localModel.tagFilters = [];
         $scope.localModel.rate = false;
         $scope.localModel.rateCounter = false;
@@ -531,8 +535,8 @@ aardvark.directive('tagFilterSelection', function() {
         $scope.tagNames = [];
         $scope.tag = {};
         $scope.selectedMetric = "";
-        $scope.selectedMetricId = "0";
-        $scope.resetUserMetricOptions();
+        $scope.selectedQueryId = "0";
+        $scope.resetUserQueryOptions();
         $scope.nodeSelectionDisabled = false;
     };
 
@@ -633,6 +637,14 @@ aardvark.directive('tagFilterSelection', function() {
         }
         return results;
     };
+        
+    $scope.expressionQueryCount = function(graph) {
+        return 0; // todo
+    }
+
+    $scope.openQueryDialog = function() {
+        alert('TODO');
+    }
 
     $scope.updateModel = function() {
         $scope.updateTree();

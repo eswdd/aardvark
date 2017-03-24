@@ -101,7 +101,7 @@ if (config.devMode) {
             annotation: 0.01,
             globalAnnotation: 0.5
         },
-        version: "2.2.0"
+        version: "2.3.0"
     };
     tsdb.install(app, tsdbConfig);
     tsdb.addTimeSeries("tsd.rpc.received", { host: "host01", type: "put" }, "counter");

@@ -39,7 +39,7 @@ module.exports = function (config) {
             'static-content/HorizonRenderer.js',
             'static-content/ScatterRenderer.js',
             'static-content/GraphCtrl.js',
-            'static-content/MetricControlCtrl.js',
+            'static-content/QueryControlCtrl.js',
             'static-content/UserPrefsDialogCtrl.js',
             'test/unit/**/*.js'
         ],

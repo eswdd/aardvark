@@ -40,7 +40,7 @@ describe('Aardvark controllers', function () {
             }
             saveModelCalled = false;
             saveModelRenderArg = false;
-            rootScope.model = { global: {}, graphs: [], metrics: [] };
+            rootScope.model = { global: {}, graphs: [], queries: [] };
             rootScope.graphTypes = [ "unittest1", "unittest2" ];
             rootScope.config = {
                 ui:{graphs:{dygraph:{highlightingDefault:true}}},

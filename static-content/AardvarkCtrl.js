@@ -46,7 +46,7 @@ aardvark.directive('aardvarkEnter', function() {
          */
         $rootScope.model = {
             global: {},
-            metrics: [],
+            queries: [],
             graphs: []
         };
         
@@ -279,7 +279,7 @@ aardvark.directive('aardvarkEnter', function() {
         $rootScope.clearAll = function() {
             $rootScope.model = {
                 global: {},
-                metrics: [],
+                queries: [],
                 graphs: []
             };
             $rootScope.saveModel(true);

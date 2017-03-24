@@ -71,7 +71,7 @@ describe('Aardvark controllers', function () {
 
             rootScope.model = {
                 graphs: [],
-                metrics: []
+                queries: []
             }
 
             rootScope.formEncode = function(val) {
@@ -100,19 +100,19 @@ describe('Aardvark controllers', function () {
         it('should call the correct renderer when a graph with the correct type is defined', function() {
             var graph = { id: "abc", type: "unittest" };
             var notGraph = { id: "def", type: "something" };
-            var incMetric = { id: "123", graphOptions: { graphId: "abc" }};
-            var excMetric = { id: "456", graphOptions: { graphId: "def" }};
+            var incQuery = { id: "123", graphOptions: { graphId: "abc" }};
+            var excQuery = { id: "456", graphOptions: { graphId: "def" }};
             rootScope.model.global = {
                 autoGraphHeight: true,
                 minGraphHeight: 0
             };
             rootScope.model.graphs = [ graph, notGraph ];
-            rootScope.model.metrics = [ incMetric, excMetric ];
+            rootScope.model.queries = [ incQuery, excQuery ];
 
             rootScope.renderGraphs();
 
             expect(graphs).toEqualData([graph]);
-            expect(metricss).toEqualData([[incMetric]]);
+            expect(metricss).toEqualData([[incQuery]]);
         });
 
         it('should respect the minimum graph height to that specified when using autoGraphHeight', function() {
@@ -123,7 +123,7 @@ describe('Aardvark controllers', function () {
                 minGraphHeight: 201
             };
             rootScope.model.graphs = [ graph ];
-            rootScope.model.metrics = [ incMetric ];
+            rootScope.model.queries = [ incMetric ];
 
             rootScope.renderGraphs({clientHeight: 240, clientWidth: 424});
 
@@ -136,19 +136,19 @@ describe('Aardvark controllers', function () {
         it('should apportion the render area correctly between multiple graphs', function() {
             var graph = { id: "abc", type: "unittest" };
             var graph2 = { id: "def", type: "unittest" };
-            var incMetric = { id: "123", graphOptions: { graphId: "abc" }};
-            var incMetric2 = { id: "456", graphOptions: { graphId: "def" }};
+            var incQuery = { id: "123", graphOptions: { graphId: "abc" }};
+            var incQuery2 = { id: "456", graphOptions: { graphId: "def" }};
             rootScope.model.global = {
                 autoGraphHeight: true,
                 minGraphHeight: 0
             };
             rootScope.model.graphs = [ graph, graph2 ];
-            rootScope.model.metrics = [ incMetric, incMetric2 ];
+            rootScope.model.queries = [ incQuery, incQuery2 ];
 
             rootScope.renderGraphs({clientHeight: 260, clientWidth: 424});
 
             expect(graphs).toEqualData([graph, graph2]);
-            expect(metricss).toEqualData([[incMetric],[incMetric2]]);
+            expect(metricss).toEqualData([[incQuery],[incQuery2]]);
             expect(graph.graphHeight).toEqualData(100);
             expect(graph.graphWidth).toEqualData(400);
             expect(graph2.graphHeight).toEqualData(100);
@@ -158,19 +158,19 @@ describe('Aardvark controllers', function () {
         it('should fix the graph height to that specified when not using autoGraphHeight', function() {
             var graph = { id: "abc", type: "unittest" };
             var notGraph = { id: "def", type: "something" };
-            var incMetric = { id: "123", graphOptions: { graphId: "abc" }};
-            var excMetric = { id: "456", graphOptions: { graphId: "def" }};
+            var incQuery = { id: "123", graphOptions: { graphId: "abc" }};
+            var excQuery = { id: "456", graphOptions: { graphId: "def" }};
             rootScope.model.global = {
                 autoGraphHeight: false,
                 graphHeight: 300
             };
             rootScope.model.graphs = [ graph, notGraph ];
-            rootScope.model.metrics = [ incMetric, excMetric ];
+            rootScope.model.queries = [ incQuery, excQuery ];
 
             rootScope.renderGraphs({clientHeight: 260, clientWidth: 424});
 
             expect(graphs).toEqualData([graph]);
-            expect(metricss).toEqualData([[incMetric]]);
+            expect(metricss).toEqualData([[incQuery]]);
             expect(graph.graphHeight).toEqualData(300);
             expect(graph.graphWidth).toEqualData(400);
         });
@@ -178,11 +178,11 @@ describe('Aardvark controllers', function () {
         it('should indicate that tsdb export is available as appropriate', function() {
             var not_exportable = { id: "abc", type: "unittest" };
             var exportable = { id: "def", type: "exportable" };
-            var metric1 = { id: "123", graphOptions: { graphId: "abc" }};
-            var metric2 = { id: "456", graphOptions: { graphId: "def" }};
+            var query1 = { id: "123", graphOptions: { graphId: "abc" }};
+            var query2 = { id: "456", graphOptions: { graphId: "def" }};
             rootScope.model.global = {};
             rootScope.model.graphs = [ not_exportable, exportable ];
-            rootScope.model.metrics = [ metric1, metric2 ];
+            rootScope.model.queries = [ query1, query2 ];
             
             expect(scope.supportsTsdbExport(not_exportable)).toEqualData(false);
             expect(scope.supportsTsdbExport(exportable)).toEqualData(false);
@@ -196,11 +196,11 @@ describe('Aardvark controllers', function () {
         it('should return tsdb export links as appropriate', function() {
             var not_exportable = { id: "abc", type: "unittest" };
             var exportable = { id: "def", type: "exportable" };
-            var metric1 = { id: "123", graphOptions: { graphId: "abc" }};
-            var metric2 = { id: "456", graphOptions: { graphId: "def" }};
+            var query1 = { id: "123", graphOptions: { graphId: "abc" }};
+            var query2 = { id: "456", graphOptions: { graphId: "def" }};
             rootScope.model.global = {};
             rootScope.model.graphs = [ not_exportable, exportable ];
-            rootScope.model.metrics = [ metric1, metric2 ];
+            rootScope.model.queries = [ query1, query2 ];
             
             expect(scope.tsdbExportLink(not_exportable)).toEqualData("");
             expect(scope.tsdbExportLink(exportable)).toEqualData("");
@@ -214,11 +214,11 @@ describe('Aardvark controllers', function () {
         it('should indicate that grafana export is available as appropriate', function() {
             var not_exportable = { id: "abc", type: "unittest" };
             var exportable = { id: "def", type: "exportable" };
-            var metric1 = { id: "123", graphOptions: { graphId: "abc" }};
-            var metric2 = { id: "456", graphOptions: { graphId: "def" }};
+            var query1 = { id: "123", graphOptions: { graphId: "abc" }};
+            var query2 = { id: "456", graphOptions: { graphId: "def" }};
             rootScope.model.global = {};
             rootScope.model.graphs = [ not_exportable, exportable ];
-            rootScope.model.metrics = [ metric1, metric2 ];
+            rootScope.model.queries = [ query1, query2 ];
             
             expect(scope.supportsGrafanaExport(not_exportable)).toEqualData(false);
             expect(scope.supportsGrafanaExport(exportable)).toEqualData(false);
@@ -232,11 +232,11 @@ describe('Aardvark controllers', function () {
         it('should return grafana export text as appropriate', function() {
             var not_exportable = { id: "abc", type: "unittest" };
             var exportable = { id: "def", type: "exportable" };
-            var metric1 = { id: "123", graphOptions: { graphId: "abc" }};
-            var metric2 = { id: "456", graphOptions: { graphId: "def" }};
+            var query1 = { id: "123", graphOptions: { graphId: "abc" }};
+            var query2 = { id: "456", graphOptions: { graphId: "def" }};
             rootScope.model.global = {};
             rootScope.model.graphs = [ not_exportable, exportable ];
-            rootScope.model.metrics = [ metric1, metric2 ];
+            rootScope.model.queries = [ query1, query2 ];
             
             expect(scope.grafanaExportText(not_exportable)).toEqualData("");
             expect(scope.grafanaExportText(exportable)).toEqualData("");
@@ -247,24 +247,24 @@ describe('Aardvark controllers', function () {
             expect(scope.grafanaExportText(exportable)).toEqualData("{}");
         });
         
-        it('should clone a graph and all associated metrics', function () {
+        it('should clone a graph and all associated queries', function () {
             var graph = { id: idGenerator.nextId(), type: "dygrapgh", title: "Graph 1"};
-            var metric1 = { id: idGenerator.nextId(), graphOptions: { graphId: graph.id }};
-            var metric2 = { id: "456", graphOptions: { graphId: graph.id }};
+            var query1 = { id: idGenerator.nextId(), graphOptions: { graphId: graph.id }};
+            var query2 = { id: "456", graphOptions: { graphId: graph.id }};
             rootScope.model.global = {};
             rootScope.model.graphs = [ graph ];
-            rootScope.model.metrics = [ metric1, metric2 ];
+            rootScope.model.queries = [ query1, query2 ];
             
             scope.cloneGraph(graph);
             
             expect(rootScope.model.graphs.length).toEqualData(2);
-            expect(rootScope.model.metrics.length).toEqualData(4);
+            expect(rootScope.model.queries.length).toEqualData(4);
             expect(rootScope.model.graphs[0].id == rootScope.model.graphs[1].id).toEqualData(false);
-            expect(rootScope.model.metrics[0].id == rootScope.model.metrics[2].id).toEqualData(false);
-            expect(rootScope.model.metrics[0].id == rootScope.model.metrics[3].id).toEqualData(false);
-            expect(rootScope.model.metrics[1].id == rootScope.model.metrics[2].id).toEqualData(false);
-            expect(rootScope.model.metrics[1].id == rootScope.model.metrics[3].id).toEqualData(false);
-            expect(rootScope.model.metrics[2].id == rootScope.model.metrics[3].id).toEqualData(false);
+            expect(rootScope.model.queries[0].id == rootScope.model.queries[2].id).toEqualData(false);
+            expect(rootScope.model.queries[0].id == rootScope.model.queries[3].id).toEqualData(false);
+            expect(rootScope.model.queries[1].id == rootScope.model.queries[2].id).toEqualData(false);
+            expect(rootScope.model.queries[1].id == rootScope.model.queries[3].id).toEqualData(false);
+            expect(rootScope.model.queries[2].id == rootScope.model.queries[3].id).toEqualData(false);
             expect(rootScope.model.graphs[0].title).toEqualData("Graph 1");
             expect(rootScope.model.graphs[1].title).toEqualData("Graph 2 (Clone of Graph 1)");
             

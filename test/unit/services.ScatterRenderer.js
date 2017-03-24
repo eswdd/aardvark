@@ -87,7 +87,7 @@ describe('Aardvark renderers', function () {
             expect(renderContext.renderWarnings).toEqualData({});
         });
 
-        it('should report an error when trying to render with scatter and no metrics', function() {
+        it('should report an error when trying to render with scatter and no queries', function() {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -99,7 +99,7 @@ describe('Aardvark renderers', function () {
             expect(renderGraphId).toEqualData(null);
             expect(renderData).toEqualData(null);
             expect(renderConfig).toEqualData(null);
-            expect(renderContext.renderErrors).toEqualData({abc:"No metrics specified"});
+            expect(renderContext.renderErrors).toEqualData({abc:"No queries specified"});
             expect(renderContext.renderWarnings).toEqualData({});
         });
 
@@ -115,11 +115,11 @@ describe('Aardvark renderers', function () {
             expect(renderGraphId).toEqualData(null);
             expect(renderData).toEqualData(null);
             expect(renderConfig).toEqualData(null);
-            expect(renderContext.renderErrors).toEqualData({abc:"Require exactly 2 metrics, currently have 1"});
+            expect(renderContext.renderErrors).toEqualData({abc:"Require exactly 2 queries, currently have 1"});
             expect(renderContext.renderWarnings).toEqualData({});
         });
 
-        it('should report an error when trying to render with scatter and more than two metrics', function() {
+        it('should report an error when trying to render with scatter and more than two queries', function() {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
@@ -131,11 +131,11 @@ describe('Aardvark renderers', function () {
             expect(renderGraphId).toEqualData(null);
             expect(renderData).toEqualData(null);
             expect(renderConfig).toEqualData(null);
-            expect(renderContext.renderErrors).toEqualData({abc:"Require exactly 2 metrics, currently have 3"});
+            expect(renderContext.renderErrors).toEqualData({abc:"Require exactly 2 queries, currently have 3"});
             expect(renderContext.renderWarnings).toEqualData({});
         });
 
-        it('should report an error when trying to render with scatter and two metrics with unmatch multi-value tag queries', function() {
+        it('should report an error when trying to render with scatter and two queries with unmatch multi-value tag queries', function() {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};

@@ -157,7 +157,7 @@ describe('Aardvark renderers', function () {
             expect(renderContext.renderWarnings).toEqualData({});
         });
 
-        it('should report an error when trying to render with dygraph and no metrics', function() {
+        it('should report an error when trying to render with dygraph and no queries', function() {
             renderContext.renderedContent = {};
             renderContext.renderErrors = {};
             renderContext.renderWarnings = {};
@@ -173,7 +173,7 @@ describe('Aardvark renderers', function () {
             expect(renderGraphId).toEqualData(null);
             expect(renderData).toEqualData(null);
             expect(renderConfig).toEqualData(null);
-            expect(renderContext.renderErrors).toEqualData({abc:"No metrics specified"});
+            expect(renderContext.renderErrors).toEqualData({abc:"No queries specified"});
             expect(renderContext.renderWarnings).toEqualData({});
         });
 
