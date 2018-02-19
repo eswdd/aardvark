@@ -32,7 +32,7 @@
     "test": "karma start test/karma.conf.js  --single-run"
   },
   "dependencies": {
-    "angular": "1.5.8",
+    "angular": "1.6.9",
     "angular-animate": "1.5.8",
     "angular-local-storage": "0.2.7",
     "angular-mass-autocomplete": "^0.4.0",
