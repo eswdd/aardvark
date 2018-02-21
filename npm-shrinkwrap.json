@@ -1,0 +1,144 @@
+{
+  "dependencies": {
+    "http-server": {
+      "version": "0.9.0",
+      "from": "http-server@0.9.0",
+      "dependencies": {
+        "colors": {
+          "version": "1.0.3",
+          "from": "colors@1.0.3"
+        },
+        "corser": {
+          "version": "2.0.1",
+          "from": "corser@>=2.0.0 <2.1.0"
+        },
+        "ecstatic": {
+          "version": "1.4.1",
+          "from": "ecstatic@>=1.4.0 <2.0.0"
+        },
+        "http-proxy": {
+          "version": "1.16.2",
+          "from": "http-proxy@>=1.8.1 <2.0.0"
+        },
+        "opener": {
+          "version": "1.4.3",
+          "from": "opener@>=1.4.0 <1.5.0"
+        },
+        "optimist": {
+          "version": "0.6.1",
+          "from": "optimist@>=0.6.0 <0.7.0"
+        },
+        "portfinder": {
+          "version": "0.4.0",
+          "from": "portfinder@>=0.4.0 <0.5.0"
+        },
+        "union": {
+          "version": "0.4.6",
+          "from": "union@>=0.4.3 <0.5.0",
+          "dependencies": {
+            "qs": {
+              "version": "2.3.3", 
+              "from": "qs@>=2.3.3 <2.4.0"
+            }
+          }
+        }
+      }
+    },
+    "angular": {
+      "version": "1.5.8",
+      "from": "angular@1.5.8"
+    },
+    "angular-animate": {
+      "version": "1.5.8",
+      "from": "angular-animate@1.5.8"
+    },
+    "angular-local-storage": {
+      "version": "0.2.7",
+      "from": "angular-local-storage@0.2.7"
+    },
+    "angular-mass-autocomplete": {
+      "version": "0.4.0",
+      "from": "angular-mass-autocomplete@>=0.4.0 <0.5.0"
+    },
+    "angular-mocks": {
+      "version": "1.5.8",
+      "from": "angular-mocks@1.5.8"
+    },
+    "angular-resizable": {
+      "version": "1.2.0",
+      "from": "angular-resizable@>=1.2.0 <2.0.0"
+    },
+    "angular-sanitize": {
+      "version": "1.5.8",
+      "from": "angular-sanitize@1.5.8"
+    },
+    "angular-tree-control": {
+      "version": "0.2.28",
+      "from": "angular-tree-control@0.2.28"
+    },
+    "angular-ui-bootstrap": {
+      "version": "2.5.6",
+      "from": "angular-ui-bootstrap@>=2.5.0 <3.0.0"
+    },
+    "angular-ui-utils": {
+      "version": "0.1.1",
+      "from": "angular-ui-utils@>=0.1.1 <0.2.0"
+    },
+    "body-parser": {
+      "version": "1.18.2",
+      "from": "body-parser@>=1.18.2 <2.0.0"
+    },
+    "bootstrap-css-only": {
+      "version": "3.3.7",
+      "from": "bootstrap-css-only@>=3.3.6 <4.0.0"
+    },
+    "bytebuffer": {
+      "version": "5.0.1",
+      "from": "bytebuffer@5.0.1"
+    },
+    "clipboard": {
+      "version": "1.7.1",
+      "from": "clipboard@>=1.5.13 <2.0.0"
+    },
+    "cubism": {
+      "version": "1.6.0",
+      "from": "cubism@>=1.6.0 <2.0.0"
+    },
+    "d3": {
+      "version": "3.5.17",
+      "from": "d3@>=3.5.16 <4.0.0"
+    },
+    "dygraphs": {
+      "version": "1.1.1",
+      "from": "dygraphs@>=1.1.1 <2.0.0"
+    },
+    "express": {
+      "version": "4.16.2",
+      "from": "express@>=4.16.2 <5.0.0"
+    },
+    "faketsdb": {
+      "version": "0.3.2",
+      "from": "faketsdb@>=0.3.2 <0.4.0"
+    },
+    "long": {
+      "version": "3.2.0",
+      "from": "long@3.2.0"
+    },
+    "moment": {
+      "version": "2.20.1",
+      "from": "moment@>=2.12.0 <3.0.0"
+    },
+    "ngclipboard": {
+      "version": "1.1.2",
+      "from": "ngclipboard@>=1.1.1 <2.0.0"
+    },
+    "protobufjs": {
+      "version": "5.0.1",
+      "from": "protobufjs@5.0.1"
+    },
+    "seedrandom": {
+      "version": "2.4.3",
+      "from": "seedrandom@>=2.4.2 <3.0.0"
+    }
+  }
+}
