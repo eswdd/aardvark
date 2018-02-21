@@ -10,6 +10,8 @@ notifications:
     on_success: always
     on_failure: always
 env: BROWSERS=firefox E2E_BROWSERS=Firefox
+addons:
+  chrome: stable
 before_install:
   - npm -g install npm@latest-2
   - "gem install --version 0.8.9 faraday"
