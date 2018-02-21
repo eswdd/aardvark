@@ -14,7 +14,7 @@ aardvark.directive('tagFilterSelection', function() {
  * - per query graphing options (timeseries selection, aggregation)
  * - graph type specific graphing options
  */
-.controller('QueryControlCtrl', [ '$scope', '$rootScope', '$sce', 'idGenerator', 'tsdbClient', 'tsdbUtils', function QueryControlCtrl($scope, $rootScope, $sce, idGenerator, $tsdbClient, $tsdbUtils) {
+.controller('QueryControlCtrl', [ '$scope', '$rootScope', '$sce', 'idGenerator', 'tsdbClient', 'tsdbUtils', '$uibModal', 'tsdbUtils', 'deepUtils', function QueryControlCtrl($scope, $rootScope, $sce, idGenerator, $tsdbClient, $tsdbUtils, $uibModal, tsdbUtils, deepUtils) {
 
     $scope.localModel = {};
     
@@ -30,6 +30,7 @@ aardvark.directive('tagFilterSelection', function() {
     $scope.localModel.tagFilters = [];
         
     $scope.selectedQueryId = 0;
+    $scope.selectedQueryType = null;
     $scope.nodeSelectionDisabled = false;
 
     // TODO load aggregators from /aggregators on tsdb..
@@ -99,6 +100,9 @@ aardvark.directive('tagFilterSelection', function() {
             return graph.type;
         }
         return "";
+    }
+    $scope.metricString = function(metricQuery) {
+        return tsdbUtils.metricQuery(metricQuery, false, null/*globalDownsampleTo*/, null/*downsampleOverrideFn*/, function(s){});
     }
     $scope.currentMetricName = function() {
         if ($scope.selectedMetric != null && $scope.selectedMetric != "") {
@@ -204,6 +208,7 @@ aardvark.directive('tagFilterSelection', function() {
 
         // load the tag names / possible values
         $scope.metricSelected(query.name, false);
+        $scope.selectedQueryType = query.type;
         // populate tag chosen values / re flags
         $scope.localModel.tagFilters = query.tags;
         for (var t=0; t<$scope.localModel.tagFilters.length; t++) {
@@ -333,6 +338,16 @@ aardvark.directive('tagFilterSelection', function() {
         $scope.metricDeselected();
         $scope.clearSelectedTreeNode();
     }
+        
+    $scope.isMetricQuery = function() {
+        return $scope.selectedQueryType == "metric";
+    }
+        
+    $scope.isExpressionQuery = function() {
+        return $scope.selectedQueryType == "gexp" || $scope.selectedQueryType == "exp";
+    }
+        
+        
 
     $scope.persistViewToExistingQuery = function(query) {
         query.type = "metric"; // all we support right now
@@ -643,7 +658,34 @@ aardvark.directive('tagFilterSelection', function() {
     }
 
     $scope.openQueryDialog = function() {
-        alert('TODO');
+        var modalInstance = $uibModal.open({
+            animation: false,
+            ariaLabelledBy: 'query-editor-modal-title',
+            ariaDescribedBy: 'query-editor-modal-body',
+            templateUrl: 'queryEditorDialog.tmpl.html',
+            controller: 'QueryEditorDialogCtrl',
+            controllerAs: '$ctrl',
+            size: 'lg',
+            resolve: {
+                queries: function() { return $rootScope.model.queries; },
+                graphs: function() { return $rootScope.model.graphs; },
+                idGenerator: function() { return idGenerator; },
+                tsdbUtils: function() { return tsdbUtils; },
+                deepUtils: function() { return deepUtils; }
+            }
+        });
+        modalInstance.result.then(function (result) {
+            var changed = result.changed;
+//            var deleted = result.deleted;
+//            var existingById = {};
+//            for (var q=0; q<$rootScope.model.queries.length; q++) {
+//                existingById[$rootScope.model.queries[q].id] = $rootScope.model.queries[q];
+//            }
+            $rootScope.model.queries = changed;
+            $rootScope.saveModel(true);
+        }, function () {
+            // do nothing
+        });
     }
 
     $scope.updateModel = function() {

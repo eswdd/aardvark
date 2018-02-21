@@ -1,5 +1,5 @@
 aardvark
-    .factory('GraphServices', [ 'tsdbClient', '$http', function($tsdbClient, $http) {
+    .factory('GraphServices', [ 'tsdbClient', 'tsdbUtils', '$http', function($tsdbClient, $tsdbUtils, $http) {
 
         var ret = {};
 
@@ -93,26 +93,6 @@ aardvark
                 default:
                     throw "Unrecognized baseline datum style: "+global.baselineDatumStyle;
             }
-        }
-
-        // helper functions for dealing with tsdb data
-        ret.tsdb_rateString = function(metricOptions) {
-            var ret = "rate";
-            if (metricOptions.rateCounter) {
-                ret += "{counter";
-                var rctrSep = ",";
-                if (metricOptions.rateCounterMax != null && metricOptions.rateCounterMax != "") {
-                    ret += "," + metricOptions.rateCounterMax;
-                }
-                else {
-                    rctrSep = ",,";
-                }
-                if (metricOptions.rateCounterReset != null && metricOptions.rateCounterReset != "") {
-                    ret += rctrSep + metricOptions.rateCounterReset;
-                }
-                ret += "}";
-            }
-            return ret;
         }
 
         ret.tsdb_fromTimestampAsTsdbString = function(global) {
@@ -251,27 +231,36 @@ aardvark
             }
         }
 
-        ret.tsdb_queryStringForBaseline = function(renderContext, global, graph, metrics, perLineFn, datum, downsampleOverrideFn, noIgnore) {
+        ret.tsdb_queryStringForBaseline = function(renderContext, global, graph, metrics, perLineFn, datum, downsampleOverrideFn, noIgnore, gexpSubQueriesById) {
             var fromTimestamp = ret.tsdb_baselineFromTimestampAsTsdbString(global, datum);
             var toTimestamp = ret.tsdb_baselineToTimestampAsTsdbString(global, datum);
-            return ret.tsdb_queryStringInternal(renderContext, datum, fromTimestamp, toTimestamp, global.autoReload, false, global.globalDownsampling, global.globalDownsampleTo, graph, metrics, perLineFn, downsampleOverrideFn);
+            return ret.tsdb_queryStringInternal(renderContext, datum, fromTimestamp, toTimestamp, global.autoReload, false, global.globalDownsampling, global.globalDownsampleTo, graph, metrics, perLineFn, downsampleOverrideFn, noIgnore, gexpSubQueriesById);
         }
 
-        ret.tsdb_queryString = function(renderContext, global, graph, metrics, perLineFn, datum, downsampleOverrideFn, noIgnore) {
+        ret.tsdb_queryString = function(renderContext, global, graph, metrics, perLineFn, datum, downsampleOverrideFn, noIgnore, gexpSubQueriesById) {
             var fromTimestamp = ret.tsdb_fromTimestampAsTsdbString(global);
             var toTimestamp = ret.tsdb_toTimestampAsTsdbString(global);
-            return ret.tsdb_queryStringInternal(renderContext, datum, fromTimestamp, toTimestamp, global.autoReload, true, global.globalDownsampling, global.globalDownsampleTo, graph, metrics, perLineFn, downsampleOverrideFn, noIgnore);
+            return ret.tsdb_queryStringInternal(renderContext, datum, fromTimestamp, toTimestamp, global.autoReload, true, global.globalDownsampling, global.globalDownsampleTo, graph, metrics, perLineFn, downsampleOverrideFn, noIgnore, gexpSubQueriesById);
         }
 
-        ret.tsdb_queryStringInternal = function(renderContext, datum, fromTimestamp, toTimestamp, autoReload, allowAutoReloadOverrideEndDate, globalDownsampling, globalDownsampleTo, graph, metrics, perLineFn, downsampleOverrideFn, noIgnore) {
+        ret.tsdb_queryStringInternal = function(renderContext, datum, fromTimestamp, toTimestamp, autoReload, allowAutoReloadOverrideEndDate, globalDownsampling, globalDownsampleTo, graph, queries, perLineFn, downsampleOverrideFn, noIgnore, gexpSubQueriesById) {
             // validation
             if (fromTimestamp == null || fromTimestamp == "") {
                 renderContext.renderErrors[graph.id] = "No start date specified";
                 return "";
             }
-            if (metrics == null || metrics.length == 0) {
+            if (queries == null || queries.length == 0) {
                 renderContext.renderErrors[graph.id] = "No queries specified";
                 return "";
+            }
+            var queryType = null;
+            for (var q=0; q<queries.length; q++) {
+                if (queryType == null) {
+                    queryType = queries[q].type;
+                }
+                else if (queryType != queries[q].type) {
+                    throw "Can't mix query types, have both "+queryType+" and "+queries[q].type;
+                }
             }
 
             // url construction
@@ -291,75 +280,54 @@ aardvark
                 }
             }
 
-
-            for (var i=0; i<metrics.length; i++) {
+            for (var i=0; i<queries.length; i++) {
                 // agg:[interval-agg:][rate[{counter[,max[,reset]]}:]metric[{tag=value,...}]
-                var metric = metrics[i];
-                var options = metric.graphOptions;
-                url += "&m=" + options.aggregator + ":";
-                if (downsampleOverrideFn) {
-                    url += downsampleOverrideFn(options.downsampleBy) + ":";
-                }
-                else if (globalDownsampling) {
-                    url += globalDownsampleTo + "-" + options.downsampleBy + ":";
-                }
-                else if (options.downsample) {
-                    url += options.downsampleTo + "-" + options.downsampleBy + ":";
-                }
-                if (options.rate) {
-                    url += ret.tsdb_rateString(options) + ":";
-                }
-                else if (options.rateCounter) {
-                    // todo: warnings should be appended..
-                    renderContext.renderWarnings[graph.id] = "You have specified a rate counter without a rate, ignoring";
-                }
-                url += metric.name;
-                var sep = "{";
-                for (var t=0; t<metric.tags.length; t++) {
-                    var tag = metric.tags[t];
-                    if (tag.value != "" && (tag.groupBy == null || tag.groupBy)) {
-                        url += sep + tag.name + "=" + tag.value;
-                        sep = ",";
-                    }
-                }
-                if (sep == ",") {
-                    url += "}";
-                }
-                // tsdb 2.2+ supports filters
-                if ($tsdbClient.versionNumber >= $tsdbClient.TSDB_2_2) {
-                    // filters section requires the group by section to have been written out, even if empty
-                    if (sep == ",") {
-                        sep = "{";
-                    }
-                    else {
-                        sep = "{}{";
-                    }
-                    for (var t=0; t<metric.tags.length; t++) {
-                        var tag = metric.tags[t];
-                        if (tag.value != "" && tag.value != "*" && tag.value != "wildcard(*)" && tag.groupBy != null && !tag.groupBy) {
-                            url += sep + tag.name + "=" + tag.value;
-                            sep = ",";
-                        }
-                    }
-                    if (sep == ",") {
-                        url += "}";
-                    }
+                switch (queries[i].type) {
+                    case "metric":
+                        var metricQuery = queries[i];
+                        var metricString = $tsdbUtils.metricQuery(
+                            metricQuery, globalDownsampling, globalDownsampleTo, downsampleOverrideFn,
+                            function(s) {
+                                // todo: warnings should be appended..
+                                renderContext.renderWarnings[graph.id] = s;
+                            }
+                        );
+                        url += "&m=" + metricString;
+                        break;
+                    case "gexp":
+                        var gexpQuery = queries[i];
+                        var gexpString = $tsdbUtils.gexpQuery(
+                            gexpQuery, gexpSubQueriesById, globalDownsampling, globalDownsampleTo, downsampleOverrideFn,
+                            function(s) {
+                                // todo: warnings should be appended..
+                                renderContext.renderWarnings[graph.id] = s;
+                            }
+                        );
+                        url += "&exp=" + gexpString;
+                        break;
+                    default:
+                        throw "Unsupported query type: "+queries[i].type
                 }
 
                 if (perLineFn) {
-                    url += perLineFn(metric);
+                    url += perLineFn(queries[i]);
                 }
-
-                // ready for next metric
             }
 
             return url;
         }
 
-        ret.tsdbGraphUrl = function(path, renderContext, config, global, graph, metrics, forceAxis, downsampleOverrideFn, yAxisParams, y2AxisParams, keyParams, lineSmoothing, style, globalAnnotations, addIgnore) {
+        ret.tsdbGraphUrl = function(path, renderContext, config, global, graph, queries, forceAxis, downsampleOverrideFn, yAxisParams, y2AxisParams, keyParams, lineSmoothing, style, globalAnnotations, addIgnore) {
             if (path == null) {
                 // gui
                 path = "/#";
+            }
+            var metrics = [];
+            // tsdb graph only supports metric queries
+            for (var q=0; q<queries.length; q++) {
+                if (queries[q].type == "metric") {
+                    metrics.push(queries[q]);
+                }
             }
             var url = config.tsdbBaseReadUrl+path;
             var qs = ret.tsdb_queryString(renderContext, global, graph, metrics, function(metric) {
@@ -370,7 +338,7 @@ aardvark
                     return "&o=axis+x1y1";
                 }
                 return "&o=axis+"+metric.graphOptions.axis;
-            }, null/*datum*/, downsampleOverrideFn, !addIgnore);
+            }, null/*datum*/, downsampleOverrideFn, !addIgnore, {}/*metricsByMetricId*/);
 
             if (qs == "") {
                 return;
@@ -380,11 +348,11 @@ aardvark
 
             var usingLeftAxis = false;
             var usingRightAxis = false;
-            for (var i=0; i<metrics.length; i++) {
-                if (metrics[i].graphOptions.axis == null || metrics[i].graphOptions.axis == "x1y1" || forceAxis == "x1y1") {
+            for (var i=0; i<queries.length; i++) {
+                if (queries[i].graphOptions.axis == null || queries[i].graphOptions.axis == "x1y1" || forceAxis == "x1y1") {
                     usingLeftAxis = true;
                 }
-                else if (metrics[i].graphOptions.axis == "x1y2" || forceAxis == "x1y2") {
+                else if (queries[i].graphOptions.axis == "x1y2" || forceAxis == "x1y2") {
                     usingRightAxis = true;
                 }
                 else {
@@ -549,41 +517,81 @@ aardvark
         
         ret.perform_queries = function(renderContext, config, global, graph, queries, options, datum) {
 
-            var constructQueriesAndUrls = function(queryStringFn, datum) {
-                // split metrics up so that we end up with only a single instance of each metric in each set of queries
-                var metricIndexes = {};
-                var maxCount = 0;
+            var constructQueriesAndUrls = function(queryStringFn, datum, queryType) {
+                
+                var typedQueries = [];
                 for (var q=0; q<queries.length; q++) {
-                    if (!metricIndexes.hasOwnProperty(queries[q].name)) {
-                        metricIndexes[queries[q].name] = [];
+                    if (queries[q].type == queryType) {
+                        typedQueries.push(queries[q]);
                     }
-                    metricIndexes[queries[q].name].push(q);
-                    maxCount = Math.max(maxCount, metricIndexes[queries[q].name].length);
                 }
-                var seperatedMetricsDicts = [];
-                var seperatedMetricsArrays = [];
+                
+                if (queryType == "gexp" && typedQueries.length>0 && !config.supports_expressions) {
+                    renderContext.renderMessages[graph.id] = "Graph renderer doesn't support expressions yet being asked to render them.";
+                    return [];
+                }
+                
+                var gexpSubQueriesById = {};
+                if (queryType == "gexp") {
+                    for (var q=0; q<queries.length; q++) {
+                        if (queries[q].type == "metric" && queries[q].type == "gexp") {
+                            gexpSubQueriesById[queries[q].id] = queries[q];
+                        }
+                    }
+                }
+                
+                var splitProperty = null;
+                switch (queryType) {
+                    case "metric":
+                        splitProperty = "name";
+                        break;
+                    case "gexp":
+                        splitProperty = "function";
+                        break;
+                    default:
+                        throw 'Unsupported query type: '+queryType
+                }
+                
+                // split metrics up so that we end up with only a single instance of each metric in each set of queries
+                var queryIndexes = {};
+                var maxCount = 0;
+                for (var q=0; q<typedQueries.length; q++) {
+                    if (!queryIndexes.hasOwnProperty(typedQueries[q][splitProperty])) {
+                        queryIndexes[typedQueries[q][splitProperty]] = [];
+                    }
+                    queryIndexes[typedQueries[q][splitProperty]].push(q);
+                    maxCount = Math.max(maxCount, queryIndexes[typedQueries[q][splitProperty]].length);
+                }
+                var seperatedQueriesDicts = [];
+                var seperatedQueriesArrays = [];
                 for (var i=0; i<maxCount; i++) {
                     var dict = {};
                     var arr = [];
-                    for (var metricName in metricIndexes) {
-                        if (metricIndexes.hasOwnProperty(metricName)) {
-                            if (metricIndexes[metricName].length > i) {
-                                var metric = queries[metricIndexes[metricName][i]];
-                                dict[metricName] = metric;
-                                arr.push(metric)
+                    for (var splitName in queryIndexes) {
+                        if (queryIndexes.hasOwnProperty(splitName)) {
+                            if (queryIndexes[splitName].length > i) {
+                                var query = typedQueries[queryIndexes[splitName][i]];
+                                dict[splitName] = query;
+                                arr.push(query)
                             }
                         }
                     }
-                    seperatedMetricsDicts.push(dict);
-                    seperatedMetricsArrays.push(arr);
+                    seperatedQueriesDicts.push(dict);
+                    seperatedQueriesArrays.push(arr);
                 }
 
                 var ret = [];
                 for (var i=0; i<maxCount; i++) {
 
-                    var url = config.tsdbBaseReadUrl+"/api/query?";
+                    var url = config.tsdbBaseReadUrl+"/api/query";
+                    
+                    if (queryType == "gexp") {
+                        url += "/gexp";
+                    } 
+                    
+                    url += "?";
 
-                    url += queryStringFn(renderContext, global, graph, seperatedMetricsArrays[i], null/*perLineFn*/, datum, options.downsampleOverrideFn, false/*noIgnore*/);
+                    url += queryStringFn(renderContext, global, graph, seperatedQueriesArrays[i], null/*perLineFn*/, datum, options.downsampleOverrideFn, false/*noIgnore*/, gexpSubQueriesById);
 
                     if (options.supports_annotations && (options.annotations || options.globalAnnotations)) {
                         url += "&show_tsuids=true";
@@ -601,7 +609,7 @@ aardvark
                         url += "&arrays=true";
                     }
                     url += "&show_query=true";
-                    ret.push({queries: seperatedMetricsDicts[i], url: url});
+                    ret.push({queries: seperatedQueriesDicts[i], url: url});
                 }
                 return ret;
             }
@@ -610,32 +618,48 @@ aardvark
             var baselineJson = null;
             var errorResponse = false;
             
-            var queriesAndUrls = constructQueriesAndUrls(ret.tsdb_queryString, datum);
-            var baselineQueriesAndUrls = global.baselining && options.supports_baselining ? constructQueriesAndUrls(ret.tsdb_queryStringForBaseline, datum) : null;
-            var expectedNormalResponses = queriesAndUrls.length;
+            var metricQueriesAndUrls = constructQueriesAndUrls(ret.tsdb_queryString, datum, "metric");
+            var baselineMetricQueriesAndUrls = global.baselining && options.supports_baselining ? constructQueriesAndUrls(ret.tsdb_queryStringForBaseline, datum, "metric") : null;
+            var gexpQueriesAndUrls = constructQueriesAndUrls(ret.tsdb_queryString, datum, "gexp");
+            var baselineGexpQueriesAndUrls = global.baselining && options.supports_baselining ? constructQueriesAndUrls(ret.tsdb_queryStringForBaseline, datum, "gexp") : null;
+            var expectedNormalResponses = metricQueriesAndUrls.length;
             var receivedNormalResponses = 0;
-            var expectedBaselineResponses = global.baselining && options.supports_baselining ? queriesAndUrls.length : 0;
+            var expectedBaselineResponses = global.baselining && options.supports_baselining ? metricQueriesAndUrls.length : 0;
             var receivedBaselineResponses = 0;
 
             var mainJsons = [];
             var baselineJsons = [];
 
-            var mergeJsons = function(jsons) {
+            var mergeJsons = function(jsons, queryType) {
                 var ret = [];
                 for (var j=0; j<jsons.length; j++) {
                     var metricsAndJson = jsons[j];
                     var json = metricsAndJson.response;
-                    var queriesByMetric = metricsAndJson.queries;
-                    for (var i=0; i<json.length; i++) {
-                        var metric = json[i].metric;
-                        json[i].aardvark_query = queriesByMetric[metric];
-                        ret.push(json[i]);
+                    if (queryType == "metric") {
+                        var queriesByMetric = metricsAndJson.queries;
+                        for (var i=0; i<json.length; i++) {
+                            var metric = json[i].metric;
+                            json[i].aardvark_query = queriesByMetric[metric];
+                            ret.push(json[i]);
+                        }
+                    }
+                    else if (queryType == "gexp") {
+                        var queriesByFunction = metricsAndJson.queries;
+                        for (var i=0; i<json.length; i++) {
+                            // todo: where do we get this from
+                            var f = json[i].metric.substring(0, Math.max(0, json[i].metric.indexOf("(")));
+                            json[i].aardvark_query = queriesByFunction[f];
+                            ret.push(json[i]);
+                        }
+                    }
+                    else {
+                        throw "Unsupported query type: "+queryType;
                     }
                 }
                 return ret;
             };
 
-            var doMain = function(queriesAndUrl) {
+            var doMain = function(queriesAndUrl, queryType) {
                 $http.get(queriesAndUrl.url, {withCredentials:config.authenticatedReads}).success(function (json) {
                     if (errorResponse) {
                         return;
@@ -644,7 +668,7 @@ aardvark
                     receivedNormalResponses++;
                     if (expectedNormalResponses == receivedNormalResponses) {
                         //console.log("got all my responses")
-                        mainJson = mergeJsons(mainJsons);
+                        mainJson = mergeJsons(mainJsons, queryType);
                         if (expectedBaselineResponses == receivedBaselineResponses) {
                             options.processJson(mainJson, baselineJson);
                         }
@@ -658,7 +682,7 @@ aardvark
                     });
 
             }
-            var doBaseline = function(metricsAndUrl) {
+            var doBaseline = function(metricsAndUrl, queryType) {
                 $http.get(metricsAndUrl.url, {withCredentials:config.authenticatedReads}).success(function (json) {
                     if (errorResponse) {
                         return;
@@ -666,7 +690,7 @@ aardvark
                     baselineJsons.push({queries:metricsAndUrl.queries, response: json});
                     receivedBaselineResponses++;
                     if (expectedBaselineResponses == receivedBaselineResponses) {
-                        baselineJson = mergeJsons(baselineJsons);
+                        baselineJson = mergeJsons(baselineJsons, queryType);
                         if (expectedNormalResponses == receivedNormalResponses) {
                             options.processJson(mainJson, baselineJson);
                         }
@@ -681,18 +705,27 @@ aardvark
 
             }
 
-            for (var u=0; u<queriesAndUrls.length; u++) {
-                doMain(queriesAndUrls[u]);
+            for (var u=0; u<metricQueriesAndUrls.length; u++) {
+                doMain(metricQueriesAndUrls[u], "metric");
+            }
+
+            for (var u=0; u<gexpQueriesAndUrls.length; u++) {
+                doMain(gexpQueriesAndUrls[u], "gexp");
             }
 
             if (global.baselining && options.supports_baselining) {
-                for (var u=0; u<baselineQueriesAndUrls.length; u++) {
-                    doBaseline(baselineQueriesAndUrls[u]);
+                for (var u=0; u<baselineMetricQueriesAndUrls.length; u++) {
+                    doBaseline(baselineMetricQueriesAndUrls[u], "metric");
+                }
+                
+                for (var u=0; u<baselineGexpQueriesAndUrls.length; u++) {
+                    doBaseline(baselineGexpQueriesAndUrls[u], "gexp");
                 }
             }
         }
         /*
         perform_queries_config = {
+            supports_expressions: false,
             supports_annotations: false,
             supports_baselining: false,
             annotations: false,

@@ -503,70 +503,70 @@ describe('Aardvark services', function () {
         
         it('expects the url to be generated correctly with no graph options and 1 metric with no tags', function() {
             
-            var metrics = [{name: "metric1", tags: [], graphOptions: { aggregator: "sum" }}];
+            var metrics = [{type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum" }}];
             expect(graphServices.tsdb_queryStringInternal(renderContext, null, "1d","1h",false, true, false, null, {id:"abc"}, metrics, null)).toEqualData("start=1d&end=1h&m=sum:metric1");
         });
         
         it('expects the url to be generated correctly with no graph options and 1 metric with tags with empty values', function() {
             
-            var metrics = [{name: "metric1", tags: [{name: "key", value: ""}], graphOptions: { aggregator: "sum" }}];
+            var metrics = [{type: "metric", name: "metric1", tags: [{name: "key", value: ""}], graphOptions: { aggregator: "sum" }}];
             expect(graphServices.tsdb_queryStringInternal(renderContext, null, "1d","1h",false, true, false, null, {id:"abc"}, metrics, null)).toEqualData("start=1d&end=1h&m=sum:metric1");
         });
         
         it('expects the url to be generated correctly with no graph options and 1 metric with some tags with values', function() {
             
-            var metrics = [{name: "metric1", tags: [{name: "key", value: ""},{name:"host", value: "host1"}], graphOptions: { aggregator: "sum" }}];
+            var metrics = [{type: "metric", name: "metric1", tags: [{name: "key", value: ""},{name:"host", value: "host1"}], graphOptions: { aggregator: "sum" }}];
             expect(graphServices.tsdb_queryStringInternal(renderContext, null, "1d","1h",false, true, false, null, {id:"abc"}, metrics, null)).toEqualData("start=1d&end=1h&m=sum:metric1{host=host1}");
         });
         
         it('expects the url to be generated correctly with no graph options and 1 metric with some tags with values with group by false on v2.0.0', function() {
             
-            var metrics = [{name: "metric1", tags: [{name: "key", value: "value", groupBy: true},{name:"host", value: "host1", groupBy: false}], graphOptions: { aggregator: "sum" }}];
+            var metrics = [{type: "metric", name: "metric1", tags: [{name: "key", value: "value", groupBy: true},{name:"host", value: "host1", groupBy: false}], graphOptions: { aggregator: "sum" }}];
             expect(graphServices.tsdb_queryStringInternal(renderContext, null, "1d","1h",false, true, false, null, {id:"abc"}, metrics, null)).toEqualData("start=1d&end=1h&m=sum:metric1{key=value}");
         });
         
         it('expects the url to be generated correctly with no graph options and 1 metric with a tag with 2 values with group by false and true on v2.2.0', function() {
             
             tsdbClient.versionNumber = 2002;
-            var metrics = [{name: "metric1", tags: [{name: "key", value: "wildcard(a*)", groupBy: true},{name:"key", value: "wildcard(*a)", groupBy: false}], graphOptions: { aggregator: "sum" }}];
+            var metrics = [{type: "metric", name: "metric1", tags: [{name: "key", value: "wildcard(a*)", groupBy: true},{name:"key", value: "wildcard(*a)", groupBy: false}], graphOptions: { aggregator: "sum" }}];
             expect(graphServices.tsdb_queryStringInternal(renderContext, null, "1d","1h",false, true, false, null, {id:"abc"}, metrics, null)).toEqualData("start=1d&end=1h&m=sum:metric1{key=wildcard(a*)}{key=wildcard(*a)}");
         });
         
         it('expects the url to be generated correctly with no graph options and 1 metric with a tag with 2 values with group by true on v2.2.0', function() {
             
             tsdbClient.versionNumber = 2002;
-            var metrics = [{name: "metric1", tags: [{name: "key", value: "wildcard(a*)", groupBy: true},{name:"key", value: "wildcard(*a)", groupBy: true}], graphOptions: { aggregator: "sum" }}];
+            var metrics = [{type: "metric", name: "metric1", tags: [{name: "key", value: "wildcard(a*)", groupBy: true},{name:"key", value: "wildcard(*a)", groupBy: true}], graphOptions: { aggregator: "sum" }}];
             expect(graphServices.tsdb_queryStringInternal(renderContext, null, "1d","1h",false, true, false, null, {id:"abc"}, metrics, null)).toEqualData("start=1d&end=1h&m=sum:metric1{key=wildcard(a*),key=wildcard(*a)}");
         });
         
         it('expects the url to be generated correctly with no graph options and 1 metric with a tag with 2 values with group by false on v2.2.0', function() {
             
             tsdbClient.versionNumber = 2002;
-            var metrics = [{name: "metric1", tags: [{name: "key", value: "wildcard(a*)", groupBy: false},{name:"key", value: "wildcard(*a)", groupBy: false}], graphOptions: { aggregator: "sum" }}];
+            var metrics = [{type: "metric", name: "metric1", tags: [{name: "key", value: "wildcard(a*)", groupBy: false},{name:"key", value: "wildcard(*a)", groupBy: false}], graphOptions: { aggregator: "sum" }}];
             expect(graphServices.tsdb_queryStringInternal(renderContext, null, "1d","1h",false, true, false, null, {id:"abc"}, metrics, null)).toEqualData("start=1d&end=1h&m=sum:metric1{}{key=wildcard(a*),key=wildcard(*a)}");
         });
         
         it('expects the url to be generated correctly with no graph options and 1 metric with some tags with values with group by false on v2.2.0', function() {
             
             tsdbClient.versionNumber = 2002;
-            var metrics = [{name: "metric1", tags: [{name: "key", value: "value", groupBy: true},{name:"host", value: "host1", groupBy: false}], graphOptions: { aggregator: "sum" }}];
+            var metrics = [{type: "metric", name: "metric1", tags: [{name: "key", value: "value", groupBy: true},{name:"host", value: "host1", groupBy: false}], graphOptions: { aggregator: "sum" }}];
             expect(graphServices.tsdb_queryStringInternal(renderContext, null, "1d","1h",false, true, false, null, {id:"abc"}, metrics, null)).toEqualData("start=1d&end=1h&m=sum:metric1{key=value}{host=host1}");
         });
         
         it('expects the url to be generated correctly with no graph options and 1 metric with tags with values only with group by false on v2.2.0', function() {
             
             tsdbClient.versionNumber = 2002;
-            var metrics = [{name: "metric1", tags: [{name:"host", value: "host1", groupBy: false}], graphOptions: { aggregator: "sum" }}];
+            var metrics = [{type: "metric", name: "metric1", tags: [{name:"host", value: "host1", groupBy: false}], graphOptions: { aggregator: "sum" }}];
             expect(graphServices.tsdb_queryStringInternal(renderContext, null, "1d","1h",false, true, false, null, {id:"abc"}, metrics, null)).toEqualData("start=1d&end=1h&m=sum:metric1{}{host=host1}");
         });
         
         it('expects the url to be generated correctly with no graph options and 1 metric with tags with filter values of all', function() {
             
             tsdbClient.versionNumber = 2002;
-            var metrics = [{name: "metric1", tags: [{name:"host", value: "*", groupBy: false}], graphOptions: { aggregator: "sum" }}];
+            var metrics = [{type: "metric", name: "metric1", tags: [{name:"host", value: "*", groupBy: false}], graphOptions: { aggregator: "sum" }}];
             expect(graphServices.tsdb_queryStringInternal(renderContext, null, "1d","1h",false, true, false, null, {id:"abc"}, metrics, null)).toEqualData("start=1d&end=1h&m=sum:metric1");
 
-            metrics = [{name: "metric1", tags: [{name:"host", value: "wildcard(*)", groupBy: false}], graphOptions: { aggregator: "sum" }}];
+            metrics = [{type: "metric", name: "metric1", tags: [{name:"host", value: "wildcard(*)", groupBy: false}], graphOptions: { aggregator: "sum" }}];
             expect(graphServices.tsdb_queryStringInternal(renderContext, null, "1d","1h",false, true, false, null, {id:"abc"}, metrics, null)).toEqualData("start=1d&end=1h&m=sum:metric1");
         });
         

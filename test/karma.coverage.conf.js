@@ -39,6 +39,7 @@ module.exports = function (config) {
             'static-content/HorizonRenderer.js',
             'static-content/ScatterRenderer.js',
             'static-content/GraphCtrl.js',
+            'static-content/QueryEditorDialogCtrl.js',
             'static-content/QueryControlCtrl.js',
             'static-content/UserPrefsDialogCtrl.js',
             'test/unit/**/*.js'
@@ -50,7 +51,7 @@ module.exports = function (config) {
 
         frameworks: ['jasmine'],
 
-        browsers: ['Firefox'],
+        browsers: ['Firefox','Chrome'],
 
         plugins: [
             'karma-chrome-launcher',

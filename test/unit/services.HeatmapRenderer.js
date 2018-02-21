@@ -200,7 +200,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "", autoReload: false };
             var graph = { id: "abc", graphWidth: 640, graphHeight: 100 };
-            var metrics = [ { id: "123", graphOptions: {} } ];
+            var metrics = [ { id: "123", type: "metric", graphOptions: {} } ];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -232,7 +232,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "2h", autoReload: false };
             var graph = { id: "abc", graphWidth: 640, graphHeight: 100 };
-            var metrics = [ { id: "123", graphOptions: {} }, { id: "456", graphOptions: {} } ];
+            var metrics = [ { id: "123", type: "metric", graphOptions: {} }, { id: "456", graphOptions: {} } ];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -248,7 +248,7 @@ describe('Aardvark renderers', function () {
 //
             var global = { fromDate: "2016/09/02", fromTime: "00:00:00", toDate: "2016/09/12", toTime: "00:00:00", absoluteTimeSpecification: true };
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "auto" } };
-            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
             rendererInstance.render(renderContext, config, global, graph, metrics);
             
@@ -280,7 +280,7 @@ describe('Aardvark renderers', function () {
 //
             var global = { fromDate: "2014/09/02", fromTime: "00:00:00", toDate: "2016/09/12", toTime: "00:00:00", absoluteTimeSpecification: true };
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "auto" } };
-            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
             rendererInstance.render(renderContext, config, global, graph, metrics);
             
@@ -312,7 +312,7 @@ describe('Aardvark renderers', function () {
 //
             var global = { fromDate: "2016/09/02", fromTime: "00:00:00", toDate: "2016/09/12", toTime: "00:00:00", absoluteTimeSpecification: true };
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "day_hour" } };
-            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
             rendererInstance.render(renderContext, config, global, graph, metrics);
             
@@ -351,7 +351,7 @@ describe('Aardvark renderers', function () {
 //
             var global = { fromDate: "2016/09/02", fromTime: "00:00:00", toDate: "2016/09/12", toTime: "00:00:00", absoluteTimeSpecification: true };
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "day_hour", excludeNegative: true } };
-            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
             rendererInstance.render(renderContext, config, global, graph, metrics);
             
@@ -390,7 +390,7 @@ describe('Aardvark renderers', function () {
 //
             var global = { fromDate: "2016/10/10", fromTime: "10:10:10", toDate: "2016/10/24", toTime: "10:10:10", absoluteTimeSpecification: true };
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "week_day" } };
-            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
             rendererInstance.render(renderContext, config, global, graph, metrics);
             
@@ -429,7 +429,7 @@ describe('Aardvark renderers', function () {
 //
             var global = { fromDate: "2016/10/10", fromTime: "10:10:10", toDate: "2016/10/24", toTime: "10:10:10", absoluteTimeSpecification: true };
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "week_day", excludeNegative: true } };
-            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
             rendererInstance.render(renderContext, config, global, graph, metrics);
             
@@ -468,7 +468,7 @@ describe('Aardvark renderers', function () {
 //
             var global = { relativePeriod: "2w", autoReload: false };
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "week_day", filterLowerBound: "30" } };
-            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
             rendererInstance.render(renderContext, config, global, graph, metrics);
             
@@ -497,7 +497,7 @@ describe('Aardvark renderers', function () {
 //
             var global = { relativePeriod: "2w", autoReload: false };
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "week_day", filterUpperBound: "30" } };
-            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
             rendererInstance.render(renderContext, config, global, graph, metrics);
             
@@ -526,7 +526,7 @@ describe('Aardvark renderers', function () {
 //
             var global = { relativePeriod: "2w", autoReload: false };
             var graph = { id: "abc", graphWidth: 10, graphHeight: 10, heatmap: { style: "day_hour", filterLowerBound: "30", filterUpperBound: "30" } };
-            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
             rendererInstance.render(renderContext, config, global, graph, metrics);
             
