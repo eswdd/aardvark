@@ -51,6 +51,7 @@
     <!-- / Renderers go in here -->
     <script type="text/javascript" src="GraphCtrl.js"></script>
     <script type="text/javascript" src="QueryControlCtrl.js"></script>
+    <script type="text/javascript" src="QueryEditorDialogCtrl.js"></script>
     <script type="text/javascript" src="UserPrefsDialogCtrl.js"></script>
     <!-- App CSS -->
     <link rel="stylesheet" href="aardvark.css">
@@ -768,13 +769,17 @@
                     <div>
                         <label for="queryControl_selectQuery" style="vertical-align: middle">Metric</label>
                         <select id="queryControl_selectQuery" style="vertical-align: middle" ng-model="selectedQueryId" ng-change="nodeSelectedForEditing()" ng-disabled="nodeSelectionDisabled">
-                            <option ng-repeat="query in model.queries track by query.id" value="{{query.id}}">{{query.name}}</option>
+                            <option ng-repeat="query in model.queries | filter:{type: 'metric'} track by query.id" value="{{query.id}}">{{metricString(query)}}</option>
                         </select>
-                        <input type="text" id="queryControl_metricName"  style="width: 0; height: 0; color: rgba(0,0,0,0); background-color: rgba(0,0,0,0); border: none" value="{{currentMetricName()}}" />
+                        <!-- TODO: this is currently broken, see # -->
+                        <!--input type="text" id="queryControl_metricName"  style="width: 0; height: 0; color: rgba(0,0,0,0); background-color: rgba(0,0,0,0); border: none" value="{{currentMetricName()}}" />
                         <button style="padding: 1px; vertical-align: top" class="btn btn-primary btn-xs glyphicon glyphicon-copy" ngclipboard data-clipboard-target="#queryControl_metricName" ng-disabled="currentMetricName() == null" uib-tooltip="Copy metric name to clipboard" tooltip-placement="above">
-                        </button> 
+                        </button--> 
                     </div>
 
+                    <div ng-show="isExpressionQuery()">
+                        Please use the query editor to manage expression queries.
+                    </div>
                     <div ng-show="isMetricQuery()">
                         <aa-collapsible-panel title="Query" icon="glyphicon-search">
                             <div>
@@ -875,6 +880,134 @@
                     <input type="button" class="btn btn-primary btn-xs" value="Save" ng-click="saveQuery()" ng-show="saveButtonVisible()" ng-disabled="!saveButtonVisible()">
                     <input type="button" class="btn btn-primary btn-xs pull-right" value="Open Editor" ng-click="openQueryDialog()" ng-show="expressionQueriesSupported()" uib-tooltip="Use the query editor to setup expression queries" tooltip-placement="left">
                 </div>
+
+
+                <script type="text/ng-template" id="queryEditorDialog.tmpl.html">
+                    <div class="modal-header">
+                        <h3 class="modal-title" id="query-editor-modal-title" style="text-align: center">Query Editor</h3>
+                    </div>
+                    <div class="modal-body" id="query-editor-modal-body">
+                        <div>
+                            <label for="querySelector">Query</label>
+                            <select id="querySelector" ng-model="$ctrl.currentQueryId" ng-change="$ctrl.querySelectionChanged()">
+                                <option ng-repeat="query in $ctrl.queries track by query.id" value="{{query.id}}">{{query.type}}: {{query.name}}</option>
+                            </select>
+                            <button class="btn btn-primary btn-xs" ng-click="$ctrl.newQuery()">New...</button>
+                        </div>
+                        <div class="standard-border" style="border-width: 1px; padding-left: 2px; padding-right: 2px" ng-show="$ctrl.currentQueryId != null">
+                            <aa-collapsible-panel title="Query" icon="glyphicon-search">
+                                <div>
+                                    <div class="btn-group">
+                                        <label class="btn btn-primary btn-xs" ng-model="$ctrl.currentQuery.type" uib-btn-radio="'metric'">Metric</label>
+                                        <label class="btn btn-primary btn-xs" ng-model="$ctrl.currentQuery.type" uib-btn-radio="'gexp'">Graphite Expression</label>
+                                        <label class="btn btn-primary btn-xs" ng-model="$ctrl.currentQuery.type" uib-btn-radio="'exp'">TSDB Expression</label>
+                                    </div>
+                                </div>
+                                <div ng-show="$ctrl.currentQuery.type == 'metric'">
+                                    TODO: metric
+                                </div>
+                                <div ng-show="$ctrl.currentQuery.type == 'gexp'">
+                                    <div>
+                                        <label for="gexpQueryName">Name</label>
+                                        <input id="gexpQueryName" ng-model="$ctrl.currentQuery.name" />
+                                        <label for="gexpQueryFunction">Function</label>
+                                        <select id="gexpQueryFunction" ng-model="$ctrl.currentQuery.function">
+                                            <option ng-repeat="fn in $ctrl.availableGexpFunctionNames()" value="{{fn}}">{{fn}}</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        {{$ctrl.gexpFunctions[$ctrl.currentQuery.function].description}}
+                                    </div>
+                                    <div ng-show="$ctrl.gexpFunctions[$ctrl.currentQuery.function].maxSubQueries == 1">
+                                        <label for="gexpQueryMetric">Metric</label>
+                                        <select id="gexpQueryMetric" ng-model="$ctrl.selectedSubQueryId">
+                                            <option ng-repeat="query in $ctrl.availableSubQueries" value="{{query.id}}">{{$ctrl.queryString(query)}}</option>
+                                        </select>
+                                        <!-- todo: support nested function calls -->
+                                    </div>
+                                    <div ng-show="$ctrl.gexpFunctions[$ctrl.currentQuery.function].maxSubQueries > 1">
+                                        <table>
+                                            <tr>
+                                                <td><label for="gexpQueryIncludedSubQueries">Included queries</label></td>
+                                                <td></td>
+                                                <td><label for="gexpQueryAvailableSubQueries">Available queries</label></td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <select id="gexpQueryIncludedSubQueries" ng-model="$ctrl.selectedIncludedSubQueries" multiple="multiple" size="6">
+                                                        <option ng-repeat="wrapper in $ctrl.includedSubQueries" value="{{wrapper.id}}">{{($index+1)+": "+$ctrl.queryString(wrapper.query)}}</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <div><button class="btn btn-primary btn-xs" ng-click="$ctrl.moveMetricUp()"><span class="glyphicon glyphicon-triangle-top"></span></button></div>
+                                                    <div><button class="btn btn-primary btn-xs" ng-click="$ctrl.moveMetricIn()"><span class="glyphicon glyphicon-triangle-left"></span></button></div>
+                                                    <div><button class="btn btn-primary btn-xs" ng-click="$ctrl.moveMetricOut()"><span class="glyphicon glyphicon-triangle-right"></span></button></div>
+                                                    <div><button class="btn btn-primary btn-xs" ng-click="$ctrl.moveMetricDown()"><span class="glyphicon glyphicon-triangle-bottom"></span></button></div>
+                                                </td>
+                                                <td>
+                                                    <select id="gexpQueryAvailableSubQueries" ng-model="$ctrl.selectedAvailableSubQueries" multiple="multiple" size="6">
+                                                        <option ng-repeat="query in $ctrl.availableSubQueries" value="{{query.id}}">{{$ctrl.queryString(query)}}</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div ng-show="$ctrl.gexpFunctions[$ctrl.currentQuery.function].extraArg != null">
+                                        <label for="gexpQueryExtraArg">{{$ctrl.gexpFunctions[$ctrl.currentQuery.function].extraArg}}</label>
+                                        <input id="gexpQueryExtraArg" ng-model="$ctrl.currentQuery.extraArg" placeholder="{{$ctrl.gexpFunctions[$ctrl.currentQuery.function].extraArg}}"/>
+                                    </div>
+                                </div>
+                                <div ng-show="$ctrl.currentQuery.type == 'exp'">
+                                    TODO: exp
+                                </div>
+                            </aa-collapsible-panel>
+                            <aa-collapsible-panel title="Graph allocation and options" icon="glyphicon-stats">
+                                <div>
+                                    <label for="queryEditor_editQuery_selectGraph">Graph</label>
+                                    <select id="queryEditor_editQuery_selectGraph" ng-model="$ctrl.currentQuery.graphOptions.graphId">
+                                        <option value="0" selected="selected">None</option>
+                                        <option ng-repeat="graph in model.graphs track by graph.id" value="{{graph.id}}">
+                                            {{graph.title}}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div ng-show="expressionQueriesSupported()" uib-tooltip="Use the query editor to setup expression queries" tooltip-placement="left">
+                                    Usage: <span class="badge">{{expressionQueryCount(graph)}}</span> expression queries
+                                </div>
+                                <div ng-show="$ctrl.graphType() == 'gnuplot'">
+                                    Gnuplot options:
+                                </div>
+                                <div ng-show="$ctrl.graphType() == 'gnuplot'">
+                                    <input id="queryEditor_editQuery_gnuplot_rightAxis" type="checkbox" ng-model="$ctrl.currentQuery.graphOptions.rightAxis" ng-disabled="!clearButtonEnabled()" ng-change="saveQueryIfAutoUpdate()" aardvark-enter="addOrSaveQuery()" />
+                                    <label for="queryEditor_editQuery_gnuplot_rightAxis">Right Axis</label>
+                                </div>
+                                <div ng-show="$ctrl.graphType() == 'dygraph'">
+                                    Dygraph options:
+                                </div>
+                                <div ng-show="$ctrl.graphType() == 'dygraph'">
+                                    <input id="queryEditor_editQuery_dygraph_rightAxis" type="checkbox" ng-model="$ctrl.currentQuery.graphOptions.rightAxis" ng-disabled="!clearButtonEnabled()" ng-change="saveQueryIfAutoUpdate()" aardvark-enter="addOrSaveQuery()" />
+                                    <label for="queryEditor_editQuery_dygraph_rightAxis">Right Axis</label>
+                                </div>
+                                <div ng-show="$ctrl.graphType() == 'dygraph'">
+                                    <input type="checkbox" id="queryEditor_dygraph_drawLines" ng-model="$ctrl.currentQuery.graphOptions.dygraph.drawLines" ng-change="saveQueryIfAutoUpdate()" />
+                                    <label for="queryEditor_dygraph_drawLines">Draw lines</label>
+                                </div>
+                                <div ng-show="$ctrl.graphType() == 'dygraph'">
+                                    <input type="checkbox" id="queryEditor_dygraph_drawPoints" ng-model="$ctrl.currentQuery.graphOptions.dygraph.drawPoints" ng-change="saveQueryIfAutoUpdate()" />
+                                    <label for="queryEditor_dygraph_drawPoints">Draw points</label>
+                                </div>
+                            </aa-collapsible-panel>
+                            <div>
+                                <button class="btn btn-primary btn-xs" ng-click="$ctrl.saveCurrent()">Save Query</button>
+                                <button class="btn btn-warning btn-xs" ng-click="$ctrl.deleteCurrent()">Delete Query</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary btn-xs" type="button" ng-click="$ctrl.save()">Save Changes</button>
+                        <button class="btn btn-warning btn-xs" type="button" ng-click="$ctrl.cancel()">Cancel Changes</button>
+                    </div>
+                </script>
             </div>
 
         </div>

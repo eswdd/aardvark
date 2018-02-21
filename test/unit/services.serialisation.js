@@ -42,9 +42,10 @@ describe('Aardvark services', function() {
                 {path:"metrics.name.",sep:"."},
                 {path:"metrics.tags.name.",sep:"."},
                 {path:"metrics.tags.value.",sep:"."},
+                {path:"queries.gexp.name.",sep:" "},
                 {path:"queries.gexp.function.",sep:" "},
-                {path:"queries.gexp.argument.",sep:" "},
-                {path:"queries.exp.expression.",sep:" "}
+                {path:"queries.gexp.argument.",sep:" "}
+//                {path:"queries.exp.expression.",sep:" "}
             ]);
         }));
         
@@ -247,6 +248,128 @@ describe('Aardvark services', function() {
                 model.graphs[4].scatter.ySquashNegative = false;
                 model.graphs[4].scatter.xRange = "[:]";
                 model.graphs[4].scatter.yRange = "[:]";
+            });  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
+        }));
+        
+        it('expects the serialisation module to be able to round trip a model containing a gexp query', inject(function(serialisation) {
+            var model = {
+                global: {
+                    absoluteTimeSpecification: false,
+                    autoReload: false,
+                    autoGraphHeight: true,
+                    relativePeriod: "2h",
+                    minGraphHeight: 300
+                },
+                graphs: [
+                    {
+                        id: "12345",
+                        type: "dygraph",
+                        title: "Graph 4",
+                        dygraph: {
+                            interpolateGaps: true,
+                            highlightLines: true,
+                            stackedLines: true,
+                            y1SquashNegative: true,
+                            y1AutoScale: true,
+                            y1Log: false,
+                            meanAdjusted: true,
+                            ratioGraph: false,
+                            countFilter: {
+                                end: "top",
+                                count: "5",
+                                measure: "max"
+                            },
+                            valueFilter: {
+                                lowerBound: "200",
+                                upperBound: "500",
+                                measure: "any"
+                            },
+                            annotations: true
+                        }
+                    }
+                    
+                ],
+                queries: [
+                    {
+                        id: "1",
+                        type: "metric",
+                        name: "cpu.percent",
+                        tags: [],
+                        graphOptions: {
+                        }
+                    },
+                    {
+                        id: "2",
+                        type: "metric",
+                        name: "cpu.interrupts",
+                        tags: [{name:"host",value:"*"}],
+                        graphOptions: {
+                            
+                        }
+                    },
+                    {
+                        id: "3",
+                        type: "gexp",
+                        name: "Fred",
+                        function: "sumSeries",
+                        subQueries: ["1","2"],
+                        graphOptions: {
+                            graphId: "12345",
+                            axis: "x1y1",
+                            dygraph:{drawLines:false,drawPoints:false}
+                        }
+                    },
+                    {
+                        id: "4",
+                        type: "gexp",
+                        name: "Dave",
+                        function: "movingAverage",
+                        subQueries: ["1"],
+                        extraArg: "2h",
+                        graphOptions: {
+                            graphId: "12345",
+                            axis: "x1y2",
+                            dygraph:{drawLines:false,drawPoints:false}
+                        }
+                    }
+                ]
+            };
+            // tag had value "" which won't be serialised
+            // don't care about size on this test
+            checkRoundTrips(serialisation, model, 10000, function(model) {
+                //model.queries[4].tags = [];
+                // defaults
+                for (var m=0; m<model.queries.length; m++) {
+                    if (model.queries[m].type == "metric") {
+                        // todo: ideally this would be empty, but we don't massively care
+                        model.queries[m].graphOptions = {
+                            graphId: 0,
+                            rate: false,
+                            rateCounter: false,
+                            rateCounterReset: "",
+                            rateCounterMax: "",
+                            aggregator: null,
+                            downsample: false,
+                            downsampleBy: "",
+                            downsampleTo: ""
+                        };
+                        for (var t=0; t<model.queries[m].tags.length; t++) {
+                            if (model.queries[m].tags[t].groupBy == null) {
+                                model.queries[m].tags[t].groupBy = true;
+                            }
+                        }
+                    }
+                }
+                model.queries[2].extraArg = null;
+                model.global.globalDownsampling = false;
+                model.global.baselining = false;
+                model.graphs[0].dygraph.annotations = true;
+                model.graphs[0].dygraph.globalAnnotations = false;
+                model.graphs[0].dygraph.y1AxisRange = "[:]";
+                model.graphs[0].dygraph.y2AxisRange = "[:]";
+                model.graphs[0].dygraph.y2SquashNegative = false;
+                model.graphs[0].dygraph.y2AutoScale = false;
+                model.graphs[0].dygraph.y2Log = false;
             });  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
         }));
         
