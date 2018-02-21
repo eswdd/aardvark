@@ -660,49 +660,60 @@ aardvark
             };
 
             var doMain = function(queriesAndUrl, queryType) {
-                $http.get(queriesAndUrl.url, {withCredentials:config.authenticatedReads}).success(function (json) {
-                    if (errorResponse) {
-                        return;
-                    }
-                    mainJsons.push({queries:queriesAndUrl.queries, response: json});
-                    receivedNormalResponses++;
-                    if (expectedNormalResponses == receivedNormalResponses) {
-                        //console.log("got all my responses")
-                        mainJson = mergeJsons(mainJsons, queryType);
-                        if (expectedBaselineResponses == receivedBaselineResponses) {
-                            options.processJson(mainJson, baselineJson);
+                $http.get(queriesAndUrl.url, {withCredentials:config.authenticatedReads})
+                    .then(
+                        function onSuccess(response) {
+                            var json = response.data;
+                            if (errorResponse) {
+                                return;
+                            }
+                            mainJsons.push({queries:queriesAndUrl.queries, response: json});
+                            receivedNormalResponses++;
+                            if (expectedNormalResponses == receivedNormalResponses) {
+                                //console.log("got all my responses")
+                                mainJson = mergeJsons(mainJsons, queryType);
+                                if (expectedBaselineResponses == receivedBaselineResponses) {
+                                    options.processJson(mainJson, baselineJson);
+                                }
+                            }
+                            // else wait for baseline data
+                        },
+                        function onError(response) {
+                            var data = response.data;
+                            renderContext.renderMessages[graph.id] = "Error loading data: "+data;
+                            errorResponse = true;
+                            options.errorResponse();
+                            return;
                         }
-                    }
-                    // else wait for baseline data
-                }).error(function (arg) {
-                        renderContext.renderMessages[graph.id] = "Error loading data: "+arg;
-                        errorResponse = true;
-                        options.errorResponse();
-                        return;
-                    });
+                    );
 
             }
             var doBaseline = function(metricsAndUrl, queryType) {
-                $http.get(metricsAndUrl.url, {withCredentials:config.authenticatedReads}).success(function (json) {
-                    if (errorResponse) {
-                        return;
-                    }
-                    baselineJsons.push({queries:metricsAndUrl.queries, response: json});
-                    receivedBaselineResponses++;
-                    if (expectedBaselineResponses == receivedBaselineResponses) {
-                        baselineJson = mergeJsons(baselineJsons, queryType);
-                        if (expectedNormalResponses == receivedNormalResponses) {
-                            options.processJson(mainJson, baselineJson);
+                $http.get(metricsAndUrl.url, {withCredentials:config.authenticatedReads})
+                    .then(
+                        function onSuccess(response) {
+                            var json = response.data;
+                            if (errorResponse) {
+                                return;
+                            }
+                            baselineJsons.push({queries:metricsAndUrl.queries, response: json});
+                            receivedBaselineResponses++;
+                            if (expectedBaselineResponses == receivedBaselineResponses) {
+                                baselineJson = mergeJsons(baselineJsons, queryType);
+                                if (expectedNormalResponses == receivedNormalResponses) {
+                                    options.processJson(mainJson, baselineJson);
+                                }
+                            }
+                            // else wait for baseline data
+                        },
+                        function onError(response) {
+                            var arg = response.data;
+                            renderContext.renderMessages[graph.id] = "Error loading data: "+arg;
+                            errorResponse = true;
+                            options.errorResponse();
+                            return;
                         }
-                    }
-                    // else wait for baseline data
-                }).error(function (arg) {
-                        renderContext.renderMessages[graph.id] = "Error loading data: "+arg;
-                        errorResponse = true;
-                        options.errorResponse();
-                        return;
-                    });
-
+                    );
             }
 
             for (var u=0; u<metricQueriesAndUrls.length; u++) {

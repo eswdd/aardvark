@@ -27,12 +27,25 @@ aardvark
                 return;
             }
 
-            $http.get(tsdb.tsdbBaseReadUrl+'/api/config', {withCredentials:tsdb.authenticatedReads}).success(function(json) {
-                tsdb.config = json;
-                if (successFn) {
-                    successFn(json);
-                }
-            }).error(errorFn ? errorFn : function() {});
+            $http.get(tsdb.tsdbBaseReadUrl+'/api/config', {withCredentials:tsdb.authenticatedReads})
+                .then(
+                    function onSuccess(response) {
+                        var json = response.data;
+                        tsdb.config = json;
+                        if (successFn) {
+                            successFn(json);
+                        }
+                    },
+                    function onError(response) {
+                        var data = response.data;
+                        var status = response.status;
+                        var headers = response.headers;
+                        var config = response.config;
+                        if (errorFn) {
+                            errorFn(data, status, headers, config);
+                        }
+                    }
+                );
         };
         tsdb.searchLookup = function(metric, tagsCanBeFilters, limit, successFn, errorFn) {
             var doSearchLookup = function(useMeta) { 
@@ -153,8 +166,22 @@ aardvark
                 // search/lookup doesn't support filter queries: todo: raise this
                 // so for now we have to request all and then filter in client. sigh.
                 var postData = JSON.stringify(requestJson);
-                $http.post(url, postData, {withCredentials:tsdb.authenticatedReads}).success(postFilteringRequired ? filterResultsFn : successFn)
-                    .error(errorFn);
+                $http.post(url, postData, {withCredentials:tsdb.authenticatedReads})
+                    .then(
+                        function onSuccess(response) {
+                            var data = response.data;
+                            if (postFilteringRequired) {
+                                filterResultsFn(data);
+                            }
+                            else {
+                                successFn(data);
+                            }
+                        },
+                        function onError(response) {
+                            var data = response.data;
+                            errorFn(data);
+                        }
+                    );
             }
             tsdb.getConfig(function(config) {
                 var useMeta = config && (config["tsd.core.meta.enable_tsuid_tracking"] == "true"
@@ -256,11 +283,31 @@ aardvark
         tsdb.saveAnnotation = function(annotation, successFn, errorFn) {
             var url = tsdb.tsdbBaseWriteUrl+"/api/annotation";
             var postData = JSON.stringify(annotation);
-            $http.post(url, postData, {withCredentials:tsdb.authenticatedWrites}).success(successFn).error(errorFn);
+            $http.post(url, postData, {withCredentials:tsdb.authenticatedWrites})
+                .then(
+                    function onSuccess(response) {
+                        var data = response.data;
+                        successFn(data);
+                    },
+                    function onError(response) {
+                        var data = response.data;
+                        errorFn(data);
+                    }
+                );
         };
         tsdb.getTSMetaByTsuid = function(tsuid, successFn, errorFn) {
             var url = tsdb.tsdbBaseReadUrl+"/api/uid/tsmeta?tsuid="+tsuid;
-            $http.get(url, {withCredentials:tsdb.authenticatedReads}).success(successFn).error(errorFn);
+            $http.get(url, {withCredentials:tsdb.authenticatedReads})
+                .then(
+                    function onSuccess(response) {
+                        var data = response.data;
+                        successFn(data);
+                    },
+                    function onError(response) {
+                        var data = response.data;
+                        errorFn(data);
+                    }
+                );
         };
         tsdb.getUidMeta = function(uid, type, successFn, errorFn) {
             switch (type) {
@@ -273,11 +320,31 @@ aardvark
                     return;
             }
             var url = tsdb.tsdbBaseReadUrl+"/api/uid/uidmeta?uid="+uid+"&type="+type;
-            $http.get(url, {withCredentials:tsdb.authenticatedReads}).success(successFn).error(errorFn);
+            $http.get(url, {withCredentials:tsdb.authenticatedReads})
+                .then(
+                    function onSuccess(response) {
+                        var data = response.data;
+                        successFn(data);
+                    },
+                    function onError(response) {
+                        var data = response.data;
+                        errorFn(data);
+                    }
+                );
         };
         tsdb.deleteAnnotation = function(tsuid, successFn, errorFn) {
             var url = tsdb.tsdbBaseWriteUrl+"/api/annotation?tsuid="+tsuid;
-            $http.delete(url, {withCredentials:tsdb.authenticatedWrites}).success(successFn).error(errorFn);
+            $http.delete(url, {withCredentials:tsdb.authenticatedWrites})
+                .then(
+                    function onSuccess(response) {
+                        var data = response.data;
+                        successFn(data);
+                    },
+                    function onError(response) {
+                        var data = response.data;
+                        errorFn(data);
+                    }
+                );
         };
         tsdb.bulkSaveAnnotations = function(annotations, successFn, errorFn) {
             var synthesisedBulkCall = function() {
@@ -317,7 +384,17 @@ aardvark
                     if (versionNumber >= tsdb.TSDB_2_1) {
                         var url = tsdb.tsdbBaseWriteUrl+"/api/annotation/bulk";
                         var postData = JSON.stringify(annotations);
-                        $http.post(url, postData, {withCredentials:tsdb.authenticatedWrites}).success(successFn).error(errorFn);
+                        $http.post(url, postData, {withCredentials:tsdb.authenticatedWrites})
+                            .then(
+                                function onSuccess(response) {
+                                    var data = response.data;
+                                    successFn(data);
+                                },
+                                function onError(response) {
+                                    var data = response.data;
+                                    errorFn(data);
+                                }
+                            );
                     }
                     else {
                         synthesisedBulkCall();
@@ -333,27 +410,40 @@ aardvark
                 successFn(tsdb.versionInfo, tsdb.versionNumber);
                 return;
             }
-            $http.get(tsdb.tsdbBaseReadUrl+'/api/version', {withCredentials:tsdb.authenticatedReads}).success(function(json) {
-                try {
-                    var versionFromServer = json.version;
-                    var firstDot = versionFromServer.indexOf(".");
-                    var secondDot = versionFromServer.indexOf(".", firstDot+1);
-                    var major = parseInt(versionFromServer.substring(0,firstDot));
-                    var minor = parseInt(versionFromServer.substring(firstDot+1, secondDot));
-                    var version = (major * 1000) + minor;
-                    tsdb.versionInfo = {major:major, minor:minor};
-                    tsdb.versionNumber = version;
-                    if (successFn) {
-                        successFn(tsdb.versionInfo, tsdb.versionNumber);
+            $http.get(tsdb.tsdbBaseReadUrl+'/api/version', {withCredentials:tsdb.authenticatedReads})
+                .then(
+                    function onSuccess(response) {
+                        var json = response.data;
+                        try {
+                            var versionFromServer = json.version;
+                            var firstDot = versionFromServer.indexOf(".");
+                            var secondDot = versionFromServer.indexOf(".", firstDot+1);
+                            var major = parseInt(versionFromServer.substring(0,firstDot));
+                            var minor = parseInt(versionFromServer.substring(firstDot+1, secondDot));
+                            var version = (major * 1000) + minor;
+                            tsdb.versionInfo = {major:major, minor:minor};
+                            tsdb.versionNumber = version;
+                            if (successFn) {
+                                successFn(tsdb.versionInfo, tsdb.versionNumber);
+                            }
+                        }
+                        catch (e) {
+                            // ignore, use default version
+                            if (failFn) {
+                                failFn();
+                            }
+                        }
+                    },
+                    function onError(response) {
+                        var data = response.data;
+                        var status = response.status;
+                        var headers = response.headers;
+                        var config = response.config;
+                        if (failFn) {
+                            failFn(data, status, headers, config);
+                        }
                     }
-                }
-                catch (e) {
-                    // ignore, use default version
-                    if (failFn) {
-                        failFn();
-                    }
-                }
-            }).error(failFn ? failFn : function() {});
+                );
         };
         tsdb.suggest = function(type, query, max, successFn, errorFn) {
             if (max == null) {
@@ -365,7 +455,16 @@ aardvark
                 url += "&q="+query;
             }
             $http.get(url, {withCredentials:tsdb.authenticatedReads})
-                .success(successFn).error(errorFn);
+                .then(
+                    function onSuccess(response) {
+                        var data = response.data;
+                        successFn(data);
+                    },
+                    function onError(response) {
+                        var data = response.data;
+                        errorFn(data);
+                    }
+                );
         }
         return tsdb;
     }]);
