@@ -2,7 +2,8 @@
  * Responsible for the main app, providing config and model<-> hash
  * functionality for the other controllers
  */
-aardvark.directive('aardvarkEnter', function() {
+aardvark
+    .directive('aardvarkEnter', function() {
         return function(scope, element, attrs) {
             element.bind("keydown keypress", function (event) {
                if (event.which == 13) {
@@ -115,7 +116,7 @@ aardvark.directive('aardvarkEnter', function() {
         $rootScope.loadModel = function() {
             var hash = $location.hash();
             if (hash != null && hash!="") {
-                while (hash.indexOf("#") == 0) {
+                while (hash.indexOf("#") == 0 || hash.indexOf("!") == 0) {
                     hash = hash.substring(1);
                 }
                 hash = decodeURI(hash);
