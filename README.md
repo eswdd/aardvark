@@ -3,6 +3,7 @@
 [![GPL License][license-image]][license-url]
 [![Build Status][travis-image]][travis-url]
 [![Coverage][coverage-image]][coverage-url]
+[![Known Vulnerabilities][snyk-image]][snyk-url]
 
 aardvark
 ========
@@ -81,3 +82,8 @@ Copyright
 
 [coverage-url]: https://coveralls.io/r/eswdd/aardvark
 [coverage-image]: https://coveralls.io/repos/github/eswdd/aardvark/badge.svg
+
+[snyk-url]: https://snyk.io/test/github/eswdd/aardvark?targetFile=package.json
+[snyk-image]: https://snyk.io/test/github/eswdd/aardvark/badge.svg?targetFile=package.json
+
+              

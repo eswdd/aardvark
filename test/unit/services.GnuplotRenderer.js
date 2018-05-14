@@ -54,7 +54,7 @@ describe('Aardvark renderers', function () {
         it('should report an error when trying to render with gnuplot and no start time', function() {
             var global = { relativePeriod: "", autoReload: false };
             var graph = { id: "abc", graphWidth: 0, graphHeight: 0 };
-            var metrics = [ { id: "123", graphOptions: {} } ];
+            var metrics = [ { id: "123", type: "metric", graphOptions: {} } ];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -80,7 +80,7 @@ describe('Aardvark renderers', function () {
         it('should report an error when trying to render with gnuplot and an unsupported axis', function() {
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, graphOptions: {  }};
-            var metrics = [ { id: "123", graphOptions: {axis: "fred"}, tags: [] } ];
+            var metrics = [ { id: "123", type: "metric", graphOptions: {axis: "fred"}, tags: [] } ];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -95,7 +95,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -113,7 +113,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", downsample: false, rate: true } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", downsample: false, rate: true } } ];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -128,7 +128,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", downsample: true, downsampleBy: "avg", downsampleTo: "1m" } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", downsample: true, downsampleBy: "avg", downsampleTo: "1m" } } ];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -143,7 +143,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", downsample: true, downsampleBy: "avg", downsampleTo: "1m", rate: true } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", downsample: true, downsampleBy: "avg", downsampleTo: "1m", rate: true } } ];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -158,7 +158,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false, rateCounter: true } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false, rateCounter: true } } ];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -173,7 +173,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: true, rateCounter: true } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: true, rateCounter: true } } ];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -188,7 +188,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: true, rateCounter: true, rateCounterMax: "123" } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: true, rateCounter: true, rateCounterMax: "123" } } ];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -203,7 +203,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: true, rateCounter: true, rateCounterMax: "", rateCounterReset: "456" } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: true, rateCounter: true, rateCounterMax: "", rateCounterReset: "456" } } ];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -218,7 +218,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: true, rateCounter: true, rateCounterMax: "123", rateCounterReset: "456" } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: true, rateCounter: true, rateCounterMax: "123", rateCounterReset: "456" } } ];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -233,7 +233,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
-            var metrics = [ { id: "123", name: "metric1", tags: [ { name: "tag1", value: "value1" } ], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [ { name: "tag1", value: "value1" } ], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -248,7 +248,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
-            var metrics = [ { id: "123", name: "metric1", tags: [ { name: "tag1", value: "value1|value2" } ], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [ { name: "tag1", value: "value1|value2" } ], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -263,7 +263,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
-            var metrics = [ { id: "123", name: "metric1", tags: [ { name: "tag1", value: "*" } ], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [ { name: "tag1", value: "*" } ], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -278,7 +278,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
-            var metrics = [ { id: "123", name: "metric1", tags: [ { name: "tag1", value: "" } ], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [ { name: "tag1", value: "" } ], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -293,7 +293,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { y1AxisLabel: "Label 1", y2AxisLabel: "Label 2" }};
-            var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
+            var metrics = [ { id: "1", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -308,7 +308,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { y1AxisLabel: "Label 1", y2AxisLabel: "Label 2" }};
-            var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2", rate: false } } ]
+            var metrics = [ { id: "1", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2", rate: false } } ]
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -323,7 +323,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { y1AxisFormat: "Format 1", y2AxisFormat: "Format 2" }};
-            var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
+            var metrics = [ { id: "1", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -338,7 +338,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { y1AxisFormat: "Format 1", y2AxisFormat: "Format 2" }};
-            var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2", rate: false } } ]
+            var metrics = [ { id: "1", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2", rate: false } } ]
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -353,7 +353,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { y1AxisRange: "[0:1]", y2AxisRange: "[0:2]" }};
-            var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
+            var metrics = [ { id: "1", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -368,7 +368,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { y1AxisRange: "[0:1]", y2AxisRange: "[0:2]" }};
-            var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2", rate: false } } ]
+            var metrics = [ { id: "1", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2", rate: false } } ]
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -383,7 +383,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { y1AxisLogScale: true, y2AxisLogScale: true }};
-            var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
+            var metrics = [ { id: "1", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -398,7 +398,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { y1AxisLogScale: true, y2AxisLogScale: true }};
-            var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2", rate: false } } ]
+            var metrics = [ { id: "1", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2", rate: false } } ]
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -413,7 +413,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { y1AxisLogScale: false, y2AxisLogScale: true }};
-            var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
+            var metrics = [ { id: "1", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -428,7 +428,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { y1AxisLogScale: true, y2AxisLogScale: false }};
-            var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2", rate: false } } ]
+            var metrics = [ { id: "1", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2", rate: false } } ]
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -443,7 +443,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { lineSmoothing: true }};
-            var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
+            var metrics = [ { id: "1", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -458,7 +458,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { showKey: false }};
-            var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
+            var metrics = [ { id: "1", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -473,7 +473,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { showKey: true, keyLocation: "top left", keyAlignment: "vertical" }};
-            var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
+            var metrics = [ { id: "1", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -488,7 +488,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { showKey: true, keyLocation: "", keyAlignment: "vertical" }};
-            var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
+            var metrics = [ { id: "1", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -503,7 +503,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { showKey: true, keyLocation: "bottom right", keyAlignment: "vertical" }};
-            var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
+            var metrics = [ { id: "1", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -518,7 +518,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { showKey: true, keyLocation: "top left", keyAlignment: "horizontal" }};
-            var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
+            var metrics = [ { id: "1", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -533,7 +533,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { showKey: true, keyLocation: "top left", keyAlignment: "vertical", keyBox: true }};
-            var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
+            var metrics = [ { id: "1", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -548,7 +548,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, gnuplot: { showKey: true, keyLocation: "top left", keyAlignment: "horizontal", keyBox: true }};
-            var metrics = [ { id: "1", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
+            var metrics = [ { id: "1", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1", rate: false } } ]
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 

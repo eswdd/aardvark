@@ -1012,7 +1012,7 @@ aardvark
                                     var action = result.action;
                                     var selectedAnnotations = result.annotations;
                                     if (action == "add") {
-                                        $tsdbClient.bulkSaveAnnotations(selectedAnnotations, function() {
+                                        tsdbClient.bulkSaveAnnotations(selectedAnnotations, function() {
                                             for (var a = 0; a<selectedAnnotations.length; a++) {
                                                 var tsuid = selectedAnnotations[a].tsuid;
                                                 for (var t=0; t<mainJson.length; t++) {
@@ -1031,7 +1031,7 @@ aardvark
                                     }
                                     else if (action == "edit") {
                                         // use singular endpoint
-                                        $tsdbClient.saveAnnotation(selectedAnnotations[0], function() {
+                                        tsdbClient.saveAnnotation(selectedAnnotations[0], function() {
                                             annotations[annotationIndex][1] = selectedAnnotations[0];
                                             syncDygraphWithAnnotations();
                                         }, function() {
@@ -1042,7 +1042,7 @@ aardvark
                                     }
                                     else if (action == "delete") {
                                         // use singular endpoint
-                                        $tsdbClient.deleteAnnotation(selectedAnnotations[0], function() {
+                                        tsdbClient.deleteAnnotation(selectedAnnotations[0], function() {
                                             annotations.splice(annotationIndex, 1);
                                             syncDygraphWithAnnotations();
                                         }, function() {

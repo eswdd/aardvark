@@ -139,7 +139,7 @@ describe('Aardvark renderers', function () {
 //
             var global = { absoluteTimeSpecification: true, fromDate: "2017/01/01", fromTime: "00:00:00", toDate: "2017/01/01", toTime: "00:05:00", autoReload: false };
             var graph = { id: "abc", graphWidth: 25, graphHeight: 100 };
-            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
+            var metrics = [ { id: "123", type: "metric", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -173,9 +173,9 @@ describe('Aardvark renderers', function () {
 //
             var global = { absoluteTimeSpecification: true, fromDate: "2017/01/01", fromTime: "00:00:00", toDate: "2017/01/01", toTime: "00:05:00", autoReload: false };
             var graph = { id: "abc", graphWidth: 25, graphHeight: 100 };
-            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] }
-                           ,{ id: "123", name:"metric2", graphOptions: {aggregator: "sum"}, tags: [{name:"host",value:"*",groupBy:true}] }
-                           ,{ id: "123", name:"metric3", graphOptions: {aggregator: "sum"}, tags: [] }];
+            var metrics = [ { id: "123", type: "metric", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] }
+                           ,{ id: "123", type: "metric", name:"metric2", graphOptions: {aggregator: "sum"}, tags: [{name:"host",value:"*",groupBy:true}] }
+                           ,{ id: "123", type: "metric", name:"metric3", graphOptions: {aggregator: "sum"}, tags: [] }];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -214,9 +214,9 @@ describe('Aardvark renderers', function () {
 //
             var global = { absoluteTimeSpecification: true, fromDate: "2017/01/01", fromTime: "00:00:00", toDate: "2017/01/01", toTime: "00:05:00", autoReload: false };
             var graph = { id: "abc", graphWidth: 25, graphHeight: 100, horizon: { sortMethod: "min" } };
-            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] }
-                           ,{ id: "123", name:"metric2", graphOptions: {aggregator: "sum"}, tags: [{name:"host",value:"*",groupBy:true}] }
-                           ,{ id: "123", name:"metric3", graphOptions: {aggregator: "sum"}, tags: [] }];
+            var metrics = [ { id: "123", type: "metric", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] }
+                           ,{ id: "123", type: "metric", name:"metric2", graphOptions: {aggregator: "sum"}, tags: [{name:"host",value:"*",groupBy:true}] }
+                           ,{ id: "123", type: "metric", name:"metric3", graphOptions: {aggregator: "sum"}, tags: [] }];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -255,9 +255,9 @@ describe('Aardvark renderers', function () {
 //
             var global = { absoluteTimeSpecification: true, fromDate: "2017/01/01", fromTime: "00:00:00", toDate: "2017/01/01", toTime: "00:05:00", autoReload: false };
             var graph = { id: "abc", graphWidth: 25, graphHeight: 100, horizon: { sortMethod: "max" } };
-            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] }
-                           ,{ id: "123", name:"metric2", graphOptions: {aggregator: "sum"}, tags: [{name:"host",value:"*",groupBy:true}] }
-                           ,{ id: "123", name:"metric3", graphOptions: {aggregator: "sum"}, tags: [] }];
+            var metrics = [ { id: "123", type: "metric", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] }
+                           ,{ id: "123", type: "metric", name:"metric2", graphOptions: {aggregator: "sum"}, tags: [{name:"host",value:"*",groupBy:true}] }
+                           ,{ id: "123", type: "metric", name:"metric3", graphOptions: {aggregator: "sum"}, tags: [] }];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -296,9 +296,9 @@ describe('Aardvark renderers', function () {
 //
             var global = { absoluteTimeSpecification: true, fromDate: "2017/01/01", fromTime: "00:00:00", toDate: "2017/01/01", toTime: "00:05:00", autoReload: false };
             var graph = { id: "abc", graphWidth: 25, graphHeight: 100, horizon: { sortMethod: "avg" } };
-            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] }
-                           ,{ id: "123", name:"metric2", graphOptions: {aggregator: "sum"}, tags: [{name:"host",value:"*",groupBy:true}] }
-                           ,{ id: "123", name:"metric3", graphOptions: {aggregator: "sum"}, tags: [] }];
+            var metrics = [ { id: "123", type: "metric", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] }
+                           ,{ id: "123", type: "metric", name:"metric2", graphOptions: {aggregator: "sum"}, tags: [{name:"host",value:"*",groupBy:true}] }
+                           ,{ id: "123", type: "metric", name:"metric3", graphOptions: {aggregator: "sum"}, tags: [] }];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -352,7 +352,7 @@ describe('Aardvark renderers', function () {
 //
             var global = { relativePeriod: "2h", autoReload: false };
             var graph = { id: "abc", graphWidth: 640, graphHeight: 100 };
-            var metrics = [ { id: "123", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
+            var metrics = [ { id: "123", type: "metric", name:"metric1", graphOptions: {aggregator: "sum"}, tags: [] } ];
 //
             rendererInstance.render(renderContext, config, global, graph, metrics);
             

@@ -1,6 +1,160 @@
 aardvark
-    .factory('tsdbUtils', ['tsdbClient', function(tsdbClient) {
+    .factory('tsdbUtils', ['tsdbClient', 'deepUtils', function(tsdbClient, deepUtils) {
         var utils = {};
+        
+        utils.gexpFunctions = {
+            absolute: {
+                description: 'Emits the results as absolute values, converting negative values to positive.',
+                maxSubQueries: 1
+            },
+            diffSeries: {
+                description: 'Returns the difference of all series in the list. Performs a UNION across tags in each metric result sets, defaulting to a fill value of zero.',
+                maxSubQueries: 26
+            },
+            divideSeries: {
+                description: 'Returns the quotient of all series in the list. Performs a UNION across tags in each metric result sets, defaulting to a fill value of zero.',
+                maxSubQueries: 26
+            },
+            highestCurrent: {
+                description: 'Sorts all resulting time series by their most recent value and emits numSeries number of series with the highest values. numSeries must be a positive integer value.',
+                maxSubQueries: 1,
+                extraArg: 'numSeries'
+            },
+            highestMax: {
+                description: 'Sorts all resulting time series by the maximum value for the time span and emits numSeries number of series with the highest values. numSeries must be a positive integer value.',
+                maxSubQueries: 1,
+                extraArg: 'numSeries'
+            },
+            movingAverage: {
+                description: "Emits a sliding window moving average for each data point and series in the metric. The window parameter may either be a positive integer that reflects the number of data points to maintain in the window (non-timed) or a time span specified by an integer followed by time unit such as '60s' or '60m' or '24h'.",
+                maxSubQueries: 1,
+                extraArg: 'window'
+            },
+            multiplySeries: {
+                description: 'Returns the product of all series in the list. Performs a UNION across tags in each metric result sets, defaulting to a fill value of zero.',
+                maxSubQueries: 26
+            },
+            scale: {
+                description: 'Multiplies each series by the factor where the factor can be a positive or negative floating point or integer value.',
+                maxSubQueries: 1,
+                extraArg: 'factor'
+            },
+            sumSeries: {
+                description: 'Returns the sum of all series in the list. Performs a UNION across tags in each metric result sets, defaulting to a fill value of zero.',
+                maxSubQueries: 26
+            }
+        };
+
+        // helper functions for dealing with tsdb data
+        utils.tsdb_rateString = function(metricOptions) {
+            var ret = "rate";
+            if (metricOptions.rateCounter) {
+                ret += "{counter";
+                var rctrSep = ",";
+                if (metricOptions.rateCounterMax != null && metricOptions.rateCounterMax != "") {
+                    ret += "," + metricOptions.rateCounterMax;
+                }
+                else {
+                    rctrSep = ",,";
+                }
+                if (metricOptions.rateCounterReset != null && metricOptions.rateCounterReset != "") {
+                    ret += rctrSep + metricOptions.rateCounterReset;
+                }
+                ret += "}";
+            }
+            return ret;
+        }
+
+        utils.metricQuery = function(metric, globalDownsampling, globalDownsampleTo, downsampleOverrideFn, warningFn) {
+            var options = metric.graphOptions;
+            var ret = options.aggregator + ":";
+            if (downsampleOverrideFn) {
+                ret += downsampleOverrideFn(options.downsampleBy) + ":";
+            }
+            else if (globalDownsampling) {
+                ret += globalDownsampleTo + "-" + options.downsampleBy + ":";
+            }
+            else if (options.downsample) {
+                ret += options.downsampleTo + "-" + options.downsampleBy + ":";
+            }
+            if (options.rate) {
+                ret += utils.tsdb_rateString(options) + ":";
+            }
+            else if (options.rateCounter) {
+                warningFn("You have specified a rate counter without a rate, ignoring");
+            }
+            ret += metric.name;
+            var sep = "{";
+            for (var t=0; t<metric.tags.length; t++) {
+                var tag = metric.tags[t];
+                if (tag.value != "" && (tag.groupBy == null || tag.groupBy)) {
+                    ret += sep + tag.name + "=" + tag.value;
+                    sep = ",";
+                }
+            }
+            if (sep == ",") {
+                ret += "}";
+            }
+            // tsdb 2.2+ supports filters
+            if (tsdbClient.versionNumber >= tsdbClient.TSDB_2_2) {
+                // filters section requires the group by section to have been written out, even if empty
+                if (sep == ",") {
+                    sep = "{";
+                }
+                else {
+                    sep = "{}{";
+                }
+                for (var t=0; t<metric.tags.length; t++) {
+                    var tag = metric.tags[t];
+                    if (tag.value != "" && tag.value != "*" && tag.value != "wildcard(*)" && tag.groupBy != null && !tag.groupBy) {
+                        ret += sep + tag.name + "=" + tag.value;
+                        sep = ",";
+                    }
+                }
+                if (sep == ",") {
+                    ret += "}";
+                }
+            }
+            return ret;
+        };
+        
+        utils.gexpQuery = function(gexpQuery, subQueriesById, globalDownsampling, globalDownsampleTo, downsampleOverrideFn, warningFn) {
+            if (gexpQuery.function == null) {
+                return "";
+            }
+            var ret = gexpQuery.function + "(";
+            var functionDefinition = utils.gexpFunctions[gexpQuery.function];
+            var sep = "";
+            for (var m=0; m<gexpQuery.subQueries.length && m<functionDefinition.maxSubQueries; m++) {
+                var subQuery = subQueriesById[gexpQuery.subQueries[m]];
+                if (subQuery != null) {
+                    if (subQuery.type == "metric") {
+                        ret += sep + utils.metricQuery(subQuery, globalDownsampling, globalDownsampleTo, downsampleOverrideFn, warningFn);
+                    }
+                    if (subQuery.type == "gexp") {
+                        var newSubQueries = deepUtils.deepClone(subQueriesById);
+                        if (newSubQueries.hasOwnProperty(gexpQuery.id)) {
+                            delete newSubQueries[gexpQuery.id];
+                        }
+                        ret += sep + utils.gexpQuery(subQuery, subQueriesById, globalDownsampling, globalDownsampleTo, downsampleOverrideFn, warningFn);
+                    }
+                }
+                sep = ", ";
+            }
+            if (functionDefinition.extraArg) {
+                ret += sep;
+                // if has a char then need to quote
+                if (isNaN(Number.valueOf(gexpQuery.extraArg))) {
+                    ret += "'" + gexpQuery.extraArg + "'";
+                }
+                else {
+                    ret += gexpQuery.extraArg;
+                }
+            }
+            ret += ")";
+            return ret;
+        }
+        
         utils.getTags = function(metric, successFn, errorFn) {
             var resultsFn = function(tsdbResponse) {
                 var tagValues = {};
@@ -112,7 +266,7 @@ aardvark
                     }
                 }
             }, errorFn);
-        }
+        };
         return utils;
     }]);
     

@@ -507,6 +507,9 @@ aardvark
             var stringSepByPrefix = [
                 {prefix:"metrics",sep:"."},
                 {prefix:"queries",sep:" "},
+                {prefix:"queries.gexp.name",sep:" "},
+                {prefix:"queries.gexp.function",sep:" "},
+                {prefix:"queries.gexp.argument",sep:"."},
                 {prefix:"graphs.gnuplot.yAxisRange",sep:":"},
                 {prefix:"graphs.gnuplot.y2AxisRange",sep:":"},
                 {prefix:"graphs.dygraph.yAxisRange",sep:":"},
@@ -991,9 +994,15 @@ aardvark
                         }
                         break;
                     case "gexp":
-                        // todo
+                        intermediateQuery.gexp = {
+                            name: query.name,
+                            function: query.function,
+                            subQueries: query.subQueries.map(function(id){return parseInt(id);}),
+                            argument: query.extraArg
+                        }
                         break;
                     case "exp":
+                        console.log("Unsupported query type: exp");
                         // todo:
                         break;
                     default:
@@ -1295,15 +1304,45 @@ aardvark
                 for (var i=0; i<intermediateModel.queries.length; i++) {
                     var intermediateQuery = intermediateModel.queries[i];
                     
-                    var metricId = intermediateQuery.metric;
+                    var query;
+                    var validQueryType = false;
+                    if (intermediateQuery.gexp != null) {
+                        validQueryType = true;
+                        
+                        query = {
+                            id: intermediateQuery.id,
+                            type: "gexp",
+                            name: intermediateQuery.gexp.name,
+                            function: intermediateQuery.gexp.function,
+                            subQueries: intermediateQuery.gexp.subQueries.map(function (id) {return id.toString();}),
+                            extraArg: intermediateQuery.gexp.argument,
+                            graphOptions: {}
+                        };
+                    }
+                    else if (intermediateQuery.exp != null) {
+                        console.log("Unsupported query type: exp");
+                        // todo: exp
+                        //validQueryType = true;
+                    }
+                    else if (intermediateQuery.metric != null) {
+                        var metricId = intermediateQuery.metric;
+                        
+                        var metric = metricsById[metricId];
+                        if (metric != null) {
+                            validQueryType = true;
+                            query = deepUtils.deepClone(metric);
+                            query.type = "metric";
+                        }
+                    }
                     
-                    var metric = metricsById[metricId];
-                    if (metric != null) {
-                        query = deepUtils.deepClone(metric);
-                        query.type = "metric";
+                    if (!validQueryType) {
+                        console.log("Unrecognized query type, ignoring");
+                    }
+                    
+                    if (validQueryType) {
                         query.graphOptions.graphId = intermediateQuery.graphId;
                         query.graphOptions.axis = axes.idToValue(intermediateQuery.axis);
-                        
+
                         var graphFlag1Default = false;
                         var graphFlag2Default = false;
                         var graph = graphForMetric(model.graphs, query);

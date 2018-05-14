@@ -184,7 +184,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { countFilter: { count: 0, measure: "max", end: "top" }}};
-            var metrics = [{ id: "123", name: "metric1", tags: [{name: "host", value: "host1"}], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+            var metrics = [{ id: "123", type: "metric", name: "metric1", tags: [{name: "host", value: "host1"}], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -204,7 +204,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
-            var metrics = [ { id: "123", name: "metric1", tags: [{name: "host", value: "host1"}], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [{name: "host", value: "host1"}], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1{host=host1}&no_annotations=true&ms=true&arrays=true&show_query=true').respond([]);
 
@@ -229,7 +229,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
@@ -272,7 +272,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
             $httpBackend.expectGET('https://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
@@ -315,7 +315,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { stackedLines: true }};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
@@ -358,9 +358,9 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }, 
-                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum" } }, 
-                { id: "125", name: "metric3", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2" } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }, 
+                { id: "124", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum" } }, 
+                { id: "125", type: "metric", name: "metric3", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2" } } ];
 
             $httpBackend.expectGET('https://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&m=sum:metric3&no_annotations=true&ms=true&arrays=true&show_query=true').respond(
                 [
@@ -423,8 +423,8 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                            { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                            { id: "124", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567810000, 10],
@@ -476,7 +476,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
-            var metrics = [ { id: "123", name: "plantime", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+            var metrics = [ { id: "123", type: "metric", name: "plantime", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:plantime&no_annotations=true&ms=true&arrays=true&show_query=true').respond([
                 {
@@ -550,7 +550,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { interpolateGaps: true }};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
@@ -593,7 +593,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1Log: true }};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
@@ -636,7 +636,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: true }};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
@@ -679,8 +679,8 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: false, y2SquashNegative: true }};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2" } }];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2" } }];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond(
                 [
@@ -733,8 +733,8 @@ describe('Aardvark renderers', function () {
             config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
@@ -787,8 +787,8 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: true, meanAdjusted: true }};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                            { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                            { id: "124", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
@@ -829,8 +829,8 @@ describe('Aardvark renderers', function () {
             config = {tsdbBaseReadUrl: "http://tsdb:4242"};
 
             var global = { relativePeriod: "1d", autoReload: false };
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                            { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                            { id: "124", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
@@ -883,8 +883,8 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: true, ratioGraph: true }};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
@@ -939,8 +939,8 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true }};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                            { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                            { id: "124", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 1000],
@@ -989,9 +989,9 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true, y2AutoScale: false }};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                            { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                            { id: "125", name: "metric3", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2" } }];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                            { id: "124", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                            { id: "125", type: "metric", name: "metric3", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2" } }];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&m=sum:metric3&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 1000],
@@ -1047,8 +1047,8 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true, y1SquashNegative: true }};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, -1000],
@@ -1097,10 +1097,10 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true, y1SquashNegative: false, y2AutoScale: true, y2SquashNegative: true }};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2" } },
-                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2" } },
-                { id: "124", name: "metric3", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                { id: "124", name: "metric4", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2" } },
+                { id: "124", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y2" } },
+                { id: "124", type: "metric", name: "metric3", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", type: "metric", name: "metric4", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&m=sum:metric3&m=sum:metric4&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, -1000],
@@ -1181,9 +1181,9 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true }};
-            var metrics = [ { id: "123", name: "metric1", tags: [{name: "host", value: "host1"}], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                            { id: "124", name: "metric1", tags: [{name: "host", value: "host2"}], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                            { id: "125", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [{name: "host", value: "host1"}], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                            { id: "124", type: "metric", name: "metric1", tags: [{name: "host", value: "host2"}], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                            { id: "125", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1{host=host1}&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {host: "host1"}, dps:[
                 [1234567811000, 1000],
@@ -1264,8 +1264,8 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true }};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, -1000],
@@ -1314,8 +1314,8 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true, y1SquashNegative: true }};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, -1000],
@@ -1365,10 +1365,10 @@ describe('Aardvark renderers', function () {
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: dygraphOptions };
             var metrics = [
-                { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                { id: "125", name: "metric3", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                { id: "126", name: "metric4", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }
+                { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "125", type: "metric", name: "metric3", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "126", type: "metric", name: "metric4", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }
             ];
         
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&m=sum:metric3&m=sum:metric4&no_annotations=true&ms=true&arrays=true&show_query=true').respond(
@@ -1442,7 +1442,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { countFilter: {count: "", measure: "min", end: "top"} } };
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
@@ -1743,7 +1743,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { valueFilter: { lowerBound: 100, measure: "max", upperBound: "80" }}};
-            var metrics = [{ id: "123", name: "metric1", tags: [{name: "host", value: "host1"}], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+            var metrics = [{ id: "123", type: "metric", name: "metric1", tags: [{name: "host", value: "host1"}], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
             rendererInstance.render(renderContext, config, global, graph, metrics);
 
@@ -1776,7 +1776,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([]);
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=2016/01/20 14:10:10&end=2016/01/21 14:10:10&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
@@ -1809,7 +1809,7 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
 
             $httpBackend.expectGET('http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&no_annotations=true&ms=true&arrays=true&show_query=true').respond([{metric: "metric1", tags: {}, dps:[
                 [1234567811000, 10],
@@ -1868,7 +1868,7 @@ describe('Aardvark renderers', function () {
                 graph = {id:"abc", graphWidth: 0, graphHeight: 0};
             }
             if (metrics == null) {
-                metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+                metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
             }
 
             $httpBackend.expectGET(url1).respond(data1);
@@ -1904,8 +1904,8 @@ describe('Aardvark renderers', function () {
         
         it('should render baseline lines where we had no corresponding main query lines', function() {
             var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
             var url1 = 'http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
             var url2 = 'http://tsdb:4242/api/query?start=2016/01/20 14:10:10&end=2016/01/21 14:10:10&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
@@ -2031,8 +2031,8 @@ describe('Aardvark renderers', function () {
         it('should render with dygraph when baselining is enabled with mean adjustment', function() {
             var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: false, meanAdjusted: true }};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
             var url1 = 'http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
             var url2 = 'http://tsdb:4242/api/query?start=2016/01/20 14:10:10&end=2016/01/21 14:10:10&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
@@ -2079,8 +2079,8 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: true, meanAdjusted: true }};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
 
             var url1 = 'http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
@@ -2127,8 +2127,8 @@ describe('Aardvark renderers', function () {
         it('should render with dygraph when baselining is enabled with ratio graph', function() {
             var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: false, ratioGraph: true }};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
             var url1 = 'http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
             var url2 = 'http://tsdb:4242/api/query?start=2016/01/20 14:10:10&end=2016/01/21 14:10:10&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
@@ -2175,8 +2175,8 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1SquashNegative: true, ratioGraph: true }};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
 
             var url1 = 'http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
@@ -2223,8 +2223,8 @@ describe('Aardvark renderers', function () {
         it('should render with dygraph when baselining is enabled with auto scaling', function() {
             var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true }};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
 
             var url1 = 'http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
@@ -2272,8 +2272,8 @@ describe('Aardvark renderers', function () {
 
             var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { y1AutoScale: true, y1SquashNegative: true }};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
 
             var url1 = 'http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
@@ -2320,8 +2320,8 @@ describe('Aardvark renderers', function () {
         it('should remove baseline results when the corresponding main query results are removed by filtering', function() {
             var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { countFilter: {count: 1, measure: "max", end: "bottom"} }};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
             var url1 = 'http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
             var url2 = 'http://tsdb:4242/api/query?start=2016/01/20 14:10:10&end=2016/01/21 14:10:10&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
@@ -2367,8 +2367,8 @@ describe('Aardvark renderers', function () {
         it('should not error when filtering excludes all baseline lines by excluding all corresponding main query results', function() {
             var global = { relativePeriod: "1d", autoReload: false, baselining: true, baselineDatumStyle: "relative", baselineRelativePeriod: "1d" };
             var graph = {id:"abc", graphWidth: 0, graphHeight: 0, dygraph: { countFilter: {count: 1, measure: "max", end: "bottom"} }};
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                { id: "124", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "124", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }];
 
             var url1 = 'http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
             var url2 = 'http://tsdb:4242/api/query?start=2016/01/20 14:10:10&end=2016/01/21 14:10:10&m=sum:metric1&m=sum:metric2&no_annotations=true&ms=true&arrays=true&show_query=true';
@@ -2408,9 +2408,9 @@ describe('Aardvark renderers', function () {
         var annotationTest = function(responseData, expectedRenderData, expectedAnnotations, autoScaling, expectedLabels) {
             var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&show_tsuids=true&ms=true&arrays=true&show_query=true";
             var tsdbExportUrl = "http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&key=top+left";
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
             if (autoScaling) {
-                metrics.push({ id: "123", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } });
+                metrics.push({ id: "123", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } });
                 url = url.replace("metric1","metric1&m=sum:metric2");
                 tsdbExportUrl = tsdbExportUrl.replace("metric1","metric1&o=axis+x1y1&m=sum:metric2");
             }
@@ -2426,9 +2426,9 @@ describe('Aardvark renderers', function () {
             var end = moment.utc("2016-06-02").format("YYYY/MM/DD HH:mm:ss");
             var baselineUrl = "http://tsdb:4242/api/query?start="+start+"&end="+end+"&m=sum:metric1&show_tsuids=true&ms=true&arrays=true&show_query=true";
             var tsdbExportUrl = "http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&key=top+left";
-            var metrics = [ { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
+            var metrics = [ { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } ];
             if (autoScaling) {
-                metrics.push({ id: "123", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } });
+                metrics.push({ id: "123", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } });
                 url = url.replace("metric1","metric1&m=sum:metric2");
                 baselineUrl = baselineUrl.replace("metric1","metric1&m=sum:metric2");
                 tsdbExportUrl = tsdbExportUrl.replace("metric1","metric1&o=axis+x1y1&m=sum:metric2");
@@ -2442,8 +2442,8 @@ describe('Aardvark renderers', function () {
             var url = "http://tsdb:4242/api/query?start=1d-ago&ignore=1&m=sum:metric1&m=sum:metric2&show_tsuids=true&global_annotations=true&ms=true&arrays=true&show_query=true";
             var tsdbExportUrl = "http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&key=top+left&global_annotations";
             var metrics = [ 
-                { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }, 
-                { id: "123", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } 
+                { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }, 
+                { id: "123", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } } 
             ];
             if (expectedLabels == null) {
                 expectedLabels = ["x", "metric1", "metric2"];
@@ -2458,8 +2458,8 @@ describe('Aardvark renderers', function () {
             var baselineUrl = "http://tsdb:4242/api/query?start="+start+"&end="+end+"&m=sum:metric1&show_tsuids=true&m=sum:metric2&global_annotations=true&ms=true&arrays=true&show_query=true";
             var tsdbExportUrl = "http://tsdb:4242/#start=1d-ago&m=sum:metric1&o=axis+x1y1&m=sum:metric2&o=axis+x1y1&key=top+left&global_annotations";
             var metrics = [
-                { id: "123", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
-                { id: "123", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }
+                { id: "123", type: "metric", name: "metric1", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } },
+                { id: "123", type: "metric", name: "metric2", tags: [], graphOptions: { aggregator: "sum", axis: "x1y1" } }
             ];
             if (expectedLabels == null) {
                 expectedLabels = ["x", "metric1", "metric2","metric1[BL]","metric2[BL]"];
