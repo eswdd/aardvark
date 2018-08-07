@@ -22,7 +22,7 @@
     "tmp": "0.0.28"
   },
   "scripts": {
-    "postinstall": "./generateProtoJson.sh",
+    "postinstall": "node generateProtoJson.js",
     "prestart": "npm install",
     "start": "node aardvark.js",
     "pretest-continuous": "npm install",
