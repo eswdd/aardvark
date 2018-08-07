@@ -340,7 +340,7 @@ aardvark.directive('tagFilterSelection', function() {
     }
         
     $scope.isMetricQuery = function() {
-        return $scope.selectedQueryType == "metric";
+        return $scope.selectedQueryType == null || $scope.selectedQueryType == "metric";
     }
         
     $scope.isExpressionQuery = function() {
