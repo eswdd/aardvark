@@ -6,3 +6,5 @@ node_modules
 bower_components
 *.log
 *-config.json
+Gemfile.lock
+package-lock.json
