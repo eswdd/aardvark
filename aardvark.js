@@ -92,6 +92,21 @@ if (config.sourceBuild) {
 }
 app.use(express.static('./static-content'));
 
+// prom-client
+const prom_client = require('prom-client');
+prom_client.collectDefaultMetrics({
+    gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5] // These are the default buckets.
+});
+const register = prom_client.register;
+app.get('/metrics', async (req, res) => {
+    try {
+        res.set('Content-Type', register.contentType);
+        res.end(await register.metrics());
+    } catch (ex) {
+        res.status(500).end(ex);
+    }
+});
+
 // fake tsdb api
 if (config.devMode) {
     var tsdb = require('faketsdb');

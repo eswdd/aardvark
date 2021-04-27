@@ -1,10 +1,12 @@
 language: node_js
 sudo: false
 node_js:
-  - "4.0"
-  - "4.4"
-  - "5.0"
-  - "stable"
+  - 11
+  - 12
+  - 13
+  - 14
+  - 15
+  - node
 notifications:
   email:
     on_success: always
