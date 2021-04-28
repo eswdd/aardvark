@@ -17,8 +17,8 @@
     "karma-chrome-launcher": "2.0.0",
     "karma-coverage": "1.1.1",
     "karma-firefox-launcher": "1.0.1",
-    "karma-mocha-reporter": "2.2.3",
     "karma-jasmine": "1.1.0",
+    "karma-mocha-reporter": "2.2.3",
     "tmp": "0.0.28"
   },
   "scripts": {
@@ -33,12 +33,12 @@
   },
   "dependencies": {
     "angular": "1.8.0",
-    "angular-animate": "1.6.9",
+    "angular-animate": "1.8.0",
     "angular-local-storage": "0.2.7",
     "angular-mass-autocomplete": "^0.4.0",
-    "angular-mocks": "1.6.9",
+    "angular-mocks": "1.8.0",
     "angular-resizable": "^1.2.0",
-    "angular-sanitize": "1.6.9",
+    "angular-sanitize": "1.8.0",
     "angular-tree-control": "0.2.28",
     "angular-ui-bootstrap": "^2.5.0",
     "angular-ui-utils": "^0.1.1",
