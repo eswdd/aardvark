@@ -1,24 +1,37 @@
 var os = require("os");
 var path = require("path");
 var fs = require("fs");
-var pbjs = require("protobufjs/cli/pbjs");
+var protobuf = require("protobufjs");
+var exec = require("child_process").exec;
 
 String.prototype.replaceAll = function(from, to) {
     return this.split(from).join(to);
 };
 
-var runPbJs = function(protoName, protoPath) {
+var runPbJs = function(protoName, protoPath, onWrite) {
 	if (!protoPath) {
 		protoPath = protoName+".proto";
 	}
-	var jsonPath = os.tmpdir()+path.sep+protoName+".json";
+    var dir = os.tmpdir();
+    if (!fs.existsSync(dir)){
+        fs.mkdirSync(dir);
+    }
+	var jsonPath = dir+path.sep+protoName+".json";
 
 	console.log("Generating "+jsonPath);
-	var args = ["_ignore1", "_ignore2", protoPath, "-s", "proto", "-t", "json", "-m", "-o", jsonPath, "-q", "-p", "."];
 
-	pbjs.main(args);
-    console.log("Generated "+jsonPath);
-	return jsonPath;
+    exec("node_modules/protobufjs/bin/pbjs -t json -o "+jsonPath+" -p . " + protoPath, function (error, stdout, stderr) {
+        if (error) {
+            console.log("error running pbjs for "+protoName+": "+error.message);
+            return;
+        }
+        if (stderr) {
+            console.log("stderr running pbjs for "+protoName+": "+stderr);
+            return;
+        }
+        console.log("Generated "+jsonPath);
+        onWrite(jsonPath)
+    });
 };
 
 var writeProtoJs = function(variableName, jsonPath, jsPath) {
@@ -28,24 +41,26 @@ var writeProtoJs = function(variableName, jsonPath, jsPath) {
 	console.log("Written "+jsPath);
 };
 
-var stringJsonPath = runPbJs("StringSerialisation");
-writeProtoJs("stringSerialisationJson", stringJsonPath, "static-content/StringSerialisation.js");
-console.log();
+runPbJs("StringSerialisation", null, function(stringJsonPath) {
+    writeProtoJs("stringSerialisationJson", stringJsonPath, "static-content/StringSerialisation.js");
+    console.log();
 
-var intermediateJsonPath = runPbJs("IntermediateModel");
-writeProtoJs("rawIntermediateModelJson", intermediateJsonPath, "static-content/rawIntermediateModel.js");
-console.log();
+    runPbJs("IntermediateModel", null, function(intermediateJsonPath) {
+        writeProtoJs("rawIntermediateModelJson", intermediateJsonPath, "static-content/rawIntermediateModel.js");
+        console.log();
 
-console.log("Tweaking IntermediateModel.proto");
-var intermediateModelProto = fs.readFileSync("IntermediateModel.proto").toString();
-intermediateModelProto = intermediateModelProto.replaceAll("optional string", "repeated int32");
-intermediateModelProto = intermediateModelProto.replaceAll("required string", "repeated int32");
-intermediateModelProto = intermediateModelProto.replaceAll(/\[ default.*;/, ";");
-var protoSourcePath = os.tmpdir()+path.sep+"IntermediateModel.proto";
-fs.writeFileSync(protoSourcePath, intermediateModelProto);
-console.log("Tweaked IntermediateModel.proto now in "+protoSourcePath);
-console.log();
+        console.log("Tweaking IntermediateModel.proto");
+        var intermediateModelProto = fs.readFileSync("IntermediateModel.proto").toString();
+        intermediateModelProto = intermediateModelProto.replaceAll("optional string", "repeated int32");
+        intermediateModelProto = intermediateModelProto.replaceAll("required string", "repeated int32");
+        intermediateModelProto = intermediateModelProto.replaceAll(/\[ default.*;/, ";");
+        var protoSourcePath = os.tmpdir()+path.sep+"IntermediateModel.proto";
+        fs.writeFileSync(protoSourcePath, intermediateModelProto);
+        console.log("Tweaked IntermediateModel.proto now in "+protoSourcePath);
+        console.log();
 
-intermediateJsonPath = runPbJs("IntermediateModel", protoSourcePath);
-writeProtoJs("intermediateModelJson", intermediateJsonPath, "static-content/IntermediateModel.js");
-
+        runPbJs("IntermediateModel", protoSourcePath, function(updatedIntermediateJsonPath) {
+            writeProtoJs("intermediateModelJson", updatedIntermediateJsonPath, "static-content/IntermediateModel.js");
+        });
+    });
+});
