@@ -1,4 +1,4 @@
 #!/bin/bash
 
 npm install
-./generateProtoJson.sh
+node generateProtoJson.js
