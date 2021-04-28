@@ -4,6 +4,7 @@
 [![Build Status][travis-image]][travis-url]
 [![Coverage][coverage-image]][coverage-url]
 [![Known Vulnerabilities][snyk-image]][snyk-url]
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Feswdd%2Faardvark.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Feswdd%2Faardvark?ref=badge_shield)
 
 aardvark
 ========
@@ -87,3 +88,6 @@ Copyright
 [snyk-image]: https://snyk.io/test/github/eswdd/aardvark/badge.svg?targetFile=package.json
 
               
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Feswdd%2Faardvark.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Feswdd%2Faardvark?ref=badge_large)
