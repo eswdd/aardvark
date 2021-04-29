@@ -84,6 +84,31 @@ console.log("Config: "+JSON.stringify(config));
 var express = require('express');
 
 var app = express();
+
+// prom-client
+const prom_client = require('prom-client');
+prom_client.collectDefaultMetrics({
+    gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5] // These are the default buckets.
+});
+const promRegistry = prom_client.register;
+app.get('/metrics', async (req, res) => {
+    try {
+        res.set('Content-Type', promRegistry.contentType);
+        res.end(await promRegistry.metrics());
+    } catch (ex) {
+        res.status(500).end(ex);
+    }
+});
+
+const promBundle = require("express-prom-bundle");
+const promMetrics = promBundle({
+    includePath: true,
+    includeUp: false,
+    promRegistry: promRegistry
+});
+// include promBundle before your routes that we want to monitor
+app.use(promMetrics);
+
 var router = express.Router();
 
 // todo: m1: need to sort this out
@@ -91,21 +116,6 @@ if (config.sourceBuild) {
     app.use(express.static('.'));
 }
 app.use(express.static('./static-content'));
-
-// prom-client
-const prom_client = require('prom-client');
-prom_client.collectDefaultMetrics({
-    gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5] // These are the default buckets.
-});
-const register = prom_client.register;
-app.get('/metrics', async (req, res) => {
-    try {
-        res.set('Content-Type', register.contentType);
-        res.end(await register.metrics());
-    } catch (ex) {
-        res.status(500).end(ex);
-    }
-});
 
 // fake tsdb api
 if (config.devMode) {
