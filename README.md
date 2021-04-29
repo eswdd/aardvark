@@ -53,14 +53,16 @@ should be well aware of [Otis the Aardvark](https://en.wikipedia.org/wiki/Otis_t
 Release process
 ---------------
 
+Ensure all issues are labelled with the correct version in GitHub and closed.
+
 ```
    npm version <major|minor|patch>
-   git commit -am "<version number>"
    npm publish
    git push
    git push --tags
-   
 ```
+
+Create a release note and label for the next version.
 
 Copyright
 ---------
