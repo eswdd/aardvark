@@ -84,6 +84,10 @@ console.log("Config: "+JSON.stringify(config));
 var express = require('express');
 
 var app = express();
+if (config.behindProxy) {
+    app.enable('trust proxy');
+}
+
 
 // prom-client
 const prom_client = require('prom-client');
@@ -164,7 +168,11 @@ var aardvark = express.Router();
 
 // middleware specific to this router
 aardvark.use(function timeLog(req, res, next) {
-    console.log(new Date(Date.now())+': '+req.originalUrl);
+    var extraIps = "";
+    if (config.behindProxy) {
+        extraIps = " ("+req.ips.join(",")+")";
+    }
+    console.log(new Date(Date.now())+': '+req.ip+extraIps+": "+req.originalUrl);
     next();
 })
 aardvark.get('/config', function(req, res) {
