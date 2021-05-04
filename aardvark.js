@@ -1,5 +1,6 @@
 var http = require('http'),
-    fs = require('fs');
+    fs = require('fs'),
+    moment = require('moment');
 
 var config = {};
 
@@ -88,6 +89,15 @@ if (config.behindProxy) {
     app.enable('trust proxy');
 }
 
+// middleware specific to this router
+app.use(function timeLog(req, res, next) {
+    var extraIps = "";
+    if (config.behindProxy) {
+        extraIps = " ("+req.ips.join(",")+")";
+    }
+    console.log(moment().toISOString()+': '+req.ip+extraIps+": "+req.originalUrl);
+    next();
+})
 
 // prom-client
 const prom_client = require('prom-client');
@@ -166,15 +176,6 @@ if (config.devMode) {
 // aardvark backend
 var aardvark = express.Router();
 
-// middleware specific to this router
-aardvark.use(function timeLog(req, res, next) {
-    var extraIps = "";
-    if (config.behindProxy) {
-        extraIps = " ("+req.ips.join(",")+")";
-    }
-    console.log(new Date(Date.now())+': '+req.ip+extraIps+": "+req.originalUrl);
-    next();
-})
 aardvark.get('/config', function(req, res) {
     res.json(config);
 });
