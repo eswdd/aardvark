@@ -32,13 +32,13 @@
     "test": "karma start test/karma.conf.js  --single-run"
   },
   "dependencies": {
-    "angular": "1.8.0",
-    "angular-animate": "1.8.0",
+    "angular": "1.8.2",
+    "angular-animate": "1.8.2",
     "angular-local-storage": "0.2.7",
     "angular-mass-autocomplete": "^0.4.0",
-    "angular-mocks": "1.8.0",
+    "angular-mocks": "1.8.2",
     "angular-resizable": "^1.2.0",
-    "angular-sanitize": "1.8.0",
+    "angular-sanitize": "1.8.2",
     "angular-tree-control": "0.2.28",
     "angular-ui-bootstrap": "^2.5.0",
     "angular-ui-utils": "^0.1.1",
