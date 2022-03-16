@@ -39,7 +39,7 @@
     "angular-mocks": "1.8.0",
     "angular-resizable": "^1.2.0",
     "angular-sanitize": "1.8.0",
-    "angular-tree-control": "0.2.28",
+    "angular-tree-control": "0.2.30",
     "angular-ui-bootstrap": "^2.5.0",
     "angular-ui-utils": "^0.1.1",
     "body-parser": "^1.18.2",
