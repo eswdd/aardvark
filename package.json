@@ -35,7 +35,7 @@
     "angular": "1.8.0",
     "angular-animate": "1.8.0",
     "angular-local-storage": "0.2.7",
-    "angular-mass-autocomplete": "^0.4.0",
+    "angular-mass-autocomplete": "^0.8.0",
     "angular-mocks": "1.8.0",
     "angular-resizable": "^1.2.0",
     "angular-sanitize": "1.8.0",
