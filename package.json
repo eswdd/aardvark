@@ -29,7 +29,9 @@
     "pretest": "./pretest.sh",
     "test-continuous": "karma start test/karma.conf.js",
     "test-coverage": "karma start test/karma.coverage.conf.js  --single-run",
-    "test": "karma start test/karma.conf.js  --single-run"
+    "test": "karma start test/karma.conf.js  --single-run",
+    "prepare": "npm run snyk-protect",
+    "snyk-protect": "snyk-protect"
   },
   "dependencies": {
     "angular": "1.8.0",
@@ -52,9 +54,11 @@
     "express": "^4.16.2",
     "faketsdb": "^0.3.2",
     "long": "3.2.0",
-    "moment": "^2.12.0",
+    "moment": "^2.29.2",
     "ngclipboard": "^1.1.1",
     "protobufjs": "5.0.3",
-    "seedrandom": "^2.4.2"
-  }
+    "seedrandom": "^2.4.2",
+    "@snyk/protect": "latest"
+  },
+  "snyk": true
 }
