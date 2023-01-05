@@ -56,7 +56,7 @@
     "long": "3.2.0",
     "moment": "^2.29.4",
     "ngclipboard": "^1.1.1",
-    "protobufjs": "5.0.3",
+    "protobufjs": "6.11.3",
     "seedrandom": "^2.4.2",
     "@snyk/protect": "latest"
   },
