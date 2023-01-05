@@ -31,7 +31,6 @@ jobs:
       uses: GabrielBB/xvfb-action@v1
       with:
         run: npm run test-coverage
-    - run: ./node_modules/nyc/bin/nyc.js report --reporter=lcov
     - name: Coveralls
       uses: coverallsapp/github-action@v1.1.0
       env:

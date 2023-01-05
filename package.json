@@ -19,7 +19,6 @@
     "karma-firefox-launcher": "1.0.1",
     "karma-jasmine": "1.1.0",
     "karma-mocha-reporter": "2.2.3",
-    "nyc": "^15.1.0",
     "tmp": "0.0.28"
   },
   "scripts": {
@@ -29,7 +28,7 @@
     "pretest-continuous": "npm install",
     "pretest": "./pretest.sh",
     "test-continuous": "karma start test/karma.conf.js",
-    "test-coverage": "nyc karma start test/karma.coverage.conf.js  --single-run",
+    "test-coverage": "karma start test/karma.coverage.conf.js  --single-run",
     "test": "karma start test/karma.conf.js  --single-run"
   },
   "dependencies": {
