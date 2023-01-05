@@ -1,7 +1,7 @@
 [![NPM version][npm-version-image]][npm-url]
 [![NPM downloads][npm-downloads-image]][npm-url]
 [![GPL License][license-image]][license-url]
-[![Build Status][travis-image]][travis-url]
+[![Build Status][github-build-image]][github-build-url]
 [![Coverage][coverage-image]][coverage-url]
 [![Known Vulnerabilities][snyk-image]][snyk-url]
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Feswdd%2Faardvark.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Feswdd%2Faardvark?ref=badge_shield)
@@ -78,8 +78,8 @@ Copyright
 [npm-version-image]: http://img.shields.io/npm/v/aardvark.svg?style=flat
 [npm-downloads-image]: http://img.shields.io/npm/dm/aardvark.svg?style=flat
 
-[travis-url]: http://travis-ci.org/eswdd/aardvark
-[travis-image]: http://img.shields.io/travis/eswdd/aardvark/master.svg?style=flat
+[github-build-url]: https://github.com/eswdd/aardvark/actions/workflows/node.js.yml
+[github-build-image]: https://github.com/eswdd/aardvark/actions/workflows/node.js.yml/badge.svg
 
 [coverage-url]: https://coveralls.io/r/eswdd/aardvark
 [coverage-image]: https://coveralls.io/repos/github/eswdd/aardvark/badge.svg
