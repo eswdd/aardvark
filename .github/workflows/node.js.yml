@@ -9,10 +9,6 @@ on:
   pull_request:
     branches: [ master ]
 
-env:
-  BROWSERS: firefox
-  E2E_BROWSERS: Firefox
-
 jobs:
   build:
 
