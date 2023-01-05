@@ -14,7 +14,7 @@ var runPbJs = function(protoName, protoPath) {
 	var jsonPath = os.tmpdir()+path.sep+protoName+".json";
 
 	console.log("Generating "+jsonPath);
-	var args = ["_ignore1", "_ignore2", protoPath, "-s", "proto", "-t", "json", "-m", "-o", jsonPath, "-q", "-p", "."];
+	var args = [protoPath, "-s", "proto", "-t", "json", "-m", "-o", jsonPath, "-q", "-p", "."];
 
 	pbjs.main(args);
     console.log("Generated "+jsonPath);
