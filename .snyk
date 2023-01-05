@@ -1,0 +1,8 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.25.0
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  'npm:moment:20161019':
+    - faketsdb > nodetsdb-api > moment:
+        patched: '2023-01-05T11:35:58.155Z'
