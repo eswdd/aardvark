@@ -232,7 +232,7 @@ describe('Aardvark services', function() {
                 }
                 model.global.globalDownsampling = false;
                 model.global.baselining = false;
-    //            model.graphs[1].gnuplot.style = "linespoint";
+                model.graphs[1].gnuplot.style = null;
                 model.graphs[1].gnuplot.globalAnnotations = false;
                 model.graphs[3].dygraph.annotations = true;
                 model.graphs[3].dygraph.globalAnnotations = false;
@@ -539,6 +539,10 @@ describe('Aardvark services', function() {
             };
             // tag had value "" which won't be serialised
             checkRoundTrips(serialisation, model, 99999, function(model) {
+                model.queries[1].graphOptions.axis = null;
+                model.queries[2].graphOptions.axis = null;
+                model.queries[3].graphOptions.axis = null;
+                model.queries[4].graphOptions.axis = null;
                 model.queries[4].tags = [];
                 // defaults
                 for (var m=0; m<model.queries.length; m++) {
@@ -551,7 +555,7 @@ describe('Aardvark services', function() {
                 }
                 model.global.globalDownsampling = false;
                 model.global.baselining = false;
-    //            model.graphs[1].gnuplot.style = "linespoint";
+                model.graphs[1].gnuplot.style = null;
                 model.graphs[1].gnuplot.globalAnnotations = false;
                 model.graphs[3].dygraph.annotations = true;
                 model.graphs[3].dygraph.globalAnnotations = false;
@@ -767,6 +771,7 @@ describe('Aardvark services', function() {
                 model.global.globalDownsampling = false;
                 model.global.baselining = false;
                 model.graphs[0].gnuplot.globalAnnotations = false;
+                model.graphs[0].gnuplot.style = null;
                 model.graphs[1].dygraph.globalAnnotations = false;
                 model.graphs[1].dygraph.y1Log = false;
                 model.graphs[2].scatter.swapAxes = false;
@@ -938,6 +943,10 @@ describe('Aardvark services', function() {
             // todo: need to get this down to 460
             // tag had value "" which won't be serialised
             checkRoundTrips(serialisation, model, 99999, function(model) {
+                model.queries[1].graphOptions.axis = null;
+                model.queries[2].graphOptions.axis = null;
+                model.queries[3].graphOptions.axis = null;
+                model.queries[4].graphOptions.axis = null;
                 model.queries[4].tags = [];
                 // defaults
                 for (var m=0; m<model.queries.length; m++) {
@@ -951,6 +960,7 @@ describe('Aardvark services', function() {
                 model.global.globalDownsampling = false;
                 model.global.baselining = false;
                 model.graphs[0].gnuplot.globalAnnotations = false;
+                model.graphs[0].gnuplot.style = null;
                 model.graphs[1].dygraph.globalAnnotations = false;
                 model.graphs[1].dygraph.y1Log = false;
                 model.graphs[2].scatter.swapAxes = false;

@@ -92,9 +92,8 @@ aardvark
     // efficient string serialisation
     .factory('strings', [ 'mapping', function(mapping) {
         var strings = {};
-        var ProtoBuf = dcodeIO.ProtoBuf;
-        var builder = ProtoBuf.loadJson(stringSerialisationJson);
-        strings.StringSerialisationData = builder.build("StringSerialisationData");
+        var root = protobuf.Root.fromJSON(stringSerialisationJson);
+        strings.StringSerialisationData = root.lookup("StringSerialisationData");
         strings.modeMapping = mapping.generateBiDiMapping([
             "stringReferences", "chains", "chainReferences"
         ]);
@@ -116,7 +115,7 @@ aardvark
             strings.autoReplaceInternal(objectGraph, pathsAndSeps, "");
             var dict = strings.mgr.complete();
             strings.autoResolveInternal(objectGraph);
-            objectGraph.aaStringSerialisedForm = new strings.StringSerialisationData(dict);
+            objectGraph.aaStringSerialisedForm = strings.StringSerialisationData.create(dict);
         }
         strings.autoReplaceInternal = function(objectGraph, pathsAndSeps, pathSoFar) {
             if (objectGraph == null) {
@@ -413,6 +412,20 @@ aardvark
             return this.split(from).join(to);
         }
         var serialiser = {};
+        serialiser.encode = function encode(uint8array) {
+            var output = [];
+        
+            for (var i = 0, length = uint8array.length; i < length; i++) {
+                output.push(String.fromCharCode(uint8array[i]));
+            }
+        
+            return btoa(output.join(''));
+        };
+        serialiser.decode = function decode(chars) {
+            return Uint8Array.from(atob(chars), function(c) {
+                return c.charCodeAt(0);
+            });
+        };
         // Issue #110 - debug now dead
         var graphTypes = mapping.generateBiDiMapping(["debug", "gnuplot", "horizon", "dygraph", "scatter", "heatmap"]);
         var gnuplotKeyLocations = mapping.generateBiDiMapping([
@@ -445,40 +458,46 @@ aardvark
         var heatmapStyles = mapping.generateBiDiMapping(["auto","week_day","day_hour"]);
         var heatmapColourSchemes = mapping.generateBiDiMapping(["RdYlGn","Gn","Bl","Rd"]);
         var horizonSortMethods = mapping.generateBiDiMapping(["name","avg","min","max"]);
-        var ProtoBuf = dcodeIO.ProtoBuf;
-        var builder = ProtoBuf.loadJson(intermediateModelJson);
+        
+        var root = protobuf.Root.fromJSON(intermediateModelJson);
         // helper data structures
         var rawIntermediateModelByType = {};
-        for (var i=0; i<rawIntermediateModelJson.messages.length; i++) {
-            var message = rawIntermediateModelJson.messages[i];
-            if (message.name != "StringSerialisationData") {
-                rawIntermediateModelByType[message.name] = message;
-                var fieldsByName = {};
-                for (var j=0; j<message.fields.length; j++) {
-                    fieldsByName[message.fields[j].name] = message.fields[j];
+        for (var protoType in rawIntermediateModelJson.nested) {
+            var message = rawIntermediateModelJson.nested[protoType];
+            if (protoType != "StringSerialisationData") {
+                // put name on type and fields
+                message.name = protoType;
+                for (var fieldName in message.fields) {
+                    message.fields[fieldName].name = fieldName;
                 }
-                message.fieldsByName = fieldsByName;
-
+                rawIntermediateModelByType[protoType] = message;
+                // console.log("Stashed protoType '"+protoType+": "+JSON.stringify(message));
             }
         }
         // now replace defaults where appropriate
         var updateDefaultToLookupValue = function(fieldDef, lookup) {
+            if (!fieldDef.options) {
+                fieldDef.options = {};
+            }
             fieldDef.options.default = lookup.valueToId(fieldDef.options.default);
         }
         // all versions pre-dating the existence of a version property default to v1
         const MODEL_VERSION_LEGACY = 1; 
         const MODEL_VERSION_EXPRESSIONS = 2;
         const MODEL_VERSION_CURRENT = MODEL_VERSION_EXPRESSIONS;
-        updateDefaultToLookupValue(rawIntermediateModelByType.Gnuplot.fieldsByName.keyLocation, gnuplotKeyLocations);
-        updateDefaultToLookupValue(rawIntermediateModelByType.Gnuplot.fieldsByName.style, gnuplotStyles);
-        updateDefaultToLookupValue(rawIntermediateModelByType.Metric.fieldsByName.aggregator, aggregationFunctions);
-        updateDefaultToLookupValue(rawIntermediateModelByType.Metric.fieldsByName.downsampleBy, aggregationFunctions);
-        updateDefaultToLookupValue(rawIntermediateModelByType.Metric.fieldsByName.axis, axes);
+        updateDefaultToLookupValue(rawIntermediateModelByType.Gnuplot.fields.keyLocation, gnuplotKeyLocations);
+        updateDefaultToLookupValue(rawIntermediateModelByType.Gnuplot.fields.style, gnuplotStyles);
+        updateDefaultToLookupValue(rawIntermediateModelByType.Metric.fields.aggregator, aggregationFunctions);
+        updateDefaultToLookupValue(rawIntermediateModelByType.Metric.fields.downsampleBy, aggregationFunctions);
+        updateDefaultToLookupValue(rawIntermediateModelByType.Metric.fields.axis, axes);
         // todo: move this into a pre-processing step
         var buildStringPaths = function(obj, pathSoFar, interesting, ret) {
+            // console.log("buildStringPaths(len("+obj.length+"),"+pathSoFar+", interesting, len("+ret.length+") )" );
             for (var f=0; f<obj.length; f++) {
                 var thisPath = pathSoFar+obj[f].name+".";
+                // console.log("for path "+thisPath+", field has type "+obj[f].type)
                 if (obj[f].type == "string") {
+                    // console.log("Adding string path: "+thisPath);
                     ret.push(thisPath);
                 }
                 else {
@@ -492,8 +511,8 @@ aardvark
                 if (rawIntermediateModelByType.hasOwnProperty(k)) {
                     var message = rawIntermediateModelByType[k];
                     var interestingFields = [];
-                    for (var f=0; f<message.fields.length; f++) {
-                        var field = message.fields[f];
+                    for (var fieldName in message.fields) {
+                        var field = message.fields[fieldName];
                         if (field.type == "string" || rawIntermediateModelByType.hasOwnProperty(field.type)) {
                             interestingFields.push(field);
                         }
@@ -501,7 +520,9 @@ aardvark
                     interesting[k] = interestingFields;
                 }
             }
+            // console.log("interesting: "+JSON.stringify(interesting));
             var paths = [];
+            // console.log("building string paths for intermediate model: "+interesting.IntermediateModel)
             buildStringPaths(interesting.IntermediateModel, "", interesting, paths);
             // default is space
             var stringSepByPrefix = [
@@ -558,7 +579,17 @@ aardvark
                 unit: units.valueToId(unit)
             }
         }
-        var fromTimePeriod = function(value, defaultValue) {
+        var fieldValueOrNull = function(obj, field) {
+            if (!obj.hasOwnProperty(field)) {
+                return null;
+            }
+            return obj[field];
+        }
+        var fromTimePeriod = function(obj, field, defaultValue) {
+            if (!obj.hasOwnProperty(field)) {
+                return defaultValue;
+            }
+            const value = obj[field];
             if (value == null) {
                 return defaultValue;
             }
@@ -610,7 +641,7 @@ aardvark
             }
             return graph;
         }
-        serialiser.IntermediateModel = builder.build("IntermediateModel");
+        serialiser.IntermediateModel = root.lookup("IntermediateModel");
         serialiser.compactIds = function(model) {
             // compact the ids!
             var origToNew = {};
@@ -635,42 +666,46 @@ aardvark
             }
         }
         serialiser.removeDefaults = function(intermediateModel, rawProtoObject) {
+            if (intermediateModel == null) {
+                // console.log("intermediateModel for type "+rawProtoObject.name+" is null, skipping..")
+                return;
+            }
             if (Array.isArray(intermediateModel)) {
                 for (var i=0; i<intermediateModel.length; i++) {
                     serialiser.removeDefaults(intermediateModel[i], rawProtoObject);
                 }
                 return;
             }
-//            console.log("Removing defaults from type: "+rawProtoObject.name)
-            for (var i=0; i<rawProtoObject.fields.length; i++) {
-                var field = rawProtoObject.fields[i];
-                if (intermediateModel.hasOwnProperty(field.name)) {
-//                    console.log(" Both model and proto have field: "+field.name+" which has type: "+field.type);
+        //    console.log("Removing defaults from type: "+rawProtoObject.name)
+            for (var fieldName in rawProtoObject.fields) {
+                var field = rawProtoObject.fields[fieldName];
+                if (intermediateModel.hasOwnProperty(fieldName)) {
+                //    console.log(" Both model and proto have field: "+fieldName+" which has type: "+field.type);
                     if (field.options != null && field.options.default != null) {
 //                        console.log(" And has a default supplied!")
                         switch (field.type) {
                             case 'int32':
                             case 'int64':
                             case 'string':
-                                if (intermediateModel[field.name] == field.options.default) {
-//                                    console.log("  Removed default value of "+field.options.default+" on field "+field.name);
-                                    intermediateModel[field.name] = null;
+                                if (intermediateModel[fieldName] == field.options.default) {
+//                                    console.log("  Removed default value of "+field.options.default+" on field "+fieldName);
+                                    intermediateModel[fieldName] = null;
                                 }
                                 continue;
                             case 'TimePeriod':
-                                if (fromTimePeriod(intermediateModel[field.name], field.options.default) == field.options.default) {
-//                                    console.log("  Removed default value of "+field.options.default+" on field "+field.name);
-                                    intermediateModel[field.name] = null;
+                                if (fromTimePeriod(intermediateModel, fieldName, field.options.default) == field.options.default) {
+//                                    console.log("  Removed default value of "+field.options.default+" on field "+fieldName);
+                                    intermediateModel[fieldName] = null;
                                 }
                                 continue;
                         }
                         if (rawIntermediateModelByType.hasOwnProperty(field.type)) {
-                            serialiser.removeDefaults(intermediateModel[field.name], rawIntermediateModelByType[field.type]);
+                            serialiser.removeDefaults(intermediateModel[fieldName], rawIntermediateModelByType[field.type]);
                         }
                     }
                     else {
                         if (rawIntermediateModelByType.hasOwnProperty(field.type)) {
-                            serialiser.removeDefaults(intermediateModel[field.name], rawIntermediateModelByType[field.type]);
+                            serialiser.removeDefaults(intermediateModel[fieldName], rawIntermediateModelByType[field.type]);
                         }
                     }
                 }
@@ -684,13 +719,13 @@ aardvark
                 return;
             }
 //            console.log("Filling in defaults for type: "+rawProtoObject.name)
-            for (var i=0; i<rawProtoObject.fields.length; i++) {
-                var field = rawProtoObject.fields[i];
-//                    console.log(" Both model and proto have field: "+field.name+" which has type: "+field.type);
-                if (intermediateModel.hasOwnProperty(field.name) && intermediateModel[field.name] != null) {
+            for (var fieldName in rawProtoObject.fields) {
+                var field = rawProtoObject.fields[fieldName];
+//                    console.log(" Both model and proto have field: "+fieldName+" which has type: "+field.type);
+                if (intermediateModel.hasOwnProperty(fieldName) && intermediateModel[fieldName] != null) {
                     if (rawIntermediateModelByType.hasOwnProperty(field.type)) {
-//                        console.log("  Inserted default value of "+field.options.default+" on field "+field.name);
-                        serialiser.fillInDefaults(intermediateModel[field.name], rawIntermediateModelByType[field.type]);
+//                        console.log("  Inserted default value of "+field.options.default+" on field "+fieldName);
+                        serialiser.fillInDefaults(intermediateModel[fieldName], rawIntermediateModelByType[field.type]);
                     }
                 }
                 else if (field.options != null && field.options.default != null) {
@@ -699,15 +734,15 @@ aardvark
                         case 'int32':
                         case 'int64':
                         case 'string':
-                            intermediateModel[field.name] = field.options.default;
+                            intermediateModel[fieldName] = field.options.default;
                             continue;
                         case 'TimePeriod':
-                            intermediateModel[field.name] = toTimePeriod(field.options.default);
+                            intermediateModel[fieldName] = toTimePeriod(field.options.default);
                             continue;
                     }
                     if (rawIntermediateModelByType.hasOwnProperty(field.type)) {
-//                        console.log("  Inserted default value of "+field.options.default+" on field "+field.name);
-                        serialiser.fillInDefaults(intermediateModel[field.name], rawIntermediateModelByType[field.type]);
+//                        console.log("  Inserted default value of "+field.options.default+" on field "+fieldName);
+                        serialiser.fillInDefaults(intermediateModel[fieldName], rawIntermediateModelByType[field.type]);
                     }
                 }
             }
@@ -1074,26 +1109,26 @@ aardvark
                 }
             }
             else {
-                model.global.relativePeriod = fromTimePeriod(intermediateModel.global.relativePeriod, "2h");
+                model.global.relativePeriod = fromTimePeriod(intermediateModel.global, "relativePeriod", "2h");
             }
             if (model.global.autoReload) {
-                model.global.autoReloadPeriod = intermediateModel.global.autoReloadPeriod;
+                model.global.autoReloadPeriod = fieldValueOrNull(intermediateModel.global, "autoReloadPeriod");
             }
             if (model.global.autoGraphHeight) {
-                model.global.minGraphHeight = intermediateModel.global.minGraphHeight;
+                model.global.minGraphHeight =  fieldValueOrNull(intermediateModel.global, "minGraphHeight");
             }
             else {
-                model.global.graphHeight = intermediateModel.global.graphHeight;
+                model.global.graphHeight = fieldValueOrNull(intermediateModel.global, "graphHeight");
             }
             if (model.global.globalDownsampling) {
-                model.global.globalDownsampleTo = fromTimePeriod(intermediateModel.global.globalDownsampleTo, "5m");
+                model.global.globalDownsampleTo = fromTimePeriod(intermediateModel.global, "globalDownsampleTo", "5m");
             }
             if (model.global.baselining) {
                 
                 model.global.baselineDatumStyle = datumStyles.idToValue(intermediateModel.global.baselineDatumStyle);
                 switch (model.global.baselineDatumStyle) {
                     case "relative":
-                        model.global.baselineRelativePeriod = fromTimePeriod(intermediateModel.global.baselineRelativePeriod);
+                        model.global.baselineRelativePeriod = fromTimePeriod(intermediateModel.global, "baselineRelativePeriod");
                         break;
                     case "from":
                         model.global.baselineFromDate = fromSingleDateToDatePart(intermediateModel.global.baselineFromDateTime.toNumber());
@@ -1125,12 +1160,12 @@ aardvark
                         graph.gnuplot.lineSmoothing = gnuplotFlags[4];
                         graph.gnuplot.keyAlignment = gnuplotFlags[5] ? "columnar" : "horizontal";
                         graph.gnuplot.globalAnnotations = gnuplotFlags[6];
-                        graph.gnuplot.y1AxisLabel = intermediateGraph.gnuplot.yAxisLabel;
-                        graph.gnuplot.y2AxisLabel = intermediateGraph.gnuplot.y2AxisLabel;
-                        graph.gnuplot.y1AxisFormat = intermediateGraph.gnuplot.yAxisFormat;
-                        graph.gnuplot.y2AxisFormat = intermediateGraph.gnuplot.y2AxisFormat;
-                        graph.gnuplot.y1AxisRange = intermediateGraph.gnuplot.yAxisRange;
-                        graph.gnuplot.y2AxisRange = intermediateGraph.gnuplot.y2AxisRange;
+                        graph.gnuplot.y1AxisLabel = fieldValueOrNull(intermediateGraph.gnuplot, "yAxisLabel");
+                        graph.gnuplot.y2AxisLabel = fieldValueOrNull(intermediateGraph.gnuplot, "y2AxisLabel");
+                        graph.gnuplot.y1AxisFormat = fieldValueOrNull(intermediateGraph.gnuplot, "yAxisFormat");
+                        graph.gnuplot.y2AxisFormat = fieldValueOrNull(intermediateGraph.gnuplot, "y2AxisFormat");
+                        graph.gnuplot.y1AxisRange = fieldValueOrNull(intermediateGraph.gnuplot, "yAxisRange");
+                        graph.gnuplot.y2AxisRange = fieldValueOrNull(intermediateGraph.gnuplot, "y2AxisRange");
                         if (graph.gnuplot.showKey) {
                             graph.gnuplot.keyLocation = gnuplotKeyLocations.idToValue(intermediateGraph.gnuplot.keyLocation);
                         }
@@ -1162,8 +1197,8 @@ aardvark
                         graph.dygraph.y2SquashNegative = dygraphFlags[10];
                         graph.dygraph.y2AutoScale = dygraphFlags[11];
                         graph.dygraph.y2Log = dygraphFlags[12];
-                        graph.dygraph.y1AxisRange = intermediateGraph.dygraph.yAxisRange;
-                        graph.dygraph.y2AxisRange = intermediateGraph.dygraph.y2AxisRange;
+                        graph.dygraph.y1AxisRange = fieldValueOrNull(intermediateGraph.dygraph, "yAxisRange");
+                        graph.dygraph.y2AxisRange = fieldValueOrNull(intermediateGraph.dygraph, "y2AxisRange");
                         graph.dygraph.countFilter = {
                             end: countFilterEnds.idToValue(intermediateGraph.dygraph.countFilterEnd),
                             measure: countFilterMeasures.idToValue(intermediateGraph.dygraph.countFilterMeasure)
@@ -1193,8 +1228,8 @@ aardvark
                         graph.scatter.xSquashNegative = scatterFlags[4];
                         graph.scatter.ySquashNegative = scatterFlags[5];
                         if (intermediateGraph.scatter != null) {
-                            graph.scatter.xRange = intermediateGraph.scatter.xAxisRange;
-                            graph.scatter.yRange = intermediateGraph.scatter.yAxisRange;
+                            graph.scatter.xRange = fieldValueOrNull(intermediateGraph.scatter, "xAxisRange");
+                            graph.scatter.yRange = fieldValueOrNull(intermediateGraph.scatter, "yAxisRange");
                         }
                         break;
                     case "heatmap":
@@ -1281,7 +1316,7 @@ aardvark
                 if (metric.graphOptions.downsample || model.global.globalDownsampling) {
                     metric.graphOptions.downsampleBy = aggregationFunctions.idToValue(intermediateMetric.downsampleBy);
                     if (metric.graphOptions.downsample) {
-                        metric.graphOptions.downsampleTo = fromTimePeriod(intermediateMetric.downsampleTo, "");
+                        metric.graphOptions.downsampleTo = fromTimePeriod(intermediateMetric, "downsampleTo", "");
                     }
                 }
                 else {
@@ -1368,9 +1403,10 @@ aardvark
 //            var origLen = JSON.stringify(model).length;
             var intermediate = serialiser.generateIntermediateModel(model, forPreviousVersion);
 
-            var proto = new serialiser.IntermediateModel(intermediate);
-//            var buffer = proto.encode().toArrayBuffer();
-            var encoded = proto.toBase64().replaceAll("+","-").replaceAll("/","_").replaceAll("=",",");
+            var proto = serialiser.IntermediateModel.create(intermediate);
+            var buffer = serialiser.IntermediateModel.encode(proto).finish();
+            
+            var encoded = serialiser.encode(buffer).replaceAll("+","-").replaceAll("/","_").replaceAll("=",",");
 
 //            console.log("buffer = "+encoded);
 //            console.log("buflen = "+encoded.length);
@@ -1394,7 +1430,8 @@ aardvark
             var b64str = ser.replaceAll(",","=").replaceAll("_","/").replaceAll("-","+");
             // first char is an indicator into serialisation mode - 0 = version 0
             b64str = b64str.substring(1); 
-            var intermediateModel = serialiser.IntermediateModel.decode64(b64str);
+            var buffer = serialiser.decode(b64str);
+            var intermediateModel = serialiser.IntermediateModel.decode(buffer);
             var model = serialiser.readIntermediateModel(intermediateModel);
             // so generator knows where to continue
             serialiser.decompactIds(model);

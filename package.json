@@ -34,6 +34,7 @@
     "snyk-protect": "snyk-protect"
   },
   "dependencies": {
+    "@snyk/protect": "latest",
     "angular": "1.8.0",
     "angular-animate": "1.8.0",
     "angular-local-storage": "0.2.7",
@@ -56,7 +57,7 @@
     "long": "3.2.0",
     "moment": "^2.29.4",
     "ngclipboard": "^1.1.2",
-    "protobufjs": "5.0.3",
+    "protobufjs": "6.11.3",
     "seedrandom": "^2.4.4",
     "@snyk/protect": "latest"
   },
