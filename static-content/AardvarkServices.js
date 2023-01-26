@@ -471,7 +471,7 @@ aardvark
                     message.fields[fieldName].name = fieldName;
                 }
                 rawIntermediateModelByType[protoType] = message;
-                console.log("Stashed protoType '"+protoType+": "+JSON.stringify(message));
+                // console.log("Stashed protoType '"+protoType+": "+JSON.stringify(message));
             }
         }
         // now replace defaults where appropriate
@@ -492,12 +492,12 @@ aardvark
         updateDefaultToLookupValue(rawIntermediateModelByType.Metric.fields.axis, axes);
         // todo: move this into a pre-processing step
         var buildStringPaths = function(obj, pathSoFar, interesting, ret) {
-            console.log("buildStringPaths(len("+obj.length+"),"+pathSoFar+", interesting, len("+ret.length+") )" );
+            // console.log("buildStringPaths(len("+obj.length+"),"+pathSoFar+", interesting, len("+ret.length+") )" );
             for (var f=0; f<obj.length; f++) {
                 var thisPath = pathSoFar+obj[f].name+".";
-                console.log("for path "+thisPath+", field has type "+obj[f].type)
+                // console.log("for path "+thisPath+", field has type "+obj[f].type)
                 if (obj[f].type == "string") {
-                    console.log("Adding string path: "+thisPath);
+                    // console.log("Adding string path: "+thisPath);
                     ret.push(thisPath);
                 }
                 else {
@@ -520,9 +520,9 @@ aardvark
                     interesting[k] = interestingFields;
                 }
             }
-            console.log("interesting: "+JSON.stringify(interesting));
+            // console.log("interesting: "+JSON.stringify(interesting));
             var paths = [];
-            console.log("building string paths for intermediate model: "+interesting.IntermediateModel)
+            // console.log("building string paths for intermediate model: "+interesting.IntermediateModel)
             buildStringPaths(interesting.IntermediateModel, "", interesting, paths);
             // default is space
             var stringSepByPrefix = [
@@ -667,7 +667,7 @@ aardvark
         }
         serialiser.removeDefaults = function(intermediateModel, rawProtoObject) {
             if (intermediateModel == null) {
-                console.log("intermediateModel for type "+rawProtoObject.name+" is null, skipping..")
+                // console.log("intermediateModel for type "+rawProtoObject.name+" is null, skipping..")
                 return;
             }
             if (Array.isArray(intermediateModel)) {
@@ -676,11 +676,11 @@ aardvark
                 }
                 return;
             }
-           console.log("Removing defaults from type: "+rawProtoObject.name)
+        //    console.log("Removing defaults from type: "+rawProtoObject.name)
             for (var fieldName in rawProtoObject.fields) {
                 var field = rawProtoObject.fields[fieldName];
                 if (intermediateModel.hasOwnProperty(fieldName)) {
-                   console.log(" Both model and proto have field: "+fieldName+" which has type: "+field.type);
+                //    console.log(" Both model and proto have field: "+fieldName+" which has type: "+field.type);
                     if (field.options != null && field.options.default != null) {
 //                        console.log(" And has a default supplied!")
                         switch (field.type) {
