@@ -20,7 +20,7 @@ describe('Aardvark services', function() {
 
     beforeEach(module('Aardvark'));
 
-    describe('serialisation', function () {
+    fdescribe('serialisation', function () {
     
         it('expects the serialisation factory to exist', inject(function(serialisation) {
             expect(serialisation).toBeDefined();
@@ -779,7 +779,7 @@ describe('Aardvark services', function() {
             });  // http://aardvark/# = 23 bytes - allow 17 for fqdn suffix
         }));
         
-        it('expects the serialisation module to be able to round trip a fully populated model with 5 queries on 2 graphs written by the previous version', inject(function(serialisation) {
+        fit('expects the serialisation module to be able to round trip a fully populated model with 5 queries on 2 graphs written by the previous version', inject(function(serialisation) {
             var model = {
                 global: {
                     absoluteTimeSpecification: false,

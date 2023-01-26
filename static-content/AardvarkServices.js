@@ -462,8 +462,8 @@ aardvark
         var root = protobuf.Root.fromJSON(intermediateModelJson);
         // helper data structures
         var rawIntermediateModelByType = {};
-        for (var protoType in intermediateModelJson.nested) {
-            var message = intermediateModelJson.nested[protoType];
+        for (var protoType in rawIntermediateModelJson.nested) {
+            var message = rawIntermediateModelJson.nested[protoType];
             if (protoType != "StringSerialisationData") {
                 // put name on type and fields
                 message.name = protoType;
@@ -579,7 +579,17 @@ aardvark
                 unit: units.valueToId(unit)
             }
         }
-        var fromTimePeriod = function(value, defaultValue) {
+        var fieldValueOrNull = function(obj, field) {
+            if (!obj.hasOwnProperty(field)) {
+                return null;
+            }
+            return obj[field];
+        }
+        var fromTimePeriod = function(obj, field, defaultValue) {
+            if (!obj.hasOwnProperty(field)) {
+                return defaultValue;
+            }
+            const value = obj[field];
             if (value == null) {
                 return defaultValue;
             }
@@ -683,7 +693,7 @@ aardvark
                                 }
                                 continue;
                             case 'TimePeriod':
-                                if (fromTimePeriod(intermediateModel[fieldName], field.options.default) == field.options.default) {
+                                if (fromTimePeriod(intermediateModel, fieldName, field.options.default) == field.options.default) {
 //                                    console.log("  Removed default value of "+field.options.default+" on field "+fieldName);
                                     intermediateModel[fieldName] = null;
                                 }
@@ -1099,26 +1109,26 @@ aardvark
                 }
             }
             else {
-                model.global.relativePeriod = fromTimePeriod(intermediateModel.global.relativePeriod, "2h");
+                model.global.relativePeriod = fromTimePeriod(intermediateModel.global, "relativePeriod", "2h");
             }
             if (model.global.autoReload) {
-                model.global.autoReloadPeriod = intermediateModel.global.autoReloadPeriod;
+                model.global.autoReloadPeriod = fieldValueOrNull(intermediateModel.global, "autoReloadPeriod");
             }
             if (model.global.autoGraphHeight) {
-                model.global.minGraphHeight = intermediateModel.global.minGraphHeight;
+                model.global.minGraphHeight =  fieldValueOrNull(intermediateModel.global, "minGraphHeight");
             }
             else {
-                model.global.graphHeight = intermediateModel.global.graphHeight;
+                model.global.graphHeight = fieldValueOrNull(intermediateModel.global, "graphHeight");
             }
             if (model.global.globalDownsampling) {
-                model.global.globalDownsampleTo = fromTimePeriod(intermediateModel.global.globalDownsampleTo, "5m");
+                model.global.globalDownsampleTo = fromTimePeriod(intermediateModel.global, "globalDownsampleTo", "5m");
             }
             if (model.global.baselining) {
                 
                 model.global.baselineDatumStyle = datumStyles.idToValue(intermediateModel.global.baselineDatumStyle);
                 switch (model.global.baselineDatumStyle) {
                     case "relative":
-                        model.global.baselineRelativePeriod = fromTimePeriod(intermediateModel.global.baselineRelativePeriod);
+                        model.global.baselineRelativePeriod = fromTimePeriod(intermediateModel.global, "baselineRelativePeriod");
                         break;
                     case "from":
                         model.global.baselineFromDate = fromSingleDateToDatePart(intermediateModel.global.baselineFromDateTime.toNumber());
@@ -1150,12 +1160,12 @@ aardvark
                         graph.gnuplot.lineSmoothing = gnuplotFlags[4];
                         graph.gnuplot.keyAlignment = gnuplotFlags[5] ? "columnar" : "horizontal";
                         graph.gnuplot.globalAnnotations = gnuplotFlags[6];
-                        graph.gnuplot.y1AxisLabel = intermediateGraph.gnuplot.yAxisLabel;
-                        graph.gnuplot.y2AxisLabel = intermediateGraph.gnuplot.y2AxisLabel;
-                        graph.gnuplot.y1AxisFormat = intermediateGraph.gnuplot.yAxisFormat;
-                        graph.gnuplot.y2AxisFormat = intermediateGraph.gnuplot.y2AxisFormat;
-                        graph.gnuplot.y1AxisRange = intermediateGraph.gnuplot.yAxisRange;
-                        graph.gnuplot.y2AxisRange = intermediateGraph.gnuplot.y2AxisRange;
+                        graph.gnuplot.y1AxisLabel = fieldValueOrNull(intermediateGraph.gnuplot, "yAxisLabel");
+                        graph.gnuplot.y2AxisLabel = fieldValueOrNull(intermediateGraph.gnuplot, "y2AxisLabel");
+                        graph.gnuplot.y1AxisFormat = fieldValueOrNull(intermediateGraph.gnuplot, "yAxisFormat");
+                        graph.gnuplot.y2AxisFormat = fieldValueOrNull(intermediateGraph.gnuplot, "y2AxisFormat");
+                        graph.gnuplot.y1AxisRange = fieldValueOrNull(intermediateGraph.gnuplot, "yAxisRange");
+                        graph.gnuplot.y2AxisRange = fieldValueOrNull(intermediateGraph.gnuplot, "y2AxisRange");
                         if (graph.gnuplot.showKey) {
                             graph.gnuplot.keyLocation = gnuplotKeyLocations.idToValue(intermediateGraph.gnuplot.keyLocation);
                         }
@@ -1187,8 +1197,8 @@ aardvark
                         graph.dygraph.y2SquashNegative = dygraphFlags[10];
                         graph.dygraph.y2AutoScale = dygraphFlags[11];
                         graph.dygraph.y2Log = dygraphFlags[12];
-                        graph.dygraph.y1AxisRange = intermediateGraph.dygraph.yAxisRange;
-                        graph.dygraph.y2AxisRange = intermediateGraph.dygraph.y2AxisRange;
+                        graph.dygraph.y1AxisRange = fieldValueOrNull(intermediateGraph.dygraph, "yAxisRange");
+                        graph.dygraph.y2AxisRange = fieldValueOrNull(intermediateGraph.dygraph, "y2AxisRange");
                         graph.dygraph.countFilter = {
                             end: countFilterEnds.idToValue(intermediateGraph.dygraph.countFilterEnd),
                             measure: countFilterMeasures.idToValue(intermediateGraph.dygraph.countFilterMeasure)
@@ -1218,8 +1228,8 @@ aardvark
                         graph.scatter.xSquashNegative = scatterFlags[4];
                         graph.scatter.ySquashNegative = scatterFlags[5];
                         if (intermediateGraph.scatter != null) {
-                            graph.scatter.xRange = intermediateGraph.scatter.xAxisRange;
-                            graph.scatter.yRange = intermediateGraph.scatter.yAxisRange;
+                            graph.scatter.xRange = fieldValueOrNull(intermediateGraph.scatter, "xAxisRange");
+                            graph.scatter.yRange = fieldValueOrNull(intermediateGraph.scatter, "yAxisRange");
                         }
                         break;
                     case "heatmap":
@@ -1306,7 +1316,7 @@ aardvark
                 if (metric.graphOptions.downsample || model.global.globalDownsampling) {
                     metric.graphOptions.downsampleBy = aggregationFunctions.idToValue(intermediateMetric.downsampleBy);
                     if (metric.graphOptions.downsample) {
-                        metric.graphOptions.downsampleTo = fromTimePeriod(intermediateMetric.downsampleTo, "");
+                        metric.graphOptions.downsampleTo = fromTimePeriod(intermediateMetric, "downsampleTo", "");
                     }
                 }
                 else {
