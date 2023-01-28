@@ -641,7 +641,7 @@
                         <input type="text" id="grafanaExportInput_{{graph.id}}"  style="width: 0; height: 0; color: rgba(0,0,0,0); background-color: rgba(0,0,0,0); border: none" value="{{grafanaExportText(graph)}}" />
                         <button ng-show="supportsGrafanaExport(graph)" style="padding: 1px 2px 1px 2px; vertical-align: top" class="btn btn-primary btn-xs glyphicon glyphicon-copy pull-right" ngclipboard data-clipboard-target="#grafanaExportInput_{{graph.id}}" uib-tooltip="Export to Grafana (copies panel JSON to clipboard)"></button>
                         <!-- tsdb export -->
-                        <a ng-show="supportsTsdbExport(graph)" href="{{tsdbExportLink(graph)}}" target="_blank"><span class="pull-right" style="cursor: pointer; cursor: hand; padding-right: 3px" uib-tooltip="Export to TSDB (opens in new tab)" tooltip-placement="left"><img src="opentsdb_icon.png"/></span></a>
+                        <a ng-show="supportsTsdbExport(graph)" href="{{tsdbExportLink(graph)}}" target="_blank" rel="noopener noreferrer"><span class="pull-right" style="cursor: pointer; cursor: hand; padding-right: 3px" uib-tooltip="Export to TSDB (opens in new tab)" tooltip-placement="left"><img src="opentsdb_icon.png"/></span></a>
                     </div>
                     <div ng-show="renderErrors[graph.id]!=null">
                         <span style="color: red">{{renderErrors[graph.id]}}</span>
