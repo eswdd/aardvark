@@ -34,7 +34,7 @@
     "snyk-protect": "snyk-protect"
   },
   "dependencies": {
-    "@snyk/protect": "latest",
+    "@snyk/protect": "1.1082.0",
     "angular": "1.8.0",
     "angular-animate": "1.8.0",
     "angular-local-storage": "0.2.7",
